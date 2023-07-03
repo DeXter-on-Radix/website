@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  }
+}
