@@ -1,5 +1,8 @@
+"use client";
+
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -7,6 +10,41 @@ export const metadata = {
   title: "DeXter",
   description: "DeXter on Radix",
 };
+
+// initiate Radix Dapp Toolkit
+const rdt = RadixDappToolkit(
+  {
+    dAppDefinitionAddress:
+      "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+    dAppName: "DeXter",
+  },
+  (requestData) => {
+    requestData({
+      accounts: { quantifier: "atLeast", quantity: 1 },
+    });
+  },
+  {
+    networkId: 12,
+    onDisconnect: () => {
+      // clear your application state
+    },
+    onInit: ({ accounts }) => {
+      // set your initial application state
+    },
+  }
+);
+
+// declare the radix-connect-button as a custom element
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "radix-connect-button": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+    }
+  }
+}
 
 export default function RootLayout({
   children,
@@ -85,6 +123,7 @@ export default function RootLayout({
               </ul>
             </div>
             <div className="navbar-end">
+              <radix-connect-button></radix-connect-button>
               <a className="btn">Button</a>
             </div>
           </div>
