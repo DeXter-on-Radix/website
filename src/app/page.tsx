@@ -1,47 +1,49 @@
-import Image from "next/image";
+'use client'
+
+import { PairsList } from "./PairsList";
+import { createContext, useEffect, useState } from "react";
+import * as adex from "alphadex-sdk-js";
+import { PairInfo } from "./PairInfo";
+
+export const AdexStateContext = createContext(null);
 
 // more components here: https://daisyui.com/components/
 
+adex.init();
+
 export default function Home() {
+  const [adexState, setAdexState] = useState(adex.clientState);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    let sub = adex.clientState.stateChanged$.subscribe(newState => {
+      setAdexState(newState);
+      setHydrated(true);
+    });
+    return () => { if (sub) { sub.unsubscribe() }; 
+    }
+  }, []);
+
+  function getAdexConnectionStatus(){
+    return hydrated ? adex.clientState.status : null;
+  }
+
+  function getPairs(){
+    return hydrated ? <PairsList /> : null;
+  }
+
+  function getPairInfo(){
+    return hydrated && adexState.currentPairInfo ? <PairInfo /> : null;
+  }
+
   return (
-    <main className="mx-6">
-      <h2>Random Table</h2>
-      <div className="overflow-x-auto">
-        <table className="table">
-          {/* head */}
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* row 1 */}
-            <tr>
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-            </tr>
-            {/* row 2 */}
-            <tr>
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-            </tr>
-            {/* row 3 */}
-            <tr>
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
+    <AdexStateContext.Provider value={adexState}>
+      {/* <main className="mx-6"> */}
+        
+        AlphaDEX: <a>{getAdexConnectionStatus()}</a>
+        {getPairs()}
+        {getPairInfo()}
+      {/* </main> */}
+    </AdexStateContext.Provider>
   );
 }
