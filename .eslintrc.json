@@ -5,6 +5,11 @@
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
     "no-console": 1, // Means warning
-    "prettier/prettier": 2 // Means error
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ]
   }
 }
