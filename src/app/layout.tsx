@@ -123,8 +123,7 @@ export default function RootLayout({
               </ul>
             </div>
             <div className="navbar-end">
-              <radix-connect-button></radix-connect-button>
-              <a className="btn">Button</a>
+              <radix-connect-button className="btn"></radix-connect-button>
             </div>
           </div>
 
