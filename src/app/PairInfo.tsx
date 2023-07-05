@@ -22,9 +22,10 @@ export function PairInfo() {
                     <th>Value Remaining</th>
                 </tr>
                 </thead>
-
-                <OrderBook orders={buys} type="Buy" />
-                <OrderBook orders={sells} type="Sell" />
+                <tbody>
+                    <OrderBook orders={buys} type="Buy" />
+                    <OrderBook orders={sells} type="Sell" />
+                </tbody>
             </table>
         </div>
     )
