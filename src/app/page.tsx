@@ -5,14 +5,16 @@ import { createContext, useEffect, useState } from "react";
 import * as adex from "alphadex-sdk-js";
 import { PairInfo } from "./PairInfo";
 
-export const AdexStateContext = createContext(null);
+adex.init(); //Connect to alphadex websocket
+
+let initial_staticState = new adex.StaticState(adex.clientState.internalState);
+
+export const AdexStateContext = createContext(initial_staticState);
 
 // more components here: https://daisyui.com/components/
 
-adex.init(); //Connect to alphadex websocket
-
 export default function Home() {
-  const [adexState, setAdexState] = useState(adex.clientState);
+  const [adexState, setAdexState] = useState(initial_staticState);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
