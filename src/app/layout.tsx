@@ -3,6 +3,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,27 +13,27 @@ const metadata = {
 };
 
 // initiate Radix Dapp Toolkit
-const rdt = RadixDappToolkit(
-  {
-    dAppDefinitionAddress:
-      "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
-    dAppName: "DeXter",
-  },
-  (requestData) => {
-    requestData({
-      accounts: { quantifier: "atLeast", quantity: 1 },
-    });
-  },
-  {
-    networkId: 12,
-    onDisconnect: () => {
-      // clear your application state
-    },
-    onInit: ({ accounts }) => {
-      // set your initial application state
-    },
-  }
-);
+// const rdt = RadixDappToolkit(
+//   {
+//     dAppDefinitionAddress:
+//       "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+//     dAppName: "DeXter",
+//   },
+//   (requestData) => {
+//     requestData({
+//       accounts: { quantifier: "atLeast", quantity: 1 },
+//     });
+//   },
+//   {
+//     networkId: 12,
+//     onDisconnect: () => {
+//       // clear your application state
+//     },
+//     onInit: ({ accounts }) => {
+//       // set your initial application state
+//     },
+//   }
+// );
 
 // declare the radix-connect-button as a custom element
 declare global {
@@ -51,6 +52,30 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    const rdt = RadixDappToolkit(
+      {
+        dAppDefinitionAddress:
+          "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+        dAppName: "DeXter",
+      },
+      (requestData) => {
+        requestData({
+          accounts: { quantifier: "atLeast", quantity: 1 },
+        });
+      },
+      {
+        networkId: 12,
+        onDisconnect: () => {
+          // clear your application state
+        },
+        onInit: ({ accounts }) => {
+          // set your initial application state
+        },
+      }
+    );
+  });
+
   return (
     <html lang="en">
       <body className={inter.className}>
