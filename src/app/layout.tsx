@@ -12,30 +12,7 @@ const metadata = {
   description: "DeXter on Radix",
 };
 
-// initiate Radix Dapp Toolkit
-// const rdt = RadixDappToolkit(
-//   {
-//     dAppDefinitionAddress:
-//       "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
-//     dAppName: "DeXter",
-//   },
-//   (requestData) => {
-//     requestData({
-//       accounts: { quantifier: "atLeast", quantity: 1 },
-//     });
-//   },
-//   {
-//     networkId: 12,
-//     onDisconnect: () => {
-//       // clear your application state
-//     },
-//     onInit: ({ accounts }) => {
-//       // set your initial application state
-//     },
-//   }
-// );
-
-// declare the radix-connect-button as a custom element
+// declare the radix-connect-button as a global custom element
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -53,6 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   useEffect(() => {
+    // initiate Radix Dapp Toolkit
+    // by doing this in the useEffect, it ensures that the toolkit is only initialised in the client, not the server.
     const rdt = RadixDappToolkit(
       {
         dAppDefinitionAddress:
