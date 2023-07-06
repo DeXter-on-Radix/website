@@ -4,7 +4,7 @@ import * as adex from "alphadex-sdk-js";
 
 export function PairsList() {
   const adexState = useContext(AdexStateContext);
-  const selectPair = (pairAddress) => {
+  const selectPair = (pairAddress: string) => {
     adex.clientState.currentPairAddress = pairAddress;
   };
   return (
