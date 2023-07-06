@@ -7,7 +7,7 @@ export function OrderBook({ orders }) {
   const { buys, sells } = adexState.currentPairOrderbook;
   return (
     <>
-      {orders.map((item, index) => (
+      {orders.map((item: { price: number ; quantityRemaining: number ; valueRemaining: number ; }, index: number ) => (
         <tr key={index}>
           <th>{orders === buys ? "Buy" : "Sell"}</th>
           <td>{item.price}</td>
