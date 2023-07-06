@@ -6,7 +6,7 @@ import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
+const metadata = {
   title: "DeXter",
   description: "DeXter on Radix",
 };
