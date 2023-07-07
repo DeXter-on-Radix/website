@@ -1,4 +1,6 @@
-Contributions are welcome! Check out [good first issues](https://github.com/DeXter-on-Radix/website/issues?labels=good+first+issue&sort=updated&state=open) or create a new issue to start a discussion.
+Contributions are welcome!
+
+Check out [existing issues (especially Todo)](https://github.com/orgs/DeXter-on-Radix/projects/1/views/1), review a [pull request](https://github.com/orgs/DeXter-on-Radix/projects/1/views/3), or [create a new issue](https://github.com/DeXter-on-Radix/website/issues/new) to start a discussion.
 
 Here are a few guidelines to follow:
 
