@@ -1,6 +1,7 @@
 import { createChart, CandlestickData, UTCTimestamp } from "lightweight-charts";
 import React, { useEffect, useRef, useContext, useState } from "react";
 import { AdexStateContext } from "./page";
+import * as adex from "alphadex-sdk-js";
 
 // from https://www.npmjs.com/package/alphadex-sdk-js#candleperiods-array
 const CANDLE_PERIODS = ["5m", "15m", "1h", "4h", "6h", "12h", "1D", "1W", "1M"];
@@ -224,19 +225,13 @@ export function PriceChart() {
       </select>
       {dataSource === DataSource.ADEX && (
         <div>
-          <label htmlFor="candle-period-selector">
-            Candle Period (TODO: selector does not work yet):
-          </label>
+          <label htmlFor="candle-period-selector">Candle Period:</label>
           <select
             className="select select-ghost"
             id="candle-period-selector"
             value={candlePeriod}
             onChange={(e) => {
-              // FIXME: this does not work
-              // related chat with gpt-4: https://chat.openai.com/share/fd393e31-5008-4d0f-80ca-9098961aa32e
-              adexState.currentCandlePeriod = e.target.value;
-              console.log(adexState.currentCandlePeriod);
-              console.log(adexState.currentPairCandlesList);
+              adex.clientState.currentCandlePeriod = e.target.value;
               setCandlePeriod(e.target.value);
             }}
           >
