@@ -143,7 +143,6 @@ export function PriceChart() {
   const adexState = useContext(AdexStateContext);
   const [dataSource, setDataSource] = useState<DataSource>(DataSource.BINANCE);
   const [data, setData] = useState<OHLCVData[]>([]);
-  const [candlePeriod, setCandlePeriod] = useState(CANDLE_PERIODS[0]);
 
   const [ws, setWs] = useState<WebSocket | null>(null);
 
@@ -229,10 +228,9 @@ export function PriceChart() {
           <select
             className="select select-ghost"
             id="candle-period-selector"
-            value={candlePeriod}
+            value={adex.clientState.currentCandlePeriod}
             onChange={(e) => {
               adex.clientState.currentCandlePeriod = e.target.value;
-              setCandlePeriod(e.target.value);
             }}
           >
             {CANDLE_PERIODS.map((period) => (
