@@ -232,6 +232,11 @@ export function PriceChart() {
             id="candle-period-selector"
             value={candlePeriod}
             onChange={(e) => {
+              // FIXME: this does not work
+              // related chat with gpt-4: https://chat.openai.com/share/fd393e31-5008-4d0f-80ca-9098961aa32e
+              adexState.currentCandlePeriod = e.target.value;
+              console.log(adexState.currentCandlePeriod);
+              console.log(adexState.currentPairCandlesList);
               setCandlePeriod(e.target.value);
             }}
           >
