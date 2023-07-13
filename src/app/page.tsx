@@ -4,6 +4,9 @@ import { PairsList } from "./PairsList";
 import { createContext, useEffect, useState } from "react";
 import * as adex from "alphadex-sdk-js";
 import { PairInfo } from "./PairInfo";
+import { useConnected } from "./hooks/useConnected";
+import { RdtProvider } from "./RdtProvider";
+import { rdt } from "./layout";
 
 adex.init(); //Connect to alphadex websocket
 
@@ -16,6 +19,7 @@ export const AdexStateContext = createContext(initial_staticState);
 export default function Home() {
   const [adexState, setAdexState] = useState(initial_staticState);
   const [hydrated, setHydrated] = useState(false);
+  const connected = useConnected();
 
   useEffect(() => {
     let sub = adex.clientState.stateChanged$.subscribe((newState) => {
@@ -44,12 +48,16 @@ export default function Home() {
   }
 
   return (
-    <AdexStateContext.Provider value={adexState}>
-      <main className="mx-6">
-        <dd>AlphaDEX: {getAdexConnectionStatus()}</dd>
-        {getPairs()}
-        {getPairInfo()}
-      </main>
-    </AdexStateContext.Provider>
+    <div>
+      <RdtProvider value={rdt}>
+        <AdexStateContext.Provider value={adexState}>
+          <main className="mx-6">
+            <dd>AlphaDEX: {getAdexConnectionStatus()}</dd>
+            {getPairs()}
+            {getPairInfo()}
+          </main>
+        </AdexStateContext.Provider>
+      </RdtProvider>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 import { useEffect } from "react";
+import { RdtProvider } from "./RdtProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,37 +25,33 @@ declare global {
   }
 }
 
+export const rdt = RadixDappToolkit(
+  {
+    dAppDefinitionAddress:
+      "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+    dAppName: "DeXter",
+  },
+  (requestData) => {
+    requestData({
+      accounts: { quantifier: "atLeast", quantity: 1 },
+    });
+  },
+  {
+    networkId: 12,
+    onDisconnect: () => {
+      // clear your application state
+    },
+    onInit: ({ accounts }) => {
+      // set your initial application state
+    },
+  }
+);
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    // initiate Radix Dapp Toolkit
-    // by doing this in the useEffect, it ensures that the toolkit is only initialised in the client, not the server.
-    const rdt = RadixDappToolkit(
-      {
-        dAppDefinitionAddress:
-          "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
-        dAppName: "DeXter",
-      },
-      (requestData) => {
-        requestData({
-          accounts: { quantifier: "atLeast", quantity: 1 },
-        });
-      },
-      {
-        networkId: 12,
-        onDisconnect: () => {
-          // clear your application state
-        },
-        onInit: ({ accounts }) => {
-          // set your initial application state
-        },
-      }
-    );
-  });
-
   return (
     <html lang="en">
       <body className={inter.className}>
