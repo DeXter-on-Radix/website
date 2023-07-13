@@ -3,9 +3,6 @@ import React, { useEffect, useRef, useContext, useState } from "react";
 import { AdexStateContext } from "./page";
 import * as adex from "alphadex-sdk-js";
 
-// from https://www.npmjs.com/package/alphadex-sdk-js#candleperiods-array
-const CANDLE_PERIODS = ["5m", "15m", "1h", "4h", "6h", "12h", "1D", "1W", "1M"];
-
 async function fetchHistoricalData(
   symbol: string,
   interval: string,
@@ -235,7 +232,7 @@ export function PriceChart() {
               adex.clientState.currentCandlePeriod = e.target.value;
             }}
           >
-            {CANDLE_PERIODS.map((period) => (
+            {adex.CandlePeriods.map((period) => (
               <option key={period} value={period}>
                 {period}
               </option>
