@@ -103,10 +103,9 @@ function PriceChartCanvas(props: PriceChartProps) {
   return <div ref={chartContainerRef} />;
 }
 
-// TODO: find out if this is guaranteed by AlphaDEX API already
 function cleanData(data: OHLCVData[]): OHLCVData[] {
   // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
-
+  // without this step, the chart does not work in firefox (but works in chrome)
   const dataMap = new Map<number, OHLCVData>();
 
   // Iterate over the data in reverse order
@@ -127,7 +126,7 @@ function cleanData(data: OHLCVData[]): OHLCVData[] {
 }
 
 function convertAlphaDEXData(data: any[]): OHLCVData[] {
-  return data.map((row: any): OHLCVData => {
+  let tradingViewData = data.map((row: any): OHLCVData => {
     const time = (new Date(row.startTime).getTime() / 1000) as UTCTimestamp;
     const open = row.priceOpen;
     const high = row.priceHigh;
@@ -136,6 +135,9 @@ function convertAlphaDEXData(data: any[]): OHLCVData[] {
     const value = row.tradesValue;
     return { time, open, high, low, close, value };
   });
+
+  tradingViewData = cleanData(tradingViewData);
+  return tradingViewData;
 }
 
 export function PriceChart() {
