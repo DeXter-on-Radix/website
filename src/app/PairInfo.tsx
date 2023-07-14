@@ -14,10 +14,9 @@ export function PairInfo() {
       <h4>Current pair {adexState.currentPairInfo.name}</h4>
       <p>Address: {adexState.currentPairInfo.address}</p>
       <p>Last Price: {adexState.currentPairInfo.lastPrice}</p>
-
+      <NewOrder />
       <PriceChart />
 
-      <NewOrder />
       <h4>Orderbook:</h4>
 
       <table className="table">

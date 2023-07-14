@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { SyntheticEvent, useContext } from "react";
 import { AdexStateContext } from "./page";
 import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
@@ -12,12 +12,10 @@ export function NewOrder() {
   const accounts = useAccounts();
   const requestData = useRequestData();
   const connected = useConnected();
-  let orderType = "MARKET";
-  let side = "BUY";
-  let tokenAddress = adexState.currentPairInfo.token1.address;
-  let amount = 100;
+  let orderType = adex.OrderType.MARKET;
+  let amount = 10;
+  let price = -1;
   let slippage = -1;
-  // const platformBadgeId = 1;
 
   const createTx = ({
     orderType,
@@ -34,7 +32,18 @@ export function NewOrder() {
     price: number;
     slippage: number;
   }) => {
-    slippage;
+    console.log(
+      adexState.currentPairAddress,
+      orderType,
+      side,
+      tokenAddress,
+      amount,
+      price,
+      slippage,
+      1,
+      accounts.length > 0 ? accounts[0].address : "",
+      accounts.length > 0 ? accounts[0].address : ""
+    );
     const order = adex.createExchangeOrderTx(
       adexState.currentPairAddress,
       orderType,
@@ -47,21 +56,10 @@ export function NewOrder() {
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
     );
-    console.log(
-      orderType,
-      "\n",
-      side,
-      "\n",
-      tokenAddress,
-      "\n",
-      amount,
-      "\n",
-      price,
-      "\n",
-      slippage
-    );
     order
       .then((response) => {
+        console.log("RESPONSE________________________________________")
+        console.log(response);
         const data = response.data;
         console.log(data);
         adex.submitTransaction(data, rdt);
@@ -70,22 +68,62 @@ export function NewOrder() {
         console.error(error);
       });
   };
+
+  const setOrderType = ({ newOrderType }: { newOrderType: adex.OrderType }) => {
+    orderType = newOrderType;
+    console.log(orderType);
+  };
+
+  const setOrderVariables = async (event: SyntheticEvent) => {
+    event.preventDefault();
+    console.log("Updating variables");
+    amount = event.target.amount.value;
+    price = event.target.price.value;
+    slippage = event.target.slippage.value;
+  };
+
   return (
     <div>
+      <button
+        onClick={() => setOrderType({ newOrderType: adex.OrderType.MARKET })}
+      >
+        MARKET
+      </button>
+      <button
+        onClick={() => setOrderType({ newOrderType: adex.OrderType.LIMIT })}
+      >
+        LIMIT
+      </button>
+      <button
+        onClick={() => setOrderType({ newOrderType: adex.OrderType.POSTONLY })}
+      >
+        POST-ONLY
+      </button>
+      <br />
+      <form onSubmit={setOrderVariables}>
+        <label htmlFor="amount">Amount</label>
+        <input type="decimal" id="amount" name="amount" required />
+        <label htmlFor="price">Price</label>
+        <input type="decimal" id="price" name="price" />
+        <label htmlFor="slippage">Slippage</label>
+        <input type="decimal" id="slippage" name="slippage" />
+        <button type="submit">Submit</button>
+      </form>
+      <br />
       {connected && (
         <button
           onClick={() =>
             createTx({
               orderType,
-              side: "BUY",
-              tokenAddress,
+              side: adex.OrderSide.BUY,
+              tokenAddress: adexState.currentPairInfo.token1.address,
               amount,
               price: adexState.currentPairOrderbook.sells[0].price,
               slippage,
             })
           }
         >
-          Buy order
+          Buy {adexState.currentPairInfo.token1.name}
         </button>
       )}
       {connected && (
@@ -93,15 +131,15 @@ export function NewOrder() {
           onClick={() =>
             createTx({
               orderType,
-              side: "SELL",
-              tokenAddress,
+              side: adex.OrderSide.SELL,
+              tokenAddress: adexState.currentPairInfo.token1.address,
               amount,
               price: adexState.currentPairOrderbook.buys[0].price,
               slippage,
             })
           }
         >
-          Sell order
+          Sell {adexState.currentPairInfo.token1.name}
         </button>
       )}
     </div>
