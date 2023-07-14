@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { AdexStateContext } from "./page";
 import { OrderBook } from "./OrderBook";
+import { PriceChart } from "./PriceChart";
 import { NewOrder } from "./NewOrder";
 
 export function PairInfo() {
@@ -13,6 +14,9 @@ export function PairInfo() {
       <h4>Current pair {adexState.currentPairInfo.name}</h4>
       <p>Address: {adexState.currentPairInfo.address}</p>
       <p>Last Price: {adexState.currentPairInfo.lastPrice}</p>
+
+      <PriceChart />
+
       <NewOrder />
       <h4>Orderbook:</h4>
 
