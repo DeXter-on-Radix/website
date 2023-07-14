@@ -7,14 +7,14 @@ import { PairInfo } from "./PairInfo";
 
 adex.init(); //Connect to alphadex websocket
 
-let initial_staticState = new adex.StaticState(adex.clientState.internalState);
+let initialStaticState = new adex.StaticState(adex.clientState.internalState);
 
-export const AdexStateContext = createContext(initial_staticState);
+export const AdexStateContext = createContext(initialStaticState);
 
 // more components here: https://daisyui.com/components/
 
 export default function Home() {
-  const [adexState, setAdexState] = useState(initial_staticState);
+  const [adexState, setAdexState] = useState(initialStaticState);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
