@@ -16,14 +16,25 @@ export function NewOrder() {
   let side = "BUY";
   let tokenAddress = adexState.currentPairInfo.token1.address;
   let amount = 100;
-  let price = adexState.currentPairOrderbook.sells[0].price;
   let slippage = -1;
-  const platformBadgeId = 1
-  let submitAccountAddress = accounts.length > 0 ? accounts[0].address : "";
-  let settleAccountAddress = submitAccountAddress;
+  // const platformBadgeId = 1;
 
-  const createTx = () => {
-    console.log("Creating tx");
+  const createTx = ({
+    orderType,
+    side,
+    tokenAddress,
+    amount,
+    price,
+    slippage,
+  }: {
+    orderType: string;
+    side: string;
+    tokenAddress: string;
+    amount: number;
+    price: number;
+    slippage: number;
+  }) => {
+    slippage;
     const order = adex.createExchangeOrderTx(
       adexState.currentPairAddress,
       orderType,
@@ -32,13 +43,11 @@ export function NewOrder() {
       amount,
       price,
       slippage,
-      platformBadgeId,
-      submitAccountAddress,
-      settleAccountAddress
+      1,
+      accounts.length > 0 ? accounts[0].address : "",
+      accounts.length > 0 ? accounts[0].address : ""
     );
     console.log(
-      adexState.currentPairAddress,
-      "\n",
       orderType,
       "\n",
       side,
@@ -49,13 +58,7 @@ export function NewOrder() {
       "\n",
       price,
       "\n",
-      slippage,
-      "\n",
-      platformBadgeId,
-      "\n",
-      submitAccountAddress,
-      "\n",
-      settleAccountAddress
+      slippage
     );
     order
       .then((response) => {
@@ -69,7 +72,38 @@ export function NewOrder() {
   };
   return (
     <div>
-      {connected && <button onClick={() => createTx()}>Create order</button>}
+      {connected && (
+        <button
+          onClick={() =>
+            createTx({
+              orderType,
+              side: "BUY",
+              tokenAddress,
+              amount,
+              price: adexState.currentPairOrderbook.sells[0].price,
+              slippage,
+            })
+          }
+        >
+          Buy order
+        </button>
+      )}
+      {connected && (
+        <button
+          onClick={() =>
+            createTx({
+              orderType,
+              side: "SELL",
+              tokenAddress,
+              amount,
+              price: adexState.currentPairOrderbook.buys[0].price,
+              slippage,
+            })
+          }
+        >
+          Sell order
+        </button>
+      )}
     </div>
   );
 }

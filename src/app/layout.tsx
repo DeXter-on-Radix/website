@@ -33,7 +33,7 @@ export const rdt = RadixDappToolkit(
   },
   (requestData) => {
     requestData({
-      accounts: { quantifier: "atLeast", quantity: 1 },
+      accounts: { quantifier: "exactly", quantity: 1 },
     });
   },
   {
