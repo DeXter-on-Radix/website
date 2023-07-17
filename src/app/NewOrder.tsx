@@ -32,7 +32,9 @@ export function NewOrder() {
     price: number;
     slippage: number;
   }) => {
+    price = orderType === "MARKET" ? -1 : price;
     console.log(
+      "ORDER INPUT DETAILS:\n\n",
       adexState.currentPairAddress,
       orderType,
       side,
@@ -58,7 +60,7 @@ export function NewOrder() {
     );
     order
       .then((response) => {
-        console.log("RESPONSE________________________________________")
+        console.log("RESPONSE________________________________________");
         console.log(response);
         const data = response.data;
         console.log(data);
@@ -76,10 +78,19 @@ export function NewOrder() {
 
   const setOrderVariables = async (event: SyntheticEvent) => {
     event.preventDefault();
-    console.log("Updating variables");
-    amount = event.target.amount.value;
-    price = event.target.price.value;
-    slippage = event.target.slippage.value;
+    amount = parseFloat(event.target.amount.value);
+    price = parseFloat(
+      event.target.price.value ? event.target.price.value : price
+    );
+    slippage = parseFloat(
+      event.target.slippage.value ? event.target.slippage.value : slippage
+    );
+    console.log(
+      "Order variables:\nAmount:%f\nPrice:%f\nSlippage%f",
+      amount,
+      price,
+      slippage
+    );
   };
 
   return (
@@ -118,7 +129,7 @@ export function NewOrder() {
               side: adex.OrderSide.BUY,
               tokenAddress: adexState.currentPairInfo.token1.address,
               amount,
-              price: adexState.currentPairOrderbook.sells[0].price,
+              price,
               slippage,
             })
           }
@@ -134,7 +145,7 @@ export function NewOrder() {
               side: adex.OrderSide.SELL,
               tokenAddress: adexState.currentPairInfo.token1.address,
               amount,
-              price: adexState.currentPairOrderbook.buys[0].price,
+              price,
               slippage,
             })
           }
