@@ -4,12 +4,13 @@ import { PairsList } from "./PairsList";
 import { createContext, useEffect, useState } from "react";
 import * as adex from "alphadex-sdk-js";
 import { PairInfo } from "./PairInfo";
+import { AdexStateContext, initialStaticState } from "./adex-state-context";
 
-adex.init(); //Connect to alphadex websocket
+// adex.init(); //Connect to alphadex websocket
 
-let initialStaticState = new adex.StaticState(adex.clientState.internalState);
+// let initialStaticState = new adex.StaticState(adex.clientState.internalState);
 
-export const AdexStateContext = createContext(initialStaticState);
+// export const AdexStateContext = createContext(initialStaticState);
 
 // more components here: https://daisyui.com/components/
 
@@ -18,6 +19,7 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    adex.init();
     let sub = adex.clientState.stateChanged$.subscribe((newState) => {
       setAdexState(newState);
       setHydrated(true);
@@ -30,7 +32,7 @@ export default function Home() {
   }, []);
 
   function getAdexConnectionStatus() {
-    return hydrated ? adex.clientState.status : null;
+    return hydrated ? adexState.status : null;
   }
 
   function getPairs() {

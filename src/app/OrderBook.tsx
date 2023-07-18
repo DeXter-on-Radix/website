@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { AdexStateContext } from "./page";
 import { OrderbookLine } from "alphadex-sdk-js";
+import { AdexStateContext } from "./adex-state-context";
 
 export function OrderBook({ orders }: { orders: OrderbookLine[] }) {
   //returns simple orderbook of buys/sells
