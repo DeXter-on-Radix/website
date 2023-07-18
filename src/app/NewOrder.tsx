@@ -10,8 +10,8 @@ import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
 import { useRequestData } from "./hooks/useRequestData";
 import { useConnected } from "./hooks/useConnected";
-import { rdt } from "./layout";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
+import { useRdt } from "./hooks/useRdt";
 
 const gatewayApi = GatewayApiClient.initialize({
   basePath: "https://rcnet.radixdlt.com",
@@ -22,11 +22,12 @@ export function NewOrder() {
   //returns simple orderbook of buys/sells
   const adexState = useContext(AdexStateContext);
   const accounts = useAccounts();
+  const rdt = useRdt();
 
   const requestData = useRequestData();
   const connected = useConnected();
-  const [token1Balance, setToken1Balance] = useState(0);
-  const [token2Balance, setToken2Balance] = useState(0);
+  const [token1Balance, setToken1Balance] = useState<number>(0);
+  const [token2Balance, setToken2Balance] = useState<number>(0);
   let currentPairAddress = adexState.currentPairAddress;
   let orderType = adex.OrderType.MARKET;
   let amount = 0;
@@ -110,57 +111,51 @@ export function NewOrder() {
   };
 
   const setPercentageOfFunds = ({ proportion }: { proportion: string }) => {
-    let accountDetails =
-      gatewayApi.state.getEntityDetailsVaultAggregated(account);
-    accountDetails
-      .then((response) => {
-        console.log(response.fungible_resources.items);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    //Button to set 25/50/75/100% of total token balance to an order.
+    //Perhaps add some logic so you can't set 100% of xrd to an order
   };
 
   const getAccountResourceBalance = (
-    resource_address: string,
+    resourceAddress: string,
     account: string
   ) => {
     async function getResourceDetails(
-      resource_address: string,
+      resourceAddress: string,
       account: string
     ) {
       let response =
         await gatewayApi.state.innerClient.entityFungibleResourceVaultPage({
           stateEntityFungibleResourceVaultsPageRequest: {
             address: account,
-            resource_address: resource_address,
+            /* eslint-disable */ resource_address /* eslint-enable*/:
+              resourceAddress,
           },
         });
       return response;
     }
     return new Promise((resolve, reject) => {
-      getResourceDetails(resource_address, account)
+      getResourceDetails(resourceAddress, account)
         .then((response) => {
           const output = parseFloat(response.items[0].amount);
           console.log("BALANCE %f", output);
           resolve(output);
         })
-        .catch((error) => {
-          reject(error);
+        .catch((reason: TypeError) => {
+          resolve(0);
         });
     });
   };
   const fetchBalances = useCallback(
     async (address1: string, address2: string, account: string) => {
       try {
-        const token1Balance = await getAccountResourceBalance(
+        const token1Balance = (await getAccountResourceBalance(
           address1,
           account
-        );
-        const token2Balance = await getAccountResourceBalance(
+        )) as number;
+        const token2Balance = (await getAccountResourceBalance(
           address2,
           account
-        );
+        )) as number;
         setToken1Balance(token1Balance);
         setToken2Balance(token2Balance);
       } catch (error) {
@@ -186,9 +181,10 @@ export function NewOrder() {
     return;
   }, [
     adexState.currentPairInfo.token1.address,
-    adexState.currentPairInfo.token1.address,
+    adexState.currentPairInfo.token2.address,
     connected,
     accounts,
+    fetchBalances,
   ]);
 
   return (

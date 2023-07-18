@@ -2,9 +2,8 @@
 
 import "./globals.css";
 import { Inter } from "next/font/google";
+import "@radixdlt/radix-dapp-toolkit";
 import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
-import { useEffect } from "react";
-import { RdtProvider } from "./RdtProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,7 +44,7 @@ export const rdt = RadixDappToolkit(
       // set your initial application state
     },
   }
-);
+) as ReturnType<typeof RadixDappToolkit>;
 
 export default function RootLayout({
   children,
