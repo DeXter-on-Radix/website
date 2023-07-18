@@ -1,19 +1,35 @@
-import { SyntheticEvent, useContext } from "react";
+import {
+  SyntheticEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { AdexStateContext } from "./page";
 import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
 import { useRequestData } from "./hooks/useRequestData";
 import { useConnected } from "./hooks/useConnected";
 import { rdt } from "./layout";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
+
+const gatewayApi = GatewayApiClient.initialize({
+  basePath: "https://rcnet.radixdlt.com",
+});
+const { status, transaction, stream, state } = gatewayApi;
 
 export function NewOrder() {
   //returns simple orderbook of buys/sells
   const adexState = useContext(AdexStateContext);
   const accounts = useAccounts();
+
   const requestData = useRequestData();
   const connected = useConnected();
+  const [token1Balance, setToken1Balance] = useState(0);
+  const [token2Balance, setToken2Balance] = useState(0);
+  let currentPairAddress = adexState.currentPairAddress;
   let orderType = adex.OrderType.MARKET;
-  let amount = 10;
+  let amount = 0;
   let price = -1;
   let slippage = -1;
 
@@ -93,6 +109,88 @@ export function NewOrder() {
     );
   };
 
+  const setPercentageOfFunds = ({ proportion }: { proportion: string }) => {
+    let accountDetails =
+      gatewayApi.state.getEntityDetailsVaultAggregated(account);
+    accountDetails
+      .then((response) => {
+        console.log(response.fungible_resources.items);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const getAccountResourceBalance = (
+    resource_address: string,
+    account: string
+  ) => {
+    async function getResourceDetails(
+      resource_address: string,
+      account: string
+    ) {
+      let response =
+        await gatewayApi.state.innerClient.entityFungibleResourceVaultPage({
+          stateEntityFungibleResourceVaultsPageRequest: {
+            address: account,
+            resource_address: resource_address,
+          },
+        });
+      return response;
+    }
+    return new Promise((resolve, reject) => {
+      getResourceDetails(resource_address, account)
+        .then((response) => {
+          const output = parseFloat(response.items[0].amount);
+          console.log("BALANCE %f", output);
+          resolve(output);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+  const fetchBalances = useCallback(
+    async (address1: string, address2: string, account: string) => {
+      try {
+        const token1Balance = await getAccountResourceBalance(
+          address1,
+          account
+        );
+        const token2Balance = await getAccountResourceBalance(
+          address2,
+          account
+        );
+        setToken1Balance(token1Balance);
+        setToken2Balance(token2Balance);
+      } catch (error) {
+        console.log("Error fetching balances:", error);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const account = accounts.length > 0 ? accounts[0].address : "";
+    if (
+      adexState.currentPairInfo.token1.address &&
+      adexState.currentPairInfo.token2.address &&
+      account
+    ) {
+      fetchBalances(
+        adexState.currentPairInfo.token1.address,
+        adexState.currentPairInfo.token2.address,
+        account
+      );
+    }
+    return;
+  }, [
+    adexState.currentPairInfo.token1.address,
+    adexState.currentPairInfo.token1.address,
+    connected,
+    accounts,
+  ]);
+
   return (
     <div>
       <button
@@ -108,8 +206,11 @@ export function NewOrder() {
       <button
         onClick={() => setOrderType({ newOrderType: adex.OrderType.POSTONLY })}
       >
-        POST-ONLY
+        {" "}
+        POST-ONLY{" "}
       </button>
+      {adexState.currentPairInfo.token1.name} balance: {token1Balance}
+      {adexState.currentPairInfo.token2.name} balance: {token2Balance}
       <br />
       <form onSubmit={setOrderVariables}>
         <label htmlFor="amount">Amount</label>
