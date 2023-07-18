@@ -12,6 +12,7 @@ npm run dev
 ```
 
 If you'd like to send and receive trades, you will need to:
+
 1. install [Radix development wallet](https://docs-babylon.radixdlt.com/main/getting-started-developers/wallet/wallet-and-connector-installation.html#_install_the_radix_wallet_preview)
 2. install [connector extension](https://docs-babylon.radixdlt.com/main/getting-started-developers/wallet/wallet-and-connector-installation.html#_install_the_connector)
 

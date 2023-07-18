@@ -140,26 +140,21 @@ function convertAlphaDEXData(data: any[]): OHLCVData[] {
 export function PriceChart() {
   //Returns a candlestick chart of the current pair
   const adexState = useContext(AdexStateContext);
-  const [dataSource, setDataSource] = useState<DataSource>(DataSource.BINANCE);
-  const [data, setData] = useState<OHLCVData[]>([]);
+  const [dataSource, setDataSource] = useState<DataSource>(DataSource.ADEX);
+  const [binanceData, setBinanceData] = useState<OHLCVData[]>([]);
 
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  useEffect(() => {
+    // get binance ws and historical data
+    const ws = new WebSocket(
+      "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
+    );
 
-  async function selectDataSource(dataSource: DataSource) {
-    setData([]);
-    if (ws) {
-      ws.close();
-    }
-
-    switch (dataSource) {
-      case DataSource.BINANCE:
-        const historicalData = await fetchHistoricalData("BTCUSDT", "1m", 1000);
-        setData(historicalData);
-
-        const newWs = new WebSocket(
-          "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
-        );
-        newWs.onmessage = async (event) => {
+    fetchHistoricalData("BTCUSDT", "1m", 1000)
+      .then((historicalData) => {
+        setBinanceData(historicalData);
+      })
+      .then(() => {
+        ws.onmessage = async (event) => {
           const response = JSON.parse(event.data);
           const {
             t: time,
@@ -178,36 +173,13 @@ export function PriceChart() {
             close: Number(close),
             value: Number(value),
           };
-          setData((prevData) => cleanData([...prevData, newData]));
+          setBinanceData((prevData) => cleanData([...prevData, newData]));
         };
-        setDataSource(dataSource);
-        setWs(newWs);
-        break;
-
-      case DataSource.ADEX:
-        const adexData = convertAlphaDEXData(adexState.currentPairCandlesList);
-        setData(adexData);
-        setDataSource(dataSource);
-        break;
-    }
-  }
-
-  useEffect(() => {
-    selectDataSource(DataSource.ADEX);
-
+      });
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      ws.close();
     };
   }, []);
-
-  useEffect(() => {
-    if (dataSource === DataSource.ADEX) {
-      const adexData = convertAlphaDEXData(adexState.currentPairCandlesList);
-      setData(adexData);
-    }
-  }, [adexState.currentPairCandlesList, dataSource]);
 
   return (
     <div>
@@ -215,7 +187,7 @@ export function PriceChart() {
         className="select w-full max-w-xs bg-gray-200"
         id="source-selector"
         onChange={(e) => {
-          selectDataSource(e.target.value as DataSource);
+          setDataSource(e.target.value as DataSource);
         }}
       >
         <option value={DataSource.ADEX}>AlphaDEX</option>
@@ -239,7 +211,9 @@ export function PriceChart() {
             ))}
           </select>
 
-          <PriceChartCanvas data={data} />
+          <PriceChartCanvas
+            data={convertAlphaDEXData(adexState.currentPairCandlesList)}
+          />
         </div>
       )}
       {dataSource === DataSource.BINANCE && (
@@ -256,7 +230,7 @@ export function PriceChart() {
             </a>
             .
           </p>
-          <PriceChartCanvas data={data} />
+          <PriceChartCanvas data={binanceData} />
         </div>
       )}
     </div>
