@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import * as adex from "alphadex-sdk-js";
-import { AdexStateContext } from "./adex-state-context";
+import { AdexStateContext } from "./contexts";
 
 export function PairsList() {
   const adexState = useContext(AdexStateContext);

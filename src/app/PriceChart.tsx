@@ -1,7 +1,7 @@
 import { createChart, CandlestickData, UTCTimestamp } from "lightweight-charts";
 import React, { useEffect, useRef, useContext, useState } from "react";
 import * as adex from "alphadex-sdk-js";
-import { AdexStateContext } from "./adex-state-context";
+import { AdexStateContext } from "./contexts";
 
 async function fetchHistoricalData(
   symbol: string,
