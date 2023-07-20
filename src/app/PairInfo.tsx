@@ -11,9 +11,13 @@ export function PairInfo() {
 
   return (
     <div>
-      <h4>Current pair {adexState.currentPairInfo.name}</h4>
-      <p>Address: {adexState.currentPairInfo.address}</p>
-      <p>Last Price: {adexState.currentPairInfo.lastPrice}</p>
+      <div className="text-sm">
+        Pair Address: {adexState.currentPairInfo.address}
+      </div>
+      <div className="text-sm">
+        Last Price: {adexState.currentPairInfo.lastPrice}
+      </div>
+
       <NewOrder />
       <PriceChart />
 
