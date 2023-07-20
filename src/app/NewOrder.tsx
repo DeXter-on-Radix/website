@@ -13,6 +13,7 @@ import { useConnected } from "./hooks/useConnected";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 
+// TODO: move this to a useEffect hook
 const gatewayApi = GatewayApiClient.initialize({
   basePath: "https://rcnet.radixdlt.com",
 });
@@ -28,11 +29,14 @@ export function NewOrder() {
   const connected = useConnected();
   const [token1Balance, setToken1Balance] = useState<number>(0);
   const [token2Balance, setToken2Balance] = useState<number>(0);
-  let currentPairAddress = adexState.currentPairAddress;
-  let orderType = adex.OrderType.MARKET;
-  let amount = 0;
-  let price = -1;
-  let slippage = -1;
+  const [orderType, setOrderType] = useState<adex.OrderType>(
+    adex.OrderType.MARKET
+  );
+  const [positionSize, setPositionSize] = useState<number | undefined>(
+    undefined
+  );
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [slippage, setSlippage] = useState<number | undefined>(undefined);
 
   const createTx = ({
     orderType,
@@ -86,28 +90,6 @@ export function NewOrder() {
       .catch((error) => {
         console.error(error);
       });
-  };
-
-  const setOrderType = ({ newOrderType }: { newOrderType: adex.OrderType }) => {
-    orderType = newOrderType;
-    console.log(orderType);
-  };
-
-  const setOrderVariables = async (event: SyntheticEvent) => {
-    event.preventDefault();
-    amount = parseFloat(event.target.amount.value);
-    price = parseFloat(
-      event.target.price.value ? event.target.price.value : price
-    );
-    slippage = parseFloat(
-      event.target.slippage.value ? event.target.slippage.value : slippage
-    );
-    console.log(
-      "Order variables:\nAmount:%f\nPrice:%f\nSlippage%f",
-      amount,
-      price,
-      slippage
-    );
   };
 
   const setPercentageOfFunds = ({ proportion }: { proportion: string }) => {
@@ -187,65 +169,131 @@ export function NewOrder() {
     fetchBalances,
   ]);
 
+  function activeTabClass(tabsOrderType: adex.OrderType) {
+    let className = "tab tab-bordered";
+    if (orderType === tabsOrderType) {
+      className += " tab-active";
+    }
+
+    return className;
+  }
+
   return (
     <div>
-      <button
-        onClick={() => setOrderType({ newOrderType: adex.OrderType.MARKET })}
-      >
-        MARKET
-      </button>
-      <button
-        onClick={() => setOrderType({ newOrderType: adex.OrderType.LIMIT })}
-      >
-        LIMIT
-      </button>
-      <button
-        onClick={() => setOrderType({ newOrderType: adex.OrderType.POSTONLY })}
-      >
-        {" "}
-        POST-ONLY{" "}
-      </button>
-      {adexState.currentPairInfo.token1.name} balance: {token1Balance}
-      {adexState.currentPairInfo.token2.name} balance: {token2Balance}
+      <div className="text-sm">
+        <div>
+          {adexState.currentPairInfo.token1.name} balance: {token1Balance}
+        </div>
+        <div>
+          {adexState.currentPairInfo.token2.name} balance: {token2Balance}
+        </div>
+      </div>
+
+      <div className="tabs">
+        <a
+          className={activeTabClass(adex.OrderType.MARKET)}
+          onClick={() => setOrderType(adex.OrderType.MARKET)}
+        >
+          Market
+        </a>
+        <a
+          className={activeTabClass(adex.OrderType.LIMIT)}
+          onClick={() => setOrderType(adex.OrderType.LIMIT)}
+        >
+          Limit
+        </a>
+        <a
+          className={activeTabClass(adex.OrderType.POSTONLY)}
+          onClick={() => setOrderType(adex.OrderType.POSTONLY)}
+        >
+          Post Only
+        </a>
+      </div>
       <br />
-      <form onSubmit={setOrderVariables}>
-        <label htmlFor="amount">Amount</label>
-        <input type="decimal" id="amount" name="amount" required />
-        <label htmlFor="price">Price</label>
-        <input type="decimal" id="price" name="price" />
-        <label htmlFor="slippage">Slippage</label>
-        <input type="decimal" id="slippage" name="slippage" />
-        <button type="submit">Submit</button>
-      </form>
+      <div className="flex flex-col max-w-sm">
+        <div className="flex justify-between">
+          <label htmlFor="amount" className="my-auto">
+            Position size
+          </label>
+          <input
+            type="decimal"
+            id="amount"
+            name="amount"
+            required
+            className="w-full m-2 p-2 rounded-none"
+            onInput={(event) =>
+              setPositionSize(parseFloat(event.currentTarget.value))
+            }
+          />
+        </div>
+
+        <div className="flex justify-between">
+          <label htmlFor="price" className="join-item my-auto">
+            Price
+          </label>
+          <input
+            type="decimal"
+            id="price"
+            name="price"
+            className="w-full m-2 p-2 rounded-none"
+            onInput={(event) => setPrice(parseFloat(event.currentTarget.value))}
+          />
+        </div>
+
+        <div className="flex">
+          <label htmlFor="slippage" className="my-auto">
+            Slippage
+          </label>
+          <input
+            type="decimal"
+            id="slippage"
+            name="slippage"
+            className="w-full m-2 p-2 rounded-none"
+            onInput={(event) =>
+              setSlippage(parseFloat(event.currentTarget.value))
+            }
+          />
+        </div>
+      </div>
       <br />
       {connected && (
         <button
-          onClick={() =>
-            createTx({
+          className="btn m-2"
+          onClick={() => {
+            if (!price || !positionSize || !slippage) {
+              alert("Please fill out all fields");
+              return;
+            }
+            return createTx({
               orderType,
               side: adex.OrderSide.BUY,
               tokenAddress: adexState.currentPairInfo.token1.address,
-              amount,
+              amount: positionSize,
               price,
               slippage,
-            })
-          }
+            });
+          }}
         >
           Buy {adexState.currentPairInfo.token1.name}
         </button>
       )}
       {connected && (
         <button
-          onClick={() =>
-            createTx({
+          className="btn m-2 mb-8"
+          onClick={() => {
+            if (!price || !positionSize || !slippage) {
+              alert("Please fill out all fields");
+              return;
+            }
+            return createTx({
               orderType,
               side: adex.OrderSide.SELL,
               tokenAddress: adexState.currentPairInfo.token1.address,
-              amount,
+              amount: positionSize,
               price,
               slippage,
-            })
-          }
+            });
+          }}
         >
           Sell {adexState.currentPairInfo.token1.name}
         </button>
