@@ -54,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="h-screen flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
+        <div className="flex flex-col h-screen justify-between prose md:prose-lg lg:prose-xl max-w-none">
           <div className="navbar bg-base-100">
             <div className="navbar-start">
               <div className="dropdown">
@@ -127,7 +127,7 @@ export default function RootLayout({
             </div>
           </div>
 
-          <div className="h-full">{children}</div>
+          <div className="">{children}</div>
 
           <footer className="footer p-10 bg-base-300 text-base-content">
             <div>
