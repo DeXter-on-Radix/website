@@ -2,12 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import { Subscription } from "rxjs";
-import {
-  AdexStateContext,
-  initialStaticState,
-  rdt,
-  RdtAccountsContext,
-} from "./contexts";
+import { AdexStateContext, RadixContext } from "./contexts";
 import { State } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
 import { PairsList } from "./PairsList";

@@ -3,22 +3,12 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { useEffect, useState } from "react";
-import {
-  rdt,
-  RdtAccountsContext,
-  AdexStateContext,
-  initialStaticState,
-} from "./contexts";
-import { State } from "@radixdlt/radix-dapp-toolkit";
+import { RadixContext, AdexStateContext, initialStaticState } from "./contexts";
+import { State, RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
 import { Subscription } from "rxjs";
 
 const inter = Inter({ subsets: ["latin"] });
-
-const metadata = {
-  title: "DeXter",
-  description: "DeXter on Radix",
-};
 
 // declare the radix-connect-button as a global custom element
 declare global {
@@ -37,30 +27,49 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [rdtAccounts, setRdtAccounts] = useState<
-    | {
-        address: string;
-        label: string;
-        appearanceId: number;
-      }[]
-    | undefined
-  >(undefined);
+  const [radixContext, setRadixContext] = useState<State | undefined>(
+    undefined
+  );
 
   const [adexState, setAdexState] = useState(initialStaticState);
 
   useEffect(() => {
     let subs: Subscription[] = [];
+
+    const rdt = RadixDappToolkit(
+      {
+        dAppDefinitionAddress:
+          "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+        dAppName: "DeXter",
+      },
+      (requestData) => {
+        requestData({
+          accounts: { quantifier: "atLeast", quantity: 1 },
+        });
+      },
+      {
+        networkId: 12,
+        onDisconnect: () => {
+          // clear your application state
+        },
+        onInit: ({ accounts }) => {
+          // set your initial application state
+        },
+      }
+    );
     subs.push(
       rdt.state$.subscribe((newState: State) => {
-        setRdtAccounts(newState.accounts);
+        setRadixContext(newState);
       })
     );
-    // adex.init();
+
+    adex.init();
     subs.push(
       adex.clientState.stateChanged$.subscribe((newState) => {
         setAdexState(newState);
       })
     );
+
     return () => {
       subs.forEach((sub) => {
         sub.unsubscribe();
@@ -70,7 +79,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <RdtAccountsContext.Provider value={rdtAccounts}>
+      <RadixContext.Provider value={radixContext}>
         <AdexStateContext.Provider value={adexState}>
           <body className={inter.className}>
             <div className="h-screen flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
@@ -198,7 +207,7 @@ export default function RootLayout({
             </div>
           </body>
         </AdexStateContext.Provider>
-      </RdtAccountsContext.Provider>
+      </RadixContext.Provider>
     </html>
   );
 }
