@@ -5,30 +5,34 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AdexStateContext } from "./page";
+import { AdexStateContext } from "./contexts";
 import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
-import { useRequestData } from "./hooks/useRequestData";
 import { useConnected } from "./hooks/useConnected";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 
-// TODO: move this to a useEffect hook
-const gatewayApi = GatewayApiClient.initialize({
-  basePath: "https://rcnet.radixdlt.com",
-});
-const { status, transaction, stream, state } = gatewayApi;
-
 export function NewOrder() {
+  const [gatewayApi, setGatewayApi] = useState<GatewayApiClient | null>(null);
+  useEffect(() => {
+    // TODO: do we really need the gateway api client here?
+    // or can we somehow get data from rdt or adex?
+    const gatewayApi = GatewayApiClient.initialize({
+      basePath: "https://rcnet.radixdlt.com",
+    });
+    const { status, transaction, stream, state } = gatewayApi;
+    setGatewayApi(gatewayApi);
+  }, []);
+
   //returns simple orderbook of buys/sells
   const adexState = useContext(AdexStateContext);
   const accounts = useAccounts();
   const rdt = useRdt();
 
-  const requestData = useRequestData();
   const connected = useConnected();
-  const [token1Balance, setToken1Balance] = useState<number>(0);
-  const [token2Balance, setToken2Balance] = useState<number>(0);
+
+  const [token1Balance, setToken1Balance] = useState<number | null>(null);
+  const [token2Balance, setToken2Balance] = useState<number | null>(null);
   const [orderType, setOrderType] = useState<adex.OrderType>(
     adex.OrderType.MARKET
   );
@@ -105,6 +109,7 @@ export function NewOrder() {
       resourceAddress: string,
       account: string
     ) {
+      // TODO: check fo null or replace with another API
       let response =
         await gatewayApi.state.innerClient.entityFungibleResourceVaultPage({
           stateEntityFungibleResourceVaultsPageRequest: {
