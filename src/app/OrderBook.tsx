@@ -2,29 +2,45 @@ import { useContext } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 
-export function OrderBook({ orders }: { orders: OrderbookLine[] }) {
-  //returns simple orderbook of buys/sells
+interface OrderBookRowProps {
+  barColor: string;
+  order: OrderbookLine;
+}
+
+function OrderBookRow(props: OrderBookRowProps) {
+  const { barColor: bgColor, order } = props;
+  return (
+    <tr>
+      <th>{bgColor === "green" ? "Buy" : "Sell"}</th>
+      <td>{order.price}</td>
+      <td>{order.quantityRemaining}</td>
+      <td>{order.valueRemaining}</td>
+    </tr>
+  );
+}
+
+export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
   return (
-    <>
-      {orders.map(
-        (
-          item: {
-            price: number;
-            quantityRemaining: number;
-            valueRemaining: number;
-          },
-          index: number
-        ) => (
-          <tr key={index}>
-            <th>{orders === buys ? "Buy" : "Sell"}</th>
-            <td>{item.price}</td>
-            <td>{item.quantityRemaining}</td>
-            <td>{item.valueRemaining}</td>
-          </tr>
-        )
-      )}
-    </>
+    <table className="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Price</th>
+          <th>Quantity Remaining</th>
+          <th>Value Remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {buys.map((order: OrderbookLine, index: number) => (
+          <OrderBookRow key={"buy-" + index} barColor="green" order={order} />
+        ))}
+
+        {sells.map((order: OrderbookLine, index: number) => (
+          <OrderBookRow key={"sell-" + index} barColor="red" order={order} />
+        ))}
+      </tbody>
+    </table>
   );
 }
