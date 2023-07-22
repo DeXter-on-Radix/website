@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AdexStateContext } from "./page";
+import { AdexStateContext } from "./contexts";
 import { OrderBook } from "./OrderBook";
 import { PriceChart } from "./PriceChart";
 import { NewOrder } from "./NewOrder";
