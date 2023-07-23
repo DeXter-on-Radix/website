@@ -85,7 +85,7 @@ export default function RootLayout({
       <RadixContext.Provider value={radixContext}>
         <AdexStateContext.Provider value={adexState}>
           <body className={inter.className}>
-            <div className="h-screen flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
+            <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
               <Navbar />
 
               <div className="h-full">{children}</div>
