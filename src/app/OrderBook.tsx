@@ -8,11 +8,14 @@ interface OrderBookRowProps {
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const { barColor: bgColor, order } = props;
+  const { barColor, order } = props;
+
   return (
-    <tr>
-      <th>{bgColor === "green" ? "Buy" : "Sell"}</th>
-      <td>{order.price}</td>
+    <tr className="border-none">
+      <td>{order.noOrders}</td>
+      <td className={barColor === "green" ? "text-green-700" : "text-red-700"}>
+        {order.price}
+      </td>
       <td>{order.quantityRemaining}</td>
       <td>{order.valueRemaining}</td>
     </tr>
@@ -23,24 +26,32 @@ export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Price</th>
-          <th>Quantity Remaining</th>
-          <th>Value Remaining</th>
-        </tr>
-      </thead>
-      <tbody>
-        {buys.map((order: OrderbookLine, index: number) => (
-          <OrderBookRow key={"buy-" + index} barColor="green" order={order} />
-        ))}
+    <div className="p-2">
+      <table className="table-sm">
+        <thead>
+          <tr>
+            <th>Order Count</th>
+            <th>Price ({adexState.currentPairInfo.token1.symbol})</th>
+            <th>Size ({adexState.currentPairInfo.token2.symbol})</th>
+            <th>Size ({adexState.currentPairInfo.token1.symbol})</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sells.map((order: OrderbookLine, index: number) => (
+            <OrderBookRow key={"sell-" + index} barColor="red" order={order} />
+          ))}
 
-        {sells.map((order: OrderbookLine, index: number) => (
-          <OrderBookRow key={"sell-" + index} barColor="red" order={order} />
-        ))}
-      </tbody>
-    </table>
+          <tr className="border-none">
+            <td className="text-xl" colSpan={4}>
+              {adexState.currentPairInfo.lastPrice}
+            </td>
+          </tr>
+
+          {buys.map((order: OrderbookLine, index: number) => (
+            <OrderBookRow key={"buy-" + index} barColor="green" order={order} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
