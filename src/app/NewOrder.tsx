@@ -149,7 +149,12 @@ export function NewOrder() {
         console.log("Error fetching balances:", error);
       }
     },
-    []
+    [
+      adexState.currentPairInfo.token1.address,
+      adexState.currentPairInfo.token2.address,
+      connected,
+      accounts,
+    ]
   );
 
   useEffect(() => {
