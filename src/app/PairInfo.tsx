@@ -9,14 +9,13 @@ export function PairInfo() {
   const { buys, sells } = adexState.currentPairOrderbook;
 
   return (
-    <div>
+    <div className="col-span-3 order-2">
       <h4>Current pair {adexState.currentPairInfo.name}</h4>
       <p>Address: {adexState.currentPairInfo.address}</p>
       <p>Last Price: {adexState.currentPairInfo.lastPrice}</p>
 
       <PriceChart />
-
-      <h4>Orderbook:</h4>
+      {/* <h4>Orderbook:</h4>
 
       <table className="table">
         <thead>
@@ -31,7 +30,7 @@ export function PairInfo() {
           <OrderBook orders={buys} />
           <OrderBook orders={sells} />
         </tbody>
-      </table>
+      </table> */}
     </div>
   );
 }

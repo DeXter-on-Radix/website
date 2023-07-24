@@ -131,7 +131,7 @@ export default function RootLayout({
             </div>
           </div>
 
-          <div className="h-full">{children}</div>
+          <div>{children}</div>
 
           <footer className="footer p-10 bg-base-300 text-base-content">
             <div>

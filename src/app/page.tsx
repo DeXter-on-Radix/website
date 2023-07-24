@@ -4,6 +4,7 @@ import { PairsList } from "./PairsList";
 import { createContext, useEffect, useState } from "react";
 import * as adex from "alphadex-sdk-js";
 import { PairInfo } from "./PairInfo";
+import { OrderBook } from "./OrderBook"; //added
 
 adex.init(); //Connect to alphadex websocket
 
@@ -16,6 +17,8 @@ export const AdexStateContext = createContext(initialStaticState);
 export default function Home() {
   const [adexState, setAdexState] = useState(initialStaticState);
   const [hydrated, setHydrated] = useState(false);
+
+  const { buys, sells } = adexState.currentPairOrderbook; //added call orderbook
 
   useEffect(() => {
     let sub = adex.clientState.stateChanged$.subscribe((newState) => {
@@ -45,10 +48,16 @@ export default function Home() {
 
   return (
     <AdexStateContext.Provider value={adexState}>
-      <main className="mx-6">
-        <dd>AlphaDEX: {getAdexConnectionStatus()}</dd>
-        {getPairs()}
+      <main className="h-full grid grid-cols-5 gap-4">
+        <dd>
+          AlphaDEX: {getAdexConnectionStatus()}
+          {getPairs()}
+        </dd>
         {getPairInfo()}
+        <div className="col-span-1 order-2">
+          <OrderBook orders={buys} />
+          <OrderBook orders={sells} />
+        </div>
       </main>
     </AdexStateContext.Provider>
   );
