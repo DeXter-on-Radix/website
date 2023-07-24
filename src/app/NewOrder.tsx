@@ -13,7 +13,7 @@ import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
-const debounce = (callback: { (): void; (arg0: any): void; }, delay: number) => {
+const debounce = (callback: { (): void; (arg0: any): void }, delay: number) => {
   let timerId;
   return (...args: any) => {
     clearTimeout(timerId);
@@ -209,7 +209,7 @@ export function NewOrder() {
   const getSwapQuote = () => {
     const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
     const adexPairInfo = adexState.currentPairInfo;
-    console.log("getswapquote posn size",positionSize);
+    console.log("getswapquote posn size", positionSize);
     console.log(
       orderToken.address,
       positionSize,
@@ -240,7 +240,7 @@ export function NewOrder() {
 
   useEffect(() => {
     const debouncedGetSwapQuote = debounce(getSwapQuote, 2000);
-    debouncedGetSwapQuote();
+    positionSize < 0 ? null : debouncedGetSwapQuote();
   }, [positionSize]);
 
   return (
