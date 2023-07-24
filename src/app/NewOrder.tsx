@@ -36,6 +36,9 @@ export function NewOrder() {
   const [orderType, setOrderType] = useState<adex.OrderType>(
     adex.OrderType.MARKET
   );
+  const [orderToken, setOrderToken] = useState<adex.TokenInfo>(
+    adexState.currentPairInfo.token1
+  );
   const [positionSize, setPositionSize] = useState<number | undefined>(
     undefined
   );
@@ -59,7 +62,7 @@ export function NewOrder() {
   }) => {
     price = orderType === "MARKET" ? -1 : price;
     console.log(
-      "ORDER INPUT DETAILS:\n\n",
+      "ORDER INPUT DETAILS:\n Pair %s\nType %s \nSide %s \n token address %s\namount %f\nprice %f\nslip %f\nfrontend%f\naccount %s\naccount %s",
       adexState.currentPairAddress,
       orderType,
       side,
@@ -179,9 +182,25 @@ export function NewOrder() {
     fetchBalances,
   ]);
 
-  function activeTabClass(tabsOrderType: adex.OrderType) {
+  useEffect(() => {
+    setOrderToken(adexState.currentPairInfo.token1);
+  }, [
+    adexState.currentPairInfo.token1,
+    adexState.currentPairInfo.token2,
+  ]);
+
+  function activeTypeTabClass(tabsOrderType: adex.OrderType) {
     let className = "tab tab-bordered";
     if (orderType === tabsOrderType) {
+      className += " tab-active";
+    }
+
+    return className;
+  }
+
+  function activeTokenTabClass(tabsToken: adex.TokenInfo) {
+    let className = "tab tab-bordered";
+    if (orderToken === tabsToken) {
       className += " tab-active";
     }
 
@@ -201,22 +220,36 @@ export function NewOrder() {
 
       <div className="tabs">
         <a
-          className={activeTabClass(adex.OrderType.MARKET)}
+          className={activeTypeTabClass(adex.OrderType.MARKET)}
           onClick={() => setOrderType(adex.OrderType.MARKET)}
         >
           Market
         </a>
         <a
-          className={activeTabClass(adex.OrderType.LIMIT)}
+          className={activeTypeTabClass(adex.OrderType.LIMIT)}
           onClick={() => setOrderType(adex.OrderType.LIMIT)}
         >
           Limit
         </a>
         <a
-          className={activeTabClass(adex.OrderType.POSTONLY)}
+          className={activeTypeTabClass(adex.OrderType.POSTONLY)}
           onClick={() => setOrderType(adex.OrderType.POSTONLY)}
         >
           Post Only
+        </a>
+      </div>
+      <div className="tabs">
+        <a
+          className={activeTokenTabClass(adexState.currentPairInfo.token1)}
+          onClick={() => setOrderToken(adexState.currentPairInfo.token1)}
+        >
+          {adexState.currentPairInfo.token1.name}
+        </a>
+        <a
+          className={activeTokenTabClass(adexState.currentPairInfo.token2)}
+          onClick={() => setOrderToken(adexState.currentPairInfo.token2)}
+        >
+          {adexState.currentPairInfo.token2.name}
         </a>
       </div>
       <br />
@@ -277,14 +310,14 @@ export function NewOrder() {
             return createTx({
               orderType,
               side: adex.OrderSide.BUY,
-              tokenAddress: adexState.currentPairInfo.token1.address,
+              tokenAddress: orderToken.address,
               amount: positionSize,
               price,
               slippage,
             });
           }}
         >
-          Buy {adexState.currentPairInfo.token1.name}
+          Buy {orderToken.name}
         </button>
       )}
       {connected && (
@@ -298,14 +331,14 @@ export function NewOrder() {
             return createTx({
               orderType,
               side: adex.OrderSide.SELL,
-              tokenAddress: adexState.currentPairInfo.token1.address,
+              tokenAddress: orderToken.address,
               amount: positionSize,
               price,
               slippage,
             });
           }}
         >
-          Sell {adexState.currentPairInfo.token1.name}
+          Sell {orderToken.name}
         </button>
       )}
     </div>
