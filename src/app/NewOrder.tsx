@@ -47,6 +47,9 @@ export function NewOrder() {
   const [orderType, setOrderType] = useState<adex.OrderType>(
     adex.OrderType.MARKET
   );
+  const [orderSide, setOrderSide] = useState<adex.OrderSide>(
+    adex.OrderSide.BUY
+  );
   const [orderToken, setOrderToken] = useState<adex.TokenInfo>(
     adexState.currentPairInfo.token1
   );
@@ -56,21 +59,28 @@ export function NewOrder() {
   const [swapQuote, setSwapQuote] = useState<adex.SwapQuote | null>(null);
 
   const createTx = (
-    orderType: string,
-    side: string,
-    tokenAddress: string,
-    amount: number,
-    price: number,
-    slippage: number
   ) => {
-    price = orderType === "MARKET" ? -1 : price;
+    if (//TODO: Check user has funds for tx
+        //TODO: Check for crazy slippage
+        //TODO: Fat finger checks
+      !positionSize || //Haven't input a position size
+      positionSize <= 0 || //done it dumb
+      (orderType !== adex.OrderType.MARKET && //LIMIT or POST order
+        ((price < 0 && slippage < 0) || //haven't input price or slippage
+          (price > 0 && slippage > 0) || //Input both price and slippage
+          !(price || slippage))) //No input for price or slippage
+    ) {
+      //Provide better error messages
+      alert("Please correctly out all fields");
+      return;
+    }
     console.log(
       "ORDER INPUT DETAILS:\n Pair %s\nType %s \nSide %s \n token address %s\namount %f\nprice %f\nslip %f\nfrontend%f\naccount %s\naccount %s",
       adexState.currentPairAddress,
       orderType,
-      side,
-      tokenAddress,
-      amount,
+      orderSide,
+      orderToken.address,
+      positionSize,
       price,
       slippage,
       1,
@@ -80,9 +90,9 @@ export function NewOrder() {
     const order = adex.createExchangeOrderTx(
       adexState.currentPairAddress,
       orderType,
-      side,
-      tokenAddress,
-      amount,
+      orderSide,
+      orderToken.address,
+      positionSize,
       price,
       slippage,
       1,
@@ -91,10 +101,12 @@ export function NewOrder() {
     );
     order
       .then((response) => {
-        console.log("RESPONSE________________________________________");
-        console.log(response);
+        console.log(
+          "RESPONSE________________________________________\n",
+          response
+        );
         const data = response.data;
-        console.log(data);
+        console.log("DATA__________\n", data);
         adex.submitTransaction(data, rdt);
       })
       .catch((error) => {
@@ -165,7 +177,6 @@ export function NewOrder() {
   //Updates token balances
   useEffect(() => {
     const account = accounts.length > 0 ? accounts[0].address : "";
-    console.log("Updating token pair/connecting");
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&
@@ -191,10 +202,22 @@ export function NewOrder() {
 
   function activeTypeTabClass(tabsOrderType: adex.OrderType) {
     let className = "tab tab-bordered";
-    if (orderType === tabsOrderType) {
+    if (
+      orderType === tabsOrderType ||
+      (tabsOrderType === adex.OrderType.LIMIT &&
+        orderType === adex.OrderType.POSTONLY) //Post only is displayed on limit page
+    ) {
       className += " tab-active";
     }
 
+    return className;
+  }
+
+  function activeSideTabClass(tabsSide: adex.OrderSide) {
+    let className = "tab tab-bordered";
+    if (orderSide === tabsSide) {
+      className += " tab-active";
+    }
     return className;
   }
 
@@ -238,9 +261,10 @@ export function NewOrder() {
       });
   };
 
+  //Gets swap quote
   useEffect(() => {
     const debouncedGetSwapQuote = debounce(getSwapQuote, 2000);
-    positionSize < 0 ? null : debouncedGetSwapQuote();
+    // positionSize < 0 ? null : debouncedGetSwapQuote();
   }, [positionSize]);
 
   return (
@@ -267,11 +291,19 @@ export function NewOrder() {
         >
           Limit
         </a>
+      </div>
+      <div className="tabs">
         <a
-          className={activeTypeTabClass(adex.OrderType.POSTONLY)}
-          onClick={() => setOrderType(adex.OrderType.POSTONLY)}
+          className={activeSideTabClass(adex.OrderSide.BUY)}
+          onClick={() => setOrderSide(adex.OrderSide.BUY)}
         >
-          Post Only
+          BUY
+        </a>
+        <a
+          className={activeSideTabClass(adex.OrderSide.SELL)}
+          onClick={() => setOrderSide(adex.OrderSide.SELL)}
+        >
+          SELL
         </a>
       </div>
       <div className="tabs">
@@ -305,6 +337,23 @@ export function NewOrder() {
             }}
           />
         </div>
+        {orderType === adex.OrderType.MARKET && (
+          <div className="flex">
+            <label htmlFor="slippage" className="my-auto">
+              Slippage
+            </label>
+            <input
+              type="number"
+              id="slippage"
+              name="slippage"
+              className="w-full m-2 p-2 rounded-none"
+              onInput={(event) =>
+                setSlippage(parseFloat(event.currentTarget.value) / 100)
+              }
+            />
+            %
+          </div>
+        )}
         {orderType !== adex.OrderType.MARKET && (
           <div>
             <div className="flex justify-between">
@@ -321,19 +370,21 @@ export function NewOrder() {
                 }
               />
             </div>
-            <div className="flex">
-              <label htmlFor="slippage" className="my-auto">
-                Slippage
+            <div>
+              <label>
+                Prevent immediate execution
+                <input
+                  type="checkbox"
+                  checked={orderType === adex.OrderType.POSTONLY}
+                  onChange={() => {
+                    setOrderType(
+                      orderType === adex.OrderType.POSTONLY
+                        ? adex.OrderType.LIMIT
+                        : adex.OrderType.POSTONLY
+                    );
+                  }}
+                />
               </label>
-              <input
-                type="number"
-                id="slippage"
-                name="slippage"
-                className="w-full m-2 p-2 rounded-none"
-                onInput={(event) =>
-                  setSlippage(parseFloat(event.currentTarget.value))
-                }
-              />
             </div>
           </div>
         )}
@@ -349,50 +400,17 @@ export function NewOrder() {
           <button
             className="btn m-2"
             onClick={() => {
-              if (
-                !positionSize ||
-                (orderType !== adex.OrderType.MARKET &&
-                  (price < 0 || slippage < 0))
-              ) {
-                alert("Please fill out all fields");
-                return;
-              }
-              return createTx(
-                orderType,
-                adex.OrderSide.BUY,
-                orderToken.address,
-                positionSize,
-                price,
-                slippage
-              );
+              return createTx();
             }}
           >
-            Buy {orderToken.name}
+            {orderSide} {orderToken.name}
           </button>
           <button
             className="btn m-2 mb-8"
             onClick={() => {
-              if (
-                !positionSize ||
-                (orderType !== adex.OrderType.MARKET &&
-                  (price < 0 || slippage < 0))
-              ) {
-                alert("Please fill out all fields");
-                return;
-              }
-              return createTx(
-                orderType,
-                adex.OrderSide.SELL,
-                orderToken.address,
-                positionSize,
-                price,
-                slippage
-              );
+              getSwapQuote();
             }}
           >
-            Sell {orderToken.name}
-          </button>
-          <button className="btn m-2 mb-8" onClick={() => {}}>
             quote
           </button>
         </div>
