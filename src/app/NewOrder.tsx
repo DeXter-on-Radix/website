@@ -53,16 +53,21 @@ export function NewOrder() {
   const [orderToken, setOrderToken] = useState<adex.TokenInfo>(
     adexState.currentPairInfo.token1
   );
-  const [positionSize, setPositionSize] = useState<number>(-1);
+  const [otherSideToken, setOtherSideToken] = useState<adex.TokenInfo>(
+    adexState.currentPairInfo.token2
+  );
+  const [positionSize, setPositionSize] = useState<number>(0);
   const [price, setPrice] = useState<number>(-1);
-  const [slippage, setSlippage] = useState<number>(-1);
+  const [slippage, setSlippage] = useState<number>(0);
   const [swapQuote, setSwapQuote] = useState<adex.SwapQuote | null>(null);
+  const platformBadgeID = 1;
+  const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
 
-  const createTx = (
-  ) => {
-    if (//TODO: Check user has funds for tx
-        //TODO: Check for crazy slippage
-        //TODO: Fat finger checks
+  const createTx = () => {
+    if (
+      //TODO: Check user has funds for tx
+      //TODO: Check for crazy slippage
+      //TODO: Fat finger checks
       !positionSize || //Haven't input a position size
       positionSize <= 0 || //done it dumb
       (orderType !== adex.OrderType.MARKET && //LIMIT or POST order
@@ -83,7 +88,7 @@ export function NewOrder() {
       positionSize,
       price,
       slippage,
-      1,
+      platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
     );
@@ -95,18 +100,13 @@ export function NewOrder() {
       positionSize,
       price,
       slippage,
-      1,
+      platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
     );
     order
       .then((response) => {
-        console.log(
-          "RESPONSE________________________________________\n",
-          response
-        );
         const data = response.data;
-        console.log("DATA__________\n", data);
         adex.submitTransaction(data, rdt);
       })
       .catch((error) => {
@@ -114,9 +114,22 @@ export function NewOrder() {
       });
   };
 
-  const setPercentageOfFunds = ({ proportion }: { proportion: string }) => {
-    //Button to set 25/50/75/100% of total token balance to an order.
-    //Perhaps add some logic so you can't set 100% of xrd to an order
+  const setPercentageOfFunds = (proportion: number) => {
+    proportion = proportion / 100;
+    if (proportion > 1 || proportion < 0) {
+      setPositionSize(0);
+      return;
+    }
+    try {
+      let positionSize =
+        orderToken === adexState.currentPairInfo.token1
+          ? proportion * token1Balance
+          : proportion * token2Balance;
+      setPositionSize(positionSize);
+    } catch (error) {
+      setPositionSize(0);
+      console.error(error);
+    }
   };
 
   const getAccountResourceBalance = (
@@ -149,6 +162,7 @@ export function NewOrder() {
         });
     });
   };
+
   const fetchBalances = useCallback(
     async (address1: string, address2: string, account: string) => {
       try {
@@ -198,6 +212,7 @@ export function NewOrder() {
   //Updates selected side (token1/token2)
   useEffect(() => {
     setOrderToken(adexState.currentPairInfo.token1);
+    setOtherSideToken(adexState.currentPairInfo.token2);
   }, [adexState.currentPairInfo.token1, adexState.currentPairInfo.token2]);
 
   function activeTypeTabClass(tabsOrderType: adex.OrderType) {
@@ -230,31 +245,17 @@ export function NewOrder() {
   }
 
   const getSwapQuote = () => {
-    const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
     const adexPairInfo = adexState.currentPairInfo;
-    console.log("getswapquote posn size", positionSize);
-    console.log(
-      orderToken.address,
-      positionSize,
-      orderToken === adexPairInfo.token1
-        ? adexPairInfo.token2.address
-        : adexPairInfo.token1.address,
-      1,
-      platformFee
-    );
     const quote = adex.getSwapQuote(
       orderToken.address,
       positionSize,
-      orderToken === adexPairInfo.token1
-        ? adexPairInfo.token2.address
-        : adexPairInfo.token1.address,
-      1,
+      otherSideToken.address,
+      slippage,
       platformFee
     );
     quote
       .then((response) => {
         setSwapQuote(response.data[0]);
-        console.log(swapQuote);
       })
       .catch((error) => {
         console.error(error);
@@ -263,8 +264,7 @@ export function NewOrder() {
 
   //Gets swap quote
   useEffect(() => {
-    const debouncedGetSwapQuote = debounce(getSwapQuote, 2000);
-    // positionSize < 0 ? null : debouncedGetSwapQuote();
+    getSwapQuote();
   }, [positionSize]);
 
   return (
@@ -309,13 +309,19 @@ export function NewOrder() {
       <div className="tabs">
         <a
           className={activeTokenTabClass(adexState.currentPairInfo.token1)}
-          onClick={() => setOrderToken(adexState.currentPairInfo.token1)}
+          onClick={() => {
+            setOrderToken(adexState.currentPairInfo.token1);
+            setOtherSideToken(adexState.currentPairInfo.token2);
+          }}
         >
           {adexState.currentPairInfo.token1.name}
         </a>
         <a
           className={activeTokenTabClass(adexState.currentPairInfo.token2)}
-          onClick={() => setOrderToken(adexState.currentPairInfo.token2)}
+          onClick={() => {
+            setOrderToken(adexState.currentPairInfo.token2);
+            setOtherSideToken(adexState.currentPairInfo.token1);
+          }}
         >
           {adexState.currentPairInfo.token2.name}
         </a>
@@ -331,10 +337,53 @@ export function NewOrder() {
             id="amount"
             name="amount"
             required
-            className="w-full m-2 p-2 rounded-none"
+            value={positionSize}
             onInput={(event) => {
               setPositionSize(parseFloat(event.currentTarget.value));
             }}
+          />
+        </div>
+        <div className="inline-flex">
+          <button
+            className="btn m-2"
+            onClick={() => {
+              setPercentageOfFunds(25);
+            }}
+          >
+            25%
+          </button>
+          <button
+            className="btn m-2"
+            onClick={() => {
+              setPercentageOfFunds(50);
+            }}
+          >
+            50%
+          </button>
+          <button
+            className="btn m-2"
+            onClick={() => {
+              setPercentageOfFunds(75);
+            }}
+          >
+            75%
+          </button>
+          <button
+            className="btn m-2"
+            onClick={() => {
+              setPercentageOfFunds(100);
+            }}
+          >
+            100%
+          </button>
+          <input
+            type="number"
+            id="percentage"
+            name="percentage"
+            className="m-2 p-2 rounded-none"
+            onInput={(event) =>
+              setPercentageOfFunds(parseFloat(event.currentTarget.value))
+            }
           />
         </div>
         {orderType === adex.OrderType.MARKET && (
@@ -346,6 +395,7 @@ export function NewOrder() {
               type="number"
               id="slippage"
               name="slippage"
+              value={slippage}
               className="w-full m-2 p-2 rounded-none"
               onInput={(event) =>
                 setSlippage(parseFloat(event.currentTarget.value) / 100)
@@ -390,11 +440,13 @@ export function NewOrder() {
         )}
         {swapQuote && (
           <div>
-            <p>Display swap quote data here </p>
+            <p>
+              Paying {positionSize} {orderToken.name} for {swapQuote.toAmount}{" "}
+              {otherSideToken.name}
+            </p>
           </div>
         )}
       </div>
-      <br />
       {connected && (
         <div>
           <button
