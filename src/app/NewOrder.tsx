@@ -35,7 +35,6 @@ export function NewOrder() {
     setGatewayApi(gatewayApi);
   }, []);
 
-  //returns simple orderbook of buys/sells
   const adexState = useContext(AdexStateContext);
   const accounts = useAccounts();
   const rdt = useRdt();
@@ -58,8 +57,8 @@ export function NewOrder() {
   );
   const [positionSize, setPositionSize] = useState<number>(0);
   const [price, setPrice] = useState<number>(-1);
-  const [slippage, setSlippage] = useState<number>(0);
-  const [swapQuote, setSwapQuote] = useState<adex.SwapQuote | null>(null);
+  const [slippagePercent, setSlippagePercent] = useState<number>(0);
+  const [swapText, setSwapText] = useState<string | null>(null);
   const platformBadgeID = 1;
   const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
 
@@ -71,9 +70,9 @@ export function NewOrder() {
       !positionSize || //Haven't input a position size
       positionSize <= 0 || //done it dumb
       (orderType !== adex.OrderType.MARKET && //LIMIT or POST order
-        ((price < 0 && slippage < 0) || //haven't input price or slippage
-          (price > 0 && slippage > 0) || //Input both price and slippage
-          !(price || slippage))) //No input for price or slippage
+        ((price < 0 && slippagePercent < 0) || //haven't input price or slippage
+          (price > 0 && slippagePercent > 100) || //Input both price and slippage
+          !(price || slippagePercent))) //No input for price or slippage
     ) {
       //Provide better error messages
       alert("Please correctly out all fields");
@@ -87,7 +86,7 @@ export function NewOrder() {
       orderToken.address,
       positionSize,
       price,
-      slippage,
+      slippagePercent / 100,
       platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
@@ -99,7 +98,7 @@ export function NewOrder() {
       orderToken.address,
       positionSize,
       price,
-      slippage,
+      slippagePercent / 100,
       platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
@@ -116,21 +115,77 @@ export function NewOrder() {
 
   const setPercentageOfFunds = (proportion: number) => {
     proportion = proportion / 100;
-    if (proportion > 1 || proportion < 0) {
+    if (proportion < 0) {
       setPositionSize(0);
       return;
     }
     try {
-      let positionSize =
-        orderToken === adexState.currentPairInfo.token1
-          ? proportion * token1Balance
-          : proportion * token2Balance;
-      setPositionSize(positionSize);
+      if (orderSide === adex.OrderSide.SELL) {
+        if (orderToken === adexState.currentPairInfo.token1) {
+          safelySetPositionSize(token1Balance * proportion);
+        } else {
+          safelySetPositionSize(token2Balance * proportion);
+        }
+      }
+      if (orderSide === adex.OrderSide.BUY) {
+        const tokenBalance =
+          orderToken === adexState.currentPairInfo.token2
+            ? token1Balance
+            : token2Balance;
+        console.log(tokenBalance)
+        getSwapQuote(
+          otherSideToken,
+          orderToken,
+          tokenBalance * proportion
+        ).then((swapQuote: adex.SwapQuote) => {
+          if (swapQuote) {
+            console.log("set percent swapquote\n", swapQuote);
+            safelySetPositionSize(swapQuote.toAmount);
+          } else {
+            setPositionSize(0); // Handle the case when swapQuote is null
+          }
+        });
+      }
     } catch (error) {
       setPositionSize(0);
       console.error(error);
     }
   };
+
+  //TODO: adjust logic to take account of buy/sell
+  //Sell side works correctly
+  //Buy side rounds incorrectly
+  function safelySetPositionSize(position: number) {
+    if (position === 0 || null) {
+      setPositionSize(0);
+      return;
+    }
+    const isSell = orderSide === adex.OrderSide.SELL;
+    const isToken1 = orderToken === adexState.currentPairInfo.token1;
+
+    const currentPairInfo = adexState.currentPairInfo;
+    const maxDigits = isToken1
+      ? currentPairInfo.maxDigitsToken1
+      : currentPairInfo.maxDigitsToken2;
+    const minPosition = isToken1
+      ? currentPairInfo.minOrderToken1
+      : currentPairInfo.minOrderToken2;
+    if (position < minPosition) {
+      console.log("POSITION TOO SMALL!!!");
+    }
+
+    if (position.toString().split(".")[1]?.length > maxDigits) {
+      position = Number(
+        //Ugly but rounds number down to nearest with correct decimal places
+        (
+          Math.floor(position * Math.pow(10, maxDigits)) /
+          Math.pow(10, maxDigits)
+        ).toFixed(maxDigits)
+      );
+    }
+
+    setPositionSize(position);
+  }
 
   const getAccountResourceBalance = (
     resourceAddress: string,
@@ -244,28 +299,63 @@ export function NewOrder() {
     return className;
   }
 
-  const getSwapQuote = () => {
-    const adexPairInfo = adexState.currentPairInfo;
-    const quote = adex.getSwapQuote(
-      orderToken.address,
-      positionSize,
-      otherSideToken.address,
-      slippage,
+  const getSwapQuote = (
+    sendingToken: adex.TokenInfo,
+    receivingToken: adex.TokenInfo,
+    sendingAmount: number
+  ): Promise<adex.SwapQuote> => {
+    // Explicitly defining the return type as Promise<adex.SwapQuote>
+    const minPosition =
+      orderToken === adexState.currentPairInfo.token1
+        ? adexState.currentPairInfo.minOrderToken1
+        : adexState.currentPairInfo.minOrderToken2;
+    if (positionSize < minPosition || !positionSize)
+      return Promise.resolve(null);
+    console.log("order from", sendingToken);
+    console.log("order to", receivingToken);
+    console.log("size", sendingAmount);
+    console.log(
+      sendingToken.address,
+      sendingAmount,
+      receivingToken.address,
+      slippagePercent / 100,
       platformFee
     );
-    quote
+    return adex
+      .getSwapQuote(
+        sendingToken.address,
+        sendingAmount,
+        receivingToken.address,
+        slippagePercent / 100,
+        platformFee
+      )
       .then((response) => {
-        setSwapQuote(response.data[0]);
+        return response.data[0];
       })
       .catch((error) => {
         console.error(error);
+        return null;
       });
   };
 
-  //Gets swap quote
+  //Updates swap quote
+  //TODO: adjust logic to take account of buy/sell
   useEffect(() => {
-    getSwapQuote();
-  }, [positionSize]);
+    getSwapQuote(
+      orderSide === adex.OrderSide.SELL ? orderToken : otherSideToken,
+      orderSide === adex.OrderSide.SELL ? otherSideToken : orderToken,
+      positionSize
+    ).then((swapQuote: adex.SwapQuote) => {
+      if (swapQuote) {
+        console.log(swapQuote);
+        setSwapText(
+          `Sending ${swapQuote.fromAmount} ${swapQuote.fromToken.name} to receive ${swapQuote.toAmount} ${swapQuote.toToken.name}`
+        );
+      } else {
+        setSwapText(""); // Handle the case when swapQuote is null
+      }
+    });
+  }, [positionSize, adexState.currentPairInfo, orderToken, orderSide]);
 
   return (
     <div>
@@ -337,9 +427,9 @@ export function NewOrder() {
             id="amount"
             name="amount"
             required
-            value={positionSize}
+            value={!Number.isNaN(positionSize) ? positionSize : ""}
             onInput={(event) => {
-              setPositionSize(parseFloat(event.currentTarget.value));
+              safelySetPositionSize(parseFloat(event.currentTarget.value));
             }}
           />
         </div>
@@ -395,10 +485,10 @@ export function NewOrder() {
               type="number"
               id="slippage"
               name="slippage"
-              value={slippage}
+              value={!Number.isNaN(slippagePercent) ? slippagePercent : ""}
               className="w-full m-2 p-2 rounded-none"
               onInput={(event) =>
-                setSlippage(parseFloat(event.currentTarget.value) / 100)
+                setSlippagePercent(parseFloat(event.currentTarget.value))
               }
             />
             %
@@ -438,14 +528,7 @@ export function NewOrder() {
             </div>
           </div>
         )}
-        {swapQuote && (
-          <div>
-            <p>
-              Paying {positionSize} {orderToken.name} for {swapQuote.toAmount}{" "}
-              {otherSideToken.name}
-            </p>
-          </div>
-        )}
+        {swapText}
       </div>
       {connected && (
         <div>
@@ -456,14 +539,6 @@ export function NewOrder() {
             }}
           >
             {orderSide} {orderToken.name}
-          </button>
-          <button
-            className="btn m-2 mb-8"
-            onClick={() => {
-              getSwapQuote();
-            }}
-          >
-            quote
           </button>
         </div>
       )}
