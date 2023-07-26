@@ -108,7 +108,7 @@ function toOrderBookRowProps(
 
   for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
-    total += order.quantityRemaining;
+    total += order.valueRemaining;
     props.push({
       barColor: side === "sell" ? "red" : "green",
       order,
