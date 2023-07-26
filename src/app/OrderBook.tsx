@@ -29,9 +29,7 @@ function OrderBookRow(props: OrderBookRowProps) {
 }
 
 interface MiddleRowsProps {
-  // TODO: how to determine if there were no trades to make this field nulllable?
-  // adexState.currentPairInfo.lastPrice returns -1 if there were no trades
-  lastPrice: number;
+  lastPrice: string;
   bestSell: number | null;
   bestBuy: number | null;
 }
@@ -90,6 +88,12 @@ export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
 
+  let lastPrice = "";
+  // checking for past trades here because adexState.currentPairInfo.lastPrice
+  // is never null, and is = -1 if there were no trades
+  if (adexState.currentPairTrades.length > 0) {
+    lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
+  }
   let bestSell = null;
   let bestBuy = null;
 
@@ -121,7 +125,7 @@ export function OrderBook() {
           ))}
 
           <MiddleRows
-            lastPrice={adexState.currentPairInfo.lastPrice}
+            lastPrice={lastPrice}
             bestSell={bestSell}
             bestBuy={bestBuy}
           />
