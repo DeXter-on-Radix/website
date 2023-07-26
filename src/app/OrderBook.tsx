@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
+import "./orderbook.css";
 
 interface OrderBookRowProps {
   barColor: string;
@@ -28,7 +29,7 @@ function OrderBookRow(props: OrderBookRowProps) {
 }
 
 interface MiddleRowsProps {
-  // TODO: how to determin if there were no trades to make this field nulllable?
+  // TODO: how to determine if there were no trades to make this field nulllable?
   // adexState.currentPairInfo.lastPrice returns -1 if there were no trades
   lastPrice: number;
   bestSell: number | null;
@@ -38,26 +39,30 @@ interface MiddleRowsProps {
 function MiddleRows(props: MiddleRowsProps) {
   const { lastPrice, bestSell, bestBuy } = props;
 
+  const tdStyle = {
+    padding: "0",
+  };
+
   if (bestBuy && bestSell && bestBuy !== 0) {
     const spread = bestSell - bestBuy;
     const spreadPercent = (spread / bestBuy) * 100;
 
     return (
       <>
-        <tr className="border-none">
-          <td className="text-2xl m-0 p-0" colSpan={2}>
+        <tr className="border-none orderbook-middle-row-top">
+          <td className="text-2xl" colSpan={2} style={tdStyle}>
             {lastPrice}
           </td>
-          <td className="text-sm m-0 p-0 text-end" colSpan={2}>
+          <td className="text-sm text-end" colSpan={2}>
             Spread
           </td>
         </tr>
 
-        <tr className="border-none">
-          <td className="text-sm m-0 p-0" colSpan={2}>
+        <tr className="border-none orderbook-middle-row-bottom">
+          <td className="text-sm" colSpan={2}>
             TODO: should we use USD value?
           </td>
-          <td className="text-xl m-0 p-0 text-end" colSpan={2}>
+          <td className="text-xl text-end" colSpan={2}>
             {spread}({spreadPercent}%)
           </td>
         </tr>
@@ -66,14 +71,14 @@ function MiddleRows(props: MiddleRowsProps) {
   } else {
     return (
       <>
-        <tr className="border-none">
-          <td className="text-2xl m-0 p-0" colSpan={4}>
+        <tr className="border-none orderbook-middle-row-top">
+          <td className="text-2xl" colSpan={4} style={tdStyle}>
             {lastPrice}
           </td>
         </tr>
-        <tr className="border-none">
-          <td className="text-sm m-0 p-0" colSpan={4}>
-            TODO: should we use USD value?
+        <tr className="border-none orderbook-middle-row-bottom">
+          <td className="text-sm" colSpan={4}>
+            TODO: should we use USD estimate?
           </td>
         </tr>
       </>
