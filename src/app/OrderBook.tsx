@@ -2,29 +2,25 @@ import { useContext } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 import "./orderbook.css";
+import * as utils from "./utils";
 
 interface OrderBookRowProps {
   barColor: string;
-  order: OrderbookLine;
-  total: number;
+  orderCount: number;
+  price: string;
+  size: string;
+  total: string;
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const { barColor, order, total } = props;
+  // TODO: daisyui variable bar color
 
   return (
     <tr className="border-none">
-      <td>{order.noOrders}</td>
-      <td
-        className={
-          (barColor === "green" ? "text-green-700" : "text-red-700") +
-          " text-end"
-        }
-      >
-        {order.price}
-      </td>
-      <td className="text-end">{order.quantityRemaining}</td>
-      <td className="text-end">{total}</td>
+      <td>{props.orderCount}</td>
+      <td className={props.barColor + " text-end"}>{props.price}</td>
+      <td className="text-end">{props.size}</td>
+      <td className="text-end">{props.total}</td>
     </tr>
   );
 }
@@ -97,28 +93,33 @@ function toOrderBookRowProps(
   adexOrderbookLines: OrderbookLine[],
   side: "sell" | "buy"
 ): OrderBookRowProps[] {
-  let orders = adexOrderbookLines;
+  let adexRows = adexOrderbookLines;
   let total = 0;
 
   const props = [];
 
   if (side === "sell") {
-    orders.reverse();
+    // TODO: implement a solution without mutating the original array
+    adexRows.reverse();
   }
 
-  for (let i = 0; i < orders.length; i++) {
-    const order = orders[i];
-    total += order.valueRemaining;
+  for (let i = 0; i < adexRows.length; i++) {
+    const adexRow = adexRows[i];
+    // https://www.npmjs.com/package/alphadex-sdk-js
+    // quantityRemaining - The amount of token1 that remains available at this price.
+    total += adexRow.quantityRemaining;
     props.push({
-      barColor: side === "sell" ? "red" : "green",
-      order,
-      total,
+      barColor: side === "sell" ? "text-red-700" : "text-green-700",
+      orderCount: adexRow.noOrders,
+      price: utils.displayNumber(adexRow.price, 2, true),
+      size: utils.displayNumber(adexRow.valueRemaining, 2, true),
+      total: utils.displayNumber(total, 2, true),
     });
   }
 
   if (side === "sell") {
     props.reverse();
-    orders.reverse();
+    adexRows.reverse();
   }
 
   return props;
