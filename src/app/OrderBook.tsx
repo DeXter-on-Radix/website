@@ -6,10 +6,11 @@ import "./orderbook.css";
 interface OrderBookRowProps {
   barColor: string;
   order: OrderbookLine;
+  total: number;
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const { barColor, order } = props;
+  const { barColor, order, total } = props;
 
   return (
     <tr className="border-none">
@@ -23,7 +24,7 @@ function OrderBookRow(props: OrderBookRowProps) {
         {order.price}
       </td>
       <td className="text-end">{order.quantityRemaining}</td>
-      <td className="text-end">{order.valueRemaining}</td>
+      <td className="text-end">{total}</td>
     </tr>
   );
 }
@@ -32,6 +33,14 @@ interface MiddleRowsProps {
   lastPrice: string;
   bestSell: number | null;
   bestBuy: number | null;
+}
+
+function UsdQuestionLink() {
+  return (
+    <a href="https://www.figma.com/file/P7pfzKwJ4G6ClapXfl61D3?node-id=18:3324&mode=design#505524313">
+      TODO: should we use USD estimate?
+    </a>
+  );
 }
 
 function MiddleRows(props: MiddleRowsProps) {
@@ -58,7 +67,7 @@ function MiddleRows(props: MiddleRowsProps) {
 
         <tr className="border-none orderbook-middle-row-bottom">
           <td className="text-sm" colSpan={2}>
-            TODO: should we use USD value?
+            <UsdQuestionLink />
           </td>
           <td className="text-xl text-end" colSpan={2}>
             {spread}({spreadPercent}%)
@@ -76,12 +85,43 @@ function MiddleRows(props: MiddleRowsProps) {
         </tr>
         <tr className="border-none orderbook-middle-row-bottom">
           <td className="text-sm" colSpan={4}>
-            TODO: should we use USD estimate?
+            <UsdQuestionLink />
           </td>
         </tr>
       </>
     );
   }
+}
+
+function toOrderBookRowProps(
+  adexOrderbookLines: OrderbookLine[],
+  side: "sell" | "buy"
+): OrderBookRowProps[] {
+  let orders = adexOrderbookLines;
+  let total = 0;
+
+  const props = [];
+
+  if (side === "sell") {
+    orders.reverse();
+  }
+
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    total += order.quantityRemaining;
+    props.push({
+      barColor: side === "sell" ? "red" : "green",
+      order,
+      total,
+    });
+  }
+
+  if (side === "sell") {
+    props.reverse();
+    orders.reverse();
+  }
+
+  return props;
 }
 
 export function OrderBook() {
@@ -115,13 +155,13 @@ export function OrderBook() {
               Size ({adexState.currentPairInfo.token2.symbol})
             </th>
             <th className="text-end">
-              Size ({adexState.currentPairInfo.token1.symbol})
+              Total ({adexState.currentPairInfo.token1.symbol})
             </th>
           </tr>
         </thead>
         <tbody>
-          {sells.map((order: OrderbookLine, index: number) => (
-            <OrderBookRow key={"sell-" + index} barColor="red" order={order} />
+          {toOrderBookRowProps(sells, "sell").map((props, index) => (
+            <OrderBookRow key={"sell-" + index} {...props} />
           ))}
 
           <MiddleRows
@@ -130,8 +170,8 @@ export function OrderBook() {
             bestBuy={bestBuy}
           />
 
-          {buys.map((order: OrderbookLine, index: number) => (
-            <OrderBookRow key={"buy-" + index} barColor="green" order={order} />
+          {toOrderBookRowProps(buys, "buy").map((props, index) => (
+            <OrderBookRow key={"buy-" + index} {...props} />
           ))}
         </tbody>
       </table>
