@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { AdexStateContext } from "./page";
 import { OrderbookLine } from "alphadex-sdk-js";
+import * as utils from "./utils";
 
 export function OrderBook({ orders }: { orders: OrderbookLine[] }) {
   //returns simple orderbook of buys/sells
@@ -19,8 +20,19 @@ export function OrderBook({ orders }: { orders: OrderbookLine[] }) {
         ) => (
           <tr key={index}>
             <th>{orders === buys ? "Buy" : "Sell"}</th>
-            <td>{item.price}</td>
-            <td>{item.quantityRemaining}</td>
+            <td>
+              {utils.displayNumber(
+                item.price,
+                adexState.currentPairInfo.maxDigitsToken2,
+                true
+              )}
+            </td>
+            <td>
+              {utils.displayNumber(
+                item.quantityRemaining,
+                adexState.currentPairInfo.maxDigitsToken1
+              )}
+            </td>
             <td>{item.valueRemaining}</td>
           </tr>
         )
