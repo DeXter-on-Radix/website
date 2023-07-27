@@ -11,18 +11,6 @@ import { useAccounts } from "./hooks/useAccounts";
 import { useConnected } from "./hooks/useConnected";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
-import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-import { error } from "console";
-
-const debounce = (callback: { (): void; (arg0: any): void }, delay: number) => {
-  let timerId;
-  return (...args: any) => {
-    clearTimeout(timerId);
-    timerId = setTimeout(() => {
-      callback(...args);
-    }, delay);
-  };
-};
 
 export function NewOrder() {
   const [gatewayApi, setGatewayApi] = useState<GatewayApiClient | null>(null);
@@ -39,7 +27,11 @@ export function NewOrder() {
   const adexState = useContext(AdexStateContext);
   const accounts = useAccounts();
   const rdt = useRdt();
-
+  const bestSell =
+    adexState.currentPairOrderbook.sells[
+      adexState.currentPairOrderbook.sells.length - 1
+    ]?.price;
+  const bestBuy = adexState.currentPairOrderbook.buys[0]?.price;
   const connected = useConnected();
 
   const [token1Balance, setToken1Balance] = useState<number | null>(null);
@@ -57,11 +49,175 @@ export function NewOrder() {
     adexState.currentPairInfo.token2
   );
   const [positionSize, setPositionSize] = useState<number>(0);
-  const [price, setPrice] = useState<number>(-1);
+  const [price, setPrice] = useState<number>((bestBuy + bestSell) / 2);
   const [slippagePercent, setSlippagePercent] = useState<number>(0);
   const [swapText, setSwapText] = useState<string | null>(null);
   const platformBadgeID = 1;
   const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
+
+  const getAccountResourceBalance = (
+    resourceAddress: string,
+    account: string
+  ) => {
+    async function getResourceDetails(
+      resourceAddress: string,
+      account: string
+    ) {
+      // TODO: check fo null or replace with another API
+      let response =
+        await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
+          stateEntityFungibleResourceVaultsPageRequest: {
+            address: account,
+            /* eslint-disable */ resource_address /* eslint-enable*/:
+              resourceAddress,
+          },
+        });
+      return response ? response : null;
+    }
+    return new Promise((resolve, reject) => {
+      getResourceDetails(resourceAddress, account)
+        .then((response) => {
+          const output = parseFloat(response ? response.items[0].amount : "0");
+          resolve(output);
+        })
+        .catch((reason: TypeError) => {
+          resolve(0);
+        });
+    });
+  };
+
+  const fetchBalances = useCallback(
+    async (address1: string, address2: string, account: string) => {
+      try {
+        const token1Balance = (await getAccountResourceBalance(
+          address1,
+          account
+        )) as number;
+        const token2Balance = (await getAccountResourceBalance(
+          address2,
+          account
+        )) as number;
+        setToken1Balance(token1Balance);
+        setToken2Balance(token2Balance);
+      } catch (error) {
+        console.log("Error fetching balances:", error);
+      }
+    },
+    [
+      adexState.currentPairAddress,
+      connected,
+      accounts,
+      getAccountResourceBalance,
+      orderSide,
+      orderType,
+      orderToken,
+    ]
+  );
+
+  //Updates token balances
+  useEffect(() => {
+    const account = accounts.length > 0 ? accounts[0].address : "";
+    if (
+      adexState.currentPairInfo.token1.address &&
+      adexState.currentPairInfo.token2.address &&
+      account
+    ) {
+      fetchBalances(
+        adexState.currentPairInfo.token1.address,
+        adexState.currentPairInfo.token2.address,
+        account
+      );
+    }
+  }, [
+    adexState.currentPairInfo.token1.address,
+    adexState.currentPairInfo.token2.address,
+    connected,
+    accounts,
+  ]);
+
+  //Updates selected side (token1/token2)
+  useEffect(() => {
+    setOrderToken(adexState.currentPairInfo.token1);
+    setOtherSideToken(adexState.currentPairInfo.token2);
+  }, [adexState.currentPairInfo.token1, adexState.currentPairInfo.token2]);
+  //applies styline to tabs
+  function getActiveTabClass(activeValue: any, tabsValue: any) {
+    let className = "tab tab-bordered";
+    if (activeValue === tabsValue) {
+      className += " tab-active";
+    }
+    return className;
+  }
+
+  function activeTypeTabClass(tabsOrderType: adex.OrderType) {
+    if (orderType != adex.OrderType.POSTONLY) {
+      return getActiveTabClass(orderType, tabsOrderType);
+    } else {
+      //Post only is displayed on limit page
+      return getActiveTabClass(adex.OrderType.LIMIT, tabsOrderType);
+    }
+  }
+
+  function activeSideTabClass(tabsSide: adex.OrderSide) {
+    return getActiveTabClass(orderSide, tabsSide);
+  }
+
+  function activeTokenTabClass(tabsToken: adex.TokenInfo) {
+    return getActiveTabClass(orderToken, tabsToken);
+  }
+
+  const getQuote = (
+    sendingToken?: adex.TokenInfo,
+    quoteOrderSide?: adex.OrderSide,
+    sendingAmount?: number
+  ) => {
+    const minPosition =
+      orderToken === adexState.currentPairInfo.token1
+        ? adexState.currentPairInfo.minOrderToken1
+        : adexState.currentPairInfo.minOrderToken2;
+    if (
+      orderSide != adex.OrderSide.BUY &&
+      (positionSize < minPosition || !positionSize)
+    ) {
+      return Promise.resolve(null);
+    }
+    const orderPrice = orderType != adex.OrderType.MARKET ? price : -1;
+    const orderSlippage =
+      orderType != adex.OrderType.MARKET ? -1 : slippagePercent / 100;
+
+    sendingToken = sendingToken ? sendingToken : orderToken;
+    quoteOrderSide = quoteOrderSide ? quoteOrderSide : orderSide;
+    sendingAmount = sendingAmount ? sendingAmount : positionSize;
+    console.log(
+      adexState.currentPairInfo.address,
+      orderType,
+      quoteOrderSide,
+      sendingToken.address,
+      sendingAmount,
+      platformFee,
+      orderPrice,
+      orderSlippage
+    );
+    return adex
+      .getExchangeOrderQuote(
+        adexState.currentPairInfo.address,
+        orderType,
+        quoteOrderSide,
+        sendingToken.address,
+        sendingAmount,
+        platformFee,
+        orderPrice,
+        orderSlippage
+      )
+      .then((response) => {
+        console.log(response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+  };
 
   const createTx = () => {
     if (
@@ -124,7 +280,7 @@ export function NewOrder() {
   //Sell side works correctly
   //Buy side rounds incorrectly
   function safelySetPositionSize(position: number) {
-    if (position === 0 || null) {
+    if (position === 0 || position === null || !position) {
       setPositionSize(0);
       return;
     }
@@ -141,7 +297,6 @@ export function NewOrder() {
     if (position < minPosition) {
       console.log("POSITION TOO SMALL!!!");
     }
-
     if (position.toString().split(".")[1]?.length > maxDigits) {
       position = Number(
         //Ugly but rounds number down to nearest with correct decimal places
@@ -155,175 +310,9 @@ export function NewOrder() {
     setPositionSize(position);
   }
 
-  const getAccountResourceBalance = (
-    resourceAddress: string,
-    account: string
-  ) => {
-    async function getResourceDetails(
-      resourceAddress: string,
-      account: string
-    ) {
-      // TODO: check fo null or replace with another API
-      let response =
-        await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
-          stateEntityFungibleResourceVaultsPageRequest: {
-            address: account,
-            /* eslint-disable */ resource_address /* eslint-enable*/:
-              resourceAddress,
-          },
-        });
-      return response ? response : null;
-    }
-    return new Promise((resolve, reject) => {
-      getResourceDetails(resourceAddress, account)
-        .then((response) => {
-          const output = parseFloat(response ? response.items[0].amount : "0");
-          resolve(output);
-        })
-        .catch((reason: TypeError) => {
-          resolve(0);
-        });
-    });
-  };
-
-  const fetchBalances = useCallback(
-    async (address1: string, address2: string, account: string) => {
-      try {
-        const token1Balance = (await getAccountResourceBalance(
-          address1,
-          account
-        )) as number;
-        const token2Balance = (await getAccountResourceBalance(
-          address2,
-          account
-        )) as number;
-        setToken1Balance(token1Balance);
-        setToken2Balance(token2Balance);
-      } catch (error) {
-        console.log("Error fetching balances:", error);
-      }
-    },
-    [
-      adexState.currentPairAddress,
-      connected,
-      accounts,
-      getAccountResourceBalance,
-    ]
-  );
-
-  //Updates token balances
-  useEffect(() => {
-    const account = accounts.length > 0 ? accounts[0].address : "";
-    if (
-      adexState.currentPairInfo.token1.address &&
-      adexState.currentPairInfo.token2.address &&
-      account
-    ) {
-      fetchBalances(
-        adexState.currentPairInfo.token1.address,
-        adexState.currentPairInfo.token2.address,
-        account
-      );
-    }
-  }, [
-    adexState.currentPairInfo.token1.address,
-    adexState.currentPairInfo.token2.address,
-    connected,
-    accounts,
-  ]);
-
-  //Updates selected side (token1/token2)
-  useEffect(() => {
-    setOrderToken(adexState.currentPairInfo.token1);
-    setOtherSideToken(adexState.currentPairInfo.token2);
-  }, [adexState.currentPairInfo.token1, adexState.currentPairInfo.token2]);
-
-  function activeTypeTabClass(tabsOrderType: adex.OrderType) {
-    let className = "tab tab-bordered";
-    if (
-      orderType === tabsOrderType ||
-      (tabsOrderType === adex.OrderType.LIMIT &&
-        orderType === adex.OrderType.POSTONLY) //Post only is displayed on limit page
-    ) {
-      className += " tab-active";
-    }
-
-    return className;
-  }
-
-  function activeSideTabClass(tabsSide: adex.OrderSide) {
-    let className = "tab tab-bordered";
-    if (orderSide === tabsSide) {
-      className += " tab-active";
-    }
-    return className;
-  }
-
-  function activeTokenTabClass(tabsToken: adex.TokenInfo) {
-    let className = "tab tab-bordered";
-    if (orderToken === tabsToken) {
-      className += " tab-active";
-    }
-    return className;
-  }
-
-  const getQuote = (
-    sendingToken?: adex.TokenInfo,
-    quoteOrderSide?: adex.OrderSide,
-    sendingAmount?: number
-  ) => {
-    // Explicitly defining the return type as Promise<adex.SwapQuote>
-    const minPosition =
-      orderToken === adexState.currentPairInfo.token1
-        ? adexState.currentPairInfo.minOrderToken1
-        : adexState.currentPairInfo.minOrderToken2;
-    if (
-      orderSide != adex.OrderSide.BUY &&
-      (positionSize < minPosition || !positionSize)
-    ) {
-      return Promise.resolve(null);
-    }
-    const orderPrice = orderType != adex.OrderType.MARKET ? price : -1;
-    const orderSlippage =
-      orderType != adex.OrderType.MARKET ? -1 : slippagePercent / 100;
-
-    sendingToken = sendingToken ? sendingToken : orderToken;
-    quoteOrderSide = quoteOrderSide ? quoteOrderSide : orderSide;
-    sendingAmount = sendingAmount ? sendingAmount : positionSize;
-    console.log(
-      adexState.currentPairInfo.address,
-      orderType,
-      quoteOrderSide,
-      sendingToken.address,
-      sendingAmount,
-      platformFee,
-      orderPrice,
-      orderSlippage
-    );
-    return adex
-      .getExchangeOrderQuote(
-        adexState.currentPairInfo.address,
-        orderType,
-        quoteOrderSide,
-        sendingToken.address,
-        sendingAmount,
-        platformFee,
-        orderPrice,
-        orderSlippage
-      )
-      .then((response) => {
-        console.log(response.data);
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
-  };
-
   const setPercentageOfFunds = (proportion: number) => {
     proportion = proportion / 100;
-    if (proportion < 0) {
+    if (proportion < 0 ) {
       setPositionSize(0);
       return;
     }
@@ -334,10 +323,7 @@ export function NewOrder() {
         } else {
           safelySetPositionSize(token2Balance * proportion);
         }
-      } else if (
-        orderSide === adex.OrderSide.BUY &&
-        orderType === adex.OrderType.MARKET
-      ) {
+      } else if (orderSide === adex.OrderSide.BUY) {
         const tokenBalance =
           orderToken === adexState.currentPairInfo.token2
             ? token1Balance
@@ -351,17 +337,24 @@ export function NewOrder() {
         ).then((quote: adex.SwapQuote) => {
           if (quote) {
             console.log("set percent swapquote\n", quote);
-            safelySetPositionSize(quote.toAmount);
+            if (
+              orderType != adex.OrderType.MARKET &&
+              quote.fromAmount === 0 &&
+              quote.toAmount === 0
+            ) {
+              //Flips the numbers when calculating returns
+              safelySetPositionSize(
+                orderToken === adexState.currentPairInfo.token1
+                  ? (tokenBalance * proportion) / price
+                  : tokenBalance * proportion * price
+              );
+            } else {
+              safelySetPositionSize(quote.toAmount);
+            }
           } else {
             setPositionSize(0); // Handle the case when swapQuote is null
           }
         });
-      } else {
-        const position =
-          orderToken === adexState.currentPairInfo.token2
-            ? token1Balance * proportion * price
-            : (token2Balance * proportion) / price;
-        safelySetPositionSize(position);
       }
     } catch (error) {
       setPositionSize(0);
@@ -372,12 +365,11 @@ export function NewOrder() {
   //Updates swap quote
   //TODO: adjust logic to take account of buy/sell
   useEffect(() => {
-    console.log("Updating swap text");
     if (
       positionSize === 0 ||
-      (orderSide === adex.OrderSide.SELL && price <= 0)
+      (orderType != adex.OrderType.MARKET && price <= 0)
     ) {
-      console.log("Not uppdating swapText");
+      setSwapText("");
       return;
     }
     getQuote()
@@ -387,19 +379,21 @@ export function NewOrder() {
           quote.fromAmount === 0 &&
           quote.toAmount === 0
         ) {
+          //Flips the numbers when calculating returns
+          const otherAmount =
+            orderToken === adexState.currentPairInfo.token1
+              ? positionSize * price
+              : positionSize / price;
           const fromAmount =
-            orderSide === adex.OrderSide.SELL
-              ? positionSize
-              : positionSize * price;
+            orderSide === adex.OrderSide.BUY ? otherAmount : positionSize;
           const toAmount =
-            orderSide === adex.OrderSide.SELL
-              ? positionSize / price
-              : positionSize;
+            orderSide === adex.OrderSide.BUY ? positionSize : otherAmount;
           generateAndSetSwapText(
             quote.fromToken.name,
             fromAmount,
             quote.toToken.name,
-            toAmount
+            toAmount,
+            " Order will not immediately execute."
           );
         } else {
           generateAndSetSwapText(
@@ -414,13 +408,22 @@ export function NewOrder() {
         console.log(error);
         setSwapText("");
       });
-  }, [positionSize, price, adexState.currentPairInfo, orderToken, orderSide]);
+  }, [
+    positionSize,
+    price,
+    slippagePercent,
+    adexState.currentPairInfo,
+    orderToken,
+    orderSide,
+    orderType,
+  ]);
 
   function generateAndSetSwapText(
     fromName: string,
     fromAmount: number,
     toName: string,
-    toAmount: number
+    toAmount: number,
+    extraText?: string
   ) {
     let text: string = `Sending ${fromAmount} ${fromName} to receive ${toAmount} ${toName}`;
     if (
@@ -431,8 +434,11 @@ export function NewOrder() {
         text +
         ". !!! Order size greater than available liquidity. Reduce order or increase slippage !!!";
     }
+    text = extraText ? text + extraText : text;
     setSwapText(text);
   }
+
+  //
 
   return (
     <div>
@@ -510,7 +516,7 @@ export function NewOrder() {
             }}
           />
         </div>
-        <div className="inline-flex">
+        <div className="flex justify-between">
           <button
             className="btn m-2"
             onClick={() => {
@@ -582,10 +588,27 @@ export function NewOrder() {
                 id="price"
                 name="price"
                 className="w-full m-2 p-2 rounded-none"
+                value={!Number.isNaN(price) ? price : ""}
                 onInput={(event) =>
                   setPrice(parseFloat(event.currentTarget.value))
                 }
               />
+              <button
+                className="btn m-2"
+                onClick={() => {
+                  setPrice(bestBuy ? bestBuy : price);
+                }}
+              >
+                Best buy
+              </button>
+              <button
+                className="btn m-2"
+                onClick={() => {
+                  setPrice(bestSell ? bestSell : price);
+                }}
+              >
+                Best sell
+              </button>
             </div>
             <div>
               <label>
