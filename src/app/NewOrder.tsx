@@ -12,6 +12,7 @@ import { useConnected } from "./hooks/useConnected";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { error } from "console";
 
 const debounce = (callback: { (): void; (arg0: any): void }, delay: number) => {
   let timerId;
@@ -78,6 +79,11 @@ export function NewOrder() {
       alert("Please correctly out all fields");
       return;
     }
+
+    const orderPrice = orderType != adex.OrderType.MARKET ? price : -1;
+    const orderSlippage =
+      orderType != adex.OrderType.MARKET ? -1 : slippagePercent / 100;
+
     console.log(
       "ORDER INPUT DETAILS:\n Pair %s\nType %s \nSide %s \n token address %s\namount %f\nprice %f\nslip %f\nfrontend%f\naccount %s\naccount %s",
       adexState.currentPairAddress,
@@ -85,8 +91,8 @@ export function NewOrder() {
       orderSide,
       orderToken.address,
       positionSize,
-      price,
-      slippagePercent / 100,
+      orderPrice,
+      orderSlippage,
       platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
@@ -97,8 +103,8 @@ export function NewOrder() {
       orderSide,
       orderToken.address,
       positionSize,
-      price,
-      slippagePercent / 100,
+      orderPrice,
+      orderSlippage,
       platformBadgeID,
       accounts.length > 0 ? accounts[0].address : "",
       accounts.length > 0 ? accounts[0].address : ""
@@ -106,50 +112,12 @@ export function NewOrder() {
     order
       .then((response) => {
         const data = response.data;
+        console.log(response);
         adex.submitTransaction(data, rdt);
       })
       .catch((error) => {
         console.error(error);
       });
-  };
-
-  const setPercentageOfFunds = (proportion: number) => {
-    proportion = proportion / 100;
-    if (proportion < 0) {
-      setPositionSize(0);
-      return;
-    }
-    try {
-      if (orderSide === adex.OrderSide.SELL) {
-        if (orderToken === adexState.currentPairInfo.token1) {
-          safelySetPositionSize(token1Balance * proportion);
-        } else {
-          safelySetPositionSize(token2Balance * proportion);
-        }
-      }
-      if (orderSide === adex.OrderSide.BUY) {
-        const tokenBalance =
-          orderToken === adexState.currentPairInfo.token2
-            ? token1Balance
-            : token2Balance;
-        console.log(tokenBalance)
-        getSwapQuote(
-          otherSideToken,
-          orderToken,
-          tokenBalance * proportion
-        ).then((swapQuote: adex.SwapQuote) => {
-          if (swapQuote) {
-            console.log("set percent swapquote\n", swapQuote);
-            safelySetPositionSize(swapQuote.toAmount);
-          } else {
-            setPositionSize(0); // Handle the case when swapQuote is null
-          }
-        });
-      }
-    } catch (error) {
-      setPositionSize(0);
-      console.error(error);
-    }
   };
 
   //TODO: adjust logic to take account of buy/sell
@@ -299,38 +267,53 @@ export function NewOrder() {
     return className;
   }
 
-  const getSwapQuote = (
-    sendingToken: adex.TokenInfo,
-    receivingToken: adex.TokenInfo,
-    sendingAmount: number
-  ): Promise<adex.SwapQuote> => {
+  const getQuote = (
+    sendingToken?: adex.TokenInfo,
+    quoteOrderSide?: adex.OrderSide,
+    sendingAmount?: number
+  ) => {
     // Explicitly defining the return type as Promise<adex.SwapQuote>
     const minPosition =
       orderToken === adexState.currentPairInfo.token1
         ? adexState.currentPairInfo.minOrderToken1
         : adexState.currentPairInfo.minOrderToken2;
-    if (positionSize < minPosition || !positionSize)
+    if (
+      orderSide != adex.OrderSide.BUY &&
+      (positionSize < minPosition || !positionSize)
+    ) {
       return Promise.resolve(null);
-    console.log("order from", sendingToken);
-    console.log("order to", receivingToken);
-    console.log("size", sendingAmount);
+    }
+    const orderPrice = orderType != adex.OrderType.MARKET ? price : -1;
+    const orderSlippage =
+      orderType != adex.OrderType.MARKET ? -1 : slippagePercent / 100;
+
+    sendingToken = sendingToken ? sendingToken : orderToken;
+    quoteOrderSide = quoteOrderSide ? quoteOrderSide : orderSide;
+    sendingAmount = sendingAmount ? sendingAmount : positionSize;
     console.log(
+      adexState.currentPairInfo.address,
+      orderType,
+      quoteOrderSide,
       sendingToken.address,
       sendingAmount,
-      receivingToken.address,
-      slippagePercent / 100,
-      platformFee
+      platformFee,
+      orderPrice,
+      orderSlippage
     );
     return adex
-      .getSwapQuote(
+      .getExchangeOrderQuote(
+        adexState.currentPairInfo.address,
+        orderType,
+        quoteOrderSide,
         sendingToken.address,
         sendingAmount,
-        receivingToken.address,
-        slippagePercent / 100,
-        platformFee
+        platformFee,
+        orderPrice,
+        orderSlippage
       )
       .then((response) => {
-        return response.data[0];
+        console.log(response.data);
+        return response.data;
       })
       .catch((error) => {
         console.error(error);
@@ -338,24 +321,118 @@ export function NewOrder() {
       });
   };
 
+  const setPercentageOfFunds = (proportion: number) => {
+    proportion = proportion / 100;
+    if (proportion < 0) {
+      setPositionSize(0);
+      return;
+    }
+    try {
+      if (orderSide === adex.OrderSide.SELL) {
+        if (orderToken === adexState.currentPairInfo.token1) {
+          safelySetPositionSize(token1Balance * proportion);
+        } else {
+          safelySetPositionSize(token2Balance * proportion);
+        }
+      } else if (
+        orderSide === adex.OrderSide.BUY &&
+        orderType === adex.OrderType.MARKET
+      ) {
+        const tokenBalance =
+          orderToken === adexState.currentPairInfo.token2
+            ? token1Balance
+            : token2Balance;
+        console.log(tokenBalance);
+        console.log(otherSideToken, orderToken, tokenBalance * proportion);
+        getQuote(
+          otherSideToken,
+          adex.OrderSide.SELL,
+          tokenBalance * proportion
+        ).then((quote: adex.SwapQuote) => {
+          if (quote) {
+            console.log("set percent swapquote\n", quote);
+            safelySetPositionSize(quote.toAmount);
+          } else {
+            setPositionSize(0); // Handle the case when swapQuote is null
+          }
+        });
+      } else {
+        const position =
+          orderToken === adexState.currentPairInfo.token2
+            ? token1Balance * proportion * price
+            : (token2Balance * proportion) / price;
+        safelySetPositionSize(position);
+      }
+    } catch (error) {
+      setPositionSize(0);
+      console.error(error);
+    }
+  };
+
   //Updates swap quote
   //TODO: adjust logic to take account of buy/sell
   useEffect(() => {
-    getSwapQuote(
-      orderSide === adex.OrderSide.SELL ? orderToken : otherSideToken,
-      orderSide === adex.OrderSide.SELL ? otherSideToken : orderToken,
-      positionSize
-    ).then((swapQuote: adex.SwapQuote) => {
-      if (swapQuote) {
-        console.log(swapQuote);
-        setSwapText(
-          `Sending ${swapQuote.fromAmount} ${swapQuote.fromToken.name} to receive ${swapQuote.toAmount} ${swapQuote.toToken.name}`
-        );
-      } else {
-        setSwapText(""); // Handle the case when swapQuote is null
-      }
-    });
-  }, [positionSize, adexState.currentPairInfo, orderToken, orderSide]);
+    console.log("Updating swap text");
+    if (
+      positionSize === 0 ||
+      (orderSide === adex.OrderSide.SELL && price <= 0)
+    ) {
+      console.log("Not uppdating swapText");
+      return;
+    }
+    getQuote()
+      .then((quote: adex.Quote) => {
+        if (
+          orderType != adex.OrderType.MARKET &&
+          quote.fromAmount === 0 &&
+          quote.toAmount === 0
+        ) {
+          const fromAmount =
+            orderSide === adex.OrderSide.SELL
+              ? positionSize
+              : positionSize * price;
+          const toAmount =
+            orderSide === adex.OrderSide.SELL
+              ? positionSize / price
+              : positionSize;
+          generateAndSetSwapText(
+            quote.fromToken.name,
+            fromAmount,
+            quote.toToken.name,
+            toAmount
+          );
+        } else {
+          generateAndSetSwapText(
+            quote.fromToken.name,
+            quote.fromAmount,
+            quote.toToken.name,
+            quote.toAmount
+          );
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        setSwapText("");
+      });
+  }, [positionSize, price, adexState.currentPairInfo, orderToken, orderSide]);
+
+  function generateAndSetSwapText(
+    fromName: string,
+    fromAmount: number,
+    toName: string,
+    toAmount: number
+  ) {
+    let text: string = `Sending ${fromAmount} ${fromName} to receive ${toAmount} ${toName}`;
+    if (
+      (orderSide === adex.OrderSide.SELL && fromAmount < positionSize * 0.99) ||
+      (orderSide === adex.OrderSide.BUY && toAmount < positionSize * 0.99)
+    ) {
+      text =
+        text +
+        ". !!! Order size greater than available liquidity. Reduce order or increase slippage !!!";
+    }
+    setSwapText(text);
+  }
 
   return (
     <div>
@@ -528,7 +605,9 @@ export function NewOrder() {
             </div>
           </div>
         )}
-        {swapText}
+        <div className="text-sm">
+          <div>{swapText}</div>
+        </div>
       </div>
       {connected && (
         <div>
