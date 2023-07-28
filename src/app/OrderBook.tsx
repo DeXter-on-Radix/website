@@ -91,7 +91,9 @@ function MiddleRows(props: MiddleRowsProps) {
 
 function toOrderBookRowProps(
   adexOrderbookLines: OrderbookLine[],
-  side: "sell" | "buy"
+  side: "sell" | "buy",
+  maxDigitsToken1: number,
+  maxDigitsToken2: number
 ): OrderBookRowProps[] {
   let adexRows = adexOrderbookLines;
   let total = 0;
@@ -111,8 +113,8 @@ function toOrderBookRowProps(
     props.push({
       barColor: side === "sell" ? "text-red-700" : "text-green-700",
       orderCount: adexRow.noOrders,
-      price: utils.displayNumber(adexRow.price, 2, true),
-      size: utils.displayNumber(adexRow.valueRemaining, 2, true),
+      price: utils.displayNumber(adexRow.price, maxDigitsToken1, true),
+      size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2, true),
       total: utils.displayNumber(total, 2, true),
     });
   }
@@ -128,6 +130,7 @@ function toOrderBookRowProps(
 export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
+  const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
 
   let lastPrice = "";
   // checking for past trades here because adexState.currentPairInfo.lastPrice
@@ -161,7 +164,12 @@ export function OrderBook() {
           </tr>
         </thead>
         <tbody>
-          {toOrderBookRowProps(sells, "sell").map((props, index) => (
+          {toOrderBookRowProps(
+            sells,
+            "sell",
+            maxDigitsToken1,
+            maxDigitsToken2
+          ).map((props, index) => (
             <OrderBookRow key={"sell-" + index} {...props} />
           ))}
 
@@ -171,7 +179,12 @@ export function OrderBook() {
             bestBuy={bestBuy}
           />
 
-          {toOrderBookRowProps(buys, "buy").map((props, index) => (
+          {toOrderBookRowProps(
+            buys,
+            "buy",
+            maxDigitsToken1,
+            maxDigitsToken2
+          ).map((props, index) => (
             <OrderBookRow key={"buy-" + index} {...props} />
           ))}
         </tbody>
