@@ -3,18 +3,23 @@ import { AdexStateContext } from "./contexts";
 import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
 import { useConnected } from "./hooks/useConnected";
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
+import {
+  RadixNetwork,
+  RadixNetworkConfigById
+} from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
 export function OrderButton() {
   const [gatewayApi, setGatewayApi] = useState<GatewayApiClient | null>(null);
   useEffect(() => {
     // TODO: do we really need the gateway api client here?
     // or can we somehow get data from rdt or adex?
-    const gatewayApi = GatewayApiClient.initialize({
-      basePath: "https://rcnet.radixdlt.com",
+    const gatewayApi = new GatewayApiClient({
+      basePath: "https://rcnet-v2.radixdlt.com/",
+      //basePath: RadixNetworkConfigById[13].gatewayUrl,
     });
-    const { status, transaction, stream, state } = gatewayApi;
+    console.log(gatewayApi);
     setGatewayApi(gatewayApi);
   }, []);
 
@@ -23,7 +28,7 @@ export function OrderButton() {
   const rdt = useRdt();
   const [bestSell, setBestSell] = useState<number>(0);
   const [bestBuy, setBestBuy] = useState<number>(0);
-  const connected = useConnected();
+  const connected = true;
 
   const [token1Balance, setToken1Balance] = useState<number>(0);
   const [token2Balance, setToken2Balance] = useState<number>(0);
@@ -52,16 +57,20 @@ export function OrderButton() {
     account: string
   ) {
     try {
+      console.log("fetching4", account, resourceAddress);
       const response =
         await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
           stateEntityFungibleResourceVaultsPageRequest: {
             address: account,
+            // eslint-disable-next-line camelcase
             resource_address: resourceAddress,
           },
         });
+      console.log("fetching5", response);
       const output = parseFloat(response ? response.items[0].amount : "0");
       return output;
     } catch (error) {
+      console.error(error);
       return 0;
     }
   }
@@ -77,7 +86,8 @@ export function OrderButton() {
         account
       )) as number;
       const token2Balance = (await getAccountResourceBalance(
-        address2,
+        "resource_tdx_d_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxepwmma",
+        // address2,
         account
       )) as number;
       setToken1Balance(token1Balance);
@@ -89,7 +99,11 @@ export function OrderButton() {
 
   //Updates token balances
   useEffect(() => {
-    const account = accounts.length > 0 ? accounts[0].address : "";
+    // const account = accounts.length > 0 ? accounts[0].address : "";
+    console.log(connected);
+    const account = rdt.accounts[0].address ? rdt.accounts[0].address : "";
+    console.log(rdt.accounts[0].address);
+    // console.log(account);
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&

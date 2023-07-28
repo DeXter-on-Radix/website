@@ -2,7 +2,8 @@ import { useContext } from "react";
 import { RdtContext } from "../contexts";
 
 export const useRdt = () => {
-  const rdt = useContext(RdtContext);
+  // eslint-disable-next-line prettier/prettier
+  const rdt = useContext(RdtContext)!
 
   return rdt;
 };

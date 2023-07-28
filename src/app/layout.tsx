@@ -4,7 +4,11 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { useEffect, useState } from "react";
 import { RdtContext, AdexStateContext, initialStaticState } from "./contexts";
-import { State, RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
+import {
+  RadixDappToolkit,
+  DataRequestBuilder,
+  WalletData,
+} from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
 import { Subscription } from "rxjs";
 import { Rdt } from "./types";
@@ -28,36 +32,28 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [rdtContext, setRdtContext] = useState<Rdt | undefined>(undefined);
+  const [rdtContext, setRdtContext] = useState<WalletData | undefined>(
+    undefined
+  );
 
   const [adexState, setAdexState] = useState(initialStaticState);
 
   useEffect(() => {
-    const rdt = RadixDappToolkit(
-      {
-        dAppDefinitionAddress:
-          "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
-        dAppName: "DeXter",
-      },
-      (requestData) => {
-        requestData({
-          accounts: { quantifier: "atLeast", quantity: 1 },
-        });
-      },
-      {
-        networkId: 12,
-        onDisconnect: () => {
-          // TODO: clear your application state
-        },
-        onInit: ({ accounts }) => {
-          // TODO: set your initial application state
-        },
-      }
+    let subs: Subscription[] = [];
+    const rdt = RadixDappToolkit({
+      dAppDefinitionAddress:
+        "account_tdx_d_16996e320lnez82q6430eunaz9l3n5fnwk6eh9avrmtmj22e7m9lvl2",
+        // "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+      networkId: 13,
+    });
+    rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
+    subs.push(
+      rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
+        setRdtContext(walletData);
+      })
     );
-    setRdtContext(rdt);
 
     adex.init();
-    let subs: Subscription[] = [];
     subs.push(
       adex.clientState.stateChanged$.subscribe((newState) => {
         setAdexState(newState);
