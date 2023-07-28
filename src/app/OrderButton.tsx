@@ -6,7 +6,7 @@ import { useConnected } from "./hooks/useConnected";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 
-export function NewOrder() {
+export function OrderButton() {
   const [gatewayApi, setGatewayApi] = useState<GatewayApiClient | null>(null);
   useEffect(() => {
     // TODO: do we really need the gateway api client here?
@@ -42,7 +42,7 @@ export function NewOrder() {
   const [token1Selected, setToken1Selected] = useState<Boolean>(true);
   const [positionSize, setPositionSize] = useState<number>(0);
   const [price, setPrice] = useState<number>((bestBuy + bestSell) / 2);
-  const [slippagePercent, setSlippagePercent] = useState<number>(0);
+  const [slippagePercent, setSlippagePercent] = useState<number>(1);
   const [swapText, setSwapText] = useState<string | null>(null);
   const platformBadgeID = 1;
   const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable

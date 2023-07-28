@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { AdexStateContext } from "./contexts";
 import { OrderBook } from "./OrderBook";
 import { PriceChart } from "./PriceChart";
-import { NewOrder } from "./NewOrder";
+import { OrderButton } from "./OrderButton";
 
 export function PairInfo() {
   //Returns some simple information about the currently selected pair, and the orderbook
@@ -18,7 +18,7 @@ export function PairInfo() {
         Last Price: {adexState.currentPairInfo.lastPrice}
       </div>
 
-      <NewOrder />
+      <OrderButton />
       <PriceChart />
 
       <h4>Orderbook:</h4>
