@@ -1,26 +1,13 @@
 import { useContext, useEffect, useState } from "react";
-import { AdexStateContext } from "./contexts";
+import { AdexStateContext, RdtContext, GatewayContext } from "./contexts";
 import * as adex from "alphadex-sdk-js";
-import { useAccounts } from "./hooks/useAccounts";
-import { useConnected } from "./hooks/useConnected";
-import { RadixNetworkConfigById } from "@radixdlt/babylon-gateway-api-sdk";
-import { useRdt } from "./hooks/useRdt";
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
 export function OrderButton() {
-  const [gatewayApi, setGatewayApi] = useState<GatewayApiClient | null>(null);
-  useEffect(() => {
-    // TODO: do we really need the gateway api client here?
-    // or can we somehow get data from rdt or adex?
-    const gatewayApi = GatewayApiClient.initialize({
-      basePath: RadixNetworkConfigById[13].gatewayUrl,
-    });
-    setGatewayApi(gatewayApi);
-  }, []);
 
   const adexState = useContext(AdexStateContext);
-  const rdt = useRdt();
-  const accounts = useAccounts();
+  const rdt = useContext(RdtContext);
+  const gatewayApi = useContext(GatewayContext);
+  const [accounts, setAccounts] = useState([]);
   const [bestSell, setBestSell] = useState<number>(0);
   const [bestBuy, setBestBuy] = useState<number>(0);
   const connected = true;
@@ -93,7 +80,9 @@ export function OrderButton() {
 
   //Updates token balances
   useEffect(() => {
-    const account = accounts.length > 0 ? accounts[0].address : "";
+    const account = rdt ? rdt.accounts[0].address : "";
+    console.log("rdt", rdt);
+    console.log("api", gatewayApi);
     console.log(account);
     if (
       adexState.currentPairInfo.token1.address &&
@@ -115,6 +104,11 @@ export function OrderButton() {
     accounts,
     gatewayApi,
   ]);
+
+  //updates accounts
+  useEffect(() => {
+    if (rdt) setAccounts(rdt.accounts);
+  }, [rdt]);
 
   //Updates selected side (token1/token2)
   useEffect(() => {
