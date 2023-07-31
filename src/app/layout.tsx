@@ -43,7 +43,7 @@ export default function RootLayout({
     const rdt = RadixDappToolkit({
       dAppDefinitionAddress:
         "account_tdx_d_16996e320lnez82q6430eunaz9l3n5fnwk6eh9avrmtmj22e7m9lvl2",
-        // "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
+      // "account_tdx_c_1pyc6tpqu2uy7tzy82cgm5c289x7qy6xehtkqe0j2yycsr9ukkl",
       networkId: 13,
     });
     rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));

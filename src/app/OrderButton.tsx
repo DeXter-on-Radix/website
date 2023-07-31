@@ -3,10 +3,7 @@ import { AdexStateContext } from "./contexts";
 import * as adex from "alphadex-sdk-js";
 import { useAccounts } from "./hooks/useAccounts";
 import { useConnected } from "./hooks/useConnected";
-import {
-  RadixNetwork,
-  RadixNetworkConfigById
-} from "@radixdlt/babylon-gateway-api-sdk";
+import { RadixNetworkConfigById } from "@radixdlt/babylon-gateway-api-sdk";
 import { useRdt } from "./hooks/useRdt";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -15,17 +12,15 @@ export function OrderButton() {
   useEffect(() => {
     // TODO: do we really need the gateway api client here?
     // or can we somehow get data from rdt or adex?
-    const gatewayApi = new GatewayApiClient({
-      basePath: "https://rcnet-v2.radixdlt.com/",
-      //basePath: RadixNetworkConfigById[13].gatewayUrl,
+    const gatewayApi = GatewayApiClient.initialize({
+      basePath: RadixNetworkConfigById[13].gatewayUrl,
     });
-    console.log(gatewayApi);
     setGatewayApi(gatewayApi);
   }, []);
 
   const adexState = useContext(AdexStateContext);
-  const accounts = useAccounts();
   const rdt = useRdt();
+  const accounts = useAccounts();
   const [bestSell, setBestSell] = useState<number>(0);
   const [bestBuy, setBestBuy] = useState<number>(0);
   const connected = true;
@@ -57,7 +52,6 @@ export function OrderButton() {
     account: string
   ) {
     try {
-      console.log("fetching4", account, resourceAddress);
       const response =
         await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
           stateEntityFungibleResourceVaultsPageRequest: {
@@ -66,7 +60,6 @@ export function OrderButton() {
             resource_address: resourceAddress,
           },
         });
-      console.log("fetching5", response);
       const output = parseFloat(response ? response.items[0].amount : "0");
       return output;
     } catch (error) {
@@ -82,7 +75,8 @@ export function OrderButton() {
   ) {
     try {
       const token1Balance = (await getAccountResourceBalance(
-        address1,
+        "resource_tdx_d_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxepwmma",
+        // address1,
         account
       )) as number;
       const token2Balance = (await getAccountResourceBalance(
@@ -99,16 +93,15 @@ export function OrderButton() {
 
   //Updates token balances
   useEffect(() => {
-    // const account = accounts.length > 0 ? accounts[0].address : "";
-    console.log(connected);
-    const account = rdt.accounts[0].address ? rdt.accounts[0].address : "";
-    console.log(rdt.accounts[0].address);
-    // console.log(account);
+    const account = accounts.length > 0 ? accounts[0].address : "";
+    console.log(account);
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&
-      account
+      account &&
+      gatewayApi
     ) {
+      console.log(rdt);
       fetchBalances(
         adexState.currentPairInfo.token1.address,
         adexState.currentPairInfo.token2.address,
@@ -120,6 +113,7 @@ export function OrderButton() {
     adexState.currentPairInfo.token2.address,
     connected,
     accounts,
+    gatewayApi,
   ]);
 
   //Updates selected side (token1/token2)
