@@ -95,23 +95,26 @@ function toOrderBookRowProps(
   maxDigitsToken1: number,
   maxDigitsToken2: number
 ): OrderBookRowProps[] {
-  let adexRows = adexOrderbookLines;
+  const props = [];
   let total = 0;
 
-  const props = [];
+  let iterateStart = 0;
+  let iterateEnd = adexOrderbookLines.length;
+  let iterateStep = 1;
+  let barColor = "text-green-700";
 
   if (side === "sell") {
-    // TODO: implement a solution without mutating the original array
-    adexRows.reverse();
+    iterateStart = adexOrderbookLines.length - 1;
+    iterateEnd = -1;
+    iterateStep = -1;
+    barColor = "text-red-700";
   }
 
-  for (let i = 0; i < adexRows.length; i++) {
-    const adexRow = adexRows[i];
-    // https://www.npmjs.com/package/alphadex-sdk-js
-    // quantityRemaining - The amount of token1 that remains available at this price.
+  for (let i = iterateStart; i !== iterateEnd; i += iterateStep) {
+    const adexRow = adexOrderbookLines[i];
     total += adexRow.quantityRemaining;
     props.push({
-      barColor: side === "sell" ? "text-red-700" : "text-green-700",
+      barColor,
       orderCount: adexRow.noOrders,
       price: utils.displayNumber(adexRow.price, maxDigitsToken1, true),
       size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2, true),
@@ -121,7 +124,6 @@ function toOrderBookRowProps(
 
   if (side === "sell") {
     props.reverse();
-    adexRows.reverse();
   }
 
   return props;
