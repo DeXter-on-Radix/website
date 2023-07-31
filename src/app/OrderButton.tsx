@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { AdexStateContext, RdtContext, GatewayContext } from "./contexts";
 import * as adex from "alphadex-sdk-js";
+import { warn } from "console";
+import { Sulphur_Point } from "next/font/google";
 
 export function OrderButton() {
-
   const adexState = useContext(AdexStateContext);
   const rdt = useContext(RdtContext);
   const gatewayApi = useContext(GatewayContext);
@@ -28,7 +29,12 @@ export function OrderButton() {
   );
   const [token1Selected, setToken1Selected] = useState<Boolean>(true);
   const [positionSize, setPositionSize] = useState<number>(0);
-  const [price, setPrice] = useState<number>((bestBuy + bestSell) / 2);
+  const [positionPercent, setPositionPercent] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0);
+
+  const [priceBox, setPriceBox] = useState<string>(
+    "w-full m-2 p-2 rounded-none border"
+  );
   const [slippagePercent, setSlippagePercent] = useState<number>(1);
   const [swapText, setSwapText] = useState<string | null>(null);
   const platformBadgeID = 1;
@@ -81,16 +87,12 @@ export function OrderButton() {
   //Updates token balances
   useEffect(() => {
     const account = rdt ? rdt.accounts[0].address : "";
-    console.log("rdt", rdt);
-    console.log("api", gatewayApi);
-    console.log(account);
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&
       account &&
       gatewayApi
     ) {
-      console.log(rdt);
       fetchBalances(
         adexState.currentPairInfo.token1.address,
         adexState.currentPairInfo.token2.address,
@@ -129,10 +131,18 @@ export function OrderButton() {
     setPrice(0);
   }, [adexState.currentPairInfo]);
 
-  //sets price to halfway point
+  //sets price appropriately
   useEffect(() => {
-    if (!price || price === 0 || Number.isNaN(price)) {
-      setPrice((bestBuy + bestSell) / 2);
+    if (price != 0) {
+      return;
+    }
+    if (
+      (token1Selected && orderSide === adex.OrderSide.BUY) ||
+      (!token1Selected && orderSide === adex.OrderSide.SELL)
+    ) {
+      setPrice(bestSell);
+    } else {
+      setPrice(bestBuy);
     }
   }, [bestBuy, bestSell]);
 
@@ -185,7 +195,6 @@ export function OrderButton() {
     sendingToken = sendingToken || selectedToken;
     quoteOrderSide = quoteOrderSide || orderSide;
     sendingAmount = sendingAmount || positionSize;
-
     try {
       const response = await adex.getExchangeOrderQuote(
         adexState.currentPairInfo.address,
@@ -262,9 +271,6 @@ export function OrderButton() {
       });
   }
 
-  //TODO: adjust logic to take account of buy/sell
-  //Sell side works correctly
-  //Buy side rounds incorrectly
   function safelySetPositionSize(position: number) {
     if (position === 0 || position === null || !position) {
       setPositionSize(0);
@@ -298,13 +304,19 @@ export function OrderButton() {
     }
 
     setPositionSize(position);
+    setPositionPercent(0);
   }
 
   //TODO: On limit buy orders, if liquidity at price is lower than available funds, available funds should be used
-  async function setPercentageOfFunds(proportion: number) {
-    proportion = proportion / 100;
+  async function setPercentageOfFunds(percentage: number) {
+    const proportion = percentage / 100;
     if (proportion < 0) {
       setPositionSize(0);
+      return;
+    }
+    if (percentage > 100) {
+      percentage = Math.floor(percentage / 10);
+      setPercentageOfFunds(percentage);
       return;
     }
 
@@ -344,8 +356,26 @@ export function OrderButton() {
         }
       } catch (error) {
         setPositionSize(0);
+        percentage = 0;
         console.error(error);
       }
+    }
+    setPositionPercent(percentage);
+  }
+
+  function safelySetPrice(priceInput: number) {
+    setPrice(priceInput);
+    if (
+      (((orderSide === adex.OrderSide.BUY && token1Selected) ||
+        (orderSide === adex.OrderSide.SELL && !token1Selected)) &&
+        priceInput > 1.1 * bestSell) ||
+      (((orderSide === adex.OrderSide.SELL && token1Selected) ||
+        (orderSide === adex.OrderSide.BUY && !token1Selected)) &&
+        priceInput < 0.9 * bestBuy)
+    ) {
+      setPriceBox("w-full m-2 p-2 rounded-none border-red-900 bg-red-200");
+    } else {
+      setPriceBox("w-full m-2 p-2 rounded-none border");
     }
   }
 
@@ -484,7 +514,6 @@ export function OrderButton() {
           {adexState.currentPairInfo.token2.name}
         </a>
       </div>
-      <br />
       <div className="flex flex-col max-w-sm">
         <div className="flex justify-between">
           <label htmlFor="amount" className="my-auto">
@@ -495,6 +524,7 @@ export function OrderButton() {
             id="amount"
             name="amount"
             required
+            className="m-2 p-2 rounded-none border"
             value={!Number.isNaN(positionSize) ? positionSize : ""}
             onInput={(event) => {
               safelySetPositionSize(parseFloat(event.currentTarget.value));
@@ -503,7 +533,7 @@ export function OrderButton() {
         </div>
         <div className="flex justify-between">
           <button
-            className="btn m-2"
+            className={"btn m-2" + (positionPercent === 25 ? " ring" : "")}
             onClick={() => {
               setPercentageOfFunds(25);
             }}
@@ -511,7 +541,7 @@ export function OrderButton() {
             25%
           </button>
           <button
-            className="btn m-2"
+            className={"btn m-2" + (positionPercent === 50 ? " ring" : "")}
             onClick={() => {
               setPercentageOfFunds(50);
             }}
@@ -519,7 +549,7 @@ export function OrderButton() {
             50%
           </button>
           <button
-            className="btn m-2"
+            className={"btn m-2" + (positionPercent === 75 ? " ring" : "")}
             onClick={() => {
               setPercentageOfFunds(75);
             }}
@@ -527,7 +557,7 @@ export function OrderButton() {
             75%
           </button>
           <button
-            className="btn m-2"
+            className={"btn m-2" + (positionPercent === 100 ? " ring" : "")}
             onClick={() => {
               setPercentageOfFunds(100);
             }}
@@ -538,28 +568,35 @@ export function OrderButton() {
             type="number"
             id="percentage"
             name="percentage"
-            className="m-2 p-2 rounded-none"
+            className="m-2 p-2 rounded-none border"
+            value={positionPercent ? positionPercent : ""}
             onInput={(event) =>
               setPercentageOfFunds(parseFloat(event.currentTarget.value))
             }
           />
         </div>
         {orderType === adex.OrderType.MARKET && (
-          <div className="flex">
-            <label htmlFor="slippage" className="my-auto">
-              Slippage
-            </label>
-            <input
-              type="number"
-              id="slippage"
-              name="slippage"
-              value={!Number.isNaN(slippagePercent) ? slippagePercent : ""}
-              className="w-full m-2 p-2 rounded-none"
-              onInput={(event) =>
-                setSlippagePercent(parseFloat(event.currentTarget.value))
-              }
-            />
-            %
+          <div>
+            <div className="flex">
+              <label htmlFor="slippage" className="my-auto">
+                Slippage
+              </label>
+              <input
+                type="number"
+                id="slippage"
+                name="slippage"
+                value={!Number.isNaN(slippagePercent) ? slippagePercent : ""}
+                className={
+                  "w-full m-2 p-2 rounded-none border" +
+                  (slippagePercent > 10 ? " border-red-900 bg-red-200" : "")
+                }
+                onInput={(event) => {
+                  setSlippagePercent(parseFloat(event.currentTarget.value));
+                }}
+              />
+              %
+            </div>
+            <br />
           </div>
         )}
         {orderType !== adex.OrderType.MARKET && (
@@ -572,15 +609,16 @@ export function OrderButton() {
                 type="number"
                 id="price"
                 name="price"
-                className="w-full m-2 p-2 rounded-none"
+                className={priceBox}
                 value={!Number.isNaN(price) ? price : ""}
-                onInput={(event) =>
-                  setPrice(parseFloat(event.currentTarget.value))
-                }
+                onInput={(event) => {
+                  safelySetPrice(parseFloat(event.currentTarget.value));
+                }}
               />
               <button
                 className="btn m-2"
                 onClick={() => {
+                  console.log(adexState.currentPairInfo);
                   setPrice(bestBuy ? bestBuy : price);
                 }}
               >

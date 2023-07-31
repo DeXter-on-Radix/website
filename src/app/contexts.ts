@@ -6,11 +6,9 @@ import { create } from "domain";
 
 export type Rdt = ReturnType<typeof RadixDappToolkit>;
 
-export const RdtContext = createContext<Rdt | undefined>(undefined);
+export const RdtContext = createContext<Rdt | null>(null);
 
-export const GatewayContext = createContext<GatewayApiClient | undefined>(
-  undefined
-);
+export const GatewayContext = createContext<GatewayApiClient | null>(null);
 
 export const initialStaticState = new StaticState(clientState.internalState);
 
