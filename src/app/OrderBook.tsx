@@ -4,6 +4,10 @@ import { AdexStateContext } from "./contexts";
 import "./orderbook.css";
 import * as utils from "./utils";
 
+// TODO: update automatically when orders get bought
+
+// TODO: "No open buy orders" and "No open sell orders" and stretch to fill
+
 interface OrderBookRowProps {
   barColor: string;
   orderCount: number;
@@ -26,7 +30,6 @@ function OrderBookRow(props: OrderBookRowProps) {
 }
 
 interface MiddleRowsProps {
-  lastPrice: string;
   bestSell: number | null;
   bestBuy: number | null;
 }
@@ -40,15 +43,42 @@ function UsdQuestionLink() {
 }
 
 function MiddleRows(props: MiddleRowsProps) {
-  const { lastPrice, bestSell, bestBuy } = props;
+  const { bestSell, bestBuy } = props;
+  const adexState = useContext(AdexStateContext);
 
   const tdStyle = {
     padding: "0",
   };
 
-  if (bestBuy && bestSell && bestBuy !== 0) {
-    const spread = bestSell - bestBuy;
-    const spreadPercent = (spread / bestBuy) * 100;
+  let spreadString = "";
+
+  let lastPrice = "";
+  // checking for past trades here because adexState.currentPairInfo.lastPrice
+  // is never null, and is = -1 if there were no trades
+  // FIXME: does not work on ADEX1/ADEX3 pair
+  if (adexState.currentPairTrades.length > 0) {
+    lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
+  }
+
+  if (bestBuy && bestSell) {
+    if (bestBuy + bestSell !== 0) {
+      const spread = bestSell - bestBuy;
+      const spreadPercent = utils.displayNumber(
+        (2 * spread) / (bestBuy + bestSell),
+        2,
+        false
+      );
+
+      const maxDigits = Math.max(
+        adexState.currentPairInfo.maxDigitsToken1,
+        adexState.currentPairInfo.maxDigitsToken2
+      );
+
+      spreadString = `${utils.displayNumber(
+        spread,
+        maxDigits
+      )} (${spreadPercent}%)`;
+    }
 
     return (
       <>
@@ -66,7 +96,7 @@ function MiddleRows(props: MiddleRowsProps) {
             <UsdQuestionLink />
           </td>
           <td className="text-xl text-end" colSpan={2}>
-            {spread}({spreadPercent}%)
+            {spreadString}
           </td>
         </tr>
       </>
@@ -118,7 +148,7 @@ function toOrderBookRowProps(
       orderCount: adexRow.noOrders,
       price: utils.displayNumber(adexRow.price, maxDigitsToken1, true),
       size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2, true),
-      total: utils.displayNumber(total, 2, true),
+      total: utils.displayNumber(total, maxDigitsToken1, true),
     });
   }
 
@@ -134,12 +164,6 @@ export function OrderBook() {
   const { buys, sells } = adexState.currentPairOrderbook;
   const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
 
-  let lastPrice = "";
-  // checking for past trades here because adexState.currentPairInfo.lastPrice
-  // is never null, and is = -1 if there were no trades
-  if (adexState.currentPairTrades.length > 0) {
-    lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
-  }
   let bestSell = null;
   let bestBuy = null;
 
@@ -175,11 +199,7 @@ export function OrderBook() {
             <OrderBookRow key={"sell-" + index} {...props} />
           ))}
 
-          <MiddleRows
-            lastPrice={lastPrice}
-            bestSell={bestSell}
-            bestBuy={bestBuy}
-          />
+          <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
 
           {toOrderBookRowProps(
             buys,
