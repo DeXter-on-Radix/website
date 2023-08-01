@@ -34,14 +34,6 @@ interface MiddleRowsProps {
   bestBuy: number | null;
 }
 
-function UsdQuestionLink() {
-  return (
-    <a href="https://www.figma.com/file/P7pfzKwJ4G6ClapXfl61D3?node-id=18:3324&mode=design#505524313">
-      TODO: should we use USD estimate?
-    </a>
-  );
-}
-
 function MiddleRows(props: MiddleRowsProps) {
   const { bestSell, bestBuy } = props;
   const adexState = useContext(AdexStateContext);
