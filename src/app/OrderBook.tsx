@@ -131,6 +131,9 @@ function toOrderBookRowProps(
   for (let i = iterateStart; i !== iterateEnd; i += iterateStep) {
     const adexRow = adexOrderbookLines[i];
     total += adexRow.quantityRemaining;
+
+    console.log("maxDigitsToken1", maxDigitsToken1);
+
     props.push({
       barColor,
       orderCount: adexRow.noOrders,
