@@ -4,7 +4,7 @@ import { AdexStateContext } from "./contexts";
 import "./orderbook.css";
 import * as utils from "./utils";
 
-// TODO: update automatically when orders get bought
+// TODO: test the table updates automatically when orders get bought
 
 // TODO: "No open buy orders" and "No open sell orders" and stretch to fill
 
@@ -83,7 +83,12 @@ function MiddleRows(props: MiddleRowsProps) {
     return (
       <>
         <tr className="border-none orderbook-middle-row-top">
-          <td className="text-2xl" colSpan={2} style={tdStyle}>
+          <td
+            className="align-middle text-2xl"
+            colSpan={2}
+            rowSpan={2}
+            style={tdStyle}
+          >
             {lastPrice}
           </td>
           <td className="text-sm text-end" colSpan={2}>
@@ -92,9 +97,6 @@ function MiddleRows(props: MiddleRowsProps) {
         </tr>
 
         <tr className="border-none orderbook-middle-row-bottom">
-          <td className="text-sm" colSpan={2}>
-            <UsdQuestionLink />
-          </td>
           <td className="text-xl text-end" colSpan={2}>
             {spreadString}
           </td>
@@ -104,14 +106,9 @@ function MiddleRows(props: MiddleRowsProps) {
   } else {
     return (
       <>
-        <tr className="border-none orderbook-middle-row-top">
+        <tr className="border-none orderbook-middle-row-top orderbook-middle-row-bottom">
           <td className="text-2xl" colSpan={4} style={tdStyle}>
             {lastPrice}
-          </td>
-        </tr>
-        <tr className="border-none orderbook-middle-row-bottom">
-          <td className="text-sm" colSpan={4}>
-            <UsdQuestionLink />
           </td>
         </tr>
       </>

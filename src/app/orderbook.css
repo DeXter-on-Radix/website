@@ -3,10 +3,10 @@
   padding: 0;
 }
 /* TODO: use daisyui color vars */
-.orderbook-middle-row-top td {
+.orderbook-middle-row-top {
   border-top: 1px solid #e5e5e5;
 }
 
-.orderbook-middle-row-bottom td {
+.orderbook-middle-row-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
