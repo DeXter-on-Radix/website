@@ -11,7 +11,6 @@ export function PairInfo() {
     <div>
       <h4>Current pair {adexState.currentPairInfo.name}</h4>
       <p>Address: {adexState.currentPairInfo.address}</p>
-      <p>Last Price: {adexState.currentPairInfo.lastPrice}</p>
 
       <PriceChart />
 

@@ -52,10 +52,9 @@ function MiddleRows(props: MiddleRowsProps) {
 
   let spreadString = "";
 
-  let lastPrice = "";
   // checking for past trades here because adexState.currentPairInfo.lastPrice
   // is never null, and is = -1 if there were no trades
-  // FIXME: does not work on ADEX1/ADEX3 pair
+  let lastPrice = "";
   if (adexState.currentPairTrades.length > 0) {
     lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
   }
