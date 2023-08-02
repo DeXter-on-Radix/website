@@ -1,34 +1,17 @@
 // utiluty function to display numbers in a fixed format
 export function displayNumber(
   x: number, // the number to display
-  maxDecimals: number, // the maximum number of decimals to display
-  fixedDecimals: boolean = false // if true, will always display the number to maxDecimals (fill with zeroes if required)
+  decimals: number // the number of decimal places to display, mu
 ): string {
-  if (x < 1) {
-    if (fixedDecimals) {
-      return x.toFixed(maxDecimals);
-    } else {
-      return roundTo(x, maxDecimals).toString();
-    }
-  } else if (x < 1000) {
-    if (maxDecimals < 3) {
-      if (fixedDecimals) {
-        return x.toFixed(maxDecimals);
-      } else {
-        return roundTo(x, maxDecimals).toString();
-      }
-    } else {
-      if (fixedDecimals) {
-        return x.toFixed(3);
-      } else {
-        return roundTo(x, 3).toString();
-      }
-    }
-  } else if (x < 1000000) {
-    return (x / 1000).toFixed(2) + "K";
+  let result = "";
+  if (x >= 1000000) {
+    result = roundTo(x / 1000000, 2).toString() + "M";
+  } else if (x >= 1000) {
+    result = roundTo(x / 1000, 2).toString() + "K";
   } else {
-    return (x / 1000000).toFixed(2) + "M";
+    result = roundTo(x, decimals).toFixed(decimals);
   }
+  return result;
 }
 
 export enum RoundType {

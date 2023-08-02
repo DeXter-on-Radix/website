@@ -56,8 +56,7 @@ function MiddleRows(props: MiddleRowsProps) {
       const spread = bestSell - bestBuy;
       const spreadPercent = utils.displayNumber(
         (2 * spread) / (bestBuy + bestSell),
-        2,
-        false
+        2
       );
 
       const maxDigits = Math.max(
@@ -132,14 +131,12 @@ function toOrderBookRowProps(
     const adexRow = adexOrderbookLines[i];
     total += adexRow.quantityRemaining;
 
-    console.log("maxDigitsToken1", maxDigitsToken1);
-
     props.push({
       barColor,
       orderCount: adexRow.noOrders,
-      price: utils.displayNumber(adexRow.price, maxDigitsToken1, true),
-      size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2, true),
-      total: utils.displayNumber(total, maxDigitsToken1, true),
+      price: utils.displayNumber(adexRow.price, maxDigitsToken1),
+      size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2),
+      total: utils.displayNumber(total, maxDigitsToken1),
     });
   }
 
