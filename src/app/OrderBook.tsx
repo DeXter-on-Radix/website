@@ -6,17 +6,25 @@ import * as utils from "./utils";
 
 // TODO: test the table updates automatically when orders get bought
 
-// TODO: "No open buy orders" and "No open sell orders"
-
 export interface OrderBookRowProps {
   barColor: string;
   orderCount: number | null;
   price: string;
   size: string;
   total: string;
+  absentOrders?: string;
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
+  if (props.absentOrders) {
+    return (
+      <tr className="border-none">
+        <td className="text-center" colSpan={4}>
+          {props.absentOrders}
+        </td>
+      </tr>
+    );
+  }
   return (
     <tr className="border-none">
       <td>{props.orderCount !== null ? props.orderCount : "\u00A0"}</td>
@@ -115,7 +123,7 @@ export function toOrderBookRowProps(
   // this will drop the rows that do not fit into 8 buys/sells
   // TODO: implement pagination or scrolling
 
-  const props = [];
+  const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
   // TODO: daisyui variable bar color
@@ -149,6 +157,10 @@ export function toOrderBookRowProps(
       size: "",
       total: "",
     });
+  }
+
+  if (adexOrderbookLines.length === 0) {
+    props[2].absentOrders = `No open ${side} orders`;
   }
 
   if (side === "sell") {
