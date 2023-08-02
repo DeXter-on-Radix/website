@@ -6,22 +6,20 @@ import * as utils from "./utils";
 
 // TODO: test the table updates automatically when orders get bought
 
-// TODO: "No open buy orders" and "No open sell orders" and stretch to fill
+// TODO: "No open buy orders" and "No open sell orders"
 
-interface OrderBookRowProps {
+export interface OrderBookRowProps {
   barColor: string;
-  orderCount: number;
+  orderCount: number | null;
   price: string;
   size: string;
   total: string;
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
-  // TODO: daisyui variable bar color
-
   return (
     <tr className="border-none">
-      <td>{props.orderCount}</td>
+      <td>{props.orderCount !== null ? props.orderCount : "\u00A0"}</td>
       <td className={props.barColor + " text-end"}>{props.price}</td>
       <td className="text-end">{props.size}</td>
       <td className="text-end">{props.total}</td>
@@ -49,6 +47,8 @@ function MiddleRows(props: MiddleRowsProps) {
   let lastPrice = "";
   if (adexState.currentPairTrades.length > 0) {
     lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
+  } else {
+    lastPrice = "No trades have occurred yet";
   }
 
   if (bestBuy && bestSell) {
@@ -106,37 +106,48 @@ function MiddleRows(props: MiddleRowsProps) {
   }
 }
 
-function toOrderBookRowProps(
+export function toOrderBookRowProps(
   adexOrderbookLines: OrderbookLine[],
   side: "sell" | "buy",
-  maxDigitsToken1: number,
-  maxDigitsToken2: number
+  decimalsToken1: number,
+  decimalsToken2: number
 ): OrderBookRowProps[] {
+  // this will drop the rows that do not fit into 8 buys/sells
+  // TODO: implement pagination or scrolling
+
   const props = [];
-  let total = 0;
+  let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  let iterateStart = 0;
-  let iterateEnd = adexOrderbookLines.length;
-  let iterateStep = 1;
+  // TODO: daisyui variable bar color
   let barColor = "text-green-700";
-
   if (side === "sell") {
-    iterateStart = adexOrderbookLines.length - 1;
-    iterateEnd = -1;
-    iterateStep = -1;
+    adexRows.reverse();
     barColor = "text-red-700";
   }
+  adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
-  for (let i = iterateStart; i !== iterateEnd; i += iterateStep) {
-    const adexRow = adexOrderbookLines[i];
+  let total = 0;
+  for (let adexRow of adexRows) {
     total += adexRow.quantityRemaining;
-
-    props.push({
+    const currentProps = {
       barColor,
       orderCount: adexRow.noOrders,
-      price: utils.displayNumber(adexRow.price, maxDigitsToken1),
-      size: utils.displayNumber(adexRow.valueRemaining, maxDigitsToken2),
-      total: utils.displayNumber(total, maxDigitsToken1),
+      price: utils.displayNumber(adexRow.price, decimalsToken1),
+      size: utils.displayNumber(adexRow.valueRemaining, decimalsToken2),
+      total: utils.displayNumber(total, decimalsToken1),
+    };
+
+    props.push(currentProps);
+  }
+
+  // If there are fewer than 8 orders, fill the remaining rows with empty values
+  while (props.length < 8) {
+    props.push({
+      barColor,
+      orderCount: null,
+      price: "",
+      size: "",
+      total: "",
     });
   }
 
