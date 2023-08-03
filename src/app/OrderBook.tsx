@@ -15,6 +15,7 @@ export interface OrderBookRowProps {
   maxTotal?: number;
   absentOrders?: string;
 }
+
 function OrderBookRow(props: OrderBookRowProps) {
   const adexState = useContext(AdexStateContext);
 
@@ -33,23 +34,30 @@ function OrderBookRow(props: OrderBookRowProps) {
     const totalString = utils.displayNumber(total, maxDigitsToken1);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
-    const barStyle: CSSProperties = {
+    const barStyle: React.CSSProperties = {
       position: "absolute",
       top: 0,
       right: 0,
       bottom: 0,
       width: barWidth,
       backgroundColor:
-        props.barColor === "text-red-700"
+        barColor === "text-red-700"
           ? "rgba(239, 68, 68, 0.5)"
           : "rgba(52, 211, 153, 0.5)",
       zIndex: -1,
     };
 
     return (
-      <tr className="border-none order-book-bars">
-        <td style={barStyle}></td>
-        <td className="text-start">{orderCount}</td>
+      <tr
+        className="border-none order-book-bars"
+        style={{ position: "relative" }}
+      >
+        <td className="text-start">
+          <div>
+            <div className="bar" style={barStyle}></div>
+            {orderCount}
+          </div>
+        </td>
         <td className="text-end">{priceString}</td>
         <td className="text-end">{sizeString}</td>
         <td className="text-end">{totalString}</td>
@@ -66,6 +74,7 @@ function OrderBookRow(props: OrderBookRowProps) {
     </tr>
   );
 }
+
 interface MiddleRowsProps {
   bestSell: number | null;
   bestBuy: number | null;
@@ -74,10 +83,6 @@ interface MiddleRowsProps {
 function MiddleRows(props: MiddleRowsProps) {
   const { bestSell, bestBuy } = props;
   const adexState = useContext(AdexStateContext);
-
-  const tdStyle = {
-    padding: "0",
-  };
 
   let spreadString = "";
 
@@ -112,12 +117,7 @@ function MiddleRows(props: MiddleRowsProps) {
     return (
       <>
         <tr className="border-none orderbook-middle-row-top">
-          <td
-            className="align-middle text-2xl"
-            colSpan={2}
-            rowSpan={2}
-            style={tdStyle}
-          >
+          <td className="align-middle text-2xl" colSpan={2} rowSpan={2}>
             {lastPrice}
           </td>
           <td className="text-sm text-end" colSpan={2}>
@@ -136,7 +136,7 @@ function MiddleRows(props: MiddleRowsProps) {
     return (
       <>
         <tr className="border-none orderbook-middle-row-top orderbook-middle-row-bottom">
-          <td className="text-2xl" colSpan={4} style={tdStyle}>
+          <td className="text-2xl" colSpan={4}>
             {lastPrice}
           </td>
         </tr>
