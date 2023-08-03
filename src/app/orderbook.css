@@ -10,3 +10,7 @@
 .orderbook-middle-row-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
+
+tr.order-book-bars {
+  position: relative;
+}

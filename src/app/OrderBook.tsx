@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, CSSProperties } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 import "./orderbook.css";
@@ -7,34 +7,65 @@ import * as utils from "./utils";
 // TODO: test the table updates automatically when orders get bought
 
 export interface OrderBookRowProps {
-  barColor: string;
-  orderCount: number | null;
-  price: string;
-  size: string;
-  total: string;
+  barColor?: string;
+  orderCount?: number;
+  price?: number;
+  size?: number;
+  total?: number;
+  maxTotal?: number;
   absentOrders?: string;
 }
-
 function OrderBookRow(props: OrderBookRowProps) {
-  if (props.absentOrders) {
+  const adexState = useContext(AdexStateContext);
+
+  const { barColor, orderCount, price, size, total, maxTotal } = props;
+  if (
+    typeof barColor !== "undefined" &&
+    typeof orderCount !== "undefined" &&
+    typeof price !== "undefined" &&
+    typeof size !== "undefined" &&
+    typeof total !== "undefined" &&
+    typeof maxTotal !== "undefined"
+  ) {
+    const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
+    const priceString = utils.displayNumber(price, maxDigitsToken1);
+    const sizeString = utils.displayNumber(size, maxDigitsToken2);
+    const totalString = utils.displayNumber(total, maxDigitsToken1);
+    const barWidth = `${(total / maxTotal) * 100}%`;
+
+    const barStyle: CSSProperties = {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      width: barWidth,
+      backgroundColor:
+        props.barColor === "text-red-700"
+          ? "rgba(239, 68, 68, 0.5)"
+          : "rgba(52, 211, 153, 0.5)",
+      zIndex: -1,
+    };
+
     return (
-      <tr className="border-none">
-        <td className="text-center" colSpan={4}>
-          {props.absentOrders}
-        </td>
+      <tr className="border-none order-book-bars">
+        <td style={barStyle}></td>
+        <td className="text-start">{orderCount}</td>
+        <td className="text-end">{priceString}</td>
+        <td className="text-end">{sizeString}</td>
+        <td className="text-end">{totalString}</td>
       </tr>
     );
   }
+
+  // otherwise we don't have data to display
   return (
     <tr className="border-none">
-      <td>{props.orderCount !== null ? props.orderCount : "\u00A0"}</td>
-      <td className={props.barColor + " text-end"}>{props.price}</td>
-      <td className="text-end">{props.size}</td>
-      <td className="text-end">{props.total}</td>
+      <td className="text-center" colSpan={4}>
+        {props.absentOrders}
+      </td>
     </tr>
   );
 }
-
 interface MiddleRowsProps {
   bestSell: number | null;
   bestBuy: number | null;
@@ -116,9 +147,7 @@ function MiddleRows(props: MiddleRowsProps) {
 
 export function toOrderBookRowProps(
   adexOrderbookLines: OrderbookLine[],
-  side: "sell" | "buy",
-  decimalsToken1: number,
-  decimalsToken2: number
+  side: "sell" | "buy"
 ): OrderBookRowProps[] {
   // this will drop the rows that do not fit into 8 buys/sells
   // TODO: implement pagination or scrolling
@@ -135,28 +164,28 @@ export function toOrderBookRowProps(
   adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
   let total = 0;
+  let maxTotal = 0;
   for (let adexRow of adexRows) {
     total += adexRow.quantityRemaining;
     const currentProps = {
       barColor,
       orderCount: adexRow.noOrders,
-      price: utils.displayNumber(adexRow.price, decimalsToken1),
-      size: utils.displayNumber(adexRow.valueRemaining, decimalsToken2),
-      total: utils.displayNumber(total, decimalsToken1),
+      price: adexRow.price,
+      size: adexRow.valueRemaining,
+      total: total,
     };
+    maxTotal = Math.max(maxTotal, total);
 
     props.push(currentProps);
+  }
+  // update maxTotal
+  for (let i = 0; i < props.length; i++) {
+    props[i].maxTotal = maxTotal;
   }
 
   // If there are fewer than 8 orders, fill the remaining rows with empty values
   while (props.length < 8) {
-    props.push({
-      barColor,
-      orderCount: null,
-      price: "",
-      size: "",
-      total: "",
-    });
+    props.push({ absentOrders: "\u00A0" });
   }
 
   if (adexOrderbookLines.length === 0) {
@@ -173,7 +202,6 @@ export function toOrderBookRowProps(
 export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
-  const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
 
   let bestSell = null;
   let bestBuy = null;
@@ -185,7 +213,7 @@ export function OrderBook() {
 
   return (
     <div className="p-2">
-      <table className="table-sm">
+      <table className="table-xs max-w-md">
         <thead>
           <tr>
             <th>Order Count</th>
@@ -201,23 +229,13 @@ export function OrderBook() {
           </tr>
         </thead>
         <tbody>
-          {toOrderBookRowProps(
-            sells,
-            "sell",
-            maxDigitsToken1,
-            maxDigitsToken2
-          ).map((props, index) => (
+          {toOrderBookRowProps(sells, "sell").map((props, index) => (
             <OrderBookRow key={"sell-" + index} {...props} />
           ))}
 
           <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
 
-          {toOrderBookRowProps(
-            buys,
-            "buy",
-            maxDigitsToken1,
-            maxDigitsToken2
-          ).map((props, index) => (
+          {toOrderBookRowProps(buys, "buy").map((props, index) => (
             <OrderBookRow key={"buy-" + index} {...props} />
           ))}
         </tbody>
