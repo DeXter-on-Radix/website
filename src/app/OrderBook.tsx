@@ -1,55 +1,9 @@
 import { useContext, CSSProperties } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
-import "./orderbook.css";
 import * as utils from "./utils";
 
 // TODO: test the table updates automatically when orders get bought
-
-import styled from "styled-components";
-
-interface ContainerProps {
-  isRight: boolean;
-  windowWidth: number;
-}
-
-export const Container = styled.div<ContainerProps>`
-  display: flex;
-  justify-content: space-around;
-  background-color: #121723;
-  position: relative;
-
-  &:after {
-    background-color: ${(props) => (props.isRight ? "#113534" : "#3d1e28")};
-    background-position: center;
-    height: 100%;
-    padding: 0.3em 0;
-    display: block;
-    content: "";
-    position: absolute;
-    left: 0;
-    right: unset;
-    z-index: 0;
-
-    @media only screen and (min-width: 800px) {
-      left: ${(props) => (props.isRight ? "unset" : 0)};
-      right: ${(props) => (props.isRight ? 0 : "unset")};
-    }
-  }
-
-  span {
-    z-index: 1;
-    min-width: 54px;
-  }
-
-  .price {
-    color: ${(props) => (props.isRight ? "#118860" : "#bb3336")};
-  }
-`;
-
-export const PriceLevelRowContainer = styled.div`
-  margin: 0.155em 0;
-`;
 
 export interface OrderBookRowProps {
   barColor?: string;
@@ -79,53 +33,29 @@ function OrderBookRow(props: OrderBookRowProps) {
     const totalString = utils.displayNumber(total, maxDigitsToken1);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
-    const barStyle: React.CSSProperties = {
-      position: "absolute",
-      top: 0,
-      right: 0,
-      bottom: 0,
+    const barStyle = {
       width: barWidth,
-      backgroundColor:
-        barColor === "text-red-700"
-          ? "rgba(239, 68, 68, 0.5)"
-          : "rgba(52, 211, 153, 0.5)",
+      backgroundColor: barColor,
+      position: "absolute",
+      right: 0,
+      top: 0,
+      bottom: 0,
       zIndex: -1,
-    };
-
-    // return (
-    //   <tr
-    //     className="border-none order-book-bars"
-    //     style={{ position: "relative" }}
-    //   >
-    //     <td className="text-start">
-    //       <div>
-    //         <div className="bar" style={barStyle}></div>
-    //         {orderCount}
-    //       </div>
-    //     </td>
-    //     <td className="text-end">{priceString}</td>
-    //     <td className="text-end">{sizeString}</td>
-    //     <td className="text-end">{totalString}</td>
-    //   </tr>
-    // );
+    } as CSSProperties;
 
     return (
-      <Container data-testid="price-level-row" isRight={true} windowWidth={300}>
-        <span>{total}</span>
-        <span>{size}</span>
-        <span className="price">{price}</span>
-      </Container>
+      <div className="relative col-span-4 grid grid-cols-4">
+        <div style={barStyle}></div>
+        <div className="order-cell">{orderCount}</div>
+        <div className="order-cell text-end">{priceString}</div>
+        <div className="order-cell text-end">{sizeString}</div>
+        <div className="order-cell text-end">{totalString}</div>
+      </div>
     );
   }
 
   // otherwise we don't have data to display
-  return (
-    <tr className="border-none">
-      <td className="text-center" colSpan={4}>
-        {props.absentOrders}
-      </td>
-    </tr>
-  );
+  return <div className="text-center col-span-4">{props.absentOrders}</div>;
 }
 
 interface MiddleRowsProps {
@@ -169,31 +99,19 @@ function MiddleRows(props: MiddleRowsProps) {
 
     return (
       <>
-        <tr className="border-none orderbook-middle-row-top">
-          <td className="align-middle text-2xl" colSpan={2} rowSpan={2}>
-            {lastPrice}
-          </td>
-          <td className="text-sm text-end" colSpan={2}>
-            Spread
-          </td>
-        </tr>
+        <div className="text-2xl col-span-2 row-span-2 border-t border-b">
+          {lastPrice}
+        </div>
+        <div className="text-sm text-end col-span-2 border-t">Spread</div>
 
-        <tr className="border-none orderbook-middle-row-bottom">
-          <td className="text-xl text-end" colSpan={2}>
-            {spreadString}
-          </td>
-        </tr>
+        <div className="text-xl text-end col-span-2 border-b">
+          {spreadString}
+        </div>
       </>
     );
   } else {
     return (
-      <>
-        <tr className="border-none orderbook-middle-row-top orderbook-middle-row-bottom">
-          <td className="text-2xl" colSpan={4}>
-            {lastPrice}
-          </td>
-        </tr>
-      </>
+      <div className="text-2xl col-span-4 border-t border-b">{lastPrice}</div>
     );
   }
 }
@@ -209,10 +127,10 @@ export function toOrderBookRowProps(
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
   // TODO: daisyui variable bar color
-  let barColor = "text-green-700";
+  let barColor = "green";
   if (side === "sell") {
     adexRows.reverse();
-    barColor = "text-red-700";
+    barColor = "red";
   }
   adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
@@ -266,32 +184,27 @@ export function OrderBook() {
 
   return (
     <div className="p-2">
-      <div className="max-w-md">
-        <div>
-          <tr>
-            <th>Order Count</th>
-            <th className="text-end">
-              Price ({adexState.currentPairInfo.token1.symbol})
-            </th>
-            <th className="text-end">
-              Size ({adexState.currentPairInfo.token2.symbol})
-            </th>
-            <th className="text-end">
-              Total ({adexState.currentPairInfo.token1.symbol})
-            </th>
-          </tr>
+      <div className="grid grid-cols-4 gap-0 max-w-md">
+        <div>Order Count</div>
+        <div className="text-end">
+          Price ({adexState.currentPairInfo.token1.symbol})
         </div>
-        <div>
-          {toOrderBookRowProps(sells, "sell").map((props, index) => (
-            <OrderBookRow key={"sell-" + index} {...props} />
-          ))}
-
-          <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
-
-          {toOrderBookRowProps(buys, "buy").map((props, index) => (
-            <OrderBookRow key={"buy-" + index} {...props} />
-          ))}
+        <div className="text-end">
+          Size ({adexState.currentPairInfo.token2.symbol})
         </div>
+        <div className="text-end">
+          Total ({adexState.currentPairInfo.token1.symbol})
+        </div>
+
+        {toOrderBookRowProps(sells, "sell").map((props, index) => (
+          <OrderBookRow key={"sell-" + index} {...props} />
+        ))}
+
+        <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
+
+        {toOrderBookRowProps(buys, "buy").map((props, index) => (
+          <OrderBookRow key={"buy-" + index} {...props} />
+        ))}
       </div>
     </div>
   );
