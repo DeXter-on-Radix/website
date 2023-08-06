@@ -1,6 +1,7 @@
 import { useContext, CSSProperties } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
+import "./orderbook.css";
 import * as utils from "./utils";
 
 // TODO: test the table updates automatically when orders get bought
@@ -44,7 +45,7 @@ function OrderBookRow(props: OrderBookRowProps) {
     } as CSSProperties;
 
     return (
-      <div className="relative col-span-4 grid grid-cols-4">
+      <div className="relative col-span-4 sized-columns">
         <div style={barStyle}></div>
         <div className="order-cell">{orderCount}</div>
         <div className="order-cell text-end">{priceString}</div>
@@ -99,13 +100,13 @@ function MiddleRows(props: MiddleRowsProps) {
 
     return (
       <>
-        <div className="text-2xl col-span-2 row-span-2 border-t border-b">
+        <div className="text-2xl col-span-2 my-1 py-1 border-t border-b">
           {lastPrice}
         </div>
-        <div className="text-sm text-end col-span-2 border-t">Spread</div>
 
-        <div className="text-xl text-end col-span-2 border-b">
-          {spreadString}
+        <div className="flex justify-end col-span-2 text-xl my-1 py-1 border-t border-b whitespace-nowrap ">
+          <span className="text-sm my-auto">Spread</span>{" "}
+          <span className="my-auto pl-2">{spreadString}</span>
         </div>
       </>
     );
@@ -126,11 +127,11 @@ export function toOrderBookRowProps(
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  // TODO: daisyui variable bar color
-  let barColor = "green";
+  // TODO: custom daisyui variable bar color
+  let barColor = "hsl(var(--su))";
   if (side === "sell") {
     adexRows.reverse();
-    barColor = "red";
+    barColor = "hsl(var(--er))";
   }
   adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
@@ -183,17 +184,24 @@ export function OrderBook() {
   }
 
   return (
-    <div className="p-2">
-      <div className="grid grid-cols-4 gap-0 max-w-md">
-        <div>Order Count</div>
-        <div className="text-end">
-          Price ({adexState.currentPairInfo.token1.symbol})
+    <div className="p-2 text-sx">
+      <div className="sized-columns max-w-sm">
+        <div className="">
+          Order
+          <br />
+          Count
         </div>
         <div className="text-end">
-          Size ({adexState.currentPairInfo.token2.symbol})
+          Price
+          <br />({adexState.currentPairInfo.token1.symbol})
         </div>
         <div className="text-end">
-          Total ({adexState.currentPairInfo.token1.symbol})
+          Size
+          <br />({adexState.currentPairInfo.token2.symbol})
+        </div>
+        <div className="text-end">
+          Total
+          <br />({adexState.currentPairInfo.token1.symbol})
         </div>
 
         {toOrderBookRowProps(sells, "sell").map((props, index) => (
