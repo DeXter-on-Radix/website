@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, CSSProperties } from "react";
 import { OrderbookLine } from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 import "./orderbook.css";
@@ -7,32 +7,56 @@ import * as utils from "./utils";
 // TODO: test the table updates automatically when orders get bought
 
 export interface OrderBookRowProps {
-  barColor: string;
-  orderCount: number | null;
-  price: string;
-  size: string;
-  total: string;
+  barColor?: string;
+  orderCount?: number;
+  price?: number;
+  size?: number;
+  total?: number;
+  maxTotal?: number;
   absentOrders?: string;
 }
 
 function OrderBookRow(props: OrderBookRowProps) {
-  if (props.absentOrders) {
+  const adexState = useContext(AdexStateContext);
+
+  const { barColor, orderCount, price, size, total, maxTotal } = props;
+  if (
+    typeof barColor !== "undefined" &&
+    typeof orderCount !== "undefined" &&
+    typeof price !== "undefined" &&
+    typeof size !== "undefined" &&
+    typeof total !== "undefined" &&
+    typeof maxTotal !== "undefined"
+  ) {
+    const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
+    const priceString = utils.displayNumber(price, maxDigitsToken1);
+    const sizeString = utils.displayNumber(size, maxDigitsToken2);
+    const totalString = utils.displayNumber(total, maxDigitsToken1);
+    const barWidth = `${(total / maxTotal) * 100}%`;
+
+    const barStyle = {
+      width: barWidth,
+      backgroundColor: barColor,
+      position: "absolute",
+      right: 0,
+      top: 0,
+      bottom: 0,
+      zIndex: -1,
+    } as CSSProperties;
+
     return (
-      <tr className="border-none">
-        <td className="text-center" colSpan={4}>
-          {props.absentOrders}
-        </td>
-      </tr>
+      <div className="relative col-span-4 sized-columns">
+        <div style={barStyle}></div>
+        <div className="order-cell">{orderCount}</div>
+        <div className="order-cell text-end">{priceString}</div>
+        <div className="order-cell text-end">{sizeString}</div>
+        <div className="order-cell text-end">{totalString}</div>
+      </div>
     );
   }
-  return (
-    <tr className="border-none">
-      <td>{props.orderCount !== null ? props.orderCount : "\u00A0"}</td>
-      <td className={props.barColor + " text-end"}>{props.price}</td>
-      <td className="text-end">{props.size}</td>
-      <td className="text-end">{props.total}</td>
-    </tr>
-  );
+
+  // otherwise we don't have data to display
+  return <div className="text-center col-span-4">{props.absentOrders}</div>;
 }
 
 interface MiddleRowsProps {
@@ -43,10 +67,6 @@ interface MiddleRowsProps {
 function MiddleRows(props: MiddleRowsProps) {
   const { bestSell, bestBuy } = props;
   const adexState = useContext(AdexStateContext);
-
-  const tdStyle = {
-    padding: "0",
-  };
 
   let spreadString = "";
 
@@ -80,45 +100,26 @@ function MiddleRows(props: MiddleRowsProps) {
 
     return (
       <>
-        <tr className="border-none orderbook-middle-row-top">
-          <td
-            className="align-middle text-2xl"
-            colSpan={2}
-            rowSpan={2}
-            style={tdStyle}
-          >
-            {lastPrice}
-          </td>
-          <td className="text-sm text-end" colSpan={2}>
-            Spread
-          </td>
-        </tr>
+        <div className="text-2xl col-span-2 my-1 py-1 border-t border-b">
+          {lastPrice}
+        </div>
 
-        <tr className="border-none orderbook-middle-row-bottom">
-          <td className="text-xl text-end" colSpan={2}>
-            {spreadString}
-          </td>
-        </tr>
+        <div className="flex justify-end col-span-2 text-xl my-1 py-1 border-t border-b whitespace-nowrap ">
+          <span className="text-sm my-auto">Spread</span>{" "}
+          <span className="my-auto pl-2">{spreadString}</span>
+        </div>
       </>
     );
   } else {
     return (
-      <>
-        <tr className="border-none orderbook-middle-row-top orderbook-middle-row-bottom">
-          <td className="text-2xl" colSpan={4} style={tdStyle}>
-            {lastPrice}
-          </td>
-        </tr>
-      </>
+      <div className="text-2xl col-span-4 border-t border-b">{lastPrice}</div>
     );
   }
 }
 
 export function toOrderBookRowProps(
   adexOrderbookLines: OrderbookLine[],
-  side: "sell" | "buy",
-  decimalsToken1: number,
-  decimalsToken2: number
+  side: "sell" | "buy"
 ): OrderBookRowProps[] {
   // this will drop the rows that do not fit into 8 buys/sells
   // TODO: implement pagination or scrolling
@@ -126,37 +127,37 @@ export function toOrderBookRowProps(
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  // TODO: daisyui variable bar color
-  let barColor = "text-green-700";
+  // TODO: custom daisyui variable bar color
+  let barColor = "hsl(var(--su))";
   if (side === "sell") {
     adexRows.reverse();
-    barColor = "text-red-700";
+    barColor = "hsl(var(--er))";
   }
   adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
   let total = 0;
+  let maxTotal = 0;
   for (let adexRow of adexRows) {
     total += adexRow.quantityRemaining;
     const currentProps = {
       barColor,
       orderCount: adexRow.noOrders,
-      price: utils.displayNumber(adexRow.price, decimalsToken1),
-      size: utils.displayNumber(adexRow.valueRemaining, decimalsToken2),
-      total: utils.displayNumber(total, decimalsToken1),
+      price: adexRow.price,
+      size: adexRow.valueRemaining,
+      total: total,
     };
+    maxTotal = Math.max(maxTotal, total);
 
     props.push(currentProps);
+  }
+  // update maxTotal
+  for (let i = 0; i < props.length; i++) {
+    props[i].maxTotal = maxTotal;
   }
 
   // If there are fewer than 8 orders, fill the remaining rows with empty values
   while (props.length < 8) {
-    props.push({
-      barColor,
-      orderCount: null,
-      price: "",
-      size: "",
-      total: "",
-    });
+    props.push({ absentOrders: "\u00A0" });
   }
 
   if (adexOrderbookLines.length === 0) {
@@ -173,7 +174,6 @@ export function toOrderBookRowProps(
 export function OrderBook() {
   const adexState = useContext(AdexStateContext);
   const { buys, sells } = adexState.currentPairOrderbook;
-  const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
 
   let bestSell = null;
   let bestBuy = null;
@@ -184,44 +184,36 @@ export function OrderBook() {
   }
 
   return (
-    <div className="p-2">
-      <table className="table-sm">
-        <thead>
-          <tr>
-            <th>Order Count</th>
-            <th className="text-end">
-              Price ({adexState.currentPairInfo.token1.symbol})
-            </th>
-            <th className="text-end">
-              Size ({adexState.currentPairInfo.token2.symbol})
-            </th>
-            <th className="text-end">
-              Total ({adexState.currentPairInfo.token1.symbol})
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {toOrderBookRowProps(
-            sells,
-            "sell",
-            maxDigitsToken1,
-            maxDigitsToken2
-          ).map((props, index) => (
-            <OrderBookRow key={"sell-" + index} {...props} />
-          ))}
+    <div className="p-2 text-sx">
+      <div className="sized-columns max-w-sm">
+        <div className="">
+          Order
+          <br />
+          Count
+        </div>
+        <div className="text-end">
+          Price
+          <br />({adexState.currentPairInfo.token1.symbol})
+        </div>
+        <div className="text-end">
+          Size
+          <br />({adexState.currentPairInfo.token2.symbol})
+        </div>
+        <div className="text-end">
+          Total
+          <br />({adexState.currentPairInfo.token1.symbol})
+        </div>
 
-          <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
+        {toOrderBookRowProps(sells, "sell").map((props, index) => (
+          <OrderBookRow key={"sell-" + index} {...props} />
+        ))}
 
-          {toOrderBookRowProps(
-            buys,
-            "buy",
-            maxDigitsToken1,
-            maxDigitsToken2
-          ).map((props, index) => (
-            <OrderBookRow key={"buy-" + index} {...props} />
-          ))}
-        </tbody>
-      </table>
+        <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
+
+        {toOrderBookRowProps(buys, "buy").map((props, index) => (
+          <OrderBookRow key={"buy-" + index} {...props} />
+        ))}
+      </div>
     </div>
   );
 }

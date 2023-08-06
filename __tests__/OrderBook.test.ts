@@ -28,25 +28,26 @@ const MOCK_BUYS = [
 ];
 
 describe("toOrderBookRowProps", () => {
-  it("returns 8 rows if the input is smaller", () => {
+  it("returns 8 rows if the input is empty", () => {
     const input: OrderbookLine[] = [];
 
-    expect(toOrderBookRowProps(input, "sell", 1, 1).length).toBe(8);
+    expect(toOrderBookRowProps(input, "sell").length).toBe(8);
+  });
+
+  it("returns 8 rows if the input is smaller", () => {
+    const input: OrderbookLine[] = MOCK_SELLS.slice(0, 5);
+
+    expect(toOrderBookRowProps(input, "sell").length).toBe(8);
   });
 
   it("returns 8 rows if the input is larger", () => {
-    const input: OrderbookLine[] = [];
-    for (let i = 0; i < 100; i++) {
-      input.push(new OrderbookLine(i, i, i, i, i, false));
-    }
-
-    expect(toOrderBookRowProps(input, "sell", 1, 1).length).toBe(8);
+    expect(toOrderBookRowProps(MOCK_SELLS, "sell").length).toBe(8);
   });
 
   it("drops the correct farther away rows for sells", () => {
-    const expectedSellPrices = ["18", "17", "16", "15", "14", "13", "12", "11"];
+    const expectedSellPrices = [18, 17, 16, 15, 14, 13, 12, 11];
 
-    const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell", 0, 0);
+    const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell");
 
     sellRowProps.forEach((row: OrderBookRowProps, index: number) => {
       expect(row.price).toBe(expectedSellPrices[index]);
@@ -54,9 +55,9 @@ describe("toOrderBookRowProps", () => {
   });
 
   it("drops the correct farther away rows for buys", () => {
-    const expectedBuyPrices = ["10", "9", "8", "7", "6", "5", "4", "3"];
+    const expectedBuyPrices = [10, 9, 8, 7, 6, 5, 4, 3];
 
-    const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy", 0, 0);
+    const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy");
 
     buyRowProps.forEach((row: OrderBookRowProps, index: number) => {
       expect(row.price).toBe(expectedBuyPrices[index]);
@@ -64,11 +65,11 @@ describe("toOrderBookRowProps", () => {
   });
 
   it("calculates correct totals", () => {
-    const expectedSellTotals = ["8", "7", "6", "5", "4", "3", "2", "1"];
-    const expectedBuyTotals = ["1", "2", "3", "4", "5", "6", "7", "8"];
+    const expectedSellTotals = [8, 7, 6, 5, 4, 3, 2, 1];
+    const expectedBuyTotals = [1, 2, 3, 4, 5, 6, 7, 8];
 
-    const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell", 0, 0);
-    const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy", 0, 0);
+    const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell");
+    const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy");
 
     sellRowProps.forEach((row: OrderBookRowProps, index: number) => {
       expect(row.total).toBe(expectedSellTotals[index]);
