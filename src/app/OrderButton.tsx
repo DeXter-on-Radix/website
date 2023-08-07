@@ -1,14 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { AdexStateContext, RdtContext, GatewayContext } from "./contexts";
+import {
+  AdexStateContext,
+  WalletContext,
+  RdtContext,
+  GatewayContext,
+} from "./contexts";
+import { Account } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
-import { warn } from "console";
-import { Sulphur_Point } from "next/font/google";
 
 export function OrderButton() {
   const adexState = useContext(AdexStateContext);
+  const wallet = useContext(WalletContext);
   const rdt = useContext(RdtContext);
   const gatewayApi = useContext(GatewayContext);
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [bestSell, setBestSell] = useState<number>(0);
   const [bestBuy, setBestBuy] = useState<number>(0);
   const connected = true;
@@ -56,7 +61,6 @@ export function OrderButton() {
       const output = parseFloat(response ? response.items[0].amount : "0");
       return output;
     } catch (error) {
-      console.error(error);
       return 0;
     }
   }
@@ -68,13 +72,11 @@ export function OrderButton() {
   ) {
     try {
       const token1Balance = (await getAccountResourceBalance(
-        "resource_tdx_d_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxepwmma",
-        // address1,
+        address1,
         account
       )) as number;
       const token2Balance = (await getAccountResourceBalance(
-        "resource_tdx_d_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxepwmma",
-        // address2,
+        address2,
         account
       )) as number;
       setToken1Balance(token1Balance);
@@ -86,7 +88,8 @@ export function OrderButton() {
 
   //Updates token balances
   useEffect(() => {
-    const account = rdt ? rdt.accounts[0].address : "";
+    // const account = "";
+    const account = wallet ? wallet.accounts[0].address : "";
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&
@@ -109,8 +112,8 @@ export function OrderButton() {
 
   //updates accounts
   useEffect(() => {
-    if (rdt) setAccounts(rdt.accounts);
-  }, [rdt]);
+    if (wallet) setAccounts(wallet.accounts);
+  }, [wallet]);
 
   //Updates selected side (token1/token2)
   useEffect(() => {
@@ -131,7 +134,7 @@ export function OrderButton() {
     setPrice(0);
   }, [adexState.currentPairInfo]);
 
-  //sets price appropriately
+  //sets price on change screen
   useEffect(() => {
     if (price != 0) {
       return;
@@ -232,21 +235,6 @@ export function OrderButton() {
     const orderPrice = orderType !== adex.OrderType.MARKET ? price : -1;
     const orderSlippage =
       orderType !== adex.OrderType.MARKET ? -1 : slippagePercent / 100;
-
-    console.log(
-      "ORDER INPUT DETAILS:\n Pair %s\nType %s \nSide %s \n token address %s\namount %f\nprice %f\nslip %f\nfrontend%f\naccount %s\naccount %s",
-      adexState.currentPairAddress,
-      orderType,
-      orderSide,
-      selectedToken.address,
-      positionSize,
-      orderPrice,
-      orderSlippage,
-      platformBadgeID,
-      accounts.length > 0 ? accounts[0].address : "",
-      accounts.length > 0 ? accounts[0].address : ""
-    );
-
     const order = adex.createExchangeOrderTx(
       adexState.currentPairAddress,
       orderType,
@@ -263,8 +251,7 @@ export function OrderButton() {
     order
       .then((response) => {
         const data = response.data;
-        console.log(response);
-        adex.submitTransaction(data, rdt);
+        return adex.submitTransaction(data, rdt);
       })
       .catch((error) => {
         console.error(error);
@@ -525,7 +512,7 @@ export function OrderButton() {
             name="amount"
             required
             className="m-2 p-2 rounded-none border"
-            value={!Number.isNaN(positionSize) ? positionSize : ""}
+            value={Number.isNaN(positionSize) ? "0" : positionSize}
             onInput={(event) => {
               safelySetPositionSize(parseFloat(event.currentTarget.value));
             }}
@@ -618,7 +605,6 @@ export function OrderButton() {
               <button
                 className="btn m-2"
                 onClick={() => {
-                  console.log(adexState.currentPairInfo);
                   setPrice(bestBuy ? bestBuy : price);
                 }}
               >
