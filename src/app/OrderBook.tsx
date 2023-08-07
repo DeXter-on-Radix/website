@@ -29,8 +29,8 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof maxTotal !== "undefined"
   ) {
     const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
-    const priceString = utils.displayNumber(price, maxDigitsToken1);
-    const sizeString = utils.displayNumber(size, maxDigitsToken2);
+    const priceString = utils.displayNumber(price, maxDigitsToken2);
+    const sizeString = utils.displayNumber(size, maxDigitsToken1);
     const totalString = utils.displayNumber(total, maxDigitsToken1);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
@@ -143,7 +143,7 @@ export function toOrderBookRowProps(
       barColor,
       orderCount: adexRow.noOrders,
       price: adexRow.price,
-      size: adexRow.valueRemaining,
+      size: adexRow.quantityRemaining,
       total: total,
     };
     maxTotal = Math.max(maxTotal, total);
@@ -193,11 +193,11 @@ export function OrderBook() {
         </div>
         <div className="text-end">
           Price
-          <br />({adexState.currentPairInfo.token1.symbol})
+          <br />({adexState.currentPairInfo.token2.symbol})
         </div>
         <div className="text-end">
           Size
-          <br />({adexState.currentPairInfo.token2.symbol})
+          <br />({adexState.currentPairInfo.token1.symbol})
         </div>
         <div className="text-end">
           Total
