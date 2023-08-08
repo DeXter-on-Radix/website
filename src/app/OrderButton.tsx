@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import {
   AdexStateContext,
   WalletContext,
@@ -45,46 +45,45 @@ export function OrderButton() {
   const platformBadgeID = 1;
   const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
 
-  async function getAccountResourceBalance(
-    resourceAddress: string,
-    account: string
-  ) {
-    try {
-      const response =
-        await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
-          stateEntityFungibleResourceVaultsPageRequest: {
-            address: account,
-            // eslint-disable-next-line camelcase
-            resource_address: resourceAddress,
-          },
-        });
-      const output = parseFloat(response ? response.items[0].amount : "0");
-      return output;
-    } catch (error) {
-      return 0;
-    }
-  }
+  const getAccountResourceBalance = useCallback(
+    async (resourceAddress: string, account: string) => {
+      try {
+        const response =
+          await gatewayApi?.state.innerClient.entityFungibleResourceVaultPage({
+            stateEntityFungibleResourceVaultsPageRequest: {
+              address: account,
+              // eslint-disable-next-line camelcase
+              resource_address: resourceAddress,
+            },
+          });
+        const output = parseFloat(response ? response.items[0].amount : "0");
+        return output;
+      } catch (error) {
+        return 0;
+      }
+    },
+    [gatewayApi]
+  );
 
-  async function fetchBalances(
-    address1: string,
-    address2: string,
-    account: string
-  ) {
-    try {
-      const token1Balance = (await getAccountResourceBalance(
-        address1,
-        account
-      )) as number;
-      const token2Balance = (await getAccountResourceBalance(
-        address2,
-        account
-      )) as number;
-      setToken1Balance(token1Balance);
-      setToken2Balance(token2Balance);
-    } catch (error) {
-      console.error("Error fetching balances:", error);
-    }
-  }
+  const fetchBalances = useCallback(
+    async (address1: string, address2: string, account: string) => {
+      try {
+        const token1Balance = (await getAccountResourceBalance(
+          address1,
+          account
+        )) as number;
+        const token2Balance = (await getAccountResourceBalance(
+          address2,
+          account
+        )) as number;
+        setToken1Balance(token1Balance);
+        setToken2Balance(token2Balance);
+      } catch (error) {
+        console.error("Error fetching balances:", error);
+      }
+    },
+    [setToken1Balance, setToken2Balance, getAccountResourceBalance]
+  );
 
   //Updates token balances
   useEffect(() => {
@@ -108,6 +107,8 @@ export function OrderButton() {
     connected,
     accounts,
     gatewayApi,
+    fetchBalances,
+    wallet,
   ]);
 
   //updates accounts
@@ -132,7 +133,11 @@ export function OrderButton() {
       ]?.price
     );
     setPrice(0);
-  }, [adexState.currentPairInfo]);
+  }, [
+    adexState.currentPairInfo,
+    adexState.currentPairOrderbook.buys,
+    adexState.currentPairOrderbook.sells,
+  ]);
 
   //sets price on change screen
   useEffect(() => {
@@ -147,7 +152,7 @@ export function OrderButton() {
     } else {
       setPrice(bestBuy);
     }
-  }, [bestBuy, bestSell]);
+  }, [bestBuy, bestSell, orderSide, price, token1Selected]);
 
   //applies styling to tabs
   function getActiveTabClass(activeValue: any, tabsValue: any) {
@@ -175,46 +180,57 @@ export function OrderButton() {
     return getActiveTabClass(selectedToken, tabsToken);
   }
 
-  async function getQuote(
-    sendingToken?: adex.TokenInfo,
-    quoteOrderSide?: adex.OrderSide,
-    sendingAmount?: number
-  ) {
-    const minPosition = token1Selected
-      ? adexState.currentPairInfo.minOrderToken1
-      : adexState.currentPairInfo.minOrderToken2;
+  const getQuote = useCallback(
+    async (
+      sendingToken: adex.TokenInfo = selectedToken,
+      quoteOrderSide: adex.OrderSide = orderSide,
+      sendingAmount: number = positionSize
+    ) => {
+      const minPosition = token1Selected
+        ? adexState.currentPairInfo.minOrderToken1
+        : adexState.currentPairInfo.minOrderToken2;
 
-    if (
-      orderSide !== adex.OrderSide.BUY &&
-      (positionSize < minPosition || !positionSize)
-    ) {
-      return null;
-    }
+      if (
+        orderSide !== adex.OrderSide.BUY &&
+        (positionSize < minPosition || !positionSize)
+      ) {
+        return null;
+      }
 
-    const orderPrice = orderType !== adex.OrderType.MARKET ? price : -1;
-    const orderSlippage =
-      orderType !== adex.OrderType.MARKET ? -1 : slippagePercent / 100;
+      const orderPrice = orderType !== adex.OrderType.MARKET ? price : -1;
+      const orderSlippage =
+        orderType !== adex.OrderType.MARKET ? -1 : slippagePercent / 100;
 
-    sendingToken = sendingToken || selectedToken;
-    quoteOrderSide = quoteOrderSide || orderSide;
-    sendingAmount = sendingAmount || positionSize;
-    try {
-      const response = await adex.getExchangeOrderQuote(
-        adexState.currentPairInfo.address,
-        orderType,
-        quoteOrderSide,
-        sendingToken.address,
-        sendingAmount,
-        platformFee,
-        orderPrice,
-        orderSlippage
-      );
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
+      try {
+        const response = await adex.getExchangeOrderQuote(
+          adexState.currentPairInfo.address,
+          orderType,
+          quoteOrderSide,
+          sendingToken.address,
+          sendingAmount,
+          platformFee,
+          orderPrice,
+          orderSlippage
+        );
+        return response.data;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    },
+    [
+      selectedToken,
+      orderSide,
+      positionSize,
+      token1Selected,
+      adexState.currentPairInfo.minOrderToken1,
+      adexState.currentPairInfo.minOrderToken2,
+      adexState.currentPairInfo.address,
+      orderType,
+      price,
+      slippagePercent,
+    ]
+  );
 
   function createTx() {
     const validationError =
@@ -366,6 +382,30 @@ export function OrderButton() {
     }
   }
 
+  const generateAndSetSwapText = useCallback(
+    (
+      fromName: string,
+      fromAmount: number,
+      toName: string,
+      toAmount: number,
+      extraText?: string
+    ) => {
+      let text: string = `Sending ${fromAmount} ${fromName} to receive ${toAmount} ${toName}`;
+      if (
+        (orderSide === adex.OrderSide.SELL &&
+          fromAmount < positionSize * 0.99) ||
+        (orderSide === adex.OrderSide.BUY && toAmount < positionSize * 0.99)
+      ) {
+        text =
+          text +
+          ". !!! Order size greater than available liquidity. Reduce order or increase slippage !!!";
+      }
+      text = extraText ? text + extraText : text;
+      setSwapText(text);
+    },
+    [orderSide, positionSize, setSwapText]
+  );
+
   //Updates swap quote
   useEffect(() => {
     if (
@@ -418,27 +458,10 @@ export function OrderButton() {
     selectedToken,
     orderSide,
     orderType,
+    getQuote,
+    token1Selected,
+    generateAndSetSwapText,
   ]);
-
-  function generateAndSetSwapText(
-    fromName: string,
-    fromAmount: number,
-    toName: string,
-    toAmount: number,
-    extraText?: string
-  ) {
-    let text: string = `Sending ${fromAmount} ${fromName} to receive ${toAmount} ${toName}`;
-    if (
-      (orderSide === adex.OrderSide.SELL && fromAmount < positionSize * 0.99) ||
-      (orderSide === adex.OrderSide.BUY && toAmount < positionSize * 0.99)
-    ) {
-      text =
-        text +
-        ". !!! Order size greater than available liquidity. Reduce order or increase slippage !!!";
-    }
-    text = extraText ? text + extraText : text;
-    setSwapText(text);
-  }
 
   return (
     <div>
