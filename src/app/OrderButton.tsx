@@ -89,7 +89,7 @@ export function OrderButton() {
   //Updates token balances
   useEffect(() => {
     // const account = "";
-    const account = wallet ? wallet.accounts[0].address : "";
+    const account = wallet ? wallet.accounts[0]?.address : "";
     if (
       adexState.currentPairInfo.token1.address &&
       adexState.currentPairInfo.token2.address &&
