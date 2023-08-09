@@ -199,7 +199,7 @@ export function PriceChart() {
           <select
             className="select select-ghost"
             id="candle-period-selector"
-            value={adex.clientState.currentCandlePeriod}
+            value={adexState.currentCandlePeriod}
             onChange={(e) => {
               adex.clientState.currentCandlePeriod = e.target.value;
             }}

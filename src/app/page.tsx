@@ -1,10 +1,7 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
-import { Subscription } from "rxjs";
-import { AdexStateContext, RadixContext } from "./contexts";
-import { State } from "@radixdlt/radix-dapp-toolkit";
-import * as adex from "alphadex-sdk-js";
+import { useContext } from "react";
+import { AdexStateContext } from "./contexts";
 import { PairsList } from "./PairsList";
 import { PairInfo } from "./PairInfo";
 

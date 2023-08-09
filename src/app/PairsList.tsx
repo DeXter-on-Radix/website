@@ -8,9 +8,14 @@ export function PairsList() {
     adex.clientState.currentPairAddress = pairAddress;
   };
   return (
-    <div>
-      <h4>AlphaDEX Pairs</h4>
-      <ul>
+    <div className="dropdown">
+      <label tabIndex={0} className="btn m-1">
+        {adexState.currentPairInfo.name}
+      </label>
+      <ul
+        tabIndex={0}
+        className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+      >
         {adexState.pairsList.map((pair, index) => (
           <li key={index}>
             <button onClick={() => selectPair(pair.address)}>
