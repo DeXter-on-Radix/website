@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { AdexStateContext } from "./contexts";
 import { PairsList } from "./PairsList";
 import { PairInfo } from "./PairInfo";
+import { AccountHistory } from "./AccountHistory";
 
 export default function Home() {
   const adexState = useContext(AdexStateContext);
@@ -24,11 +25,18 @@ export default function Home() {
     ) : null;
   }
 
+  function getAccountHistory() {
+    //gets Orderlist
+    //TODO add check if wallet is connected
+    return adexState.status != "LOADING" ? <AccountHistory /> : null;
+  }
+
   return (
     <main className="mx-6">
       <dd>AlphaDEX: {getAdexConnectionStatus()}</dd>
       {getPairs()}
       {getPairInfo()}
+      {getAccountHistory()}
     </main>
   );
 }
