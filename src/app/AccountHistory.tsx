@@ -4,8 +4,8 @@ import { AdexStateContext } from "./contexts";
 import { RenderTable } from "./RenderTable";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
-const account =
-  "account_tdx_d_12yxeee5x6juamexwd6xg96gcrzmz29286cywpq38zzz5yemmrem9fx";
+// const account =
+//   "account_tdx_d_12yxeee5x6juamexwd6xg96gcrzmz29286cywpq38zzz5yemmrem9fx";
 // const pairaddress =
 //   "component_tdx_d_1cq95v9u4s43jz9eufd2pj5jqntv69sjl62ac9tgmjhpdyxqksrkrsq";
 
@@ -17,26 +17,38 @@ const account =
 //   getHistory(account, pairaddress);
 //   return <div>SOME TEST</div>;
 // }
+interface AccountHistoryProps {
+  account: string;
+}
 
-export function AccountHistory() {
+export function AccountHistory({ account }: AccountHistoryProps) {
   const adexState = useContext(AdexStateContext);
   const [response, setResponse] = useState<SdkResult | null>(null);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const currentPairAddress = adexState.currentPairInfo?.address;
 
-  const getHistory = async (pairaddress: string) => {
-    const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
-    setResponse(apiResponse);
-    //TEMP CONSOLE LOG
-    console.log(apiResponse);
-  };
+  //   const getHistory = async (pairaddress: string) => {
+  //     if (!account) return; // Don't execute if no account
+  //     const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
+  //     setResponse(apiResponse);
+  //     //TEMP CONSOLE LOG
+  //     console.log(apiResponse);
+  //   };
 
   useEffect(() => {
-    if (currentPairAddress) {
+    const getHistory = async (pairaddress: string) => {
+      if (!account) return; // Don't execute if no account
+      const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
+      setResponse(apiResponse);
+      // TEMP CONSOLE LOG
+      console.log(apiResponse);
+    };
+
+    if (currentPairAddress && account) {
       getHistory(currentPairAddress);
       setSelectedTable("OpenOrders");
     }
-  }, [currentPairAddress]);
+  }, [currentPairAddress, account]);
 
   const handleButtonClick = (selectedTable: string) => {
     setSelectedTable(selectedTable);

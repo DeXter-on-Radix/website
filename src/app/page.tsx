@@ -1,13 +1,14 @@
 "use client";
 
 import { useContext } from "react";
-import { AdexStateContext } from "./contexts";
+import { AdexStateContext, WalletContext } from "./contexts"; //added WalletContext
 import { PairsList } from "./PairsList";
 import { PairInfo } from "./PairInfo";
 import { AccountHistory } from "./AccountHistory";
 
 export default function Home() {
   const adexState = useContext(AdexStateContext);
+  const wallet = useContext(WalletContext);
 
   function getAdexConnectionStatus() {
     return adexState.status != "LOADING" ? adexState.status : null;
@@ -28,7 +29,10 @@ export default function Home() {
   function getAccountHistory() {
     //gets Orderlist
     //TODO add check if wallet is connected
-    return adexState.status != "LOADING" ? <AccountHistory /> : null;
+    const account = wallet ? wallet.accounts[0]?.address : "";
+    return adexState.status != "LOADING" ? (
+      <AccountHistory account={account} />
+    ) : null;
   }
 
   return (
