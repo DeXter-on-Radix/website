@@ -4,19 +4,10 @@ import { AdexStateContext } from "./contexts";
 import { RenderTable } from "./RenderTable";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
-// const account =
-//   "account_tdx_d_12yxeee5x6juamexwd6xg96gcrzmz29286cywpq38zzz5yemmrem9fx";
-// const pairaddress =
-//   "component_tdx_d_1cq95v9u4s43jz9eufd2pj5jqntv69sjl62ac9tgmjhpdyxqksrkrsq";
-
-// export function AccountHistory() {
-//   const getHistory = async (account: string, pairaddress: string) => {
-//     const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
-//     console.log(apiResponse);
-//   };
-//   getHistory(account, pairaddress);
-//   return <div>SOME TEST</div>;
-// }
+//TODO: Enhancements
+//1. Show all orders function
+//2. Export CSV function
+//3. Make Buttons Show all orders and export as CSV only displayable depending on active table
 interface AccountHistoryProps {
   account: string;
 }
@@ -27,21 +18,11 @@ export function AccountHistory({ account }: AccountHistoryProps) {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const currentPairAddress = adexState.currentPairInfo?.address;
 
-  //   const getHistory = async (pairaddress: string) => {
-  //     if (!account) return; // Don't execute if no account
-  //     const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
-  //     setResponse(apiResponse);
-  //     //TEMP CONSOLE LOG
-  //     console.log(apiResponse);
-  //   };
-
   useEffect(() => {
     const getHistory = async (pairaddress: string) => {
-      if (!account) return; // Don't execute if no account
+      if (!account) return;
       const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
       setResponse(apiResponse);
-      // TEMP CONSOLE LOG
-      console.log(apiResponse);
     };
 
     if (currentPairAddress && account) {

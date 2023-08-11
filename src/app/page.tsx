@@ -28,7 +28,8 @@ export default function Home() {
 
   function getAccountHistory() {
     //gets Orderlist
-    //TODO add check if wallet is connected
+    //TODO:
+    //Rerender this component when wallet is disconnected
     const account = wallet ? wallet.accounts[0]?.address : "";
     return adexState.status != "LOADING" ? (
       <AccountHistory account={account} />

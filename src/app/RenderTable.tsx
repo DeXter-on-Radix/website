@@ -2,15 +2,17 @@ import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { useContext } from "react";
 import { AdexStateContext } from "./contexts";
 
+//TODO:
+//1. Add datafield for executed price when available from Adex
+//2. onClick Cancel Order function
+//3. onClick Change pair when pair on the table is clicked
+//4. Display "Connect Wallet to see History" if no wallet is connected
+//5. Display "No Orders" if Wallet is connected but no History
+
 interface RenderTableProps {
   response: SdkResult | null;
   selectedTable: string | null;
 }
-
-//TODO Cancel Order Function
-//TODO Show all orders function to merge all json data
-//TODO need to refactor pair name if AccountHistory can show name
-//otherwise refactor to put function call outside
 
 function formatDate(date: string) {
   return new Date(date)
@@ -26,62 +28,28 @@ function formatDate(date: string) {
     .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
 }
 
+function filterOrdersByStatus(orders: any[], status: string) {
+  return orders.filter((order) => order.status === status);
+}
+
 export function RenderTable({ response, selectedTable }: RenderTableProps) {
-  //pair info
   const adexState = useContext(AdexStateContext);
-  const pairlist = adexState.pairsList;
   let orders = response ? response.data.orders : [];
 
-  //logic to handle different table filters
-  if (selectedTable === "OpenOrders") {
-    orders = orders.filter((order: any) => order.status === "PENDING");
-  } else if (selectedTable === "TradeHistory") {
-    orders = orders.filter((order: any) => order.status === "COMPLETED");
+  switch (selectedTable) {
+    case "OpenOrders":
+      orders = filterOrdersByStatus(orders, "PENDING");
+      break;
+    case "TradeHistory":
+      orders = filterOrdersByStatus(orders, "COMPLETED");
+      break;
+    default:
+      break;
   }
 
-  // console.log(pairlist);
-  // TODO consider adding check if pair exists just incase pair is delisted
-
-  //Logic block for Open Orders
   return (
     <div>
-      {selectedTable === "OpenOrders" ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Pair</th>
-              <th>ID</th>
-              <th>Order Type</th>
-              <th>Direction</th>
-              <th>Order Qty</th>
-              <th>Order Price</th>
-              <th>Completed %</th>
-              <th>Unclaimed Token Amount</th>
-              <th>Time Submitted</th>
-              <th>Time Completed</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order: any) => (
-              <tr key={order.id}>
-                <td>{order.pairName}</td> <td>{order.id}</td>
-                <td>{order.orderType}</td>
-                <td>{order.side}</td>
-                <td>{order.amount}</td>
-                <td>{order.price}</td>
-                <td>{order.completedPerc}</td>
-                <td>{order.unclaimedTokenAmount}</td>
-                <td>{formatDate(order.timeSubmitted)}</td>
-                <td>{formatDate(order.timeCompleted)}</td>
-                <td>
-                  <button>Cancel Order</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : selectedTable === "OrderHistory" ? (
+      {selectedTable ? (
         <table>
           <thead>
             <tr>
@@ -96,11 +64,13 @@ export function RenderTable({ response, selectedTable }: RenderTableProps) {
               <th>Unclaimed Token Amount</th>
               <th>Time Submitted</th>
               <th>Time Completed</th>
+              {selectedTable === "OpenOrders" && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {orders.map((order: any) => (
               <tr key={order.id}>
+                {/* TODO add onclick to change pair */}
                 <td>{order.pairName}</td>
                 <td>{order.id}</td>
                 <td>{order.orderType}</td>
@@ -112,41 +82,12 @@ export function RenderTable({ response, selectedTable }: RenderTableProps) {
                 <td>{order.unclaimedTokenAmount}</td>
                 <td>{formatDate(order.timeSubmitted)}</td>
                 <td>{formatDate(order.timeCompleted)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : selectedTable === "TradeHistory" ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Pair</th>
-              <th>ID</th>
-              <th>Order Type</th>
-              <th>Direction</th>
-              <th>Order Qty</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Completed %</th>
-              <th>Unclaimed Token Amount</th>
-              <th>Time Submitted</th>
-              <th>Time Completed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order: any) => (
-              <tr key={order.id}>
-                <td>{order.pairName}</td>
-                <td>{order.id}</td>
-                <td>{order.orderType}</td>
-                <td>{order.side}</td>
-                <td>{order.amount}</td>
-                <td>{order.price}</td>
-                <td>{order.status}</td>
-                <td>{order.completedPerc}</td>
-                <td>{order.unclaimedTokenAmount}</td>
-                <td>{formatDate(order.timeSubmitted)}</td>
-                <td>{formatDate(order.timeCompleted)}</td>
+                {selectedTable === "OpenOrders" && (
+                  <td>
+                    {/* TODO add onclick */}
+                    <button>Cancel Order</button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
