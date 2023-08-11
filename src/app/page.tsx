@@ -30,6 +30,7 @@ export default function Home() {
     //gets Orderlist
     //TODO:
     //Rerender this component when wallet is disconnected
+    //Rerender when a transaction has been made
     const account = wallet ? wallet.accounts[0]?.address : "";
     return adexState.status != "LOADING" ? (
       <AccountHistory account={account} />
