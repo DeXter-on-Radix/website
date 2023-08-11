@@ -95,21 +95,16 @@ export function OrderButton() {
       account &&
       gatewayApi
     ) {
+      // TODO: Move all logic to separate pure TS class/classes/file/files.
+      // Context providers will recieve only the data necessary to render the page.
+      // This will allow cleaner code and better incapsulation.
       fetchBalances(
         adexState.currentPairInfo.token1.address,
         adexState.currentPairInfo.token2.address,
         account
       );
     }
-  }, [
-    adexState.currentPairInfo.token1.address,
-    adexState.currentPairInfo.token2.address,
-    connected,
-    accounts,
-    gatewayApi,
-    fetchBalances,
-    wallet,
-  ]);
+  }, [adexState, connected, accounts, gatewayApi, fetchBalances, wallet]);
 
   //updates accounts
   useEffect(() => {
