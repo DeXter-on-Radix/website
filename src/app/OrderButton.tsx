@@ -464,17 +464,17 @@ export function OrderButton() {
   ]);
 
   return (
-    <div>
+    <div data-test="order-button-container">
       <div className="text-sm">
-        <div>
+        <div data-test="current-pair-balance-for-token-1">
           {adexState.currentPairInfo.token1.name} balance: {token1Balance}
         </div>
-        <div>
+        <div data-test="current-pair-balance-for-token-2">
           {adexState.currentPairInfo.token2.name} balance: {token2Balance}
         </div>
       </div>
 
-      <div className="tabs">
+      <div className="tabs" data-test="order-type-selector">
         <a
           className={activeTypeTabClass(adex.OrderType.MARKET)}
           onClick={() => setOrderType(adex.OrderType.MARKET)}
@@ -488,7 +488,7 @@ export function OrderButton() {
           Limit
         </a>
       </div>
-      <div className="tabs">
+      <div className="tabs" data-test="order-side-selector">
         <a
           className={activeSideTabClass(adex.OrderSide.BUY)}
           onClick={() => setOrderSide(adex.OrderSide.BUY)}
@@ -502,7 +502,7 @@ export function OrderButton() {
           SELL
         </a>
       </div>
-      <div className="tabs">
+      <div className="tabs" data-test="active-token-selector">
         <a
           className={activeTokenTabClass(adexState.currentPairInfo.token1)}
           onClick={() => {
@@ -524,7 +524,10 @@ export function OrderButton() {
           {adexState.currentPairInfo.token2.name}
         </a>
       </div>
-      <div className="flex flex-col max-w-sm">
+      <div
+        className="flex flex-col max-w-sm"
+        data-test="transaction-amount-form"
+      >
         <div className="flex justify-between">
           <label htmlFor="amount" className="my-auto">
             Position size
@@ -665,7 +668,7 @@ export function OrderButton() {
         </div>
       </div>
       {connected && (
-        <div>
+        <div data-test="order-button">
           <button
             className="btn m-2"
             onClick={() => {
