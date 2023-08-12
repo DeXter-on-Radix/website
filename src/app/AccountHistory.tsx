@@ -1,75 +1,84 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import * as adex from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
-import { RenderTable } from "./RenderTable";
+import { DisplayTable } from "./DisplayTable";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
-//TODO: Enhancements
-//1. Show all orders function
-//2. Export CSV function
-//3. Make Buttons Show all orders and export as CSV only displayable depending on active table
+const TABLES = {
+  OPEN_ORDERS: "OpenOrders",
+  ORDER_HISTORY: "OrderHistory",
+  TRADE_HISTORY: "TradeHistory",
+};
+
 interface AccountHistoryProps {
   account: string;
 }
 
 export function AccountHistory({ account }: AccountHistoryProps) {
-  const adexState = useContext(AdexStateContext);
-  const [response, setResponse] = useState<SdkResult | null>(null);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const currentPairAddress = adexState.currentPairInfo?.address;
+  const { currentPairInfo } = useContext(AdexStateContext);
+  const [orderReceiptData, setOrderReceiptData] = useState<SdkResult | null>(
+    null
+  );
+  const [selectedTable, setSelectedTable] = useState<string>(
+    TABLES.OPEN_ORDERS
+  );
+  const currentPairAddress = currentPairInfo?.address;
 
   useEffect(() => {
-    const getHistory = async (pairaddress: string) => {
+    const fetchHistoryAndSetState = async (pairaddress: string) => {
       if (!account) return;
-      const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
-      setResponse(apiResponse);
+
+      try {
+        const apiResponse = await adex.getAccountOrders(
+          account,
+          pairaddress,
+          0
+        );
+        console.log(apiResponse); //TEMP ADD =================================
+        setOrderReceiptData(apiResponse);
+      } catch (error) {
+        console.error("Error fetching account orders:", error);
+      }
     };
 
     if (currentPairAddress && account) {
-      getHistory(currentPairAddress);
-      setSelectedTable("OpenOrders");
+      fetchHistoryAndSetState(currentPairAddress);
     }
   }, [currentPairAddress, account]);
 
-  const handleButtonClick = (selectedTable: string) => {
+  const handleButtonClick = useCallback((selectedTable: string) => {
     setSelectedTable(selectedTable);
-  };
+  }, []);
+
+  const Button = ({ label, value }: { label: string; value: string }) => (
+    <button
+      onClick={() => handleButtonClick(value)}
+      //Tempory styling for visualization
+      className={`btn btn-ghost normal-case text-xl ${
+        selectedTable === value ? "bg-yellow-600 text-white" : ""
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div>
       <div>
-        <button
-          onClick={() => handleButtonClick("OpenOrders")}
-          className={`btn btn-ghost normal-case text-xl ${
-            selectedTable === "OpenOrders" ? "bg-yellow-600 text-white" : ""
-          }`}
-        >
-          Open Orders
-        </button>
-        <button
-          onClick={() => handleButtonClick("OrderHistory")}
-          className={`btn btn-ghost normal-case text-xl ${
-            selectedTable === "OrderHistory" ? "bg-yellow-600 text-white" : ""
-          }`}
-        >
-          Order History
-        </button>
-        <button
-          onClick={() => handleButtonClick("TradeHistory")}
-          className={`btn btn-ghost normal-case text-xl ${
-            selectedTable === "TradeHistory" ? "bg-yellow-600 text-white" : ""
-          }`}
-        >
-          Trade History
-        </button>
+        <Button label="Open Orders" value={TABLES.OPEN_ORDERS} />
+        <Button label="Order History" value={TABLES.ORDER_HISTORY} />
+        <Button label="Trade History" value={TABLES.TRADE_HISTORY} />
         <button className="btn btn-ghost normal-case text-xl">
           Show all orders
         </button>
         <button className="btn btn-ghost normal-case text-xl">
-          export as CSV
+          Export as CSV
         </button>
       </div>
-      <RenderTable response={response} selectedTable={selectedTable} />
+      <DisplayTable
+        orderReceiptData={orderReceiptData}
+        selectedTable={selectedTable}
+      />
     </div>
   );
 }

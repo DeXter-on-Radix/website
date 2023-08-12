@@ -83,7 +83,20 @@ export function displayTime(
   if (typeof date == "string") {
     date = new Date(date);
   }
-  if (!period) {
+
+  if (period === "full") {
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      })
+      .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
+  } else if (!period) {
     return date.toLocaleString([], {
       month: "2-digit",
       day: "2-digit",
@@ -102,5 +115,20 @@ export function displayTime(
       hour: "2-digit",
       minute: "2-digit",
     });
+  }
+}
+
+// Styling changes for Direction(side) in table
+// I think this should be unaffected by dark/light mode
+export function displayOrderSide(side: string): {
+  text: string;
+  className: string;
+} {
+  if (side === "BUY") {
+    return { text: "Buy", className: "text-green-500" };
+  } else if (side === "SELL") {
+    return { text: "Sell", className: "text-red-500" };
+  } else {
+    return { text: "-", className: "" };
   }
 }
