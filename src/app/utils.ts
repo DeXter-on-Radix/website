@@ -132,3 +132,18 @@ export function displayOrderSide(side: string): {
     return { text: "-", className: "" };
   }
 }
+
+//Compute Total fees from OrderReceipts
+//This rounds to 4 decimal places if applicable. Otherwise keep original
+export function calculateTotalFees(order: any): number {
+  const {
+    exchange_fee: exchangeFee,
+    liquidity_fee: liquidityFee,
+    platform_fee: platformFee,
+  } = order;
+  const totalFees = exchangeFee + liquidityFee + platformFee;
+  const decimalPart = (totalFees % 1).toString().split(".")[1];
+  return decimalPart && decimalPart.length > 4
+    ? roundTo(totalFees, 4, RoundType.NEAREST)
+    : totalFees;
+}

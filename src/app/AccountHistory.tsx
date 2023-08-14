@@ -3,6 +3,7 @@ import * as adex from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 import { DisplayTable } from "./DisplayTable";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { useCancelOrder } from "./CancelOrder";
 
 const TABLES = {
   OPEN_ORDERS: "OpenOrders",
@@ -23,26 +24,18 @@ export function AccountHistory({ account }: AccountHistoryProps) {
     TABLES.OPEN_ORDERS
   );
   const currentPairAddress = currentPairInfo?.address;
+  const cancelOrder = useCancelOrder();
 
   useEffect(() => {
-    const fetchHistoryAndSetState = async (pairaddress: string) => {
+    const getHistory = async (pairaddress: string) => {
       if (!account) return;
-
-      try {
-        const apiResponse = await adex.getAccountOrders(
-          account,
-          pairaddress,
-          0
-        );
-        console.log(apiResponse); //TEMP ADD =================================
-        setOrderReceiptData(apiResponse);
-      } catch (error) {
-        console.error("Error fetching account orders:", error);
-      }
+      const apiResponse = await adex.getAccountOrders(account, pairaddress, 0);
+      setOrderReceiptData(apiResponse);
     };
 
     if (currentPairAddress && account) {
-      fetchHistoryAndSetState(currentPairAddress);
+      getHistory(currentPairAddress);
+      setSelectedTable("OpenOrders");
     }
   }, [currentPairAddress, account]);
 
@@ -53,7 +46,7 @@ export function AccountHistory({ account }: AccountHistoryProps) {
   const Button = ({ label, value }: { label: string; value: string }) => (
     <button
       onClick={() => handleButtonClick(value)}
-      //Tempory styling for visualization
+      // TODO: custom daisyui variable button styling
       className={`btn btn-ghost normal-case text-xl ${
         selectedTable === value ? "bg-yellow-600 text-white" : ""
       }`}
@@ -78,6 +71,8 @@ export function AccountHistory({ account }: AccountHistoryProps) {
       <DisplayTable
         orderReceiptData={orderReceiptData}
         selectedTable={selectedTable}
+        onCancelOrder={cancelOrder}
+        account={account}
       />
     </div>
   );
