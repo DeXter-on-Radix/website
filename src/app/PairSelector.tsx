@@ -2,7 +2,7 @@ import { useContext } from "react";
 import * as adex from "alphadex-sdk-js";
 import { AdexStateContext } from "./contexts";
 
-export function PairsList() {
+export function PairSelector() {
   const adexState = useContext(AdexStateContext);
   const selectPair = (pairAddress: string) => {
     adex.clientState.currentPairAddress = pairAddress;

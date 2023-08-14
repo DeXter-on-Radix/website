@@ -460,15 +460,6 @@ export function OrderButton() {
 
   return (
     <div>
-      <div className="text-sm">
-        <div>
-          {adexState.currentPairInfo.token1.name} balance: {token1Balance}
-        </div>
-        <div>
-          {adexState.currentPairInfo.token2.name} balance: {token2Balance}
-        </div>
-      </div>
-
       <div className="tabs">
         <a
           className={activeTypeTabClass(adex.OrderType.MARKET)}

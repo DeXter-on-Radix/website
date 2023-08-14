@@ -1,22 +1,16 @@
-import { useContext } from "react";
-import { AdexStateContext } from "./contexts";
 import { OrderBook } from "./OrderBook";
 import { PriceChart } from "./PriceChart";
 import { OrderButton } from "./OrderButton";
+import { PairSelector } from "./PairSelector";
 
 export function PairInfo() {
-  //Returns some simple information about the currently selected pair, and the orderbook
-  const adexState = useContext(AdexStateContext);
+  // Main section of the page all the details about the selected pair
 
   return (
     <div>
-      <div className="text-sm">
-        Pair Address: {adexState.currentPairInfo.address}
-      </div>
-
+      <PairSelector />
       <OrderButton />
       <PriceChart />
-
       <OrderBook />
     </div>
   );

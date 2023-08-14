@@ -182,8 +182,9 @@ export function PriceChart() {
   }, []);
 
   return (
+    // TODO: remove binance after fixing #54
     <div>
-      <select
+      {/* <select
         className="select w-full max-w-xs bg-gray-200"
         id="source-selector"
         onChange={(e) => {
@@ -192,7 +193,7 @@ export function PriceChart() {
       >
         <option value={DataSource.ADEX}>AlphaDEX</option>
         <option value={DataSource.BINANCE}>BINANCE</option>
-      </select>
+      </select> */}
       {dataSource === DataSource.ADEX && (
         <div>
           <label htmlFor="candle-period-selector">Candle Period:</label>
