@@ -1,6 +1,6 @@
 import { OrderBook } from "./OrderBook";
 import { PriceChart } from "./PriceChart";
-import { OrderButton } from "./OrderButton";
+import { OrderInput } from "./OrderInput";
 import { PairSelector } from "./PairSelector";
 
 export function PairInfo() {
@@ -9,7 +9,7 @@ export function PairInfo() {
   return (
     <div>
       <PairSelector />
-      <OrderButton />
+      <OrderInput />
       <PriceChart />
       <OrderBook />
     </div>

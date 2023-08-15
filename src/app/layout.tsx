@@ -25,6 +25,8 @@ import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { Footer } from "./Footer";
 import { Navbar } from "./NavBar";
+import { store } from "./store";
+import { Provider } from "react-redux";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -80,6 +82,9 @@ export default function RootLayout({
     subs.push(
       adex.clientState.stateChanged$.subscribe((newState) => {
         setAdexState(newState);
+
+        // TODO: remove context providers and dispatch to redux
+        // store.dispatch();
       })
     );
 
@@ -96,15 +101,17 @@ export default function RootLayout({
         <RdtContext.Provider value={rdtContext ? rdtContext : null}>
           <AdexStateContext.Provider value={adexState}>
             <GatewayContext.Provider value={gatewayApiContext}>
-              <body className={inter.className}>
-                <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
-                  <Navbar />
+              <Provider store={store}>
+                <body className={inter.className}>
+                  <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
+                    <Navbar />
 
-                  <div className="h-full">{children}</div>
+                    <div className="h-full">{children}</div>
 
-                  <Footer />
-                </div>
-              </body>
+                    <Footer />
+                  </div>
+                </body>
+              </Provider>
             </GatewayContext.Provider>
           </AdexStateContext.Provider>
         </RdtContext.Provider>
