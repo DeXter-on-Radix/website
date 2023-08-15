@@ -1,24 +1,17 @@
-import { useContext, CSSProperties } from "react";
-import { OrderbookLine } from "alphadex-sdk-js";
-import { AdexStateContext } from "./contexts";
+import { CSSProperties } from "react";
 import "./orderbook.css";
 import * as utils from "./utils";
-
-// TODO: test the table updates automatically when orders get bought
-
-export interface OrderBookRowProps {
-  barColor?: string;
-  orderCount?: number;
-  price?: number;
-  size?: number;
-  total?: number;
-  maxTotal?: number;
-  absentOrders?: string;
-}
+import { OrderBookRowProps } from "./orderBookSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "./store";
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const adexState = useContext(AdexStateContext);
-
+  const maxDigitsToken1 = useSelector(
+    (state: RootState) => state.pairInfo.token1Info.maxDigits
+  );
+  const maxDigitsToken2 = useSelector(
+    (state: RootState) => state.pairInfo.token2Info.maxDigits
+  );
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
     typeof barColor !== "undefined" &&
@@ -28,7 +21,6 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const { maxDigitsToken1, maxDigitsToken2 } = adexState.currentPairInfo;
     const priceString = utils.displayNumber(price, maxDigitsToken2);
     const sizeString = utils.displayNumber(size, maxDigitsToken1);
     const totalString = utils.displayNumber(total, maxDigitsToken1);
@@ -59,43 +51,34 @@ function OrderBookRow(props: OrderBookRowProps) {
   return <div className="text-center col-span-4">{props.absentOrders}</div>;
 }
 
-interface MiddleRowsProps {
-  bestSell: number | null;
-  bestBuy: number | null;
-}
-
-function MiddleRows(props: MiddleRowsProps) {
-  const { bestSell, bestBuy } = props;
-  const adexState = useContext(AdexStateContext);
+function MiddleRows() {
+  const trades = useSelector((state: RootState) => state.pairInfo.trades);
+  const orderBook = useSelector((state: RootState) => state.orderBook);
+  const pairInfo = useSelector((state: RootState) => state.pairInfo);
 
   let spreadString = "";
 
   // checking for past trades here because adexState.currentPairInfo.lastPrice
   // is never null, and is = -1 if there were no trades
   let lastPrice = "";
-  if (adexState.currentPairTrades.length > 0) {
-    lastPrice = adexState.currentPairInfo.lastPrice.toLocaleString();
+  if (trades.length > 0) {
+    lastPrice = pairInfo.lastPrice?.toLocaleString() || "";
   } else {
     lastPrice = "No trades have occurred yet";
   }
+  const bestSell = orderBook.bestSell;
+  const bestBuy = orderBook.bestBuy;
 
-  if (bestBuy && bestSell) {
-    if (bestBuy + bestSell !== 0) {
-      const spread = bestSell - bestBuy;
-      const spreadPercent = utils.displayNumber(
-        (2 * spread) / (bestBuy + bestSell),
-        2
-      );
-
+  if (bestBuy !== null && bestSell !== null) {
+    if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
       const maxDigits = Math.max(
-        adexState.currentPairInfo.maxDigitsToken1,
-        adexState.currentPairInfo.maxDigitsToken2
+        pairInfo.token1Info.maxDigits,
+        pairInfo.token2Info.maxDigits
       );
+      const spread = utils.displayNumber(orderBook.spread, maxDigits);
+      const spreadPercent = utils.displayNumber(orderBook.spreadPercent, 2);
 
-      spreadString = `${utils.displayNumber(
-        spread,
-        maxDigits
-      )} (${spreadPercent}%)`;
+      spreadString = `${spread} (${spreadPercent}%)`;
     }
 
     return (
@@ -117,71 +100,15 @@ function MiddleRows(props: MiddleRowsProps) {
   }
 }
 
-export function toOrderBookRowProps(
-  adexOrderbookLines: OrderbookLine[],
-  side: "sell" | "buy"
-): OrderBookRowProps[] {
-  // this will drop the rows that do not fit into 8 buys/sells
-  // TODO: implement pagination or scrolling
-
-  const props: OrderBookRowProps[] = [];
-  let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
-
-  // TODO: custom daisyui variable bar color
-  let barColor = "hsl(var(--su))";
-  if (side === "sell") {
-    adexRows.reverse();
-    barColor = "hsl(var(--er))";
-  }
-  adexRows = adexRows.slice(0, 8); // Limit to 8 rows
-
-  let total = 0;
-  let maxTotal = 0;
-  for (let adexRow of adexRows) {
-    total += adexRow.quantityRemaining;
-    const currentProps = {
-      barColor,
-      orderCount: adexRow.noOrders,
-      price: adexRow.price,
-      size: adexRow.quantityRemaining,
-      total: total,
-    };
-    maxTotal = Math.max(maxTotal, total);
-
-    props.push(currentProps);
-  }
-  // update maxTotal
-  for (let i = 0; i < props.length; i++) {
-    props[i].maxTotal = maxTotal;
-  }
-
-  // If there are fewer than 8 orders, fill the remaining rows with empty values
-  while (props.length < 8) {
-    props.push({ absentOrders: "\u00A0" });
-  }
-
-  if (adexOrderbookLines.length === 0) {
-    props[2].absentOrders = `No open ${side} orders`;
-  }
-
-  if (side === "sell") {
-    props.reverse();
-  }
-
-  return props;
-}
-
 export function OrderBook() {
-  const adexState = useContext(AdexStateContext);
-  const { buys, sells } = adexState.currentPairOrderbook;
-
-  let bestSell = null;
-  let bestBuy = null;
-
-  if (sells.length > 0 && buys.length > 0) {
-    bestSell = sells[sells.length - 1]?.price;
-    bestBuy = buys[0]?.price;
-  }
+  const token1Symbol = useSelector(
+    (state: RootState) => state.pairInfo.token1Info.symbol
+  );
+  const token2Symbol = useSelector(
+    (state: RootState) => state.pairInfo.token2Info.symbol
+  );
+  const sells = useSelector((state: RootState) => state.orderBook.sells);
+  const buys = useSelector((state: RootState) => state.orderBook.buys);
 
   return (
     <div className="p-2 text-sx">
@@ -193,24 +120,24 @@ export function OrderBook() {
         </div>
         <div className="text-end">
           Price
-          <br />({adexState.currentPairInfo.token2.symbol})
+          <br />({token2Symbol})
         </div>
         <div className="text-end">
           Size
-          <br />({adexState.currentPairInfo.token1.symbol})
+          <br />({token1Symbol})
         </div>
         <div className="text-end">
           Total
-          <br />({adexState.currentPairInfo.token1.symbol})
+          <br />({token1Symbol})
         </div>
 
-        {toOrderBookRowProps(sells, "sell").map((props, index) => (
+        {sells.map((props, index) => (
           <OrderBookRow key={"sell-" + index} {...props} />
         ))}
 
-        <MiddleRows bestSell={bestSell} bestBuy={bestBuy} />
+        <MiddleRows />
 
-        {toOrderBookRowProps(buys, "buy").map((props, index) => (
+        {buys.map((props, index) => (
           <OrderBookRow key={"buy-" + index} {...props} />
         ))}
       </div>

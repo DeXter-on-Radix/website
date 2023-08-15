@@ -3,9 +3,8 @@ import { useContext, useEffect, useState, useCallback } from "react";
 import type { RootState } from "./store";
 import { useSelector, useDispatch } from "react-redux";
 import { orderInputSlice } from "./orderInputSlice";
-import * as adex from "alphadex-sdk-js";
 import Image from "next/image";
-import { OrderType } from "./orderInputSlice";
+import { OrderTab } from "./orderInputSlice";
 
 export function OrderInput() {
   const state = useSelector((state: RootState) => state.orderInput);
@@ -22,14 +21,14 @@ export function OrderInput() {
     <div className="max-w-sm my-8 flex flex-col">
       <div className="tabs flex flex-row">
         <a
-          className={tabClass(state.type === OrderType.MARKET)}
-          onClick={() => dispatch(actions.setOrderType(OrderType.MARKET))}
+          className={tabClass(state.tab === OrderTab.MARKET)}
+          onClick={() => dispatch(actions.setOrderType(OrderTab.MARKET))}
         >
           Market
         </a>
         <a
-          className={tabClass(state.type === OrderType.LIMIT)}
-          onClick={() => dispatch(actions.setOrderType(OrderType.LIMIT))}
+          className={tabClass(state.tab === OrderTab.LIMIT)}
+          onClick={() => dispatch(actions.setOrderType(OrderTab.LIMIT))}
         >
           Limit
         </a>
@@ -48,7 +47,7 @@ export function OrderInput() {
         width="24"
         height="24"
         alt={`From ${state.tokenFrom.symbol} to ${state.tokenTo.symbol}`}
-        className="mx-auto my-2"
+        className="mx-auto my-0"
       />
       <div className="flex flex-row">
         <input

@@ -4,13 +4,13 @@ import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
-export enum OrderType {
+export enum OrderTab {
   MARKET,
   LIMIT,
 }
 
 export interface OrderInputState {
-  type: OrderType;
+  tab: OrderTab;
   preventImmediateExecution: boolean;
   side: adex.OrderSide;
   tokenFrom: adex.TokenInfo;
@@ -21,10 +21,10 @@ export interface OrderInputState {
 }
 
 function adexOrderType(state: OrderInputState): adex.OrderType {
-  if (state.type === OrderType.MARKET) {
+  if (state.tab === OrderTab.MARKET) {
     return adex.OrderType.MARKET;
   }
-  if (state.type === OrderType.LIMIT) {
+  if (state.tab === OrderTab.LIMIT) {
     if (state.preventImmediateExecution) {
       return adex.OrderType.POSTONLY;
     } else {
@@ -37,7 +37,7 @@ function adexOrderType(state: OrderInputState): adex.OrderType {
 
 const adexInitialState = new adex.StaticState(adex.clientState.internalState);
 const initialState: OrderInputState = {
-  type: OrderType.MARKET,
+  tab: OrderTab.MARKET,
   preventImmediateExecution: false,
   side: adex.OrderSide.BUY,
   // converting to avoid error: A non-serializable value was detected in the state
@@ -114,11 +114,20 @@ export const orderInputSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    setOrderType(state, action: PayloadAction<OrderType>) {
-      state.type = action.payload;
+    setOrderType(state, action: PayloadAction<OrderTab>) {
+      state.tab = action.payload;
     },
     setOrderSide(state, action: PayloadAction<adex.OrderSide>) {
       state.side = action.payload;
+    },
+    updateAdex: (
+      state: OrderInputState,
+      action: PayloadAction<adex.StaticState>
+    ) => {
+      const adexState = action.payload;
+      console.log("updateAdex", adexState);
+
+      // TODO:
     },
   },
 
