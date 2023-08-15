@@ -92,8 +92,6 @@ const fetchQuote = createAsyncThunk(
     //     ? state.slippagePercent / 100
     //     : -1;
 
-    console.log(state);
-
     const response = await adex.getExchangeOrderQuote(
       state.pairInfo.address,
       adexOrderType(state.orderInput),
@@ -125,7 +123,6 @@ export const orderInputSlice = createSlice({
       action: PayloadAction<adex.StaticState>
     ) => {
       const adexState = action.payload;
-      console.log("updateAdex", adexState);
 
       // TODO:
     },

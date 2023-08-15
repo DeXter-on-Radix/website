@@ -1,43 +1,11 @@
-import { createChart, CandlestickData, UTCTimestamp } from "lightweight-charts";
-import React, { useEffect, useRef, useContext, useState } from "react";
-import * as adex from "alphadex-sdk-js";
-import { AdexStateContext } from "./contexts";
-
-async function fetchHistoricalData(
-  symbol: string,
-  interval: string,
-  limit: number
-): Promise<OHLCVData[]> {
-  const response = await fetch(
-    `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
-  );
-  const data = await response.json();
-
-  return data.map((row: any): OHLCVData => {
-    const [time, open, high, low, close, value] = row;
-    const tradingviewTime = (time / 1000) as UTCTimestamp;
-    return {
-      time: tradingviewTime,
-      open: Number(open),
-      high: Number(high),
-      low: Number(low),
-      close: Number(close),
-      value: Number(value),
-    };
-  });
-}
-
-interface OHLCVData extends CandlestickData {
-  value: number;
-}
+import { createChart } from "lightweight-charts";
+import React, { useEffect, useRef } from "react";
+import { CANDLE_PERIODS, OHLCVData, setCandlePeriod } from "./priceChartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./store";
 
 interface PriceChartProps {
   data: OHLCVData[];
-}
-
-enum DataSource {
-  BINANCE = "BINANCE",
-  ADEX = "ADEX",
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
@@ -60,9 +28,11 @@ function PriceChartCanvas(props: PriceChartProps) {
         },
       });
 
+      const clonedData = JSON.parse(JSON.stringify(data));
+
       // OHLC
       const ohlcSeries = chart.addCandlestickSeries({});
-      ohlcSeries.setData(data);
+      ohlcSeries.setData(clonedData);
       chart.priceScale("right").applyOptions({
         scaleMargins: {
           top: 0,
@@ -79,7 +49,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         color: "#eaeff5",
       });
 
-      volumeSeries.setData(data);
+      volumeSeries.setData(clonedData);
       chart.priceScale("volume").applyOptions({
         scaleMargins: {
           top: 0.8,
@@ -100,140 +70,29 @@ function PriceChartCanvas(props: PriceChartProps) {
   return <div ref={chartContainerRef} />;
 }
 
-function cleanData(data: OHLCVData[]): OHLCVData[] {
-  // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
-  // without this step, the chart does not work in firefox (but works in chrome)
-  const dataMap = new Map<number, OHLCVData>();
-
-  // Iterate over the data in reverse order
-  for (let i = data.length - 1; i >= 0; i--) {
-    const row = data[i];
-    // If the map doesn't already contain this timestamp, add the row to the map
-    if (!dataMap.has(row.time as number)) {
-      dataMap.set(row.time as number, row);
-    }
-  }
-
-  // Convert the map values back to an array and sort it by time
-  const cleanedData = Array.from(dataMap.values()).sort(
-    (a, b) => (a.time as number) - (b.time as number)
-  );
-
-  return cleanedData;
-}
-
-function convertAlphaDEXData(data: any[]): OHLCVData[] {
-  let tradingViewData = data.map((row: any): OHLCVData => {
-    const time = (new Date(row.startTime).getTime() / 1000) as UTCTimestamp;
-    const open = row.priceOpen;
-    const high = row.priceHigh;
-    const low = row.priceLow;
-    const close = row.priceClose;
-    const value = row.tradesValue;
-    return { time, open, high, low, close, value };
-  });
-
-  tradingViewData = cleanData(tradingViewData);
-  return tradingViewData;
-}
-
 export function PriceChart() {
-  //Returns a candlestick chart of the current pair
-  const adexState = useContext(AdexStateContext);
-  const [dataSource, setDataSource] = useState<DataSource>(DataSource.ADEX);
-  const [binanceData, setBinanceData] = useState<OHLCVData[]>([]);
-
-  useEffect(() => {
-    // get binance ws and historical data
-    const ws = new WebSocket(
-      "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
-    );
-
-    fetchHistoricalData("BTCUSDT", "1m", 1000)
-      .then((historicalData) => {
-        setBinanceData(historicalData);
-      })
-      .then(() => {
-        ws.onmessage = async (event) => {
-          const response = JSON.parse(event.data);
-          const {
-            t: time,
-            o: open,
-            h: high,
-            l: low,
-            c: close,
-            v: value,
-          } = response.k;
-          const tradingviewTime = (time / 1000) as UTCTimestamp;
-          const newData = {
-            time: tradingviewTime,
-            open: Number(open),
-            high: Number(high),
-            low: Number(low),
-            close: Number(close),
-            value: Number(value),
-          };
-          setBinanceData((prevData) => cleanData([...prevData, newData]));
-        };
-      });
-    return () => {
-      ws.close();
-    };
-  }, []);
+  const state = useSelector((state: RootState) => state.priceChart);
+  const dispatch = useDispatch();
 
   return (
-    // TODO: remove binance after fixing #54
     <div>
-      {/* <select
-        className="select w-full max-w-xs bg-gray-200"
-        id="source-selector"
+      <label htmlFor="candle-period-selector">Candle Period:</label>
+      <select
+        className="select select-ghost"
+        id="candle-period-selector"
+        value={state.candlePeriod}
         onChange={(e) => {
-          setDataSource(e.target.value as DataSource);
+          dispatch(setCandlePeriod(e.target.value));
         }}
       >
-        <option value={DataSource.ADEX}>AlphaDEX</option>
-        <option value={DataSource.BINANCE}>BINANCE</option>
-      </select> */}
-      {dataSource === DataSource.ADEX && (
-        <div>
-          <label htmlFor="candle-period-selector">Candle Period:</label>
-          <select
-            className="select select-ghost"
-            id="candle-period-selector"
-            value={adexState.currentCandlePeriod}
-            onChange={(e) => {
-              adex.clientState.currentCandlePeriod = e.target.value;
-            }}
-          >
-            {adex.CandlePeriods.map((period) => (
-              <option key={period} value={period}>
-                {period}
-              </option>
-            ))}
-          </select>
+        {CANDLE_PERIODS.map((period) => (
+          <option key={period} value={period}>
+            {period}
+          </option>
+        ))}
+      </select>
 
-          <PriceChartCanvas
-            data={convertAlphaDEXData(adexState.currentPairCandlesList)}
-          />
-        </div>
-      )}
-      {dataSource === DataSource.BINANCE && (
-        <div>
-          <h4> Binance BTCUSDT 1m data!</h4>
-          <p>
-            This is provided purely as an example of how the chart works when
-            there is data. It is here until we have some{" "}
-            <a
-              href="https://github.com/DeXter-on-Radix/website/issues/10"
-              target="_blank"
-            >
-              test data from AlphaDEX
-            </a>
-            .
-          </p>
-          <PriceChartCanvas data={binanceData} />
-        </div>
-      )}
+      <PriceChartCanvas data={state.ohlcv} />
     </div>
   );
 }

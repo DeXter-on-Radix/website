@@ -30,6 +30,7 @@ import { Provider } from "react-redux";
 import { pairInfoSlice } from "./pairInfoSlice";
 import { orderBookSlice } from "./orderBookSlice";
 import { orderInputSlice } from "./orderInputSlice";
+import { updateCandles } from "./priceChartSlice";
 const inter = Inter({ subsets: ["latin"] });
 
 // declare the radix-connect-button as a global custom element
@@ -88,12 +89,15 @@ export default function RootLayout({
         // serialize adexState
         // we cannot directly store adexState in redux because it is not serializable
         // TODO: find out if there is a better way to do this
-        const serializedState = JSON.parse(JSON.stringify(newState));
+        const serializedState: adex.StaticState = JSON.parse(
+          JSON.stringify(newState)
+        );
 
         // TODO: remove context providers and dispatch to redux
         store.dispatch(pairInfoSlice.actions.updateAdex(serializedState));
         store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
         store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
+        store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       })
     );
 
