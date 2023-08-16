@@ -41,20 +41,17 @@ export const pairSelectorSlice = createSlice({
     ) => {
       const adexState = action.payload;
 
-      // TODO: should we remove the if? are USDC/XRD and XRD/USDC different pairs?
-      if (state.address !== adexState.currentPairAddress) {
-        state.address = adexState.currentPairAddress;
-        state.token1 = {
-          ...adexState.currentPairInfo.token1,
-          maxDigits: adexState.currentPairInfo.maxDigitsToken1,
-        };
-        state.token2 = {
-          ...adexState.currentPairInfo.token2,
-          maxDigits: adexState.currentPairInfo.maxDigitsToken2,
-        };
-        state.name = adexState.currentPairInfo.name;
-      }
+      state.token1 = {
+        ...adexState.currentPairInfo.token1,
+        maxDigits: adexState.currentPairInfo.maxDigitsToken1,
+      };
+      state.token2 = {
+        ...adexState.currentPairInfo.token2,
+        maxDigits: adexState.currentPairInfo.maxDigitsToken2,
+      };
 
+      state.address = adexState.currentPairAddress;
+      state.name = adexState.currentPairInfo.name;
       state.pairsList = adexState.pairsList;
     },
 
