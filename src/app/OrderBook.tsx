@@ -20,9 +20,9 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const priceString = utils.displayNumber(price, maxDigitsToken2);
-    const sizeString = utils.displayNumber(size, maxDigitsToken1);
-    const totalString = utils.displayNumber(total, maxDigitsToken1);
+    const priceString = utils.displayPositiveNumber(price, maxDigitsToken2);
+    const sizeString = utils.displayPositiveNumber(size, maxDigitsToken1);
+    const totalString = utils.displayPositiveNumber(total, maxDigitsToken1);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
@@ -76,8 +76,11 @@ function MiddleRows() {
   if (bestBuy !== null && bestSell !== null) {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
       const maxDigits = Math.max(maxDigitsToken1, maxDigitsToken2);
-      const spread = utils.displayNumber(orderBook.spread, maxDigits);
-      const spreadPercent = utils.displayNumber(orderBook.spreadPercent, 2);
+      const spread = utils.displayPositiveNumber(orderBook.spread, maxDigits);
+      const spreadPercent = utils.displayPositiveNumber(
+        orderBook.spreadPercent,
+        2
+      );
 
       spreadString = `${spread} (${spreadPercent}%)`;
     }
