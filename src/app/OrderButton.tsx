@@ -44,6 +44,7 @@ export function OrderButton() {
   const [swapText, setSwapText] = useState<string | null>(null);
   const platformBadgeID = 1;
   const platformFee = 0.001; //TODO: Get this data from the platform badge and set it as a global variable
+  const fees = 0.0025; //TODO: Get this data from the badge and set as global variable
 
   const getAccountResourceBalance = useCallback(
     async (resourceAddress: string, account: string) => {
@@ -189,18 +190,15 @@ export function OrderButton() {
       const minPosition = token1Selected
         ? adexState.currentPairInfo.minOrderToken1
         : adexState.currentPairInfo.minOrderToken2;
-
       if (
-        orderSide !== adex.OrderSide.BUY &&
-        (positionSize < minPosition || !positionSize)
+        quoteOrderSide !== adex.OrderSide.BUY &&
+        (sendingAmount < minPosition || !sendingAmount)
       ) {
         return null;
       }
-
       const orderPrice = orderType !== adex.OrderType.MARKET ? price : -1;
       const orderSlippage =
         orderType !== adex.OrderType.MARKET ? -1 : slippagePercent / 100;
-
       try {
         const response = await adex.getExchangeOrderQuote(
           adexState.currentPairInfo.address,
@@ -238,14 +236,48 @@ export function OrderButton() {
       positionSize <= 0 || //done it dumb
       (orderType !== adex.OrderType.MARKET && //LIMIT or POST order
         ((price < 0 && slippagePercent < 0) || //haven't input price or slippage
-          (price > 0 && slippagePercent > 100) || //Input both price and slippage
-          !(price || slippagePercent))); //No input for price or slippage
+          (price > 0 && slippagePercent >= 0) || //Input both price and slippage
+          !(price || slippagePercent))) || //No input for price or slippage
+      (token1Selected // checks if position size exceeds balance size
+        ? token1Balance
+        : token2Balance) < positionSize;
     //TODO: Check user has funds for tx
     //TODO: Check for crazy slippage
     //TODO: Fat finger checks
     if (validationError) {
       alert("Please correctly fill out all fields");
       return;
+    }
+    if (slippagePercent > 5) {
+      alert(
+        "Warning: High slippage entered, trade may return less than expected."
+      );
+    }
+    //checks for excessively high/low price
+    if (orderType === adex.OrderType.LIMIT) {
+      if (orderSide === adex.OrderSide.BUY) {
+        if (token1Selected && price > 1.05 * bestSell) {
+          alert(
+            //These should probably be "toasts" not "alerts"
+            "Warning: Price entered is significantly above best sell. Trade may return less than expected."
+          );
+        } else if (!token1Selected && price < 0.95 * bestBuy) {
+          alert(
+            "Warning: Price entered is significantly below best buy. Trade may return less than expected."
+          );
+        }
+      } else {
+        //orderSide === SELL
+        if (token1Selected && price < 0.95 * bestBuy) {
+          alert(
+            "Warning: Price entered is significantly below best buy. Trade may return less than expected."
+          );
+        } else if (!token1Selected && price > 1.05 * bestBuy) {
+          alert(
+            "Warning: Price entered is significantly above best sell. Trade may return less than expected."
+          );
+        }
+      }
     }
 
     const orderPrice = orderType !== adex.OrderType.MARKET ? price : -1;
@@ -274,7 +306,7 @@ export function OrderButton() {
       });
   }
 
-  function safelySetPositionSize(position: number) {
+  function safelySetPositionSize(position: number, percent: number = 0) {
     if (position === 0 || position === null || !position) {
       setPositionSize(0);
       return;
@@ -307,12 +339,14 @@ export function OrderButton() {
     }
 
     setPositionSize(position);
-    setPositionPercent(0);
+    if (!percent) {
+      setPositionPercent(0);
+    }
   }
 
-  //TODO: On limit buy orders, if liquidity at price is lower than available funds, available funds should be used
   async function setPercentageOfFunds(percentage: number) {
     const proportion = percentage / 100;
+    const buySide = orderSide === adex.OrderSide.BUY;
     if (proportion < 0) {
       setPositionSize(0);
       return;
@@ -322,49 +356,68 @@ export function OrderButton() {
       setPercentageOfFunds(percentage);
       return;
     }
-
-    if (orderSide === adex.OrderSide.SELL) {
-      if (token1Selected) {
-        safelySetPositionSize(token1Balance * proportion);
-      } else {
-        safelySetPositionSize(token2Balance * proportion);
-      }
-    } else if (orderSide === adex.OrderSide.BUY) {
-      const tokenBalance = token1Selected ? token2Balance : token1Balance;
-
-      try {
-        const quote: adex.SwapQuote | null = await getQuote(
-          unselectedToken,
-          adex.OrderSide.SELL,
-          tokenBalance * proportion
+    setPositionPercent(percentage);
+    const tokenBalance =
+      proportion *
+      ((token1Selected && buySide) || (!token1Selected && !buySide)
+        ? token2Balance
+        : token1Balance);
+    if (orderType !== adex.OrderType.MARKET) {
+      if (!buySide) {
+        safelySetPositionSize(tokenBalance, percentage);
+      } else if (buySide) {
+        // Flips the numbers when calculating returns
+        safelySetPositionSize(
+          token1Selected ? tokenBalance / price : tokenBalance * price,
+          percentage
         );
-
+      }
+    } //market order, so need to calculate if there is liquidity to execute
+    else
+      try {
+        // originally written for BUY side
+        const quote: adex.SwapQuote | null = await getQuote(
+          buySide ? unselectedToken : selectedToken,
+          adex.OrderSide.SELL,
+          tokenBalance
+        );
         if (quote) {
-          if (
-            orderType !== adex.OrderType.MARKET &&
-            quote.fromAmount === 0 &&
-            quote.toAmount === 0
-          ) {
-            // Flips the numbers when calculating returns
-            safelySetPositionSize(
-              token1Selected
-                ? (tokenBalance * proportion) / price
-                : tokenBalance * proportion * price
-            );
+          const percentCost = platformFee + fees + slippagePercent / 100;
+          if (buySide) {
+            const expectedReturn = token1Selected
+              ? (tokenBalance / price) * (1 - percentCost)
+              : tokenBalance * price * (1 - percentCost);
+
+            if (expectedReturn > quote.toAmount) {
+              //TODO: Add proper warning about not being able to market sell full stack
+              console.log("Increase slippage to sell sufficient");
+            }
+            safelySetPositionSize(quote.toAmount, percentage);
           } else {
-            safelySetPositionSize(quote.toAmount);
+            const expectedReturn = token1Selected
+              ? tokenBalance * price * (1 - percentCost)
+              : (tokenBalance / price) * (1 - percentCost);
+
+            if (expectedReturn > quote.fromAmount) {
+              //TODO: Add proper warning about not being able to market sell full stack
+              console.log("Increase slippage to sell sufficient");
+            }
+            safelySetPositionSize(quote.fromAmount, percentage);
           }
         } else {
-          setPositionSize(0); // Handle the case when quote is null
+          setPositionSize(0);
         }
       } catch (error) {
         setPositionSize(0);
-        percentage = 0;
         console.error(error);
       }
-    }
-    setPositionPercent(percentage);
   }
+  //Updates position size when percent is set and slippage is adjusted
+  useEffect(() => {
+    if (positionPercent && orderType === adex.OrderType.MARKET) {
+      setPercentageOfFunds(positionPercent);
+    }
+  }, [slippagePercent]);
 
   function safelySetPrice(priceInput: number) {
     setPrice(priceInput);
@@ -579,7 +632,7 @@ export function OrderButton() {
             id="percentage"
             name="percentage"
             className="m-2 p-2 rounded-none border"
-            value={positionPercent ? positionPercent : ""}
+            value={!Number.isNaN(positionPercent) ? positionPercent : ""}
             onInput={(event) =>
               setPercentageOfFunds(parseFloat(event.currentTarget.value))
             }
@@ -595,13 +648,15 @@ export function OrderButton() {
                 type="number"
                 id="slippage"
                 name="slippage"
-                value={!Number.isNaN(slippagePercent) ? slippagePercent : ""}
+                value={slippagePercent}
                 className={
                   "w-full m-2 p-2 rounded-none border" +
                   (slippagePercent > 10 ? " border-red-900 bg-red-200" : "")
                 }
                 onInput={(event) => {
-                  setSlippagePercent(parseFloat(event.currentTarget.value));
+                  let slip = parseFloat(event.currentTarget.value);
+                  slip = !Number.isNaN(slip) ? slip : 0;
+                  setSlippagePercent(slip);
                 }}
               />
               %
