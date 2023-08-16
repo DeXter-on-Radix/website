@@ -7,6 +7,7 @@ import {
 } from "./contexts";
 import { Account } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
+import { roundTo, RoundType } from "./utils";
 
 export function OrderButton() {
   const adexState = useContext(AdexStateContext);
@@ -26,6 +27,7 @@ export function OrderButton() {
   const [orderSide, setOrderSide] = useState<adex.OrderSide>(
     adex.OrderSide.BUY
   );
+  const [isBuySide, setIsBuySide] = useState<boolean>(true);
   const [selectedToken, setSelectedToken] = useState<adex.TokenInfo>(
     adexState.currentPairInfo.token1
   );
@@ -67,7 +69,11 @@ export function OrderButton() {
   );
 
   const fetchBalances = useCallback(
-    async (address1: string, address2: string, account: string) => {
+    async (
+      address1: string = adexState.currentPairInfo.token1.address,
+      address2: string = adexState.currentPairInfo.token2.address,
+      account: string = wallet ? wallet.accounts[0]?.address : ""
+    ) => {
       try {
         const token1Balance = (await getAccountResourceBalance(
           address1,
@@ -96,11 +102,7 @@ export function OrderButton() {
       account &&
       gatewayApi
     ) {
-      fetchBalances(
-        adexState.currentPairInfo.token1.address,
-        adexState.currentPairInfo.token2.address,
-        account
-      );
+      fetchBalances();
     }
   }, [
     adexState.currentPairInfo.token1.address,
@@ -145,10 +147,7 @@ export function OrderButton() {
     if (price != 0) {
       return;
     }
-    if (
-      (token1Selected && orderSide === adex.OrderSide.BUY) ||
-      (!token1Selected && orderSide === adex.OrderSide.SELL)
-    ) {
+    if ((token1Selected && isBuySide) || (!token1Selected && !isBuySide)) {
       setPrice(bestSell);
     } else {
       setPrice(bestBuy);
@@ -248,6 +247,24 @@ export function OrderButton() {
       alert("Please correctly fill out all fields");
       return;
     }
+
+    if (!isBuySide) {
+      if (positionSize > (token1Selected ? token1Balance : token2Balance)) {
+        alert("Insufficient funds for transaction");
+        return;
+      }
+    } else {
+      const tokenBalance = token1Selected ? token2Balance : token1Balance;
+      if (
+        //Logic is not entirely accurate for market orders
+        (token1Selected ? positionSize * price : positionSize / price) >
+        tokenBalance
+      ) {
+        alert("Insufficient funds for transaction");
+        return;
+      }
+    }
+
     if (slippagePercent > 5) {
       alert(
         "Warning: High slippage entered, trade may return less than expected."
@@ -255,7 +272,7 @@ export function OrderButton() {
     }
     //checks for excessively high/low price
     if (orderType === adex.OrderType.LIMIT) {
-      if (orderSide === adex.OrderSide.BUY) {
+      if (isBuySide) {
         if (token1Selected && price > 1.05 * bestSell) {
           alert(
             //These should probably be "toasts" not "alerts"
@@ -301,6 +318,10 @@ export function OrderButton() {
         const data = response.data;
         return adex.submitTransaction(data, rdt);
       })
+      .then(() => {
+        //temporary fix to update balances
+        fetchBalances();
+      })
       .catch((error) => {
         console.error(error);
       });
@@ -328,16 +349,7 @@ export function OrderButton() {
         " Order size too small."
       );
     }
-    if (position.toString().split(".")[1]?.length > maxDigits) {
-      position = Number(
-        //Ugly but rounds number down to nearest with correct decimal places
-        (
-          Math.floor(position * Math.pow(10, maxDigits)) /
-          Math.pow(10, maxDigits)
-        ).toFixed(maxDigits)
-      );
-    }
-
+    position = roundTo(position, maxDigits, RoundType.DOWN);
     setPositionSize(position);
     if (!percent) {
       setPositionPercent(0);
@@ -346,7 +358,6 @@ export function OrderButton() {
 
   async function setPercentageOfFunds(percentage: number) {
     const proportion = percentage / 100;
-    const buySide = orderSide === adex.OrderSide.BUY;
     if (proportion < 0) {
       setPositionSize(0);
       return;
@@ -359,13 +370,13 @@ export function OrderButton() {
     setPositionPercent(percentage);
     const tokenBalance =
       proportion *
-      ((token1Selected && buySide) || (!token1Selected && !buySide)
+      ((token1Selected && isBuySide) || (!token1Selected && !isBuySide)
         ? token2Balance
         : token1Balance);
     if (orderType !== adex.OrderType.MARKET) {
-      if (!buySide) {
+      if (!isBuySide) {
         safelySetPositionSize(tokenBalance, percentage);
-      } else if (buySide) {
+      } else if (isBuySide) {
         // Flips the numbers when calculating returns
         safelySetPositionSize(
           token1Selected ? tokenBalance / price : tokenBalance * price,
@@ -377,13 +388,13 @@ export function OrderButton() {
       try {
         // originally written for BUY side
         const quote: adex.SwapQuote | null = await getQuote(
-          buySide ? unselectedToken : selectedToken,
+          isBuySide ? unselectedToken : selectedToken,
           adex.OrderSide.SELL,
           tokenBalance
         );
         if (quote) {
           const percentCost = platformFee + fees + slippagePercent / 100;
-          if (buySide) {
+          if (isBuySide) {
             const expectedReturn = token1Selected
               ? (tokenBalance / price) * (1 - percentCost)
               : tokenBalance * price * (1 - percentCost);
@@ -422,11 +433,9 @@ export function OrderButton() {
   function safelySetPrice(priceInput: number) {
     setPrice(priceInput);
     if (
-      (((orderSide === adex.OrderSide.BUY && token1Selected) ||
-        (orderSide === adex.OrderSide.SELL && !token1Selected)) &&
+      (((isBuySide && token1Selected) || (!isBuySide && !token1Selected)) &&
         priceInput > 1.1 * bestSell) ||
-      (((orderSide === adex.OrderSide.SELL && token1Selected) ||
-        (orderSide === adex.OrderSide.BUY && !token1Selected)) &&
+      (((!isBuySide && token1Selected) || (isBuySide && !token1Selected)) &&
         priceInput < 0.9 * bestBuy)
     ) {
       setPriceBox("w-full m-2 p-2 rounded-none border-red-900 bg-red-200");
@@ -445,9 +454,8 @@ export function OrderButton() {
     ) => {
       let text: string = `Sending ${fromAmount} ${fromName} to receive ${toAmount} ${toName}`;
       if (
-        (orderSide === adex.OrderSide.SELL &&
-          fromAmount < positionSize * 0.99) ||
-        (orderSide === adex.OrderSide.BUY && toAmount < positionSize * 0.99)
+        (!isBuySide && fromAmount < positionSize * 0.99) ||
+        (isBuySide && toAmount < positionSize * 0.99)
       ) {
         text =
           text +
@@ -479,10 +487,8 @@ export function OrderButton() {
           const otherAmount = token1Selected
             ? positionSize * price
             : positionSize / price;
-          const fromAmount =
-            orderSide === adex.OrderSide.BUY ? otherAmount : positionSize;
-          const toAmount =
-            orderSide === adex.OrderSide.BUY ? positionSize : otherAmount;
+          const fromAmount = isBuySide ? otherAmount : positionSize;
+          const toAmount = isBuySide ? positionSize : otherAmount;
           generateAndSetSwapText(
             quote.fromToken.name,
             fromAmount,
@@ -544,13 +550,19 @@ export function OrderButton() {
       <div className="tabs">
         <a
           className={activeSideTabClass(adex.OrderSide.BUY)}
-          onClick={() => setOrderSide(adex.OrderSide.BUY)}
+          onClick={() => {
+            setOrderSide(adex.OrderSide.BUY);
+            setIsBuySide(true);
+          }}
         >
           BUY
         </a>
         <a
           className={activeSideTabClass(adex.OrderSide.SELL)}
-          onClick={() => setOrderSide(adex.OrderSide.SELL)}
+          onClick={() => {
+            setOrderSide(adex.OrderSide.SELL);
+            setIsBuySide(false);
+          }}
         >
           SELL
         </a>
