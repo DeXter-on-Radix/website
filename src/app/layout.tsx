@@ -27,10 +27,12 @@ import { Footer } from "./Footer";
 import { Navbar } from "./NavBar";
 import { store } from "./store";
 import { Provider } from "react-redux";
-import { pairInfoSlice } from "./pairInfoSlice";
+import { pairSelectorSlice } from "./pairSelectorSlice";
 import { orderBookSlice } from "./orderBookSlice";
 import { orderInputSlice } from "./orderInputSlice";
 import { updateCandles } from "./priceChartSlice";
+import { accountHistorySlice } from "./accountHistorySlice";
+
 const inter = Inter({ subsets: ["latin"] });
 
 // declare the radix-connect-button as a global custom element
@@ -94,10 +96,11 @@ export default function RootLayout({
         );
 
         // TODO: remove context providers and dispatch to redux
-        store.dispatch(pairInfoSlice.actions.updateAdex(serializedState));
+        store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
         store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
         store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
         store.dispatch(updateCandles(serializedState.currentPairCandlesList));
+        store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
       })
     );
 

@@ -1,15 +1,14 @@
 import { useContext, useEffect, useState, useCallback } from "react";
 
-import type { RootState } from "./store";
-import { useSelector, useDispatch } from "react-redux";
-import { orderInputSlice } from "./orderInputSlice";
+import { useAppDispatch, useAppSelector } from "./hooks";
+import { OrderInputState, orderInputSlice } from "./orderInputSlice";
 import Image from "next/image";
 import { OrderTab } from "./orderInputSlice";
 
 export function OrderInput() {
-  const state = useSelector((state: RootState) => state.orderInput);
+  const state: OrderInputState = useAppSelector((state) => state.orderInput);
   const actions = orderInputSlice.actions;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function tabClass(isActive: boolean) {
     return (

@@ -1,8 +1,7 @@
 import { createChart } from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
 import { CANDLE_PERIODS, OHLCVData, setCandlePeriod } from "./priceChartSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "./store";
+import { useAppDispatch, useAppSelector } from "./hooks";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -71,8 +70,8 @@ function PriceChartCanvas(props: PriceChartProps) {
 }
 
 export function PriceChart() {
-  const state = useSelector((state: RootState) => state.priceChart);
-  const dispatch = useDispatch();
+  const state = useAppSelector((state) => state.priceChart);
+  const dispatch = useAppDispatch();
 
   return (
     <div>

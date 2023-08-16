@@ -1,22 +1,22 @@
-import { useContext } from "react";
-import * as adex from "alphadex-sdk-js";
-import { AdexStateContext } from "./contexts";
+import { useAppSelector, useAppDispatch } from "./hooks";
+import { selectPairAddress } from "./pairSelectorSlice";
 
 export function PairSelector() {
-  const adexState = useContext(AdexStateContext);
+  const pairSelector = useAppSelector((state) => state.pairSelector);
+  const dispatch = useAppDispatch();
   const selectPair = (pairAddress: string) => {
-    adex.clientState.currentPairAddress = pairAddress;
+    dispatch(selectPairAddress(pairAddress));
   };
   return (
     <div className="dropdown">
       <label tabIndex={0} className="btn m-1">
-        {adexState.currentPairInfo.name}
+        {pairSelector.name}
       </label>
       <ul
         tabIndex={0}
         className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
       >
-        {adexState.pairsList.map((pair, index) => (
+        {pairSelector.pairsList.map((pair, index) => (
           <li key={index}>
             <button onClick={() => selectPair(pair.address)}>
               {pair.name}

@@ -3,6 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { TokenInfo, initalTokenInfo } from "./pairSelectorSlice";
 
 export enum OrderTab {
   MARKET,
@@ -10,11 +11,15 @@ export enum OrderTab {
 }
 
 export interface OrderInputState {
+  pairAddress: string;
   tab: OrderTab;
   preventImmediateExecution: boolean;
   side: adex.OrderSide;
-  tokenFrom: adex.TokenInfo;
-  tokenTo: adex.TokenInfo;
+
+  // TODO: find out if we need these fields here
+  // or is using the pairSelectorSlice.token1 and pairSelectorSlice.token2 enough
+  tokenFrom: TokenInfo;
+  tokenTo: TokenInfo;
   size: number;
   price: number;
   slippage: number;
@@ -35,14 +40,13 @@ function adexOrderType(state: OrderInputState): adex.OrderType {
   throw new Error("Invalid order type");
 }
 
-const adexInitialState = new adex.StaticState(adex.clientState.internalState);
 const initialState: OrderInputState = {
+  pairAddress: "",
   tab: OrderTab.MARKET,
   preventImmediateExecution: false,
   side: adex.OrderSide.BUY,
-  // converting to avoid error: A non-serializable value was detected in the state
-  tokenFrom: { ...adexInitialState.currentPairInfo.token1 },
-  tokenTo: { ...adexInitialState.currentPairInfo.token2 },
+  tokenFrom: { ...initalTokenInfo },
+  tokenTo: { ...initalTokenInfo },
   size: 0,
   price: -1,
   slippage: -1,
@@ -93,7 +97,7 @@ const fetchQuote = createAsyncThunk(
     //     : -1;
 
     const response = await adex.getExchangeOrderQuote(
-      state.pairInfo.address,
+      state.pairSelector.address,
       adexOrderType(state.orderInput),
       state.orderInput.side,
       state.orderInput.tokenTo.address,
@@ -124,7 +128,17 @@ export const orderInputSlice = createSlice({
     ) => {
       const adexState = action.payload;
 
-      // TODO:
+      if (state.pairAddress !== adexState.currentPairInfo.address) {
+        state.pairAddress = adexState.currentPairInfo.address;
+        state.tokenFrom = {
+          ...adexState.currentPairInfo.token1,
+          maxDigits: adexState.currentPairInfo.maxDigitsToken1,
+        };
+        state.tokenTo = {
+          ...adexState.currentPairInfo.token2,
+          maxDigits: adexState.currentPairInfo.maxDigitsToken2,
+        };
+      }
     },
   },
 

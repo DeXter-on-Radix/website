@@ -2,15 +2,14 @@ import { CSSProperties } from "react";
 import "./orderbook.css";
 import * as utils from "./utils";
 import { OrderBookRowProps } from "./orderBookSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "./store";
+import { useAppSelector } from "./hooks";
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const maxDigitsToken1 = useSelector(
-    (state: RootState) => state.pairInfo.token1Info.maxDigits
+  const maxDigitsToken1 = useAppSelector(
+    (state) => state.pairSelector.token1.maxDigits
   );
-  const maxDigitsToken2 = useSelector(
-    (state: RootState) => state.pairInfo.token2Info.maxDigits
+  const maxDigitsToken2 = useAppSelector(
+    (state) => state.pairSelector.token2.maxDigits
   );
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
@@ -52,9 +51,14 @@ function OrderBookRow(props: OrderBookRowProps) {
 }
 
 function MiddleRows() {
-  const trades = useSelector((state: RootState) => state.pairInfo.trades);
-  const orderBook = useSelector((state: RootState) => state.orderBook);
-  const pairInfo = useSelector((state: RootState) => state.pairInfo);
+  const trades = useAppSelector((state) => state.accountHistory.trades);
+  const orderBook = useAppSelector((state) => state.orderBook);
+  const maxDigitsToken1 = useAppSelector(
+    (state) => state.pairSelector.token1.maxDigits
+  );
+  const maxDigitsToken2 = useAppSelector(
+    (state) => state.pairSelector.token2.maxDigits
+  );
 
   let spreadString = "";
 
@@ -62,7 +66,7 @@ function MiddleRows() {
   // is never null, and is = -1 if there were no trades
   let lastPrice = "";
   if (trades.length > 0) {
-    lastPrice = pairInfo.lastPrice?.toLocaleString() || "";
+    lastPrice = orderBook.lastPrice?.toLocaleString() || "";
   } else {
     lastPrice = "No trades have occurred yet";
   }
@@ -71,10 +75,7 @@ function MiddleRows() {
 
   if (bestBuy !== null && bestSell !== null) {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
-      const maxDigits = Math.max(
-        pairInfo.token1Info.maxDigits,
-        pairInfo.token2Info.maxDigits
-      );
+      const maxDigits = Math.max(maxDigitsToken1, maxDigitsToken2);
       const spread = utils.displayNumber(orderBook.spread, maxDigits);
       const spreadPercent = utils.displayNumber(orderBook.spreadPercent, 2);
 
@@ -101,14 +102,14 @@ function MiddleRows() {
 }
 
 export function OrderBook() {
-  const token1Symbol = useSelector(
-    (state: RootState) => state.pairInfo.token1Info.symbol
+  const token1Symbol = useAppSelector(
+    (state) => state.pairSelector.token1.symbol
   );
-  const token2Symbol = useSelector(
-    (state: RootState) => state.pairInfo.token2Info.symbol
+  const token2Symbol = useAppSelector(
+    (state) => state.pairSelector.token2.symbol
   );
-  const sells = useSelector((state: RootState) => state.orderBook.sells);
-  const buys = useSelector((state: RootState) => state.orderBook.buys);
+  const sells = useAppSelector((state) => state.orderBook.sells);
+  const buys = useAppSelector((state) => state.orderBook.buys);
 
   return (
     <div className="p-2 text-sx">

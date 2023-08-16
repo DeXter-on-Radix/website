@@ -1,6 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
-import { RootState } from "./store";
 
 export interface OrderBookRowProps {
   barColor?: string;
@@ -15,6 +14,7 @@ export interface OrderBookRowProps {
 export interface OrderBookState {
   buys: OrderBookRowProps[];
   sells: OrderBookRowProps[];
+  lastPrice: number | null;
   bestSell: number | null;
   bestBuy: number | null;
   spread: number | null;
@@ -24,6 +24,7 @@ export interface OrderBookState {
 const initialState: OrderBookState = {
   buys: [],
   sells: [],
+  lastPrice: null,
   bestSell: null,
   bestBuy: null,
   spread: null,
@@ -91,12 +92,13 @@ export const orderBookSlice = createSlice({
   // synchronous reducers
   reducers: {
     updateAdex(state: OrderBookState, action: PayloadAction<adex.StaticState>) {
+      const adexState = action.payload;
       const sells = toOrderBookRowProps(
-        action.payload.currentPairOrderbook.sells,
+        adexState.currentPairOrderbook.sells,
         "sell"
       );
       const buys = toOrderBookRowProps(
-        action.payload.currentPairOrderbook.buys,
+        adexState.currentPairOrderbook.buys,
         "buy"
       );
 
@@ -114,13 +116,11 @@ export const orderBookSlice = createSlice({
 
       state.sells = sells;
       state.buys = buys;
+      state.lastPrice = adexState.currentPairInfo.lastPrice;
       state.bestSell = bestSell;
       state.bestBuy = bestBuy;
     },
   },
-
-  // asynchronous reducers
-  extraReducers: (builder) => {},
 });
 
 export default orderBookSlice.reducer;

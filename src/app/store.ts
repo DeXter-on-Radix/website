@@ -1,15 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import orderInputReducer from "./orderInputSlice";
-import pairInfoReducer from "./pairInfoSlice";
+import pairSelectorReducer from "./pairSelectorSlice";
 import orderBookReducer from "./orderBookSlice";
 import priceChartReducer from "./priceChartSlice";
+import accountHistoryReducer from "./accountHistorySlice";
 
 export const store = configureStore({
   reducer: {
-    pairInfo: pairInfoReducer,
+    pairSelector: pairSelectorReducer,
     orderInput: orderInputReducer,
     orderBook: orderBookReducer,
     priceChart: priceChartReducer,
+    accountHistory: accountHistoryReducer,
   },
 });
 
