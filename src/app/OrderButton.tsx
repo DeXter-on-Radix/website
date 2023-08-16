@@ -234,12 +234,8 @@ export function OrderButton() {
       !positionSize || //Haven't input a position size
       positionSize <= 0 || //done it dumb
       (orderType !== adex.OrderType.MARKET && //LIMIT or POST order
-        ((price < 0 && slippagePercent < 0) || //haven't input price or slippage
-          (price > 0 && slippagePercent >= 0) || //Input both price and slippage
-          !(price || slippagePercent))) || //No input for price or slippage
-      (token1Selected // checks if position size exceeds balance size
-        ? token1Balance
-        : token2Balance) < positionSize;
+        ((price < 0 && slippagePercent < 0) || //haven't input price or slippagex`
+          !(price || slippagePercent))); //No input for price or slippage
     //TODO: Check user has funds for tx
     //TODO: Check for crazy slippage
     //TODO: Fat finger checks
