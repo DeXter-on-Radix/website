@@ -10,7 +10,7 @@
     "test": "jest --watch"
   },
   "dependencies": {
-    "@radixdlt/radix-dapp-toolkit": "^0.4.0",
+    "@radixdlt/radix-dapp-toolkit": "^0.5.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",

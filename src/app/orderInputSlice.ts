@@ -26,6 +26,7 @@ export interface OrderInputState {
   toAmountEstimate: number;
   slippage: number;
   quote?: Quote;
+  description?: string;
 }
 
 // TODO: add unit tests for this function
@@ -129,10 +130,14 @@ export const orderInputSlice = createSlice({
     setSlippage(state, action: PayloadAction<number>) {
       state.slippage = action.payload;
     },
-    toggleDirection(state) {
-      const temp = state.tokenFrom;
-      state.tokenFrom = state.tokenTo;
-      state.tokenTo = temp;
+    togglePreventImmediateExecution(state) {
+      state.preventImmediateExecution = !state.preventImmediateExecution;
+    },
+    setTokenFrom(state, action: PayloadAction<TokenInfo>) {
+      state.tokenFrom = action.payload;
+    },
+    setTokenTo(state, action: PayloadAction<TokenInfo>) {
+      state.tokenTo = action.payload;
     },
     updateAdex: (
       state: OrderInputState,
@@ -162,33 +167,42 @@ export const orderInputSlice = createSlice({
         state.minSize = adexState.currentPairInfo.minOrderToken2;
       }
     },
-
-    clearQuote(state) {
-      state.quote = undefined;
-    },
   },
 
   // asynchronous reducers
   extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(
       fetchQuote.fulfilled,
       (state, action: PayloadAction<Quote>) => {
         const quote = action.payload;
-        console.log("quote:", quote);
 
         if (!quote) {
           throw new Error("Invalid quote");
         }
 
         state.quote = quote;
+        state.description = toDescription(quote, state);
       }
     );
 
     builder.addCase(fetchQuote.rejected, (state, action) => {
-      console.log("fetchQuote rejected:", action.error.message);
+      console.error("fetchQuote rejected:", action.error.message);
     });
   },
 });
 
 export default orderInputSlice.reducer;
+
+function toDescription(quote: Quote, state: OrderInputState): string {
+  let description = "";
+
+  if (quote.fromAmount > 0 && quote.toAmount > 0) {
+    description +=
+      `Sending ${quote.fromAmount} ${quote.fromToken.symbol} ` +
+      `to receive ${quote.toAmount} ${quote.toToken.symbol}.\n`;
+  } else {
+    description += "Order will not immediately execute.\n";
+  }
+
+  return description;
+}

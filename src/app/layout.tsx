@@ -72,6 +72,7 @@ export default function RootLayout({
     rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
     subs.push(
       rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
+        console.log("walletData", walletData);
         setWalletContext(walletData);
       })
     );
