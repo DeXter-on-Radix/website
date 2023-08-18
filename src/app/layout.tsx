@@ -1,21 +1,21 @@
 "use client";
 
-import "./globals.css";
+import "./styles/globals.css";
 import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import * as adex from "alphadex-sdk-js";
 import { Subscription } from "rxjs";
 
-import { Footer } from "./Footer";
-import { Navbar } from "./NavBar";
-import { store } from "./store";
+import { Footer } from "./components/Footer";
+import { Navbar } from "./components/NavBar";
+import { store } from "./redux/store";
 import { Provider } from "react-redux";
-import { pairSelectorSlice } from "./pairSelectorSlice";
-import { orderBookSlice } from "./orderBookSlice";
-import { orderInputSlice } from "./orderInputSlice";
-import { updateCandles } from "./priceChartSlice";
-import { accountHistorySlice } from "./accountHistorySlice";
-import { initilizeRdt } from "./radixSlice";
+import { pairSelectorSlice } from "./redux/pairSelectorSlice";
+import { orderBookSlice } from "./redux/orderBookSlice";
+import { orderInputSlice } from "./redux/orderInputSlice";
+import { updateCandles } from "./redux/priceChartSlice";
+import { accountHistorySlice } from "./redux/accountHistorySlice";
+import { initilizeRdt } from "./redux/radixSlice";
 
 const inter = Inter({ subsets: ["latin"] });
 

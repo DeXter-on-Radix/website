@@ -1,7 +1,11 @@
 import { createChart } from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
-import { CANDLE_PERIODS, OHLCVData, setCandlePeriod } from "./priceChartSlice";
-import { useAppDispatch, useAppSelector } from "./hooks";
+import {
+  CANDLE_PERIODS,
+  OHLCVData,
+  setCandlePeriod,
+} from "../redux/priceChartSlice";
+import { useAppDispatch, useAppSelector } from "../hooks";
 
 interface PriceChartProps {
   data: OHLCVData[];

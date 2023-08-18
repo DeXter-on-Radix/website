@@ -1,8 +1,8 @@
 import { CSSProperties } from "react";
-import "./orderbook.css";
-import * as utils from "./utils";
-import { OrderBookRowProps } from "./orderBookSlice";
-import { useAppSelector } from "./hooks";
+import "../styles/orderbook.css";
+import * as utils from "../utils";
+import { OrderBookRowProps } from "../redux/orderBookSlice";
+import { useAppSelector } from "../hooks";
 
 function OrderBookRow(props: OrderBookRowProps) {
   const maxDigitsToken1 = useAppSelector(

@@ -1,6 +1,6 @@
 "use client";
 
-import { PairInfo } from "./PairInfo";
+import { PairInfo } from "./components/PairInfo";
 
 export default function Home() {
   return (

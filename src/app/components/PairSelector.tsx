@@ -1,5 +1,5 @@
-import { useAppSelector, useAppDispatch } from "./hooks";
-import { selectPairAddress } from "./pairSelectorSlice";
+import { useAppSelector, useAppDispatch } from "../hooks";
+import { selectPairAddress } from "../redux/pairSelectorSlice";
 
 export function PairSelector() {
   const pairSelector = useAppSelector((state) => state.pairSelector);

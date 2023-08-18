@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "./hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import {
   OrderTab,
   OrderSide,
@@ -14,9 +14,9 @@ import {
   validateSlippageInput,
   submitOrder,
   setSizePercent,
-} from "./orderInputSlice";
-import { fetchBalances } from "./radixSlice";
-import { displayNumber } from "./utils";
+} from "../redux/orderInputSlice";
+import { fetchBalances } from "../redux/radixSlice";
+import { displayNumber } from "../utils";
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -146,7 +146,6 @@ function PositionSizeInput() {
             "input input-bordered w-full" +
             (validationResult.valid ? "" : " input-error")
           }
-          defaultValue={defaultValue}
           value={defaultValue}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
