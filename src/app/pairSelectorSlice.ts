@@ -3,6 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export interface TokenInfo extends adex.TokenInfo {
   maxDigits: number;
+  balance?: number;
 }
 
 export interface PairSelectorState {
@@ -42,10 +43,12 @@ export const pairSelectorSlice = createSlice({
       const adexState = action.payload;
 
       state.token1 = {
+        ...state.token1,
         ...adexState.currentPairInfo.token1,
         maxDigits: adexState.currentPairInfo.maxDigitsToken1,
       };
       state.token2 = {
+        ...state.token2,
         ...adexState.currentPairInfo.token2,
         maxDigits: adexState.currentPairInfo.maxDigitsToken2,
       };
@@ -61,6 +64,18 @@ export const pairSelectorSlice = createSlice({
     ) => {
       const pairAddress = action.payload;
       adex.clientState.currentPairAddress = pairAddress;
+    },
+
+    setBalance: (
+      state: PairSelectorState,
+      action: PayloadAction<{ token: TokenInfo; balance: number }>
+    ) => {
+      const { token, balance } = action.payload;
+      if (token.address === state.token1.address) {
+        state.token1 = { ...state.token1, balance };
+      } else if (token.address === state.token2.address) {
+        state.token2 = { ...state.token2, balance };
+      }
     },
   },
 });

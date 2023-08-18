@@ -4,9 +4,11 @@ import pairSelectorReducer from "./pairSelectorSlice";
 import orderBookReducer from "./orderBookSlice";
 import priceChartReducer from "./priceChartSlice";
 import accountHistoryReducer from "./accountHistorySlice";
+import radixReducer from "./radixSlice";
 
 export const store = configureStore({
   reducer: {
+    radix: radixReducer,
     pairSelector: pairSelectorReducer,
     orderInput: orderInputReducer,
     orderBook: orderBookReducer,

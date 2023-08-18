@@ -2,26 +2,9 @@
 
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { useEffect, useState } from "react";
-import {
-  WalletContext,
-  RdtContext,
-  AdexStateContext,
-  initialStaticState,
-  GatewayContext,
-} from "./contexts";
-import {
-  RadixDappToolkit,
-  DataRequestBuilder,
-  WalletData,
-} from "@radixdlt/radix-dapp-toolkit";
-import {
-  RadixNetworkConfigById,
-  GatewayApiClientSettings,
-} from "@radixdlt/babylon-gateway-api-sdk";
+import { useEffect } from "react";
 import * as adex from "alphadex-sdk-js";
 import { Subscription } from "rxjs";
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { Footer } from "./Footer";
 import { Navbar } from "./NavBar";
@@ -32,6 +15,7 @@ import { orderBookSlice } from "./orderBookSlice";
 import { orderInputSlice } from "./orderInputSlice";
 import { updateCandles } from "./priceChartSlice";
 import { accountHistorySlice } from "./accountHistorySlice";
+import { initilizeRdt } from "./radixSlice";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,51 +36,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [walletContext, setWalletContext] = useState<WalletData | null>(null);
-
-  const [rdtContext, setRdtContext] = useState<RadixDappToolkit | null>(null);
-
-  const [gatewayApiContext, setGatewayApiContext] =
-    useState<GatewayApiClient | null>(null);
-
-  const [adexState, setAdexState] = useState(initialStaticState);
-
   useEffect(() => {
     let subs: Subscription[] = [];
-    const rdt = RadixDappToolkit({
-      dAppDefinitionAddress:
-        "account_tdx_d_16996e320lnez82q6430eunaz9l3n5fnwk6eh9avrmtmj22e7m9lvl2",
-      // Update with adex dapp address,
-      networkId: 13,
-    });
-    rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
-    subs.push(
-      rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
-        console.log("walletData", walletData);
-        setWalletContext(walletData);
-      })
-    );
-    setRdtContext(rdt);
-
-    setGatewayApiContext(
-      GatewayApiClient.initialize({
-        basePath: RadixNetworkConfigById[13].gatewayUrl,
-      })
-    );
+    subs = initilizeRdt(subs);
 
     adex.init();
     subs.push(
       adex.clientState.stateChanged$.subscribe((newState) => {
-        // setAdexState(newState);
-
-        // serialize adexState
         // we cannot directly store adexState in redux because it is not serializable
         // TODO: find out if there is a better way to do this
         const serializedState: adex.StaticState = JSON.parse(
           JSON.stringify(newState)
         );
 
-        // TODO: remove context providers and dispatch to redux
         store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
         store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
         store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
@@ -114,25 +66,17 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <WalletContext.Provider value={walletContext ? walletContext : null}>
-        <RdtContext.Provider value={rdtContext ? rdtContext : null}>
-          <AdexStateContext.Provider value={adexState}>
-            <GatewayContext.Provider value={gatewayApiContext}>
-              <Provider store={store}>
-                <body className={inter.className}>
-                  <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
-                    <Navbar />
+      <Provider store={store}>
+        <body className={inter.className}>
+          <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
+            <Navbar />
 
-                    <div className="h-full">{children}</div>
+            <div className="h-full">{children}</div>
 
-                    <Footer />
-                  </div>
-                </body>
-              </Provider>
-            </GatewayContext.Provider>
-          </AdexStateContext.Provider>
-        </RdtContext.Provider>
-      </WalletContext.Provider>
+            <Footer />
+          </div>
+        </body>
+      </Provider>
     </html>
   );
 }

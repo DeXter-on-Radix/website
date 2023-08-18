@@ -1,8 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "./hooks";
-import { fetchQuote, orderInputSlice } from "./orderInputSlice";
+import {
+  fetchQuote,
+  orderInputSlice,
+  getSelectedToken,
+  getUnselectedToken,
+} from "./orderInputSlice";
 import { OrderTab, OrderSide } from "./orderInputSlice";
+import { fetchBalances } from "./radixSlice";
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -28,6 +34,31 @@ function OrderTypeTabs() {
       >
         Limit
       </a>
+    </div>
+  );
+}
+
+function AvailableBalances() {
+  const token1 = useAppSelector((state) => state.pairSelector.token1);
+  const token2 = useAppSelector((state) => state.pairSelector.token2);
+  return (
+    <div className="flex justify-between">
+      <div className="">
+        <div className="text-sm">Available balances:</div>
+      </div>
+      <div className="text-xs">
+        <div className="flex flex-row justify-end">
+          <div>{token1.balance}</div>
+          <img src={token1.iconUrl} className="w-3 h-3 my-auto mx-1" />
+          <span>{token1.symbol}</span>
+        </div>
+
+        <div className="flex flex-row justify-end">
+          <div>{token2.balance}</div>
+          <img src={token2.iconUrl} className="w-3 h-3 my-auto mx-1" />
+          <span>{token2.symbol}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -58,8 +89,7 @@ function DirectionToggle() {
 function AssetToggle() {
   const pairToken1 = useAppSelector((state) => state.pairSelector.token1);
   const pairToken2 = useAppSelector((state) => state.pairSelector.token2);
-
-  const tokenTo = useAppSelector((state) => state.orderInput.tokenTo);
+  const selecedToken = useAppSelector(getSelectedToken);
 
   const dispatch = useAppDispatch();
 
@@ -67,22 +97,22 @@ function AssetToggle() {
     <div className="btn-group">
       <button
         className={
-          "btn" + (tokenTo.address === pairToken1.address ? " btn-active" : "")
+          "btn" +
+          (selecedToken.address === pairToken1.address ? " btn-active" : "")
         }
         onClick={() => {
-          dispatch(orderInputSlice.actions.setTokenFrom(pairToken2));
-          dispatch(orderInputSlice.actions.setTokenTo(pairToken1));
+          dispatch(orderInputSlice.actions.setToken1Selected(true));
         }}
       >
         {pairToken1.symbol}
       </button>
       <button
         className={
-          "btn" + (tokenTo.address === pairToken2.address ? " btn-active" : "")
+          "btn" +
+          (selecedToken.address === pairToken2.address ? " btn-active" : "")
         }
         onClick={() => {
-          dispatch(orderInputSlice.actions.setTokenFrom(pairToken1));
-          dispatch(orderInputSlice.actions.setTokenTo(pairToken2));
+          dispatch(orderInputSlice.actions.setToken1Selected(false));
         }}
       >
         {pairToken2.symbol}
@@ -93,8 +123,8 @@ function AssetToggle() {
 
 function PositionSizeInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.size);
-  const symbol = useAppSelector((state) => state.orderInput.tokenTo.symbol);
-  const iconUrl = useAppSelector((state) => state.orderInput.tokenTo.iconUrl);
+  const symbol = useAppSelector(getSelectedToken).symbol;
+  const iconUrl = useAppSelector(getSelectedToken).iconUrl;
   const dispatch = useAppDispatch();
   return (
     <div className="form-control">
@@ -152,7 +182,7 @@ function MarketOrderInput() {
 
 function LimitOrderInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.price);
-  const priceToken = useAppSelector((state) => state.orderInput.tokenFrom);
+  const priceToken = useAppSelector(getUnselectedToken);
   const dispatch = useAppDispatch();
   return (
     <>
@@ -215,7 +245,7 @@ function Description() {
 }
 
 function SubmitButton() {
-  const tokenTo = useAppSelector((state) => state.orderInput.tokenTo.symbol);
+  const symbol = useAppSelector(getSelectedToken).symbol;
   const tab = useAppSelector((state) => state.orderInput.tab);
   const side = useAppSelector((state) => state.orderInput.side);
   const dispatch = useAppDispatch();
@@ -223,7 +253,7 @@ function SubmitButton() {
     <div className="flex">
       <button className="flex-1 btn btn-primary">
         {tab === OrderTab.LIMIT ? "LIMIT " : ""}
-        {side === OrderSide.BUY ? "Buy" : "Sell"} {tokenTo}
+        {side === OrderSide.BUY ? "Buy" : "Sell"} {symbol}
       </button>
     </div>
   );
@@ -232,6 +262,10 @@ function SubmitButton() {
 export function OrderInput() {
   // updates quote when any of the listed dependencies changes
   const dispatch = useAppDispatch();
+  const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const token1Selected = useAppSelector(
+    (state) => state.orderInput.token1Selected
+  );
   const side = useAppSelector((state) => state.orderInput.side);
   const size = useAppSelector((state) => state.orderInput.size);
   const price = useAppSelector((state) => state.orderInput.price);
@@ -240,18 +274,21 @@ export function OrderInput() {
   );
   const slippage = useAppSelector((state) => state.orderInput.slippage);
   const tab = useAppSelector((state) => state.orderInput.tab);
-  const tokenFrom = useAppSelector((state) => state.orderInput.tokenTo);
-  const tokenTo = useAppSelector((state) => state.orderInput.tokenTo);
+
+  useEffect(() => {
+    dispatch(fetchBalances());
+  }, [dispatch, pairAddress]);
+
   useEffect(() => {
     dispatch(fetchQuote());
   }, [
+    pairAddress,
     side,
     size,
     price,
     slippage,
     tab,
-    tokenFrom,
-    tokenTo,
+    token1Selected,
     preventImmediateExecution,
     dispatch,
   ]);
@@ -259,6 +296,8 @@ export function OrderInput() {
   return (
     <div className="max-w-sm my-8 flex flex-col">
       <OrderTypeTabs />
+
+      <AvailableBalances />
 
       <div className="flex flex-row justify-between my-2">
         <DirectionToggle />
