@@ -12,6 +12,8 @@ import {
   validatePositionSize,
   validatePriceInput,
   validateSlippageInput,
+  submitOrder,
+  setSizePercent,
 } from "./orderInputSlice";
 import { fetchBalances } from "./radixSlice";
 import { displayNumber } from "./utils";
@@ -55,13 +57,13 @@ function AvailableBalances() {
       <div className="text-xs">
         <div className="flex flex-row justify-end">
           <div>{token1.balance}</div>
-          <img src={token1.iconUrl} className="w-3 h-3 my-auto mx-1" />
+          <img src={token1.iconUrl} className="w-3 h-3 !my-auto mx-1" />
           <span>{token1.symbol}</span>
         </div>
 
         <div className="flex flex-row justify-end">
           <div>{token2.balance}</div>
-          <img src={token2.iconUrl} className="w-3 h-3 my-auto mx-1" />
+          <img src={token2.iconUrl} className="w-3 h-3 !my-auto mx-1" />
           <span>{token2.symbol}</span>
         </div>
       </div>
@@ -129,8 +131,7 @@ function AssetToggle() {
 
 function PositionSizeInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.size);
-  const symbol = useAppSelector(getSelectedToken).symbol;
-  const iconUrl = useAppSelector(getSelectedToken).iconUrl;
+  const selectedToken = useAppSelector(getSelectedToken);
   const validationResult = useAppSelector(validatePositionSize);
   const dispatch = useAppDispatch();
   return (
@@ -146,6 +147,7 @@ function PositionSizeInput() {
             (validationResult.valid ? "" : " input-error")
           }
           defaultValue={defaultValue}
+          value={defaultValue}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(orderInputSlice.actions.setSize(size));
@@ -153,8 +155,8 @@ function PositionSizeInput() {
         ></input>
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-          <img src={iconUrl} className="w-6 h-6 my-auto mx-1" />
-          <span>{symbol}</span>
+          <img src={selectedToken.iconUrl} className="w-6 h-6 my-auto mx-1" />
+          <span>{selectedToken.symbol}</span>
         </div>
       </div>
       <label className="label">
@@ -162,6 +164,41 @@ function PositionSizeInput() {
           {validationResult.valid ? "" : validationResult.message}
         </span>
       </label>
+
+      <div className="btn-group w-full">
+        <button
+          className="btn btn-sm"
+          onClick={() => dispatch(setSizePercent(25))}
+        >
+          25%
+        </button>
+        <button
+          className="btn btn-sm"
+          onClick={() => dispatch(setSizePercent(50))}
+        >
+          50%
+        </button>
+        <button
+          className="btn btn-sm"
+          onClick={() => dispatch(setSizePercent(75))}
+        >
+          75%
+        </button>
+        <button
+          className="btn btn-sm"
+          onClick={() => dispatch(setSizePercent(100))}
+        >
+          100%
+        </button>
+        <input
+          type="number"
+          className="input input-sm bg-neutral"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const size = Number(event.target.value);
+            dispatch(setSizePercent(size));
+          }}
+        ></input>
+      </div>
     </div>
   );
 }
@@ -219,6 +256,8 @@ function LimitOrderInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.price);
   const priceToken = useAppSelector(getUnselectedToken);
   const validationResult = useAppSelector(validatePriceInput);
+  const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
+  const bestSellPrice = useAppSelector((state) => state.orderBook.bestSell);
   const dispatch = useAppDispatch();
   return (
     <>
@@ -233,7 +272,7 @@ function LimitOrderInput() {
               "input input-bordered w-full" +
               (validationResult.valid ? "" : " input-error")
             }
-            defaultValue={defaultValue}
+            value={defaultValue}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const price = Number(event.target.value);
               dispatch(orderInputSlice.actions.setPrice(price));
@@ -249,6 +288,24 @@ function LimitOrderInput() {
             {validationResult.valid ? "" : validationResult.message}
           </span>
         </label>
+        <div className="btn-group w-full">
+          <button
+            className="btn btn-sm"
+            onClick={() =>
+              dispatch(orderInputSlice.actions.setPrice(bestBuyPrice || 0))
+            }
+          >
+            Best Buy: {bestBuyPrice}
+          </button>
+          <button
+            className="btn btn-sm"
+            onClick={() =>
+              dispatch(orderInputSlice.actions.setPrice(bestSellPrice || 0))
+            }
+          >
+            Best Sell: {bestSellPrice}
+          </button>
+        </div>
       </div>
       <PositionSizeInput />
 
@@ -292,17 +349,29 @@ function SubmitButton() {
   const symbol = useAppSelector(getSelectedToken).symbol;
   const tab = useAppSelector((state) => state.orderInput.tab);
   const side = useAppSelector((state) => state.orderInput.side);
+  const transactionInProgress = useAppSelector(
+    (state) => state.orderInput.transactionInProgress
+  );
+  const transactionResult = useAppSelector(
+    (state) => state.orderInput.transactionResult
+  );
   const validationResult = useAppSelector(validateOrderInput);
   const dispatch = useAppDispatch();
+  const submitString =
+    (tab === OrderTab.LIMIT ? "LIMIT " : "") +
+    (side === OrderSide.BUY ? "Buy " : "Sell ") +
+    symbol;
+
   return (
-    <div className="flex">
+    <div className="flex flex-col">
       <button
         className="flex-1 btn btn-primary"
-        disabled={!validationResult.valid}
+        disabled={!validationResult.valid || transactionInProgress}
+        onClick={() => dispatch(submitOrder())}
       >
-        {tab === OrderTab.LIMIT ? "LIMIT " : ""}
-        {side === OrderSide.BUY ? "Buy" : "Sell"} {symbol}
+        {transactionInProgress ? "Transaction in progress..." : submitString}
       </button>
+      <div className="text-sm">{transactionResult}</div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 import { store } from "./store";
 
 export type WalletData = WalletDataState;
+export type RDT = ReturnType<typeof RadixDappToolkit>;
 
 let rdtInstance: null | RadixDappToolkit = null;
 export function initilizeRdt(subs: Subscription[]): Subscription[] {
