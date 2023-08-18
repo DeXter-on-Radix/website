@@ -26,11 +26,12 @@ export function initilizeRdt(subs: Subscription[]): Subscription[] {
     rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
+
+      // TODO: maybe we can subscribe to the token balances somewhere
       store.dispatch(fetchBalances());
     })
   );
 
-  store.dispatch(fetchBalances());
   return subs;
 }
 export function getRdt() {
@@ -60,6 +61,10 @@ export const fetchBalances = createAsyncThunk<
 >("radix/fetchBalances", async (_arg, thunkAPI) => {
   const dispatch = thunkAPI.dispatch;
   const state = thunkAPI.getState();
+
+  if (state.pairSelector.address === "") {
+    return undefined;
+  }
 
   const rdt = getRdt();
   if (rdt && state.radix.walletData.accounts.length > 0) {

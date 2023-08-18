@@ -2,13 +2,19 @@ import React, { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "./hooks";
 import {
+  OrderTab,
+  OrderSide,
   fetchQuote,
   orderInputSlice,
   getSelectedToken,
   getUnselectedToken,
+  validateOrderInput,
+  validatePositionSize,
+  validatePriceInput,
+  validateSlippageInput,
 } from "./orderInputSlice";
-import { OrderTab, OrderSide } from "./orderInputSlice";
 import { fetchBalances } from "./radixSlice";
+import { displayNumber } from "./utils";
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -125,6 +131,7 @@ function PositionSizeInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.size);
   const symbol = useAppSelector(getSelectedToken).symbol;
   const iconUrl = useAppSelector(getSelectedToken).iconUrl;
+  const validationResult = useAppSelector(validatePositionSize);
   const dispatch = useAppDispatch();
   return (
     <div className="form-control">
@@ -134,24 +141,44 @@ function PositionSizeInput() {
       <div className="relative">
         <input
           type="number"
-          className="input input-bordered w-full"
+          className={
+            "input input-bordered w-full" +
+            (validationResult.valid ? "" : " input-error")
+          }
           defaultValue={defaultValue}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(orderInputSlice.actions.setSize(size));
           }}
         ></input>
+
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
           <img src={iconUrl} className="w-6 h-6 my-auto mx-1" />
           <span>{symbol}</span>
         </div>
       </div>
+      <label className="label">
+        <span className="label-text-alt text-error">
+          {validationResult.valid ? "" : validationResult.message}
+        </span>
+      </label>
     </div>
   );
 }
 
+// TODO: test if floating point numbers are handled correctly
+function slippagePercentage(slippage: number): string {
+  return displayNumber(slippage * 100, 0);
+}
+
+function slippageFromPercentage(percentage: string): number {
+  // TODO: decimal numbers with dots (1.3) don't work (but 1,3 does)
+  return Number(percentage) / 100;
+}
+
 function MarketOrderInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.slippage);
+  const validationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
   return (
     <>
@@ -162,10 +189,13 @@ function MarketOrderInput() {
         <div className="relative">
           <input
             type="number"
-            className="input input-bordered w-full"
-            defaultValue={defaultValue}
+            className={
+              "input input-bordered w-full" +
+              (validationResult.valid ? "" : " input-error")
+            }
+            defaultValue={slippagePercentage(defaultValue)}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const slippage = Number(event.target.value);
+              const slippage = slippageFromPercentage(event.target.value);
               dispatch(orderInputSlice.actions.setSlippage(slippage));
             }}
           ></input>
@@ -173,6 +203,11 @@ function MarketOrderInput() {
             <span>%</span>
           </div>
         </div>
+        <label className="label">
+          <span className="label-text-alt text-error">
+            {validationResult.valid ? "" : validationResult.message}
+          </span>
+        </label>
       </div>
 
       <PositionSizeInput />
@@ -183,6 +218,7 @@ function MarketOrderInput() {
 function LimitOrderInput() {
   const defaultValue = useAppSelector((state) => state.orderInput.price);
   const priceToken = useAppSelector(getUnselectedToken);
+  const validationResult = useAppSelector(validatePriceInput);
   const dispatch = useAppDispatch();
   return (
     <>
@@ -193,7 +229,10 @@ function LimitOrderInput() {
         <div className="relative">
           <input
             type="number"
-            className="input input-bordered w-full"
+            className={
+              "input input-bordered w-full" +
+              (validationResult.valid ? "" : " input-error")
+            }
             defaultValue={defaultValue}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const price = Number(event.target.value);
@@ -205,6 +244,11 @@ function LimitOrderInput() {
             <span>{priceToken.symbol}</span>
           </div>
         </div>
+        <label className="label">
+          <span className="label-text-alt text-error">
+            {validationResult.valid ? "" : validationResult.message}
+          </span>
+        </label>
       </div>
       <PositionSizeInput />
 
@@ -248,10 +292,14 @@ function SubmitButton() {
   const symbol = useAppSelector(getSelectedToken).symbol;
   const tab = useAppSelector((state) => state.orderInput.tab);
   const side = useAppSelector((state) => state.orderInput.side);
+  const validationResult = useAppSelector(validateOrderInput);
   const dispatch = useAppDispatch();
   return (
     <div className="flex">
-      <button className="flex-1 btn btn-primary">
+      <button
+        className="flex-1 btn btn-primary"
+        disabled={!validationResult.valid}
+      >
         {tab === OrderTab.LIMIT ? "LIMIT " : ""}
         {side === OrderSide.BUY ? "Buy" : "Sell"} {symbol}
       </button>
@@ -275,12 +323,16 @@ export function OrderInput() {
   const slippage = useAppSelector((state) => state.orderInput.slippage);
   const tab = useAppSelector((state) => state.orderInput.tab);
 
+  const validationResult = useAppSelector(validateOrderInput);
+
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
 
   useEffect(() => {
-    dispatch(fetchQuote());
+    if (validationResult.valid) {
+      dispatch(fetchQuote());
+    }
   }, [
     pairAddress,
     side,
@@ -290,6 +342,7 @@ export function OrderInput() {
     tab,
     token1Selected,
     preventImmediateExecution,
+    validationResult,
     dispatch,
   ]);
 
@@ -304,11 +357,7 @@ export function OrderInput() {
         <AssetToggle />
       </div>
 
-      {useAppSelector((state) => state.orderInput.tab) === OrderTab.MARKET ? (
-        <MarketOrderInput />
-      ) : (
-        <LimitOrderInput />
-      )}
+      {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
 
       <Description />
 

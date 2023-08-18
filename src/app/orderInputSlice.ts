@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
+import { createSelector } from "@reduxjs/toolkit";
 
 export enum OrderTab {
   MARKET,
@@ -54,8 +55,73 @@ const initialState: OrderInputState = {
   toAmountEstimate: 0,
 };
 
-export function isLimitOrderValid(state: OrderInputState): boolean {}
+export interface ValidationResult {
+  valid: boolean;
+  message?: string;
+}
 
+const selectSlippage = (state: RootState) => state.orderInput.slippage;
+const selectPrice = (state: RootState) => state.orderInput.price;
+const selectSize = (state: RootState) => state.orderInput.size;
+const selectMinSize = (state: RootState) => state.orderInput.minSize;
+
+export const validateSlippageInput = createSelector(
+  [selectSlippage],
+  (slippage) => {
+    if (slippage <= 0) {
+      return { valid: false, message: "Slippage must be positive" };
+    }
+
+    return { valid: true };
+  }
+);
+
+export const validatePriceInput = createSelector([selectPrice], (price) => {
+  if (price <= 0) {
+    return { valid: false, message: "Price must be greater than 0" };
+  }
+
+  return { valid: true };
+});
+
+export const validatePositionSize = createSelector(
+  [selectSize, selectMinSize],
+  (size, minSize) => {
+    if (size < minSize) {
+      return { valid: false, message: "Position size is too small" };
+    }
+
+    return { valid: true };
+  }
+);
+
+const selectTab = (state: RootState) => state.orderInput.tab;
+export const validateOrderInput = createSelector(
+  [validatePositionSize, validatePriceInput, validateSlippageInput, selectTab],
+  (
+    sizeValidationResult,
+    priceValidationResult,
+    slippageValidationResult,
+    tab
+  ) => {
+    //TODO: Check user has funds for tx
+    //TODO: Check for crazy slippage
+    //TODO: Fat finger checks
+    if (!sizeValidationResult.valid) {
+      return sizeValidationResult;
+    }
+
+    if (tab === OrderTab.LIMIT && !priceValidationResult.valid) {
+      return priceValidationResult;
+    }
+
+    if (tab === OrderTab.MARKET && !slippageValidationResult.valid) {
+      return slippageValidationResult;
+    }
+
+    return { valid: true };
+  }
+);
 export const fetchQuote = createAsyncThunk<
   Quote, // Return type of the payload creator
   undefined, // set to undefined if the thunk doesn't expect any arguments
@@ -106,21 +172,32 @@ export const fetchQuote = createAsyncThunk<
   return { ...serializabledQuote };
 });
 
-export function getSelectedToken(state: RootState) {
-  if (state.orderInput.token1Selected) {
-    return state.pairSelector.token1;
-  } else {
-    return state.pairSelector.token2;
-  }
-}
+const selectToken1 = (state: RootState) => state.pairSelector.token1;
+const selectToken2 = (state: RootState) => state.pairSelector.token2;
+const selectToken1Selected = (state: RootState) =>
+  state.orderInput.token1Selected;
 
-export function getUnselectedToken(state: RootState) {
-  if (state.orderInput.token1Selected) {
-    return state.pairSelector.token2;
-  } else {
-    return state.pairSelector.token1;
+export const getSelectedToken = createSelector(
+  [selectToken1, selectToken2, selectToken1Selected],
+  (token1, token2, token1Selected) => {
+    if (token1Selected) {
+      return token1;
+    } else {
+      return token2;
+    }
   }
-}
+);
+
+export const getUnselectedToken = createSelector(
+  [selectToken1, selectToken2, selectToken1Selected],
+  (token1, token2, token1Selected) => {
+    if (token1Selected) {
+      return token2;
+    } else {
+      return token1;
+    }
+  }
+);
 
 export const orderInputSlice = createSlice({
   name: "orderInput",
