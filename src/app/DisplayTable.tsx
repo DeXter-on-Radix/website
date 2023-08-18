@@ -16,12 +16,37 @@ interface DisplayTableProps {
   ) => void;
   account: string;
 }
+
+interface HistoryData {
+  amount: number;
+  amountFilled: number;
+  completedPerc: number;
+  exchange_fee: number;
+  id: number;
+  liquidity_fee: number;
+  orderType: string;
+  pairAddress: string;
+  pairName: string;
+  platform_fee: number;
+  price: number;
+  side: string;
+  status: string;
+  timeSubmitted: Date;
+  timeCompleted: Date;
+  specifiedToken: {
+    symbol: string;
+  };
+  unclaimedToken: {
+    symbol: string;
+  };
+}
+
 //Refactor
 function getFilteredData(
   orderReceiptData: SdkResult | null,
   selectedTable: string | null
-): any[] {
-  const data = orderReceiptData ? orderReceiptData.data.orders : [];
+): HistoryData[] {
+  const data = orderReceiptData?.data?.orders ?? [];
 
   switch (selectedTable) {
     case "OpenOrders":
@@ -33,12 +58,12 @@ function getFilteredData(
   }
 }
 
-function filterOrdersByStatus(data: any[], status: string) {
+function filterOrdersByStatus(data: HistoryData[], status: string) {
   return data.filter((order) => order.status === status);
 }
 
 function renderActionButton(
-  order: any,
+  order: HistoryData,
   onCancelOrder: (
     orderId: number,
     pairAddress: string,
@@ -50,7 +75,10 @@ function renderActionButton(
     return (
       // TODO: custom daisyui variable button style color
       <button
-        onClick={() => onCancelOrder(order.id, order.pairAddress, account)}
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent event propagation
+          onCancelOrder(order.id, order.pairAddress, account);
+        }}
         className="text-lime-400 px-4 py-2 rounded hover:bg-lime-400 hover:text-black transition"
       >
         Cancel
@@ -66,7 +94,7 @@ function OpenOrdersTable({
   onCancelOrder,
   account,
 }: {
-  data: any[];
+  data: HistoryData[];
   onCancelOrder: (
     orderId: number,
     pairAddress: string,
@@ -90,25 +118,35 @@ function OpenOrdersTable({
         </tr>
       </thead>
       <tbody>
-        {data.map((order: any) => (
-          <tr key={order.id}>
-            <td>{order.pairName}</td>
-            <td>{order.orderType}</td>
-            <td className={displayOrderSide(order.side).className}>
-              {displayOrderSide(order.side).text}
-            </td>
-            <td>{displayTime(order.timeSubmitted, "full")}</td>
-            <td>
-              {order.amount} {order.specifiedToken.symbol}
-            </td>
-            <td>PlaceHolder {order.specifiedToken.symbol}</td>
-            <td>
-              {order.amountFilled} {order.specifiedToken.symbol}
-            </td>
-            <td>{order.completedPerc}%</td>
-            <td>{renderActionButton(order, onCancelOrder, account)}</td>
+        {!account ? (
+          <tr>
+            <td colSpan={9}>Please connect Wallet</td>
           </tr>
-        ))}
+        ) : data.length === 0 ? (
+          <tr>
+            <td colSpan={9}>No Active Orders</td>
+          </tr>
+        ) : (
+          data.map((order: HistoryData) => (
+            <tr key={order.id}>
+              <td>{order.pairName}</td>
+              <td>{order.orderType}</td>
+              <td className={displayOrderSide(order.side).className}>
+                {displayOrderSide(order.side).text}
+              </td>
+              <td>{displayTime(order.timeSubmitted, "full")}</td>
+              <td>
+                {order.amount} {order.specifiedToken.symbol}
+              </td>
+              <td>PlaceHolder {order.specifiedToken.symbol}</td>
+              <td>
+                {order.amountFilled} {order.specifiedToken.symbol}
+              </td>
+              <td>{order.completedPerc}%</td>
+              <td>{renderActionButton(order, onCancelOrder, account)}</td>
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );
@@ -119,7 +157,7 @@ function OrderHistoryTable({
   onCancelOrder,
   account,
 }: {
-  data: any[];
+  data: HistoryData[];
   onCancelOrder: (
     orderId: number,
     pairAddress: string,
@@ -145,37 +183,53 @@ function OrderHistoryTable({
         </tr>
       </thead>
       <tbody>
-        {data.map((order: any) => (
-          <tr key={order.id}>
-            <td>{order.pairName}</td>
-            <td>{order.orderType}</td>
-            <td className={displayOrderSide(order.side).className}>
-              {displayOrderSide(order.side).text}
-            </td>
-            <td>{order.status}</td>
-            <td>
-              {order.amountFilled} {order.specifiedToken.symbol}
-            </td>
-            <td>
-              {order.amount} {order.specifiedToken.symbol}
-            </td>
-            <td>
-              {order.price} {order.specifiedToken.symbol}
-            </td>
-            <td>PlaceHolder {order.specifiedToken.symbol}</td>
-            <td>
-              {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-            </td>
-            <td>{displayTime(order.timeSubmitted, "full")}</td>
-            <td>{renderActionButton(order, onCancelOrder, account)}</td>
+        {!account ? (
+          <tr>
+            <td colSpan={11}>Please connect Wallet</td>
           </tr>
-        ))}
+        ) : data.length === 0 ? (
+          <tr>
+            <td colSpan={11}>No Order History to display</td>
+          </tr>
+        ) : (
+          data.map((order: HistoryData) => (
+            <tr key={order.id}>
+              <td>{order.pairName}</td>
+              <td>{order.orderType}</td>
+              <td className={displayOrderSide(order.side).className}>
+                {displayOrderSide(order.side).text}
+              </td>
+              <td>{order.status}</td>
+              <td>
+                {order.amountFilled} {order.specifiedToken.symbol}
+              </td>
+              <td>
+                {order.amount} {order.specifiedToken.symbol}
+              </td>
+              <td>
+                {order.price} {order.specifiedToken.symbol}
+              </td>
+              <td>PlaceHolder {order.specifiedToken.symbol}</td>
+              <td>
+                {calculateTotalFees(order)} {order.unclaimedToken.symbol}
+              </td>
+              <td>{displayTime(order.timeSubmitted, "full")}</td>
+              <td>{renderActionButton(order, onCancelOrder, account)}</td>
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );
 }
 //-----TRADEHISTORY TABLE-----
-function TradeHistoryTable({ data }: { data: any[] }) {
+function TradeHistoryTable({
+  data,
+  account,
+}: {
+  data: HistoryData[];
+  account: string;
+}) {
   return (
     <table>
       <thead>
@@ -190,26 +244,36 @@ function TradeHistoryTable({ data }: { data: any[] }) {
         </tr>
       </thead>
       <tbody>
-        {data.map((order: any) => (
-          <tr key={order.id}>
-            <td>{order.pairName}</td>
-            <td className={displayOrderSide(order.side).className}>
-              {displayOrderSide(order.side).text}
-            </td>
-            <td>PlaceHolder {order.specifiedToken.symbol}</td>
-
-            <td>
-              {order.price} {order.specifiedToken.symbol}
-            </td>
-            <td>
-              {order.amountFilled} {order.specifiedToken.symbol}
-            </td>
-            <td>
-              {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-            </td>
-            <td>{displayTime(order.timeCompleted, "full")}</td>
+        {!account ? (
+          <tr>
+            <td colSpan={7}>Please connect Wallet</td>
           </tr>
-        ))}
+        ) : data.length === 0 ? (
+          <tr>
+            <td colSpan={7}>No Trade History to display</td>
+          </tr>
+        ) : (
+          data.map((order: HistoryData) => (
+            <tr key={order.id}>
+              <td>{order.pairName}</td>
+              <td className={displayOrderSide(order.side).className}>
+                {displayOrderSide(order.side).text}
+              </td>
+              <td>PlaceHolder {order.specifiedToken.symbol}</td>
+
+              <td>
+                {order.price} {order.specifiedToken.symbol}
+              </td>
+              <td>
+                {order.amountFilled} {order.specifiedToken.symbol}
+              </td>
+              <td>
+                {calculateTotalFees(order)} {order.unclaimedToken.symbol}
+              </td>
+              <td>{displayTime(order.timeCompleted, "full")}</td>
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );
@@ -222,8 +286,6 @@ export function DisplayTable({
   const data = getFilteredData(orderReceiptData, selectedTable);
 
   const cancelOrder = useCancelOrder();
-
-  if (!selectedTable) return <div>Please connect wallet to show</div>;
 
   switch (selectedTable) {
     case "OpenOrders":
@@ -243,7 +305,7 @@ export function DisplayTable({
         />
       );
     case "TradeHistory":
-      return <TradeHistoryTable data={data} />;
+      return <TradeHistoryTable data={data} account={account} />;
     default:
       return null;
   }
