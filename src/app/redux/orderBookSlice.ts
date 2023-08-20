@@ -122,5 +122,3 @@ export const orderBookSlice = createSlice({
     },
   },
 });
-
-export default orderBookSlice.reducer;

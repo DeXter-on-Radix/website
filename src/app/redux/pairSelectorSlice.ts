@@ -1,5 +1,7 @@
 import * as adex from "alphadex-sdk-js";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { RootState } from "./store";
+import { getRdt } from "../subscriptions";
 
 export interface TokenInfo extends adex.TokenInfo {
   maxDigits: number;
@@ -29,6 +31,41 @@ const initialState: PairSelectorState = {
   token2: { ...initalTokenInfo },
   pairsList: [],
 };
+
+export const fetchBalances = createAsyncThunk<
+  undefined, // Return type of the payload creator
+  undefined, // argument type
+  {
+    state: RootState;
+  }
+>("radix/fetchBalances", async (_arg, thunkAPI) => {
+  const dispatch = thunkAPI.dispatch;
+  const state = thunkAPI.getState();
+
+  if (state.pairSelector.address === "") {
+    return undefined;
+  }
+
+  const rdt = getRdt();
+  if (rdt && state.radix.walletData.accounts.length > 0) {
+    const tokens = [state.pairSelector.token1, state.pairSelector.token2];
+
+    for (let token of tokens) {
+      const response =
+        await rdt.gatewayApi.state.innerClient.entityFungibleResourceVaultPage({
+          stateEntityFungibleResourceVaultsPageRequest: {
+            address: state.radix.walletData.accounts[0].address,
+            // eslint-disable-next-line camelcase
+            resource_address: token.address,
+          },
+        });
+      const balance = parseFloat(response ? response.items[0].amount : "0");
+      dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
+    }
+  }
+
+  return undefined;
+});
 
 export const pairSelectorSlice = createSlice({
   name: "pairSelector",
@@ -78,8 +115,12 @@ export const pairSelectorSlice = createSlice({
       }
     },
   },
+
+  extraReducers: (builder) => {
+    builder.addCase(fetchBalances.rejected, (state, action) => {
+      console.error("radix/fetchBalances rejected:", action.error.message);
+    });
+  },
 });
 
 export const { updateAdex, selectPairAddress } = pairSelectorSlice.actions;
-
-export default pairSelectorSlice.reducer;

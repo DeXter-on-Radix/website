@@ -69,5 +69,3 @@ export const priceChartSlice = createSlice({
 });
 
 export const { setCandlePeriod, updateCandles } = priceChartSlice.actions;
-
-export default priceChartSlice.reducer;

@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
-import { RootState, AppDispatch } from "./store";
+import { RootState } from "./store";
 import { createSelector } from "@reduxjs/toolkit";
-import { RDT, fetchBalances, getRdt } from "./radixSlice";
+import { getRdt, RDT } from "../subscriptions";
+import { fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 
 export enum OrderTab {
@@ -272,8 +273,6 @@ export const orderInputSlice = createSlice({
     });
   },
 });
-
-export default orderInputSlice.reducer;
 
 function toDescription(quote: Quote, state: OrderInputState): string {
   let description = "";

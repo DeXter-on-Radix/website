@@ -19,5 +19,3 @@ export const accountHistorySlice = createSlice({
     },
   },
 });
-
-export default accountHistorySlice.reducer;

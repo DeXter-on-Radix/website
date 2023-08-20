@@ -15,7 +15,7 @@ import {
   submitOrder,
   setSizePercent,
 } from "../redux/orderInputSlice";
-import { fetchBalances } from "../redux/radixSlice";
+import { fetchBalances } from "../redux/pairSelectorSlice";
 import { displayNumber } from "../utils";
 
 function OrderTypeTabs() {
