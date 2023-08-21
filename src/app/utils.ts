@@ -1,4 +1,14 @@
 // utiluty function to display numbers in a fixed format
+
+export function displayPositiveNumber(x: number, decimals: number): string {
+  // the same as with displayNumber, but if the number is negative, it will return empty string
+  if (x < 0) {
+    return "";
+  } else {
+    return displayNumber(x, decimals);
+  }
+}
+
 export function displayNumber(
   x: number, // the number to display
   decimals: number // the number of decimal places to display, mu
@@ -9,6 +19,13 @@ export function displayNumber(
   } else if (x >= 1000) {
     result = roundTo(x / 1000, 2).toString() + "K";
   } else {
+    // toFixed() digits argument must be between 0 and 100
+    if (decimals > 100) {
+      decimals = 100;
+    }
+    if (decimals < 0) {
+      decimals = 0;
+    }
     result = roundTo(x, decimals).toFixed(decimals);
   }
   return result;

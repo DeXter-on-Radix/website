@@ -1,5 +1,8 @@
 import { OrderbookLine } from "alphadex-sdk-js";
-import { OrderBookRowProps, toOrderBookRowProps } from "../src/app/OrderBook";
+import {
+  OrderBookRowProps,
+  toOrderBookRowProps,
+} from "../src/app/redux/orderBookSlice";
 
 const MOCK_SELLS = [
   new OrderbookLine(20, 1, 1, 1, 1, false),
