@@ -130,7 +130,7 @@ function AssetToggle() {
 }
 
 function PositionSizeInput() {
-  const defaultValue = useAppSelector((state) => state.orderInput.size);
+  const size = useAppSelector((state) => state.orderInput.size);
   const selectedToken = useAppSelector(getSelectedToken);
   const validationResult = useAppSelector(validatePositionSize);
   const dispatch = useAppDispatch();
@@ -146,7 +146,7 @@ function PositionSizeInput() {
             "input input-bordered w-full" +
             (validationResult.valid ? "" : " input-error")
           }
-          value={defaultValue}
+          value={size}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(orderInputSlice.actions.setSize(size));
@@ -213,7 +213,7 @@ function slippageFromPercentage(percentage: string): number {
 }
 
 function MarketOrderInput() {
-  const defaultValue = useAppSelector((state) => state.orderInput.slippage);
+  const slippage = useAppSelector((state) => state.orderInput.slippage);
   const validationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
   return (
@@ -229,7 +229,7 @@ function MarketOrderInput() {
               "input input-bordered w-full" +
               (validationResult.valid ? "" : " input-error")
             }
-            defaultValue={slippagePercentage(defaultValue)}
+            value={slippagePercentage(slippage)}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const slippage = slippageFromPercentage(event.target.value);
               dispatch(orderInputSlice.actions.setSlippage(slippage));
@@ -252,7 +252,7 @@ function MarketOrderInput() {
 }
 
 function LimitOrderInput() {
-  const defaultValue = useAppSelector((state) => state.orderInput.price);
+  const price = useAppSelector((state) => state.orderInput.price);
   const priceToken = useAppSelector(getUnselectedToken);
   const validationResult = useAppSelector(validatePriceInput);
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
@@ -271,7 +271,7 @@ function LimitOrderInput() {
               "input input-bordered w-full" +
               (validationResult.valid ? "" : " input-error")
             }
-            value={defaultValue}
+            value={price}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const price = Number(event.target.value);
               dispatch(orderInputSlice.actions.setPrice(price));
