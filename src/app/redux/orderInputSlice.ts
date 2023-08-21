@@ -77,9 +77,6 @@ export const fetchQuote = createAsyncThunk<
   let slippageToSend = undefined;
 
   if (state.orderInput.tab === OrderTab.LIMIT) {
-    if (state.orderInput.price < 0) {
-      throw new Error("Invalid price");
-    }
     priceToSend = state.orderInput.price;
   } else {
     slippageToSend = state.orderInput.slippage;
