@@ -6,6 +6,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import { getRdt, RDT } from "../subscriptions";
 import { fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import * as utils from "../utils";
 
 export enum OrderTab {
   MARKET,
@@ -136,10 +137,10 @@ export const setSizePercent = createAsyncThunk<
   let newSize = proportion * (balance || 0);
   // Round to maxDigits
   const maxDigits = getSelectedToken(state).maxDigits;
-  newSize = Number(
-    (
-      Math.floor(newSize * Math.pow(10, maxDigits)) / Math.pow(10, maxDigits)
-    ).toFixed(maxDigits)
+  newSize = utils.roundTo(
+    proportion * (balance || 0),
+    maxDigits,
+    utils.RoundType.DOWN
   );
 
   dispatch(orderInputSlice.actions.setSize(newSize));
@@ -330,7 +331,7 @@ const selectSide = (state: RootState) => state.orderInput.side;
 export const validateSlippageInput = createSelector(
   [selectSlippage],
   (slippage) => {
-    if (slippage <= 0) {
+    if (slippage < 0) {
       return { valid: false, message: "Slippage must be positive" };
     }
 
