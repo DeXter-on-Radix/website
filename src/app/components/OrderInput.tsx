@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -134,6 +134,15 @@ function PositionSizeInput() {
   const selectedToken = useAppSelector(getSelectedToken);
   const validationResult = useAppSelector(validatePositionSize);
   const dispatch = useAppDispatch();
+
+  const customPercentInputRef = useRef<HTMLInputElement>(null);
+  const handleButtonClick = (percent: number) => {
+    dispatch(setSizePercent(percent));
+    if (customPercentInputRef.current) {
+      customPercentInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="form-control">
       <label className="label">
@@ -148,6 +157,9 @@ function PositionSizeInput() {
           }
           value={size}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            if (customPercentInputRef.current) {
+              customPercentInputRef.current.value = "";
+            }
             const size = Number(event.target.value);
             dispatch(orderInputSlice.actions.setSize(size));
           }}
@@ -165,32 +177,21 @@ function PositionSizeInput() {
       </label>
 
       <div className="btn-group w-full">
-        <button
-          className="btn btn-sm"
-          onClick={() => dispatch(setSizePercent(25))}
-        >
+        <button className="btn btn-sm" onClick={() => handleButtonClick(25)}>
           25%
         </button>
-        <button
-          className="btn btn-sm"
-          onClick={() => dispatch(setSizePercent(50))}
-        >
+        <button className="btn btn-sm" onClick={() => handleButtonClick(50)}>
           50%
         </button>
-        <button
-          className="btn btn-sm"
-          onClick={() => dispatch(setSizePercent(75))}
-        >
+        <button className="btn btn-sm" onClick={() => handleButtonClick(75)}>
           75%
         </button>
-        <button
-          className="btn btn-sm"
-          onClick={() => dispatch(setSizePercent(100))}
-        >
+        <button className="btn btn-sm" onClick={() => handleButtonClick(100)}>
           100%
         </button>
         <input
           type="number"
+          ref={customPercentInputRef}
           className="input input-sm bg-neutral"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
