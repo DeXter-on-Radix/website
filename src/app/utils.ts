@@ -9,6 +9,104 @@ export function displayPositiveNumber(x: number, decimals: number): string {
   }
 }
 
+export function displayAmount(
+  x: number,
+  noDigits: number = 6,
+  decimalSeparator: string = ".",
+  thousandsSeparator: string = " "
+): string {
+  if (noDigits < 4) {
+    return "ERROR: displayAmount cannot work with noDigits less than 4";
+  }
+  let numberStr = x.toString();
+  let wholeNumber = Math.trunc(x);
+  let wholeNumberStr = wholeNumber.toString();
+  let numberOfSeparators = Math.trunc((wholeNumberStr.length - 1) / 3);
+  if (thousandsSeparator != "" && numberOfSeparators > 0) {
+    let firstSeparator = wholeNumberStr.length % 3;
+    if (firstSeparator == 0) {
+      firstSeparator = 3;
+    }
+    let lastSeparator = firstSeparator + 3 * (numberOfSeparators - 1);
+    for (let i = lastSeparator; i > 0; i = i - 3) {
+      wholeNumberStr =
+        wholeNumberStr.slice(0, i) +
+        thousandsSeparator +
+        wholeNumberStr.slice(i);
+    }
+    console.log("WholeNumberStr: " + wholeNumberStr);
+  }
+  if (wholeNumberStr.length <= noDigits) {
+    return wholeNumberStr;
+  } else {
+    if (wholeNumber == 0) {
+      return x.toFixed(noDigits - 2); // take 2 digits for 0.
+    } else if (wholeNumberStr.length < noDigits) {
+      return wholeNumberStr;
+    } else {
+      let excessLength = wholeNumberStr.length - noDigits + 1;
+      let excessRemainder =
+        thousandsSeparator != "" ? excessLength % 4 : excessLength % 3;
+      console.log("Excess Remainder: " + excessRemainder);
+      let excessMultiple =
+        thousandsSeparator != ""
+          ? Math.trunc(excessLength / 4)
+          : Math.trunc(excessLength / 3);
+      let displayStr = wholeNumberStr.slice(0, noDigits - 1);
+      console.log("DisplayStr: " + displayStr);
+      switch (excessRemainder) {
+        case 0:
+          if (excessMultiple > 0) {
+            excessMultiple = excessMultiple - 1;
+          }
+          break;
+        case 1:
+          if (thousandsSeparator != "") {
+            displayStr =
+              displayStr.slice(0, -3) +
+              decimalSeparator +
+              displayStr.slice(-2, -1);
+          } else {
+            displayStr =
+              displayStr.slice(0, -2) +
+              decimalSeparator +
+              displayStr.slice(-2, -1);
+          }
+          break;
+        case 2:
+          if (thousandsSeparator != "") {
+            displayStr =
+              displayStr.slice(0, -2) + decimalSeparator + displayStr.slice(-1);
+          } else {
+            displayStr = displayStr.slice(0, -1);
+          }
+          break;
+        case 3:
+          displayStr = displayStr.slice(0, -1);
+          break;
+      }
+      switch (excessMultiple) {
+        case 0:
+          displayStr = displayStr + "K";
+          break;
+        case 1:
+          displayStr = displayStr + "M";
+          break;
+        case 2:
+          displayStr = displayStr + "B";
+          break;
+        case 3:
+          displayStr = displayStr + "T";
+          break;
+        default:
+          displayStr = displayStr + "G";
+          break;
+      }
+      return displayStr;
+    }
+  }
+}
+
 export function displayNumber(
   x: number, // the number to display
   decimals: number // the number of decimal places to display, mu
