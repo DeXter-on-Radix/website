@@ -50,6 +50,8 @@ export function initializeSubscriptions(store: AppStore) {
         JSON.stringify(newState)
       );
 
+      console.log("newState", serializedState);
+
       store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
       store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
