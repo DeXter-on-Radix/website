@@ -8,7 +8,6 @@ import { radixSlice, WalletData } from "./redux/radixSlice";
 import { fetchBalances } from "./redux/pairSelectorSlice";
 import { pairSelectorSlice } from "./redux/pairSelectorSlice";
 import { orderBookSlice } from "./redux/orderBookSlice";
-import { orderInputSlice } from "./redux/orderInputSlice";
 import { updateCandles } from "./redux/priceChartSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
 import { AppStore } from "./redux/store";
@@ -51,10 +50,7 @@ export function initializeSubscriptions(store: AppStore) {
         JSON.stringify(newState)
       );
 
-      console.log("newState", serializedState);
-
       store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
-      store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
       store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));

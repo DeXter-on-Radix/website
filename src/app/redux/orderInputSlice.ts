@@ -26,9 +26,7 @@ export interface OrderInputState {
   preventImmediateExecution: boolean;
   side: OrderSide;
   size: number;
-  minSize: number;
   price: number;
-  toAmountEstimate: number;
   slippage: number;
   quote?: Quote;
   description?: string;
@@ -57,10 +55,8 @@ const initialState: OrderInputState = {
   preventImmediateExecution: false,
   side: adex.OrderSide.BUY,
   size: 0,
-  minSize: 0,
   price: 0,
   slippage: 0.01,
-  toAmountEstimate: 0,
   transactionInProgress: false,
 };
 
@@ -135,11 +131,10 @@ export const setSizePercent = createAsyncThunk<
   }
 
   let newSize = proportion * (balance || 0);
-  // Round to maxDigits
-  const maxDigits = getSelectedToken(state).maxDigits;
+  // Round to maximum number of AlphaDEX decimals
   newSize = utils.roundTo(
     proportion * (balance || 0),
-    maxDigits,
+    adex.AMOUNT_MAX_DECIMALS,
     utils.RoundType.DOWN
   );
 
@@ -220,18 +215,6 @@ export const orderInputSlice = createSlice({
     },
     togglePreventImmediateExecution(state) {
       state.preventImmediateExecution = !state.preventImmediateExecution;
-    },
-    updateAdex: (
-      state: OrderInputState,
-      action: PayloadAction<adex.StaticState>
-    ) => {
-      const adexState = action.payload;
-
-      if (state.token1Selected) {
-        state.minSize = adexState.currentPairInfo.minOrderToken1;
-      } else {
-        state.minSize = adexState.currentPairInfo.minOrderToken2;
-      }
     },
   },
 
@@ -325,8 +308,10 @@ export interface ValidationResult {
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSize = (state: RootState) => state.orderInput.size;
-const selectMinSize = (state: RootState) => state.orderInput.minSize;
 const selectSide = (state: RootState) => state.orderInput.side;
+const selectPriceMaxDecimals = (state: RootState) => {
+  return state.pairSelector.priceMaxDecimals;
+};
 
 export const validateSlippageInput = createSelector(
   [selectSlippage],
@@ -339,26 +324,29 @@ export const validateSlippageInput = createSelector(
   }
 );
 
-export const validatePriceInput = createSelector([selectPrice], (price) => {
-  if (price <= 0) {
-    return { valid: false, message: "Price must be greater than 0" };
-  }
-
-  return { valid: true };
-});
-
-export const validatePositionSize = createSelector(
-  [selectSide, selectSize, selectMinSize, getSelectedToken, getUnselectedToken],
-  (side, size, minSize, selectedToken, unselectedToken) => {
-    if (size < minSize) {
-      return { valid: false, message: "Position size is too small" };
+export const validatePriceInput = createSelector(
+  [selectPrice, selectPriceMaxDecimals],
+  (price, priceMaxDecimals) => {
+    if (price <= 0) {
+      return { valid: false, message: "Price must be greater than 0" };
     }
 
+    if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
+      return { valid: false, message: "Too many decimal places" };
+    }
+
+    return { valid: true };
+  }
+);
+
+export const validatePositionSize = createSelector(
+  [selectSide, selectSize, getSelectedToken],
+  (side, size, selectedToken) => {
     if (side === OrderSide.SELL && size > (selectedToken.balance || 0)) {
       return { valid: false, message: "Insufficient funds" };
     }
 
-    if (size.toString().split(".")[1]?.length > selectedToken.maxDigits) {
+    if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
       return { valid: false, message: "Too many decimal places" };
     }
 

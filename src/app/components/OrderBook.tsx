@@ -3,13 +3,11 @@ import "../styles/orderbook.css";
 import * as utils from "../utils";
 import { OrderBookRowProps } from "../redux/orderBookSlice";
 import { useAppSelector } from "../hooks";
+import { AMOUNT_MAX_DECIMALS } from "../redux/pairSelectorSlice";
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const maxDigitsToken1 = useAppSelector(
-    (state) => state.pairSelector.token1.maxDigits
-  );
-  const maxDigitsToken2 = useAppSelector(
-    (state) => state.pairSelector.token2.maxDigits
+  const priceMaxDecimals = useAppSelector(
+    (state) => state.pairSelector.priceMaxDecimals
   );
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
@@ -20,9 +18,9 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const priceString = utils.displayPositiveNumber(price, maxDigitsToken2);
-    const sizeString = utils.displayPositiveNumber(size, maxDigitsToken1);
-    const totalString = utils.displayPositiveNumber(total, maxDigitsToken1);
+    const priceString = utils.displayPositiveNumber(price, priceMaxDecimals);
+    const sizeString = utils.displayPositiveNumber(size, AMOUNT_MAX_DECIMALS);
+    const totalString = utils.displayPositiveNumber(total, AMOUNT_MAX_DECIMALS);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
@@ -36,7 +34,7 @@ function OrderBookRow(props: OrderBookRowProps) {
     } as CSSProperties;
 
     return (
-      <div className="relative col-span-4 sized-columns">
+      <div className="relative col-span-4 sized-columns text-xs">
         <div style={barStyle}></div>
         <div className="order-cell">{orderCount}</div>
         <div className="order-cell text-end">{priceString}</div>
@@ -53,11 +51,8 @@ function OrderBookRow(props: OrderBookRowProps) {
 function MiddleRows() {
   const trades = useAppSelector((state) => state.accountHistory.trades);
   const orderBook = useAppSelector((state) => state.orderBook);
-  const maxDigitsToken1 = useAppSelector(
-    (state) => state.pairSelector.token1.maxDigits
-  );
-  const maxDigitsToken2 = useAppSelector(
-    (state) => state.pairSelector.token2.maxDigits
+  const priceMaxDecimals = useAppSelector(
+    (state) => state.pairSelector.priceMaxDecimals
   );
 
   let spreadString = "";
@@ -75,8 +70,10 @@ function MiddleRows() {
 
   if (bestBuy !== null && bestSell !== null) {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
-      const maxDigits = Math.max(maxDigitsToken1, maxDigitsToken2);
-      const spread = utils.displayPositiveNumber(orderBook.spread, maxDigits);
+      const spread = utils.displayPositiveNumber(
+        orderBook.spread,
+        priceMaxDecimals
+      );
       const spreadPercent = utils.displayPositiveNumber(
         orderBook.spreadPercent,
         2
