@@ -18,6 +18,12 @@ export function displayAmount(
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
   }
+  if (decimalSeparator == "") {
+    return 'ERROR: desiplayAmount decimalSeparator cannot be ""';
+  }
+  if (x < 1) {
+    return roundTo(x, noDigits - 2, RoundType.DOWN).toString();
+  }
   let numberStr = x.toString();
   let wholeNumber = Math.trunc(x);
   let wholeNumberStr = wholeNumber.toString();
@@ -34,26 +40,24 @@ export function displayAmount(
         thousandsSeparator +
         wholeNumberStr.slice(i);
     }
-    console.log("WholeNumberStr: " + wholeNumberStr);
+    // console.log("WholeNumberStr: " + wholeNumberStr);
   }
   if (wholeNumberStr.length <= noDigits) {
     return wholeNumberStr;
   } else {
-    if (wholeNumber == 0) {
-      return x.toFixed(noDigits - 2); // take 2 digits for 0.
-    } else if (wholeNumberStr.length < noDigits) {
+    if (wholeNumberStr.length < noDigits) {
       return wholeNumberStr;
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
       let excessRemainder =
         thousandsSeparator != "" ? excessLength % 4 : excessLength % 3;
-      console.log("Excess Remainder: " + excessRemainder);
+      // console.log("Excess Remainder: " + excessRemainder);
       let excessMultiple =
         thousandsSeparator != ""
           ? Math.trunc(excessLength / 4)
           : Math.trunc(excessLength / 3);
       let displayStr = wholeNumberStr.slice(0, noDigits - 1);
-      console.log("DisplayStr: " + displayStr);
+      // console.log("DisplayStr: " + displayStr);
       switch (excessRemainder) {
         case 0:
           if (excessMultiple > 0) {
@@ -63,9 +67,7 @@ export function displayAmount(
         case 1:
           if (thousandsSeparator != "") {
             displayStr =
-              displayStr.slice(0, -3) +
-              decimalSeparator +
-              displayStr.slice(-2, -1);
+              displayStr.slice(0, -3) + decimalSeparator + displayStr.slice(-2);
           } else {
             displayStr =
               displayStr.slice(0, -2) +
