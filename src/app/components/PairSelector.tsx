@@ -8,7 +8,7 @@ export function PairSelector() {
     dispatch(selectPairAddress(pairAddress));
   };
   return (
-    <div className="dropdown">
+    <div className="dropdown" id="pair-selector">
       <label tabIndex={0} className="btn m-1">
         {pairSelector.name}
       </label>
