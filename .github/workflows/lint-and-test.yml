@@ -32,6 +32,9 @@ jobs:
       - name: Build Project
         run: npm run build
 
+      - name: Install Playwright Browsers
+        run: npx playwright install chrome webkit
+
       # Serve the 'out' folder locally
       - name: Serve Locally
         run: npx serve out -l 3000 &
