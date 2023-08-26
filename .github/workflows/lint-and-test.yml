@@ -35,11 +35,6 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Serve the 'out' folder locally
-      - name: Serve Locally
-        run: npx serve out -l 3000 &
-        # The '&' at the end runs the server in the background
-
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v3
