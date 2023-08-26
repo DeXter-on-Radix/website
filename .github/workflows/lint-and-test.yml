@@ -33,13 +33,18 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Browsers
-        run: npx playwright install chrome webkit
+        run: npx playwright install --with-deps
 
       # Serve the 'out' folder locally
       - name: Serve Locally
         run: npx serve out -l 3000 &
         # The '&' at the end runs the server in the background
 
-      # Run Playwright tests
-      - name: Run Playwright E2E Tests
-        run: npx playwright test e2e
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
