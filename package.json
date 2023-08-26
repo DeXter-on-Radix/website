@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --watch"
+    "test": "jest __tests__ --watch"
   },
   "dependencies": {
     "@radixdlt/radix-dapp-toolkit": "^0.5.1",

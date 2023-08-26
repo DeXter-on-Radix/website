@@ -1,0 +1,42 @@
+name: Lint and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check Formatting
+        run: npx prettier --check .
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Run Unit Tests
+        run: npx jest __tests__ --ci
+
+      - name: Build Project
+        run: npm run build
+
+      # Serve the 'out' folder locally
+      - name: Serve Locally
+        run: npx serve out -l 3000 &
+        # The '&' at the end runs the server in the background
+
+      # Run Playwright tests
+      - name: Run Playwright E2E Tests
+        run: npx playwright test e2e
