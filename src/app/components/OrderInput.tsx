@@ -254,7 +254,7 @@ function MarketOrderInput() {
 
 function LimitOrderInput() {
   const price = useAppSelector((state) => state.orderInput.price);
-  const priceToken = useAppSelector(getUnselectedToken);
+  const priceToken = useAppSelector((state) => state.pairSelector.token2);
   const validationResult = useAppSelector(validatePriceInput);
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
   const bestSellPrice = useAppSelector((state) => state.orderBook.bestSell);
