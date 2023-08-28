@@ -192,7 +192,7 @@ function PositionSizeInput() {
         <input
           type="number"
           ref={customPercentInputRef}
-          className="input input-sm bg-neutral"
+          className="input input-sm bg-gray-100"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(setSizePercent(size));
@@ -396,6 +396,7 @@ export function OrderInput() {
 
   useEffect(() => {
     dispatch(fetchBalances());
+    s;
   }, [dispatch, pairAddress]);
 
   useEffect(() => {

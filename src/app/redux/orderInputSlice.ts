@@ -78,7 +78,6 @@ export const fetchQuote = createAsyncThunk<
   } else {
     slippageToSend = state.orderInput.slippage;
   }
-
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
@@ -102,7 +101,15 @@ export const setSizePercent = createAsyncThunk<
   const dispatch = thunkAPI.dispatch;
   const side = state.orderInput.side;
   const proportion = percentage / 100;
-
+  if (proportion < 0) {
+    dispatch(orderInputSlice.actions.setSize(0));
+    return undefined;
+  }
+  if (percentage > 100) {
+    percentage = Math.floor(percentage / 10);
+    dispatch(setSizePercent(percentage));
+    return;
+  }
   let balance;
   // TODO: check if this is correct compare to non-redux version
   // https://github.com/DeXter-on-Radix/website/blob/b553c1d3dabf691961f1243d166ac71395dc3d4d/src/app/OrderButton.tsx#L314-L367
@@ -117,27 +124,29 @@ export const setSizePercent = createAsyncThunk<
         getUnselectedToken(state).address,
         (getUnselectedToken(state).balance || 0) * proportion,
         PLATFORM_FEE,
-        undefined,
-        10
+        -1,
+        state.orderInput.slippage
       );
       balance = quote.data.toAmount;
     } else {
       // for limit orders we can just calculate based on balance and price
-      balance =
-        (getUnselectedToken(state).balance || 0) * state.orderInput.price;
+      if (selectToken1Selected(state)){
+        balance =
+          (getUnselectedToken(state).balance || 0) / state.orderInput.price;
+      } else {
+        balance =
+          (getUnselectedToken(state).balance || 0) * state.orderInput.price;
+      }
     }
   } else {
     balance = getSelectedToken(state).balance;
   }
-
   let newSize = proportion * (balance || 0);
-  // Round to maximum number of AlphaDEX decimals
   newSize = utils.roundTo(
     proportion * (balance || 0),
     adex.AMOUNT_MAX_DECIMALS,
     utils.RoundType.DOWN
   );
-
   dispatch(orderInputSlice.actions.setSize(newSize));
 
   return undefined;
@@ -348,6 +357,10 @@ export const validatePositionSize = createSelector(
 
     if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
       return { valid: false, message: "Too many decimal places" };
+    }
+
+    if (size <= 0){
+      return { valid: false, message: "Order size must be greater than 0" };
     }
 
     return { valid: true };
