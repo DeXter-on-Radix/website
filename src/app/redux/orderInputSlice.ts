@@ -4,9 +4,11 @@ import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { createSelector } from "@reduxjs/toolkit";
 import { getRdt, RDT } from "../subscriptions";
-import { fetchBalances } from "./pairSelectorSlice";
+import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
+// import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
+import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 
 export enum OrderTab {
   MARKET,
@@ -32,6 +34,7 @@ export interface OrderInputState {
   description?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
+  fromSize?: number;
 }
 
 function adexOrderType(state: OrderInputState): adex.OrderType {
@@ -78,6 +81,9 @@ export const fetchQuote = createAsyncThunk<
   } else {
     slippageToSend = state.orderInput.slippage;
   }
+  if (!state.orderInput.size) {
+    return;
+  }
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
@@ -103,7 +109,7 @@ export const setSizePercent = createAsyncThunk<
   const proportion = percentage / 100;
   if (proportion < 0) {
     dispatch(orderInputSlice.actions.setSize(0));
-    return undefined;
+    return;
   }
   if (percentage > 100) {
     percentage = Math.floor(percentage / 10);
@@ -115,34 +121,41 @@ export const setSizePercent = createAsyncThunk<
   // https://github.com/DeXter-on-Radix/website/blob/b553c1d3dabf691961f1243d166ac71395dc3d4d/src/app/OrderButton.tsx#L314-L367
   // TODO: add tests for this
   if (side === OrderSide.BUY) {
-    // TODO: check what to do with the slippage here
+    const unselectedBalance = utils.roundTo(
+      getUnselectedToken(state).balance || 0,
+      AMOUNT_MAX_DECIMALS - 1,
+      utils.RoundType.DOWN
+    );
     if (state.orderInput.tab === OrderTab.MARKET) {
       const quote = await adex.getExchangeOrderQuote(
         state.pairSelector.address,
         adexOrderType(state.orderInput),
         adex.OrderSide.SELL,
         getUnselectedToken(state).address,
-        (getUnselectedToken(state).balance || 0) * proportion,
+        getUnselectedToken(state).balance || 0,
         PLATFORM_FEE,
         -1,
         state.orderInput.slippage
       );
       balance = quote.data.toAmount;
+      if (quote.data.fromAmount < unselectedBalance * proportion) {
+        //TODO: Display this message properly
+        console.log(
+          "Insufficient liquidity to execute full market order. Increase slippage or reduce amount"
+        );
+      }
     } else {
       // for limit orders we can just calculate based on balance and price
-      if (selectToken1Selected(state)){
-        balance =
-          (getUnselectedToken(state).balance || 0) / state.orderInput.price;
+      if (selectToken1Selected(state)) {
+        balance = unselectedBalance / state.orderInput.price;
       } else {
-        balance =
-          (getUnselectedToken(state).balance || 0) * state.orderInput.price;
+        balance = unselectedBalance * state.orderInput.price;
       }
     }
   } else {
     balance = getSelectedToken(state).balance;
   }
-  let newSize = proportion * (balance || 0);
-  newSize = utils.roundTo(
+  let newSize = utils.roundTo(
     proportion * (balance || 0),
     adex.AMOUNT_MAX_DECIMALS,
     utils.RoundType.DOWN
@@ -209,12 +222,15 @@ export const orderInputSlice = createSlice({
     },
     setToken1Selected(state, action: PayloadAction<boolean>) {
       state.token1Selected = action.payload;
+      setFromSize(state);
     },
     setSize(state, action: PayloadAction<number>) {
       state.size = action.payload;
+      setFromSize(state);
     },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
+      setFromSize(state);
     },
     setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
@@ -240,6 +256,7 @@ export const orderInputSlice = createSlice({
         }
 
         state.quote = quote;
+        state.fromSize = quote.fromAmount;
         state.description = toDescription(quote, state);
       }
     );
@@ -263,6 +280,20 @@ export const orderInputSlice = createSlice({
     });
   },
 });
+
+function setFromSize(state: OrderInputState) {
+  if (state.side === OrderSide.SELL) {
+    state.fromSize = state.size;
+  } else if (state.tab === OrderTab.LIMIT) {
+    if (state.token1Selected) {
+      state.fromSize = state.size * state.price;
+    } else {
+      state.fromSize = state.size / state.price;
+    }
+  } else {
+    state.fromSize = 0; //will update when quote is requested
+  }
+}
 
 function toDescription(quote: Quote, state: OrderInputState): string {
   let description = "";
@@ -311,13 +342,14 @@ async function createTx(state: RootState, rdt: RDT) {
 
 export interface ValidationResult {
   valid: boolean;
-  message?: string;
+  message: string;
 }
 
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSize = (state: RootState) => state.orderInput.size;
 const selectSide = (state: RootState) => state.orderInput.side;
+const selectFromSize = (state: RootState) => state.orderInput.fromSize;
 const selectPriceMaxDecimals = (state: RootState) => {
   return state.pairSelector.priceMaxDecimals;
 };
@@ -329,13 +361,24 @@ export const validateSlippageInput = createSelector(
       return { valid: false, message: "Slippage must be positive" };
     }
 
-    return { valid: true };
+    if (slippage >= 0.05) {
+      return { valid: true, message: "High slippage entered" };
+    }
+
+    return { valid: true, message: "" };
   }
 );
 
 export const validatePriceInput = createSelector(
-  [selectPrice, selectPriceMaxDecimals],
-  (price, priceMaxDecimals) => {
+  [
+    selectPrice,
+    selectPriceMaxDecimals,
+    selectBestBuy,
+    selectBestSell,
+    selectSide,
+    selectToken1Selected,
+  ],
+  (price, priceMaxDecimals, bestBuy, bestSell, side, token1Selected) => {
     if (price <= 0) {
       return { valid: false, message: "Price must be greater than 0" };
     }
@@ -344,26 +387,61 @@ export const validatePriceInput = createSelector(
       return { valid: false, message: "Too many decimal places" };
     }
 
-    return { valid: true };
+    if (
+      ((side === OrderSide.BUY && token1Selected) ||
+        (side === OrderSide.SELL && !token1Selected)) &&
+      bestSell
+        ? price > bestSell * 1.05
+        : false
+    ) {
+      return {
+        valid: true,
+        message: "Price is significantly higher than best sell",
+      };
+    }
+
+    if (
+      ((side === OrderSide.SELL && token1Selected) ||
+        (side === OrderSide.BUY && !token1Selected)) &&
+      bestBuy
+        ? price < bestBuy * 0.95
+        : false
+    ) {
+      return {
+        valid: true,
+        message: "Price is significantly lower than best buy",
+      };
+    }
+    return { valid: true, message: "" };
   }
 );
 
 export const validatePositionSize = createSelector(
-  [selectSide, selectSize, getSelectedToken],
-  (side, size, selectedToken) => {
-    if (side === OrderSide.SELL && size > (selectedToken.balance || 0)) {
-      return { valid: false, message: "Insufficient funds" };
-    }
-
+  [
+    selectSide,
+    selectSize,
+    getSelectedToken,
+    getUnselectedToken,
+    selectFromSize,
+  ],
+  (side, size, selectedToken, unSelectedToken, fromSize) => {
     if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
       return { valid: false, message: "Too many decimal places" };
     }
 
-    if (size <= 0){
+    if (size <= 0) {
       return { valid: false, message: "Order size must be greater than 0" };
     }
+    if (
+      (side === OrderSide.SELL && size > (selectedToken.balance || 0)) ||
+      (side === OrderSide.BUY &&
+        fromSize &&
+        fromSize > (unSelectedToken.balance || 0))
+    ) {
+      return { valid: false, message: "Insufficient funds" };
+    }
 
-    return { valid: true };
+    return { valid: true, message: "" };
   }
 );
 

@@ -97,7 +97,7 @@ function DirectionToggle() {
 function AssetToggle() {
   const pairToken1 = useAppSelector((state) => state.pairSelector.token1);
   const pairToken2 = useAppSelector((state) => state.pairSelector.token2);
-  const selecedToken = useAppSelector(getSelectedToken);
+  const selectedToken = useAppSelector(getSelectedToken);
 
   const dispatch = useAppDispatch();
 
@@ -106,7 +106,7 @@ function AssetToggle() {
       <button
         className={
           "btn" +
-          (selecedToken.address === pairToken1.address ? " btn-active" : "")
+          (selectedToken.address === pairToken1.address ? " btn-active" : "")
         }
         onClick={() => {
           dispatch(orderInputSlice.actions.setToken1Selected(true));
@@ -117,7 +117,7 @@ function AssetToggle() {
       <button
         className={
           "btn" +
-          (selecedToken.address === pairToken2.address ? " btn-active" : "")
+          (selectedToken.address === pairToken2.address ? " btn-active" : "")
         }
         onClick={() => {
           dispatch(orderInputSlice.actions.setToken1Selected(false));
@@ -242,7 +242,7 @@ function MarketOrderInput() {
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
       </div>
@@ -285,7 +285,7 @@ function LimitOrderInput() {
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
         <div className="btn-group w-full">
@@ -396,7 +396,6 @@ export function OrderInput() {
 
   useEffect(() => {
     dispatch(fetchBalances());
-    s;
   }, [dispatch, pairAddress]);
 
   useEffect(() => {

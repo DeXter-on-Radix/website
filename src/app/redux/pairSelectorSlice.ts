@@ -2,6 +2,7 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
+import { error } from "console";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
@@ -61,8 +62,13 @@ export const fetchBalances = createAsyncThunk<
             resource_address: token.address,
           },
         });
-      const balance = parseFloat(response ? response.items[0].amount : "0");
-      dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
+      try {
+        const balance = parseFloat(response ? response.items[0].amount : "0");
+        dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
+      } catch {
+        dispatch(pairSelectorSlice.actions.setBalance({ balance: 0, token }));
+        throw new Error("Error getting data from Radix gateway");
+      }
     }
   }
 
