@@ -236,7 +236,11 @@ export const orderInputSlice = createSlice({
       state.price = action.payload;
     },
     setSlippage(state, action: PayloadAction<number>) {
-      state.slippage = action.payload;
+      if (action.payload <= 1) {
+        state.slippage = action.payload;
+      } else {
+        state.slippage = 1;
+      }
     },
     togglePreventImmediateExecution(state) {
       state.preventImmediateExecution = !state.preventImmediateExecution;
