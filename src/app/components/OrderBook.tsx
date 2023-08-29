@@ -18,9 +18,9 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const priceString = utils.displayPositiveNumber(price, priceMaxDecimals);
-    const sizeString = utils.displayPositiveNumber(size, AMOUNT_MAX_DECIMALS);
-    const totalString = utils.displayPositiveNumber(total, AMOUNT_MAX_DECIMALS);
+    const priceString = utils.displayAmount(price, AMOUNT_MAX_DECIMALS);
+    const sizeString = utils.displayAmount(size, AMOUNT_MAX_DECIMALS);
+    const totalString = utils.displayAmount(total, AMOUNT_MAX_DECIMALS);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
