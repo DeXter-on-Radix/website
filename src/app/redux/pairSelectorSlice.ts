@@ -3,14 +3,16 @@ import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
 
+export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
+
 export interface TokenInfo extends adex.TokenInfo {
-  maxDigits: number;
   balance?: number;
 }
 
 export interface PairSelectorState {
   name: string;
   address: string;
+  priceMaxDecimals: number;
   token1: TokenInfo;
   token2: TokenInfo;
   pairsList: adex.PairInfo[];
@@ -21,12 +23,12 @@ export const initalTokenInfo: TokenInfo = {
   symbol: "",
   name: "",
   iconUrl: "",
-  maxDigits: 0,
 };
 
 const initialState: PairSelectorState = {
   name: "",
   address: "",
+  priceMaxDecimals: 0,
   token1: { ...initalTokenInfo },
   token2: { ...initalTokenInfo },
   pairsList: [],
@@ -79,15 +81,16 @@ export const pairSelectorSlice = createSlice({
     ) => {
       const adexState = action.payload;
 
+      state.priceMaxDecimals = adexState.currentPairInfo.priceMaxDecimals;
+
+      // unpacking to avoid loosing balances info
       state.token1 = {
         ...state.token1,
         ...adexState.currentPairInfo.token1,
-        maxDigits: adexState.currentPairInfo.maxDigitsToken1,
       };
       state.token2 = {
         ...state.token2,
         ...adexState.currentPairInfo.token2,
-        maxDigits: adexState.currentPairInfo.maxDigitsToken2,
       };
 
       state.address = adexState.currentPairAddress;
