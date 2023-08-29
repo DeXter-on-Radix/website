@@ -407,7 +407,6 @@ export const validatePriceInput = createSelector(
     if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
       return { valid: false, message: "Too many decimal places" };
     }
-
     if (
       ((side === OrderSide.BUY && token1Selected) ||
         (side === OrderSide.SELL && !token1Selected)) &&
@@ -454,10 +453,13 @@ export const validatePositionSize = createSelector(
       return { valid: false, message: "Order size must be greater than 0" };
     }
     if (
-      (side === OrderSide.SELL && size > (selectedToken.balance || 0)) ||
+      (side === OrderSide.SELL &&
+        selectedToken.balance &&
+        size > selectedToken.balance) ||
       (side === OrderSide.BUY &&
+        unSelectedToken.balance &&
         fromSize &&
-        fromSize > (unSelectedToken.balance || 0))
+        fromSize > unSelectedToken.balance)
     ) {
       return { valid: false, message: "Insufficient funds" };
     }
