@@ -53,7 +53,7 @@ export function displayAmount(
       const decimals = x - wholeNumber;
       let decimalsStr = decimals.toString();
       decimalsStr = decimalsStr.substring(2, noDecimals + 1);
-      return wholeNumberStr + decimalSeparator + decimalsStr;
+      return wholeNumberStr + decimalSeparator + decimalsStr.replace(/0+$/, "");
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
       let excessRemainder =
