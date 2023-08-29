@@ -42,11 +42,18 @@ export function displayAmount(
     }
     // console.log("WholeNumberStr: " + wholeNumberStr);
   }
-  if (wholeNumberStr.length <= noDigits) {
+  if (
+    wholeNumberStr.length === noDigits ||
+    wholeNumberStr.length === noDigits - 1
+  ) {
     return wholeNumberStr;
   } else {
     if (wholeNumberStr.length < noDigits) {
-      return wholeNumberStr;
+      const noDecimals = noDigits - wholeNumberStr.length;
+      const decimals = x - wholeNumber;
+      let decimalsStr = decimals.toString();
+      decimalsStr = decimalsStr.substring(2, noDecimals + 1);
+      return wholeNumberStr + decimalSeparator + decimalsStr;
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
       let excessRemainder =
