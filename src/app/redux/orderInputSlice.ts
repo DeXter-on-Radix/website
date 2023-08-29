@@ -117,12 +117,10 @@ export const setSizePercent = createAsyncThunk<
     return;
   }
   let balance;
-  // TODO: check if this is correct compare to non-redux version
-  // https://github.com/DeXter-on-Radix/website/blob/b553c1d3dabf691961f1243d166ac71395dc3d4d/src/app/OrderButton.tsx#L314-L367
   // TODO: add tests for this
   if (side === OrderSide.BUY) {
     const unselectedBalance = utils.roundTo(
-      getUnselectedToken(state).balance || 0,
+      proportion * (getUnselectedToken(state).balance || 0),
       AMOUNT_MAX_DECIMALS - 1,
       utils.RoundType.DOWN
     );
@@ -132,31 +130,50 @@ export const setSizePercent = createAsyncThunk<
         adexOrderType(state.orderInput),
         adex.OrderSide.SELL,
         getUnselectedToken(state).address,
-        getUnselectedToken(state).balance || 0,
+        unselectedBalance,
         PLATFORM_FEE,
         -1,
         state.orderInput.slippage
       );
       balance = quote.data.toAmount;
-      if (quote.data.fromAmount < unselectedBalance * proportion) {
+      if (quote.data.fromAmount < unselectedBalance) {
         //TODO: Display this message properly
         console.log(
-          "Insufficient liquidity to execute full market order. Increase slippage or reduce amount"
+          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
         );
       }
     } else {
       // for limit orders we can just calculate based on balance and price
       if (selectToken1Selected(state)) {
-        balance = unselectedBalance / state.orderInput.price;
+        balance = (proportion * unselectedBalance) / state.orderInput.price;
       } else {
-        balance = unselectedBalance * state.orderInput.price;
+        balance = proportion * unselectedBalance * state.orderInput.price;
       }
     }
   } else {
-    balance = getSelectedToken(state).balance;
+    balance = getSelectedToken(state).balance * proportion;
+    if (state.orderInput.tab === OrderTab.MARKET) {
+      const quote = await adex.getExchangeOrderQuote(
+        state.pairSelector.address,
+        adexOrderType(state.orderInput),
+        adex.OrderSide.SELL,
+        getSelectedToken(state).address,
+        balance || 0,
+        PLATFORM_FEE,
+        -1,
+        state.orderInput.slippage
+      );
+      if (quote.data.fromAmount < balance) {
+        balance = quote.data.fromAmount;
+        //TODO: Display this message properly
+        console.log(
+          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
+        );
+      }
+    }
   }
-  let newSize = utils.roundTo(
-    proportion * (balance || 0),
+  const newSize = utils.roundTo(
+    balance || 0,
     adex.AMOUNT_MAX_DECIMALS,
     utils.RoundType.DOWN
   );
