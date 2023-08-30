@@ -18,7 +18,7 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const charactersToDisplay = 6
+    const charactersToDisplay = 6;
     const priceString = utils.displayAmount(price, charactersToDisplay);
     const sizeString = utils.displayAmount(size, charactersToDisplay);
     const totalString = utils.displayAmount(total, charactersToDisplay);
