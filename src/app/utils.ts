@@ -50,10 +50,14 @@ export function displayAmount(
   } else {
     if (wholeNumberStr.length < noDigits) {
       const noDecimals = noDigits - wholeNumberStr.length;
-      const decimals = x - wholeNumber;
-      let decimalsStr = decimals.toString();
-      decimalsStr = decimalsStr.substring(2, noDecimals + 1);
-      return wholeNumberStr + decimalSeparator + decimalsStr.replace(/0+$/, "");
+      let decimalsStr = numberStr.split(".")[1];
+      decimalsStr = decimalsStr
+        ? decimalsStr.substring(0, noDecimals - 1).replace(/0+$/, "")
+        : "";
+      if (decimalsStr) {
+        decimalsStr = decimalSeparator + decimalsStr;
+      }
+      return wholeNumberStr + decimalsStr;
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
       let excessRemainder =
