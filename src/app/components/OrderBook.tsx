@@ -3,12 +3,8 @@ import "../styles/orderbook.css";
 import * as utils from "../utils";
 import { OrderBookRowProps } from "../redux/orderBookSlice";
 import { useAppSelector } from "../hooks";
-import { AMOUNT_MAX_DECIMALS } from "../redux/pairSelectorSlice";
 
 function OrderBookRow(props: OrderBookRowProps) {
-  const priceMaxDecimals = useAppSelector(
-    (state) => state.pairSelector.priceMaxDecimals
-  );
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
     typeof barColor !== "undefined" &&
@@ -18,9 +14,10 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const priceString = utils.displayPositiveNumber(price, priceMaxDecimals);
-    const sizeString = utils.displayPositiveNumber(size, AMOUNT_MAX_DECIMALS);
-    const totalString = utils.displayPositiveNumber(total, AMOUNT_MAX_DECIMALS);
+    const charactersToDisplay = 6;
+    const priceString = utils.displayAmount(price, charactersToDisplay);
+    const sizeString = utils.displayAmount(size, charactersToDisplay);
+    const totalString = utils.displayAmount(total, charactersToDisplay);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
