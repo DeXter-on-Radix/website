@@ -1,67 +1,94 @@
-// import "react";
-
-// export function AccountHistory() {
-//   return (
-//     // <div>
-//     //   <div>
-//     //     <Button label="Open Orders" value={TABLES.OPEN_ORDERS} />
-//     //     <Button label="Order History" value={TABLES.ORDER_HISTORY} />
-//     //     <Button label="Trade History" value={TABLES.TRADE_HISTORY} />
-//     //     <button className="btn btn-ghost normal-case text-xl">
-//     //       Show all orders
-//     //     </button>
-//     //     <button className="btn btn-ghost normal-case text-xl">
-//     //       Export as CSV
-//     //     </button>
-//     //   </div>
-//     //   <DisplayTable
-//     //     orderReceiptData={orderReceiptData}
-//     //     selectedTable={selectedTable}
-//     //     onCancelOrder={cancelOrder}
-//     //     account={account}
-//     //   />
-//     // </div>
-//     <div>
-//       <div>AccountHistory TODO</div>
-//     </div>
-//   );
-// }
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchAccountHistory } from "../redux/accountHistorySlice"; // Replace with the correct path to your Redux slice
+import { fetchAccountHistory } from "../redux/accountHistorySlice";
+import { DisplayTable } from "./DisplayTable";
 
-// export function AccountHistory() {
-//   const dispatch = useAppDispatch();
+const TABLES = {
+  OPEN_ORDERS: "OpenOrders",
+  ORDER_HISTORY: "OrderHistory",
+  TRADE_HISTORY: "TradeHistory",
+};
 
-//   useEffect(() => {
-//     dispatch(fetchAccountHistory());
-//   }, [dispatch]);
+interface ButtonProps {
+  label: string;
+  value: string;
+  selectedValue: string;
+  onClick: (value: string) => void;
+}
 
-//   return (
-//     <div>
-//       <div>AccountHistory TODO</div>
-//     </div>
-//   );
-// }
+const Button: React.FC<ButtonProps> = ({
+  label,
+  value,
+  selectedValue,
+  onClick,
+}) => (
+  <button
+    onClick={() => onClick(value)}
+    aria-label={label}
+    className={`btn btn-ghost normal-case text-xl ${
+      selectedValue === value ? "bg-yellow-600 text-white" : ""
+    }`}
+  >
+    {label}
+  </button>
+);
 
 export function AccountHistory() {
   const dispatch = useAppDispatch();
 
-  // Selectors to get account and pairAddress from the state
   const account = useAppSelector(
     (state) => state.radix?.walletData.accounts[0]?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
+  const [selectedTable, setSelectedTable] = useState<string>(
+    TABLES.OPEN_ORDERS
+  );
+
   useEffect(() => {
     if (account && pairAddress) {
-      dispatch(fetchAccountHistory());
+      dispatch(fetchAccountHistory()); // Assuming this action creator might take arguments like { account, pairAddress }
     }
-  }, [dispatch, account, pairAddress]); // Effect runs whenever account or pairAddress changes
+  }, [dispatch, account, pairAddress]);
+
+  const handleButtonClick = useCallback((selectedTable: string) => {
+    setSelectedTable(selectedTable);
+  }, []);
+
+  const buttons = useMemo(
+    () =>
+      Object.entries(TABLES).map(([key, value]) => (
+        <Button
+          key={value}
+          label={key.replace("_", " ")}
+          value={value}
+          selectedValue={selectedTable}
+          onClick={handleButtonClick}
+        />
+      )),
+    [selectedTable, handleButtonClick]
+  );
 
   return (
     <div>
-      <div>AccountHistory TODO</div>
+      <div>
+        {buttons}
+        <button
+          className="btn btn-ghost normal-case text-xl"
+          aria-label="Show all orders"
+        >
+          Show all orders
+        </button>
+        {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
+        //TO NOT CONFUSE THE TESTERS----------------------------- */}
+        {/* <button
+          className="btn btn-ghost normal-case text-xl"
+          aria-label="Export as CSV"
+        >
+          Export as CSV
+        </button> */}
+      </div>
+      <DisplayTable selectedTable={selectedTable} />
     </div>
   );
 }
