@@ -73,15 +73,16 @@ export function AccountHistory() {
     <div>
       <div>
         {buttons}
+        {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
+        //TO NOT CONFUSE THE TESTERS----------------------------- */}
+        {/* <button
         <button
           className="btn btn-ghost normal-case text-xl"
           aria-label="Show all orders"
         >
           Show all orders
         </button>
-        {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
-        //TO NOT CONFUSE THE TESTERS----------------------------- */}
-        {/* <button
+        
           className="btn btn-ghost normal-case text-xl"
           aria-label="Export as CSV"
         >
