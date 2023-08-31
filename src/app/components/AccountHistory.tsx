@@ -25,9 +25,7 @@ const Button: React.FC<ButtonProps> = ({
   <button
     onClick={() => onClick(value)}
     aria-label={label}
-    className={`btn btn-ghost normal-case text-xl ${
-      selectedValue === value ? "bg-yellow-600 text-white" : ""
-    }`}
+    className={"btn" + (selectedValue === value ? " btn-active" : "")}
   >
     {label}
   </button>
@@ -71,7 +69,7 @@ export function AccountHistory() {
 
   return (
     <div>
-      <div>
+      <div className="btn-group">
         {buttons}
         {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
         //TO NOT CONFUSE THE TESTERS----------------------------- */}
