@@ -16,7 +16,7 @@ import {
   setSizePercent,
 } from "../redux/orderInputSlice";
 import { fetchBalances } from "../redux/pairSelectorSlice";
-import { displayNumber } from "../utils";
+import { displayAmount } from "../utils";
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -56,13 +56,13 @@ function AvailableBalances() {
       </div>
       <div className="text-xs">
         <div className="flex flex-row justify-end">
-          <div>{token1.balance}</div>
+          <div>{displayAmount(token1.balance || 0)}</div>
           <img src={token1.iconUrl} className="w-3 h-3 !my-auto mx-1" />
           <span>{token1.symbol}</span>
         </div>
 
         <div className="flex flex-row justify-end">
-          <div>{token2.balance}</div>
+          <div>{displayAmount(token2.balance || 0)}</div>
           <img src={token2.iconUrl} className="w-3 h-3 !my-auto mx-1" />
           <span>{token2.symbol}</span>
         </div>
@@ -204,8 +204,8 @@ function PositionSizeInput() {
 }
 
 // TODO: test if floating point numbers are handled correctly
-function slippagePercentage(slippage: number): string {
-  return displayNumber(slippage * 100, 0);
+function slippagePercentage(slippage: number): number {
+  return slippage * 100;
 }
 
 function slippageFromPercentage(percentage: string): number {
@@ -335,11 +335,15 @@ function Description() {
       <p className="">{description}</p>
       <div className="flex">
         <label>Dex fees: </label>
-        <span className="ml-1">{quote?.platformFeesXrd || 0} XRD</span>
+        <span className="ml-1">
+          {displayAmount(quote?.platformFeesXrd || 0, 7)} XRD
+        </span>
       </div>
       <div className="flex">
         <label>Total fees: </label>
-        <span className="ml-1">{quote?.totalFeesXrd || 0} XRD</span>
+        <span className="ml-1">
+          {displayAmount(quote?.totalFeesXrd || 0, 7)} XRD
+        </span>
       </div>
     </div>
   );

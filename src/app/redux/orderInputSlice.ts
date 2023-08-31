@@ -9,6 +9,7 @@ import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
+import { displayAmount } from "../utils";
 
 export enum OrderTab {
   MARKET,
@@ -151,7 +152,7 @@ export const setSizePercent = createAsyncThunk<
       }
     }
   } else {
-    balance = getSelectedToken(state).balance * proportion;
+    balance = getSelectedToken(state).balance || 0 * proportion;
     if (state.orderInput.tab === OrderTab.MARKET) {
       const quote = await adex.getExchangeOrderQuote(
         state.pairSelector.address,
@@ -321,8 +322,12 @@ function toDescription(quote: Quote, state: OrderInputState): string {
 
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
     description +=
-      `Sending ${quote.fromAmount} ${quote.fromToken.symbol} ` +
-      `to receive ${quote.toAmount} ${quote.toToken.symbol}.\n`;
+      `Sending ${displayAmount(quote.fromAmount, 8)} ${
+        quote.fromToken.symbol
+      } ` +
+      `to receive ${displayAmount(quote.toAmount, 8)} ${
+        quote.toToken.symbol
+      }.\n`;
   } else {
     description += "Order will not immediately execute.\n";
   }
