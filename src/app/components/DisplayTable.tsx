@@ -7,11 +7,7 @@ import {
   selectTradeHistory,
   selectOrderHistory,
 } from "../redux/accountHistorySlice";
-import {
-  AccountHistoryState,
-  selectFilteredData,
-  Tables,
-} from "../redux/accountHistorySlice";
+import { AccountHistoryState, Tables } from "../redux/accountHistorySlice";
 interface TableProps {
   data: AccountHistoryState["orderHistory"];
 }
