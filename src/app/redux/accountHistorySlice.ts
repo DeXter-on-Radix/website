@@ -1,4 +1,9 @@
-import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  PayloadAction,
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
@@ -126,3 +131,20 @@ export const accountHistorySlice = createSlice({
 });
 
 export const { setSelectedTable } = accountHistorySlice.actions; // <-- Export the action
+
+export const selectFilteredData = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (state: RootState) => state.accountHistory.selectedTable,
+  (orderHistory, selectedTable) => {
+    switch (selectedTable) {
+      case Tables.OPEN_ORDERS:
+        return orderHistory.filter((order) => order.status === "PENDING");
+      case Tables.ORDER_HISTORY:
+        return orderHistory;
+      case Tables.TRADE_HISTORY:
+        return orderHistory.filter((order) => order.status === "COMPLETED");
+      default:
+        return orderHistory;
+    }
+  }
+);
