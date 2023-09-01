@@ -251,5 +251,3 @@ function TradeHistoryTable({ data }: TableProps) {
     </table>
   );
 }
-
-//refactor

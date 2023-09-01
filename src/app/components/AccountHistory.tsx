@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchAccountHistory } from "../redux/accountHistorySlice";
+import {
+  fetchAccountHistory,
+  Tables,
+  setSelectedTable,
+} from "../redux/accountHistorySlice";
 import { DisplayTable } from "./DisplayTable";
-
-const TABLES = {
-  OPEN_ORDERS: "OpenOrders",
-  ORDER_HISTORY: "OrderHistory",
-  TRADE_HISTORY: "TradeHistory",
-};
 
 interface ButtonProps {
   label: string;
-  value: string;
-  selectedValue: string;
-  onClick: (value: string) => void;
+  value: Tables; // Change from string to Tables
+  selectedValue: Tables; // Change from string to Tables
+  onClick: (value: Tables) => void; // Change from string to Tables
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -38,35 +36,39 @@ export function AccountHistory() {
     (state) => state.radix?.walletData.accounts[0]?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-
-  const [selectedTable, setSelectedTable] = useState<string>(
-    TABLES.OPEN_ORDERS
-  );
+  const selectedTable = useAppSelector(
+    (state) => state.accountHistory.selectedTable
+  ); // <-- Get selectedTable from Redux store
 
   useEffect(() => {
     if (account && pairAddress) {
-      dispatch(fetchAccountHistory()); // Assuming this action creator might take arguments like { account, pairAddress }
+      dispatch(fetchAccountHistory());
     }
   }, [dispatch, account, pairAddress]);
 
-  const handleButtonClick = useCallback((selectedTable: string) => {
-    setSelectedTable(selectedTable);
-  }, []);
+  const handleButtonClick = useCallback(
+    (table: Tables) => {
+      dispatch(setSelectedTable(table)); // <-- Dispatch the action to update the selectedTable
+    },
+    [dispatch]
+  );
 
   const buttons = useMemo(
     () =>
-      Object.entries(TABLES).map(([key, value]) => (
-        <Button
-          key={value}
-          label={key.replace("_", " ")}
-          value={value}
-          selectedValue={selectedTable}
-          onClick={handleButtonClick}
-        />
-      )),
+      Object.keys(Tables).map((key) => {
+        const value = Tables[key as keyof typeof Tables]; // Getting the value of the enum
+        return (
+          <Button
+            key={value}
+            label={value}
+            value={value}
+            selectedValue={selectedTable}
+            onClick={handleButtonClick}
+          />
+        );
+      }),
     [selectedTable, handleButtonClick]
   );
-
   return (
     <div>
       <div className="btn-group">

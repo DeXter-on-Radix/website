@@ -4,11 +4,17 @@ import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { getRdt, RDT } from "../subscriptions";
 
+export enum Tables {
+  OPEN_ORDERS = "Open Orders",
+  ORDER_HISTORY = "Order History",
+  TRADE_HISTORY = "Trade History",
+}
 export interface AccountHistoryState {
   trades: adex.Trade[];
   orderHistory: adex.OrderReceipt[];
   loading: boolean;
   error: string | null;
+  selectedTable: Tables;
 }
 
 // Async thunk definition
@@ -84,6 +90,7 @@ const initialState: AccountHistoryState = {
   orderHistory: [],
   loading: false,
   error: null,
+  selectedTable: Tables.OPEN_ORDERS,
 };
 
 export const accountHistorySlice = createSlice({
@@ -93,6 +100,10 @@ export const accountHistorySlice = createSlice({
     updateAdex: (state, action: PayloadAction<adex.StaticState>) => {
       const adexState = action.payload;
       state.trades = adexState.currentPairTrades;
+    },
+    setSelectedTable: (state, action: PayloadAction<Tables>) => {
+      // <-- Add this reducer
+      state.selectedTable = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -113,3 +124,5 @@ export const accountHistorySlice = createSlice({
       });
   },
 });
+
+export const { setSelectedTable } = accountHistorySlice.actions; // <-- Export the action
