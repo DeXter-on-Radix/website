@@ -7,21 +7,9 @@ import {
   selectFilteredData,
   Tables,
 } from "../redux/accountHistorySlice";
-
-interface DisplayTableProps {
-  selectedTable: Tables | null;
-}
-
 interface TableProps {
   data: AccountHistoryState["orderHistory"];
   handleCancelOrder?: (orderId: number, pairAddress: string) => void;
-}
-
-function filterOrdersByStatus(
-  data: AccountHistoryState["orderHistory"],
-  status: string
-) {
-  return data.filter((order) => order.status === status);
 }
 
 function ActionButton({
@@ -47,9 +35,11 @@ function ActionButton({
   return <span>-</span>;
 }
 
-export function DisplayTable({ selectedTable }: DisplayTableProps) {
-  const data = useAppSelector((state) => state.accountHistory.orderHistory);
+export function DisplayTable() {
   const dispatch = useAppDispatch();
+  const selectedTable = useAppSelector(
+    (state) => state.accountHistory.selectedTable
+  );
   const filteredData = useAppSelector(selectFilteredData);
 
   const handleCancelOrder = (orderId: number, pairAddress: string) => {
