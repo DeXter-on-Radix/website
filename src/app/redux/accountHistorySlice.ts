@@ -9,6 +9,7 @@ import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { getRdt, RDT } from "../subscriptions";
 
+// TYPES AND INTERFACES
 export enum Tables {
   OPEN_ORDERS = "Open Orders",
   ORDER_HISTORY = "Order History",
@@ -20,9 +21,20 @@ export interface AccountHistoryState {
   loading: boolean;
   error: string | null;
   selectedTable: Tables;
+  tables: Tables[];
 }
 
-// Async thunk definition
+// INITIAL STATE
+const initialState: AccountHistoryState = {
+  trades: [],
+  orderHistory: [],
+  loading: false,
+  error: null,
+  selectedTable: Tables.OPEN_ORDERS,
+  tables: Object.values(Tables),
+};
+
+// ASYNC THUNKS
 export const fetchAccountHistory = createAsyncThunk<
   SdkResult,
   undefined,
@@ -41,7 +53,6 @@ export const fetchAccountHistory = createAsyncThunk<
   return plainApiResponse;
 });
 
-// Async thunk for cancelOrder
 export const cancelOrder = createAsyncThunk<
   SdkResult,
   { orderId: number; pairAddress: string },
@@ -62,19 +73,13 @@ export const cancelOrder = createAsyncThunk<
   );
 
   const response = JSON.parse(JSON.stringify(txdata));
-
   thunkAPI.dispatch(fetchAccountHistory());
-
   return response;
 });
 
 export const requestCancelOrder =
   (orderId: number, pairAddress: string) => async (dispatch: AppDispatch) => {
-    // Here, you can add any additional logic before dispatching cancelOrder
-
     dispatch(cancelOrder({ orderId, pairAddress }));
-
-    // And add any additional logic after, if necessary
   };
 
 async function createCancelTx(
@@ -99,14 +104,7 @@ async function createCancelTx(
   return submitTransactionResponse;
 }
 
-const initialState: AccountHistoryState = {
-  trades: [],
-  orderHistory: [],
-  loading: false,
-  error: null,
-  selectedTable: Tables.OPEN_ORDERS,
-};
-
+// SLICE
 export const accountHistorySlice = createSlice({
   name: "accountHistory",
   initialState,
@@ -116,16 +114,12 @@ export const accountHistorySlice = createSlice({
       state.trades = adexState.currentPairTrades;
     },
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
-      // <-- Add this reducer
       state.selectedTable = action.payload;
     },
     executeCancelOrder: (
       state,
       action: PayloadAction<{ orderId: number; pairAddress: string }>
-    ) => {
-      // We can add some initial state mutation if needed, like setting a `cancelling` flag
-      // state.cancelling = true;
-    },
+    ) => {},
   },
 
   extraReducers: (builder) => {
@@ -147,7 +141,8 @@ export const accountHistorySlice = createSlice({
   },
 });
 
-export const { setSelectedTable } = accountHistorySlice.actions; // <-- Export the action
+// SELECTORS
+export const { setSelectedTable } = accountHistorySlice.actions;
 
 export const selectFilteredData = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
@@ -173,13 +168,11 @@ export const selectOpenOrders = (state: RootState) => {
 };
 
 export const selectOrderHistory = (state: RootState) => {
-  // Define the condition(s) for an order to be part of order history.
-  // For this example, I'm just returning all orders.
   return state.accountHistory.orderHistory;
 };
 
 export const selectTradeHistory = (state: RootState) => {
-  // Define the condition(s) for an order to be part of trade history.
-  // Again, for this example, I'm just returning all orders.
   return state.accountHistory.orderHistory;
 };
+
+export const selectTables = (state: RootState) => state.accountHistory.tables;

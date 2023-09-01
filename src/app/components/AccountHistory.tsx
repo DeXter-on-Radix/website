@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
   fetchAccountHistory,
   Tables,
   setSelectedTable,
+  selectTables,
 } from "../redux/accountHistorySlice";
 import { DisplayTable } from "./DisplayTable";
 
@@ -31,7 +32,6 @@ const Button: React.FC<ButtonProps> = ({
 
 export function AccountHistory() {
   const dispatch = useAppDispatch();
-
   const account = useAppSelector(
     (state) => state.radix?.walletData.accounts[0]?.address
   );
@@ -39,11 +39,10 @@ export function AccountHistory() {
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   ); // <-- Get selectedTable from Redux store
+  const tables = useAppSelector(selectTables);
 
   useEffect(() => {
-    if (account && pairAddress) {
-      dispatch(fetchAccountHistory());
-    }
+    dispatch(fetchAccountHistory());
   }, [dispatch, account, pairAddress]);
 
   const handleButtonClick = useCallback(
@@ -53,26 +52,18 @@ export function AccountHistory() {
     [dispatch]
   );
 
-  const buttons = useMemo(
-    () =>
-      Object.keys(Tables).map((key) => {
-        const value = Tables[key as keyof typeof Tables]; // Getting the value of the enum
-        return (
-          <Button
-            key={value}
-            label={value}
-            value={value}
-            selectedValue={selectedTable}
-            onClick={handleButtonClick}
-          />
-        );
-      }),
-    [selectedTable, handleButtonClick]
-  );
   return (
     <div>
       <div className="btn-group">
-        {buttons}
+        {tables.map((table) => (
+          <Button
+            key={table}
+            label={table}
+            value={table}
+            selectedValue={selectedTable}
+            onClick={handleButtonClick}
+          />
+        ))}
         {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
         //TO NOT CONFUSE THE TESTERS----------------------------- */}
         {/* <button
