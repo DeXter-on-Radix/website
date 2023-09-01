@@ -16,7 +16,6 @@ function PriceChartCanvas(props: PriceChartProps) {
   const { data } = props;
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
-
     if (chartContainer) {
       const handleResize = () => {
         chart.applyOptions({ width: chartContainer.clientWidth });
@@ -60,11 +59,6 @@ function PriceChartCanvas(props: PriceChartProps) {
           bottom: 0,
         },
       });
-      // Modify overflow after chart creation
-      const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
-      if (chartDiv) {
-        (chartDiv as HTMLElement).style.overflow = "visible";
-      }
 
       window.addEventListener("resize", handleResize);
 
@@ -76,7 +70,7 @@ function PriceChartCanvas(props: PriceChartProps) {
     }
   }, [data]);
 
-  return <div ref={chartContainerRef} style={{ flexGrow: 1 }} />;
+  return <div ref={chartContainerRef} />;
 }
 
 export function PriceChart() {
