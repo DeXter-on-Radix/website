@@ -4,7 +4,7 @@ import {
   createAsyncThunk,
   createSelector,
 } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import { RootState, AppDispatch } from "./store";
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { getRdt, RDT } from "../subscriptions";
@@ -68,6 +68,15 @@ export const cancelOrder = createAsyncThunk<
   return response;
 });
 
+export const requestCancelOrder =
+  (orderId: number, pairAddress: string) => async (dispatch: AppDispatch) => {
+    // Here, you can add any additional logic before dispatching cancelOrder
+
+    dispatch(cancelOrder({ orderId, pairAddress }));
+
+    // And add any additional logic after, if necessary
+  };
+
 async function createCancelTx(
   state: RootState,
   orderId: number,
@@ -110,7 +119,15 @@ export const accountHistorySlice = createSlice({
       // <-- Add this reducer
       state.selectedTable = action.payload;
     },
+    executeCancelOrder: (
+      state,
+      action: PayloadAction<{ orderId: number; pairAddress: string }>
+    ) => {
+      // We can add some initial state mutation if needed, like setting a `cancelling` flag
+      // state.cancelling = true;
+    },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchAccountHistory.fulfilled, (state, action) => {
@@ -148,3 +165,21 @@ export const selectFilteredData = createSelector(
     }
   }
 );
+
+export const selectOpenOrders = (state: RootState) => {
+  return state.accountHistory.orderHistory.filter(
+    (order) => order.status === "PENDING"
+  );
+};
+
+export const selectOrderHistory = (state: RootState) => {
+  // Define the condition(s) for an order to be part of order history.
+  // For this example, I'm just returning all orders.
+  return state.accountHistory.orderHistory;
+};
+
+export const selectTradeHistory = (state: RootState) => {
+  // Define the condition(s) for an order to be part of trade history.
+  // Again, for this example, I'm just returning all orders.
+  return state.accountHistory.orderHistory;
+};

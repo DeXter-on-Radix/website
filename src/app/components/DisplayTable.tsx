@@ -1,7 +1,12 @@
 import React from "react";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { displayTime, displayOrderSide, calculateTotalFees } from "../utils";
-import { cancelOrder } from "../redux/accountHistorySlice";
+import {
+  cancelOrder,
+  selectOpenOrders,
+  selectTradeHistory,
+  selectOrderHistory,
+} from "../redux/accountHistorySlice";
 import {
   AccountHistoryState,
   selectFilteredData,
@@ -9,22 +14,23 @@ import {
 } from "../redux/accountHistorySlice";
 interface TableProps {
   data: AccountHistoryState["orderHistory"];
-  handleCancelOrder?: (orderId: number, pairAddress: string) => void;
 }
 
 function ActionButton({
   order,
-  handleCancelOrder,
 }: {
   order: AccountHistoryState["orderHistory"][0];
-  handleCancelOrder?: (orderId: number, pairAddress: string) => void;
 }) {
-  if (order.status === "PENDING" && handleCancelOrder) {
+  const dispatch = useAppDispatch();
+
+  if (order.status === "PENDING") {
     return (
       <button
         onClick={(e) => {
           e.stopPropagation();
-          handleCancelOrder(order.id, order.pairAddress);
+          dispatch(
+            cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
+          );
         }}
         className="text-lime-400 px-4 py-2 rounded hover:bg-lime-400 hover:text-black transition"
       >
@@ -40,36 +46,26 @@ export function DisplayTable() {
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   );
-  const filteredData = useAppSelector(selectFilteredData);
 
-  const handleCancelOrder = (orderId: number, pairAddress: string) => {
-    dispatch(cancelOrder({ orderId, pairAddress }));
-  };
+  // Use appropriate selectors based on the table type.
+  const openOrders = useAppSelector(selectOpenOrders);
+  const orderHistory = useAppSelector(selectOrderHistory);
+  const tradeHistory = useAppSelector(selectTradeHistory);
 
   switch (selectedTable) {
     case Tables.OPEN_ORDERS:
-      return (
-        <OpenOrdersTable
-          data={filteredData}
-          handleCancelOrder={handleCancelOrder}
-        />
-      );
+      return <OpenOrdersTable data={openOrders} />;
     case Tables.ORDER_HISTORY:
-      return (
-        <OrderHistoryTable
-          data={filteredData}
-          handleCancelOrder={handleCancelOrder}
-        />
-      );
+      return <OrderHistoryTable data={orderHistory} />;
     case Tables.TRADE_HISTORY:
-      return <TradeHistoryTable data={filteredData} />;
+      return <TradeHistoryTable data={tradeHistory} />;
     default:
       return null;
   }
 }
 
 //TABLE FUNCTIONS
-function OpenOrdersTable({ data, handleCancelOrder }: TableProps) {
+function OpenOrdersTable({ data }: TableProps) {
   return (
     <table>
       <thead>
@@ -108,10 +104,7 @@ function OpenOrdersTable({ data, handleCancelOrder }: TableProps) {
               </td>
               <td>{order.completedPerc}%</td>
               <td>
-                <ActionButton
-                  order={order}
-                  handleCancelOrder={handleCancelOrder}
-                />
+                <ActionButton order={order} />
               </td>
             </tr>
           ))
@@ -121,7 +114,7 @@ function OpenOrdersTable({ data, handleCancelOrder }: TableProps) {
   );
 }
 
-function OrderHistoryTable({ data, handleCancelOrder }: TableProps) {
+function OrderHistoryTable({ data }: TableProps) {
   return (
     <table>
       <thead>
@@ -168,10 +161,7 @@ function OrderHistoryTable({ data, handleCancelOrder }: TableProps) {
               </td>
               <td>{displayTime(order.timeSubmitted, "full")}</td>
               <td>
-                <ActionButton
-                  order={order}
-                  handleCancelOrder={handleCancelOrder}
-                />
+                <ActionButton order={order} />
               </td>
             </tr>
           ))
