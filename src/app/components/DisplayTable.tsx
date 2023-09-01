@@ -2,31 +2,19 @@ import React from "react";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { displayTime, displayOrderSide, calculateTotalFees } from "../utils";
 import { cancelOrder } from "../redux/accountHistorySlice";
-import { AccountHistoryState } from "../redux/accountHistorySlice";
+import {
+  AccountHistoryState,
+  selectFilteredData,
+  Tables,
+} from "../redux/accountHistorySlice";
 
 interface DisplayTableProps {
-  selectedTable: string | null;
+  selectedTable: Tables | null;
 }
 
 interface TableProps {
   data: AccountHistoryState["orderHistory"];
   handleCancelOrder?: (orderId: number, pairAddress: string) => void;
-}
-
-function getFilteredData(
-  unfilteredData: AccountHistoryState["orderHistory"],
-  selectedTable: string | null
-): AccountHistoryState["orderHistory"] {
-  switch (selectedTable) {
-    case "OpenOrders":
-      return filterOrdersByStatus(unfilteredData, "PENDING");
-    case "OrderHistory":
-      return unfilteredData;
-    case "TradeHistory":
-      return filterOrdersByStatus(unfilteredData, "COMPLETED");
-    default:
-      return unfilteredData;
-  }
 }
 
 function filterOrdersByStatus(
@@ -62,32 +50,28 @@ function ActionButton({
 export function DisplayTable({ selectedTable }: DisplayTableProps) {
   const data = useAppSelector((state) => state.accountHistory.orderHistory);
   const dispatch = useAppDispatch();
+  const filteredData = useAppSelector(selectFilteredData);
 
   const handleCancelOrder = (orderId: number, pairAddress: string) => {
     dispatch(cancelOrder({ orderId, pairAddress }));
   };
 
-  const filteredData = React.useMemo(
-    () => getFilteredData(data, selectedTable),
-    [data, selectedTable]
-  );
-
   switch (selectedTable) {
-    case "OpenOrders":
+    case Tables.OPEN_ORDERS:
       return (
         <OpenOrdersTable
           data={filteredData}
           handleCancelOrder={handleCancelOrder}
         />
       );
-    case "OrderHistory":
+    case Tables.ORDER_HISTORY:
       return (
         <OrderHistoryTable
           data={filteredData}
           handleCancelOrder={handleCancelOrder}
         />
       );
-    case "TradeHistory":
+    case Tables.TRADE_HISTORY:
       return <TradeHistoryTable data={filteredData} />;
     default:
       return null;
