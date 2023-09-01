@@ -42,8 +42,6 @@ export function DisplayTable() {
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   );
-
-  // Use appropriate selectors based on the table type.
   const openOrders = useAppSelector(selectOpenOrders);
   const orderHistory = useAppSelector(selectOrderHistory);
   const tradeHistory = useAppSelector(selectTradeHistory);
