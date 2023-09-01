@@ -60,7 +60,7 @@ function PriceChartCanvas(props: PriceChartProps) {
           bottom: 0,
         },
       });
-      // Modify overflow after chart creation
+
       const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
       if (chartDiv) {
         (chartDiv as HTMLElement).style.overflow = "visible";
