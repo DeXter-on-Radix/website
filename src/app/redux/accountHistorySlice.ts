@@ -116,10 +116,6 @@ export const accountHistorySlice = createSlice({
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
       state.selectedTable = action.payload;
     },
-    executeCancelOrder: (
-      state,
-      action: PayloadAction<{ orderId: number; pairAddress: string }>
-    ) => {},
   },
 
   extraReducers: (builder) => {
