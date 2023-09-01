@@ -76,7 +76,7 @@ function PriceChartCanvas(props: PriceChartProps) {
     }
   }, [data]);
 
-  return <div ref={chartContainerRef} style={{ flexGrow: 1 }} />;
+  return <div ref={chartContainerRef} />;
 }
 
 export function PriceChart() {
