@@ -89,7 +89,7 @@ export function AccountHistory() {
           Export as CSV
         </button> */}
       </div>
-      <DisplayTable selectedTable={selectedTable} />
+      <DisplayTable />
     </div>
   );
 }
