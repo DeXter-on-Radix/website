@@ -10,9 +10,9 @@ import { DisplayTable } from "./DisplayTable";
 
 interface ButtonProps {
   label: string;
-  value: Tables; // Change from string to Tables
-  selectedValue: Tables; // Change from string to Tables
-  onClick: (value: Tables) => void; // Change from string to Tables
+  value: Tables;
+  selectedValue: Tables;
+  onClick: (value: Tables) => void;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -38,7 +38,7 @@ export function AccountHistory() {
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
-  ); // <-- Get selectedTable from Redux store
+  );
   const tables = useAppSelector(selectTables);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function AccountHistory() {
 
   const handleButtonClick = useCallback(
     (table: Tables) => {
-      dispatch(setSelectedTable(table)); // <-- Dispatch the action to update the selectedTable
+      dispatch(setSelectedTable(table));
     },
     [dispatch]
   );
