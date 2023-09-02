@@ -60,6 +60,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   const [currentVolume, setCurrentVolume] = useState<number>(0); //FOR LEGEND VOLUME
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch(); //TEMP
+  const pairName = useAppSelector((state) => state.pairSelector.name);
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
   const { data } = props;
   useEffect(() => {
@@ -95,6 +96,8 @@ function PriceChartCanvas(props: PriceChartProps) {
       // OHLC
       const ohlcSeries = chart.addCandlestickSeries({});
       ohlcSeries.setData(clonedData);
+
+      //CROSSHAIR
 
       // PRICEDATA FOR CROSSHAIR
       chart.subscribeCrosshairMove((param) => {
@@ -151,13 +154,16 @@ function PriceChartCanvas(props: PriceChartProps) {
   }, [data]);
 
   return (
-    <div ref={chartContainerRef} style={{ position: "relative" }}>
-      <div className="absolute top-0 left-0 w-full z-20 bg-gray-800">
-        <div className="flex space-x-2 p-2">
+    <div ref={chartContainerRef} className="relative">
+      <div className="absolute top-0 left-0 w-full z-20 bg-gray-800 mt-[-12px]">
+        <div className="flex space-x-2 p-2 transform scale-90">
+          <div className="ml-[-20px] pr-8 text-lg font-roboto text-white">
+            {pairName}
+          </div>
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`px-4 py-1 text-white hover:bg-white hover:bg-opacity-30 hover:rounded-md ${
+              className={`px-3 py-1 text-sm font-roboto text-#d4e7df hover:bg-white hover:bg-opacity-30 hover:rounded-md ${
                 candlePeriod === period ? "text-blue-500" : ""
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
@@ -167,23 +173,13 @@ function PriceChartCanvas(props: PriceChartProps) {
           ))}
         </div>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          top: 80,
-          left: 20,
-          zIndex: 20,
-          color: "white",
-        }}
-      >
-        <div style={{ display: "flex" }}>
-          <div style={{ marginRight: 10 }}>O: {candlePrice?.open}</div>
-          <div style={{ marginRight: 10 }}>H: {candlePrice?.high}</div>
-          <div style={{ marginRight: 10 }}>L: {candlePrice?.low}</div>
-          <div style={{ marginRight: 10 }}>C: {candlePrice?.close}</div>
-          <div style={{ marginRight: 10 }}>
-            {percChange ? `(${percChange.toFixed(2)}%)` : "(0.00%)"}
-          </div>
+      <div className="absolute top-10 left-5 z-20 text-sm font-roboto text-white">
+        <div className="flex space-x-2.5">
+          <div>O: {candlePrice?.open}</div>
+          <div>H: {candlePrice?.high}</div>
+          <div>L: {candlePrice?.low}</div>
+          <div>C: {candlePrice?.close}</div>
+          <div>{percChange ? `(${percChange.toFixed(2)}%)` : "(0.00%)"}</div>
         </div>
         <div>Volume: {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}</div>
       </div>
@@ -197,7 +193,7 @@ export function PriceChart() {
 
   return (
     <div>
-      <label htmlFor="candle-period-selector">Candle Period:</label>
+      {/* <label htmlFor="candle-period-selector">Candle Period:</label>
       <select
         className="select select-ghost"
         id="candle-period-selector"
@@ -211,9 +207,8 @@ export function PriceChart() {
             {period}
           </option>
         ))}
-      </select>
+      </select> */}
       <div className="flex flex-col">
-        <div>sometext</div>
         <PriceChartCanvas data={state.ohlcv} />
       </div>
     </div>
