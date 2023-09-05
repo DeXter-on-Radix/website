@@ -157,18 +157,19 @@ export const selectFilteredData = createSelector(
   }
 );
 
-export const selectOpenOrders = (state: RootState) => {
-  return state.accountHistory.orderHistory.filter(
-    (order) => order.status === "PENDING"
-  );
-};
+export const selectOpenOrders = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (orderHistory) => orderHistory.filter((order) => order.status === "PENDING")
+);
 
-export const selectOrderHistory = (state: RootState) => {
-  return state.accountHistory.orderHistory;
-};
+export const selectOrderHistory = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (orderHistory) => orderHistory
+);
 
-export const selectTradeHistory = (state: RootState) => {
-  return state.accountHistory.orderHistory;
-};
+export const selectTradeHistory = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (orderHistory) => orderHistory.filter((order) => order.status === "COMPLETED")
+);
 
 export const selectTables = (state: RootState) => state.accountHistory.tables;
