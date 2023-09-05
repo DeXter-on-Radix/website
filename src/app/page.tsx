@@ -8,10 +8,10 @@ import { PriceChart } from "components/PriceChart";
 export default function Home() {
   return (
     <>
-      <div className="col-span-12 xl:col-span-3 text-center lg:border-r-4 border-base-300">
+      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-base-300">
         <PairSelector />
       </div>
-      <div className="min-h-[50px] col-span-12 xl:col-span-6 text-center">
+      <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
         Price Info
       </div>
       <div className="col-span-12 xl:col-span-3 hidden xl:block  row-span-2 text-center border-l-4 border-base-300">
