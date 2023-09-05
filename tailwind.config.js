@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -33,6 +34,28 @@ module.exports = {
           "base-content": "#F6F6F7",
           "--rounded-btn": "0.2rem",
           "--btn-text-case": "none",
+          "--rounded-box": "0px",
+        },
+      },
+      {
+        light: {
+          ...require("daisyui/src/theming/themes")["[data-theme=light]"],
+          // TODO: configure these colors when working with light theme
+
+          // "primary-content": "",
+          // secondary: "",
+          // "secondary-content": "",
+          // accent: "",
+          // "accent-content": "",
+          // neutral: "",
+          // error: "",
+          // success: "",
+          // "base-100": "",
+          // "base-300": "",
+          // "base-content": "",
+          "--rounded-btn": "0.2rem",
+          "--btn-text-case": "none",
+          "--rounded-box": "0px",
         },
       },
     ], // true: all themes | false: only light + dark | array: specific themes like this ["light", "dark", "cupcake"]
