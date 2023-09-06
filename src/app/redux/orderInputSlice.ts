@@ -7,6 +7,7 @@ import { getRdt, RDT } from "../subscriptions";
 import { fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
+import { fetchAccountHistory } from "./accountHistorySlice";
 
 export enum OrderTab {
   MARKET,
@@ -158,6 +159,7 @@ export const submitOrder = createAsyncThunk<
 
   const result = await createTx(state, rdt);
   dispatch(fetchBalances());
+  dispatch(fetchAccountHistory()); // Add this line to also update History
 
   return result;
 });
