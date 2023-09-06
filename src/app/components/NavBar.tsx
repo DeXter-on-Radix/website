@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
+import { MoonIcon } from "@heroicons/react/24/outline";
+
+// TODO: theme switching
 
 export function Navbar() {
   return (
@@ -19,8 +22,16 @@ export function Navbar() {
           <span className="xs:invisible sm:visible uppercase">DeXter</span>
         </a>
       </div>
+
       <div className="navbar-end">
-        <radix-connect-button className="btn"></radix-connect-button>
+        <div
+          className="btn mx-2 border-none"
+          style={{ height: "40px", minHeight: "40px" }}
+        >
+          <MoonIcon className="h-6 w-6" />
+        </div>
+
+        <radix-connect-button></radix-connect-button>
       </div>
     </div>
   );
