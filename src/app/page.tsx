@@ -4,9 +4,7 @@ import { OrderBook } from "components/OrderBook";
 import { OrderInput } from "components/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
-import { AccountHistory } from "/components/AccountHistory";
-import { PairInfo } from "/components/PairInfo";
-
+import { AccountHistory } from "components/AccountHistory";
 
 export default function Home() {
   return (
@@ -35,3 +33,5 @@ export default function Home() {
         <AccountHistory />
       </div>
     </>
+  );
+}
