@@ -18,8 +18,6 @@ export enum Tables {
 export interface AccountHistoryState {
   trades: adex.Trade[];
   orderHistory: adex.OrderReceipt[];
-  loading: boolean;
-  error: string | null;
   selectedTable: Tables;
   tables: Tables[];
 }
@@ -28,8 +26,6 @@ export interface AccountHistoryState {
 const initialState: AccountHistoryState = {
   trades: [],
   orderHistory: [],
-  loading: false,
-  error: null,
   selectedTable: Tables.OPEN_ORDERS,
   tables: Object.values(Tables),
 };
@@ -119,21 +115,9 @@ export const accountHistorySlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchAccountHistory.fulfilled, (state, action) => {
-        state.orderHistory = action.payload.data.orders;
-      })
-      .addCase(cancelOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(cancelOrder.fulfilled, (state, action) => {
-        state.loading = false;
-      })
-      .addCase(cancelOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    builder.addCase(fetchAccountHistory.fulfilled, (state, action) => {
+      state.orderHistory = action.payload.data.orders;
+    });
   },
 });
 
