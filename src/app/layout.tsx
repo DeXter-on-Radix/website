@@ -46,7 +46,7 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body className={inter.className}>
-          <div className="grid grid-cols-12 h-full prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
+          <div className="grid grid-cols-12 h-full max-w-none divide-y-4 divide-base-300">
             <Navbar />
             {children}
             <Footer />
