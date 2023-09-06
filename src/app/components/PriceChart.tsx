@@ -1,4 +1,4 @@
-import { createChart, CrosshairMode, LineStyle } from "lightweight-charts";
+import { createChart } from "lightweight-charts";
 import React, { useEffect, useRef, useState } from "react";
 import {
   CANDLE_PERIODS,
@@ -7,49 +7,6 @@ import {
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
-//COLORS==========================
-const darkTheme = {
-  layout: {
-    backgroundColor: "#121212",
-    textColor: "#E8E8E8",
-  },
-  grid: {
-    vertLines: {
-      color: "#333333",
-    },
-    horzLines: {
-      color: "#333333",
-    },
-  },
-  candlestick: {
-    upColor: "#4caf50",
-    downColor: "#f44336",
-    borderDownColor: "#f44336",
-    borderUpColor: "#4caf50",
-  },
-};
-
-const lightTheme = {
-  layout: {
-    backgroundColor: "#FFFFFF",
-    textColor: "#333",
-  },
-  grid: {
-    vertLines: {
-      color: "#E8E8E8",
-    },
-    horzLines: {
-      color: "#E8E8E8",
-    },
-  },
-  candlestick: {
-    upColor: "#4caf50",
-    downColor: "#f44336",
-    borderDownColor: "#f44336",
-    borderUpColor: "#4caf50",
-  },
-};
-//COLORS=======================================
 interface PriceChartProps {
   data: OHLCVData[];
 }
@@ -58,8 +15,6 @@ function PriceChartCanvas(props: PriceChartProps) {
   const [candlePrice, setCandlePrice] = useState<OHLCVData | null>(null); //FOR LEGENDS
   const [percChange, setPercChange] = useState<number | null>(null); //FOR PERCENT CHANGE
   const [currentVolume, setCurrentVolume] = useState<number>(0); //FOR LEGEND VOLUME
-  const [prevClose, setPrevClose] = useState<number | null>(null); //PREVIOUS CANDLE'S CLOSE PRICE
-  const [prevVolume, setPrevVolume] = useState<number | null>(null); //PREVIOUS CANDLE'S VOLUME
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch(); //TEMP
   const pairName = useAppSelector((state) => state.pairSelector.name);
@@ -131,7 +86,6 @@ function PriceChartCanvas(props: PriceChartProps) {
             const currentData = data[currentIndex];
             const prevCandle = data[currentIndex - 1];
 
-            setPrevClose(prevCandle.close);
             const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
             const percentageDifference = computePercentageChange(
               currentData.close,
