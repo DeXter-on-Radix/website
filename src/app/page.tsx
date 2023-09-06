@@ -4,6 +4,7 @@ import { OrderBook } from "components/OrderBook";
 import { OrderInput } from "components/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
+import { AccountHistory } from "components/AccountHistory";
 
 export default function Home() {
   return (
@@ -29,7 +30,7 @@ export default function Home() {
         <OrderBook />
       </div>
       <div className="min-h-[200px] col-span-12 lg:col-span-7 xl:col-span-12 text-center">
-        Orders History
+        <AccountHistory />
       </div>
     </>
   );
