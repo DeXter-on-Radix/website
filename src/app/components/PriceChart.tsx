@@ -16,6 +16,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   const { data } = props;
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
+
     if (chartContainer) {
       const handleResize = () => {
         chart.applyOptions({ width: chartContainer.clientWidth });
@@ -59,6 +60,11 @@ function PriceChartCanvas(props: PriceChartProps) {
           bottom: 0,
         },
       });
+
+      const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
+      if (chartDiv) {
+        (chartDiv as HTMLElement).style.overflow = "visible";
+      }
 
       window.addEventListener("resize", handleResize);
 
