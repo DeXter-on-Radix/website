@@ -242,7 +242,7 @@ function MarketOrderInput() {
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
       </div>
@@ -285,7 +285,7 @@ function LimitOrderInput() {
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
         <div className="btn-group w-full">
