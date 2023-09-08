@@ -43,6 +43,8 @@ export function initializeSubscriptions(store: AppStore) {
     })
   );
   setRdt(rdtInstance);
+  // TODO: "black" on the light theme
+  rdtInstance.buttonApi.setTheme("white");
   adex.init();
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {

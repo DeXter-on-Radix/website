@@ -11,18 +11,6 @@ import { Provider } from "react-redux";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// declare the radix-connect-button as a global custom element
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "radix-connect-button": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-    }
-  }
-}
-
 export default function RootLayout({
   children,
 }: {
