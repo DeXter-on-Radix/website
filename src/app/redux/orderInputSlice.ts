@@ -270,7 +270,6 @@ function toDescription(quote: Quote, state: OrderInputState): string {
 }
 
 async function createTx(state: RootState, rdt: RDT) {
-  //submits transaction variables to adex to get a transaction manifest
   const tab = state.orderInput.tab;
   const price = state.orderInput.price;
   const slippage = state.orderInput.slippage;
@@ -288,7 +287,7 @@ async function createTx(state: RootState, rdt: RDT) {
     state.radix?.walletData.accounts[0]?.address || "",
     state.radix?.walletData.accounts[0]?.address || ""
   );
-  //submits transaction manifest to radix walle
+
   let submitTransactionResponse = await adex.submitTransaction(
     createOrderResponse.data,
     rdt
@@ -310,8 +309,6 @@ const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSize = (state: RootState) => state.orderInput.size;
 const selectSide = (state: RootState) => state.orderInput.side;
-const selectBestBuy = (state: RootState) => state.orderBook.bestBuy;
-const selectBestSell = (state: RootState) => state.orderBook.bestSell;
 const selectPriceMaxDecimals = (state: RootState) => {
   return state.pairSelector.priceMaxDecimals;
 };
@@ -319,43 +316,19 @@ const selectPriceMaxDecimals = (state: RootState) => {
 export const validateSlippageInput = createSelector(
   [selectSlippage],
   (slippage) => {
-    if (slippage < 0)
+    if (slippage < 0) {
       return { valid: false, message: "Slippage must be positive" };
-
-    if (slippage > 0.05) return { valid: true, message: "High slippage input" };
+    }
 
     return { valid: true };
   }
 );
 
 export const validatePriceInput = createSelector(
-  [
-    selectPrice,
-    selectPriceMaxDecimals,
-    selectBestBuy,
-    selectBestSell,
-    selectSide,
-    selectToken1Selected,
-  ],
-  (price, priceMaxDecimals, bestBuy, bestSell, side, token1Selected) => {
+  [selectPrice, selectPriceMaxDecimals],
+  (price, priceMaxDecimals) => {
     if (price <= 0) {
       return { valid: false, message: "Price must be greater than 0" };
-    }
-    if (
-      bestBuy &&
-      price > bestBuy * 1.05 &&
-      ((side === OrderSide.BUY && token1Selected) ||
-        (side === OrderSide.SELL && !token1Selected))
-    ) {
-      return { valid: true, message: "Warning: Price is high" };
-    }
-    if (
-      bestSell &&
-      price < bestSell * 0.95 &&
-      ((side === OrderSide.SELL && token1Selected) ||
-        (side === OrderSide.BUY && !token1Selected))
-    ) {
-      return { valid: true, message: "Warning: Price is low" };
     }
 
     if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
@@ -372,7 +345,6 @@ export const validatePositionSize = createSelector(
     if (side === OrderSide.SELL && size > (selectedToken.balance || 0)) {
       return { valid: false, message: "Insufficient funds" };
     }
-    //TODO: Check for funds on buy orders
 
     if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
       return { valid: false, message: "Too many decimal places" };
@@ -392,6 +364,8 @@ export const validateOrderInput = createSelector(
     tab
   ) => {
     //TODO: Check user has funds for tx (done for SELL orders)
+    //TODO: Check for crazy slippage
+    //TODO: Fat finger checks
     if (!sizeValidationResult.valid) {
       return sizeValidationResult;
     }
