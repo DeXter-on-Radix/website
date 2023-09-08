@@ -8,6 +8,7 @@ import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
 // import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
+import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { displayAmount } from "../utils";
 
@@ -198,6 +199,7 @@ export const submitOrder = createAsyncThunk<
 
   const result = await createTx(state, rdt);
   dispatch(fetchBalances());
+  dispatch(fetchAccountHistory()); // Add this line to also update History
 
   return result;
 });

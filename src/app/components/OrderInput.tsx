@@ -369,7 +369,7 @@ function SubmitButton() {
   return (
     <div className="flex flex-col">
       <button
-        className="flex-1 btn btn-primary"
+        className="flex-1 btn btn-accent"
         disabled={!validationResult.valid || transactionInProgress}
         onClick={() => dispatch(submitOrder())}
       >
