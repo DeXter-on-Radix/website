@@ -110,7 +110,7 @@ export const setSizePercent = createAsyncThunk<
   const dispatch = thunkAPI.dispatch;
   const side = state.orderInput.side;
   const proportion = percentage / 100;
-  if (proportion < 0) {
+  if (proportion <= 0) {
     dispatch(orderInputSlice.actions.setSize(0));
     return;
   }
