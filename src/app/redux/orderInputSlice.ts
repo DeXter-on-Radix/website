@@ -5,7 +5,6 @@ import { RootState } from "./store";
 import { createSelector } from "@reduxjs/toolkit";
 import { getRdt, RDT } from "../subscriptions";
 import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
-// import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
