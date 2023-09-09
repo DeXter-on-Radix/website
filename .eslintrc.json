@@ -22,7 +22,10 @@
     "new-cap": ["error", { "capIsNew": false }],
 
     // throw an error for unused variables
-    "@typescript-eslint/no-unused-vars": ["error"]
+    "@typescript-eslint/no-unused-vars": ["error"],
+
+    // TODO: fix related https://github.com/DeXter-on-Radix/website/issues/75
+    "@next/next/no-img-element": "off"
   },
   "overrides": [
     {

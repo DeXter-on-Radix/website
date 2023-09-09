@@ -56,13 +56,21 @@ function AvailableBalances() {
       <div className="text-xs">
         <div className="flex flex-row justify-end">
           <div>{displayAmount(token1.balance || 0)}</div>
-          <img src={token1.iconUrl} className="w-3 h-3 !my-auto mx-1" />
+          <img
+            alt="Token 1 Icon"
+            src={token1.iconUrl}
+            className="w-3 h-3 !my-auto mx-1"
+          />
           <span>{token1.symbol}</span>
         </div>
 
         <div className="flex flex-row justify-end">
           <div>{displayAmount(token2.balance || 0)}</div>
-          <img src={token2.iconUrl} className="w-3 h-3 !my-auto mx-1" />
+          <img
+            alt="Token 2 Icon"
+            src={token2.iconUrl}
+            className="w-3 h-3 !my-auto mx-1"
+          />
           <span>{token2.symbol}</span>
         </div>
       </div>
@@ -165,7 +173,11 @@ function PositionSizeInput() {
         ></input>
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-          <img src={selectedToken.iconUrl} className="w-6 h-6 my-auto mx-1" />
+          <img
+            alt="Selected Token Icon"
+            src={selectedToken.iconUrl}
+            className="w-6 h-6 my-auto mx-1"
+          />
           <span>{selectedToken.symbol}</span>
         </div>
       </div>
@@ -278,7 +290,11 @@ function LimitOrderInput() {
             }}
           ></input>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-            <img src={priceToken.iconUrl} className="w-6 h-6 my-auto mx-1" />
+            <img
+              alt="Price Token Icon"
+              src={priceToken.iconUrl}
+              className="w-6 h-6 my-auto mx-1"
+            />
             <span>{priceToken.symbol}</span>
           </div>
         </div>
