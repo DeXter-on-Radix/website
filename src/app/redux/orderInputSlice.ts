@@ -65,7 +65,7 @@ const initialState: OrderInputState = {
 };
 
 export const fetchQuote = createAsyncThunk<
-  Quote, // Return type of the payload creator
+  Quote | undefined, // Return type of the payload creator
   undefined, // set to undefined if the thunk doesn't expect any arguments
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
@@ -277,7 +277,7 @@ export const orderInputSlice = createSlice({
     // fetchQuote
     builder.addCase(
       fetchQuote.fulfilled,
-      (state, action: PayloadAction<Quote>) => {
+      (state, action: PayloadAction<Quote | undefined>) => {
         const quote = action.payload;
 
         if (!quote) {
