@@ -2,7 +2,6 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
-import { error } from "console";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 

@@ -7,7 +7,6 @@ import {
   fetchQuote,
   orderInputSlice,
   getSelectedToken,
-  getUnselectedToken,
   validateOrderInput,
   validatePositionSize,
   validatePriceInput,

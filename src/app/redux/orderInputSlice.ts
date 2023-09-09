@@ -290,12 +290,12 @@ export const orderInputSlice = createSlice({
       }
     );
 
-    builder.addCase(fetchQuote.rejected, (state, action) => {
+    builder.addCase(fetchQuote.rejected, (_state, action) => {
       console.error("fetchQuote rejected:", action.error.message);
     });
 
     // submitOrder
-    builder.addCase(submitOrder.pending, (state, action) => {
+    builder.addCase(submitOrder.pending, (state) => {
       state.transactionInProgress = true;
       state.transactionResult = undefined;
     });
@@ -325,7 +325,7 @@ function setFromSize(state: OrderInputState) {
   }
 }
 
-function toDescription(quote: Quote, state: OrderInputState): string {
+function toDescription(quote: Quote): string {
   let description = "";
 
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
