@@ -286,7 +286,7 @@ export const orderInputSlice = createSlice({
 
         state.quote = quote;
         state.fromSize = quote.fromAmount;
-        state.description = toDescription(quote, state);
+        state.description = toDescription(quote);
       }
     );
 
