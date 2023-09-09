@@ -105,6 +105,8 @@ export const setSizePercent = createAsyncThunk<
   number,
   { state: RootState }
 >("orderInput/setSizePercent", async (percentage, thunkAPI) => {
+  //Depending on the combination of input settings, the position size
+  //is set to x% of the tokens that will leave the user wallet
   const state = thunkAPI.getState();
   const dispatch = thunkAPI.dispatch;
   const side = state.orderInput.side;
@@ -127,6 +129,7 @@ export const setSizePercent = createAsyncThunk<
       utils.RoundType.DOWN
     );
     if (state.orderInput.tab === OrderTab.MARKET) {
+      //Market buy needs to get a quote to work out what will be returned
       const quote = await adex.getExchangeOrderQuote(
         state.pairSelector.address,
         adexOrderType(state.orderInput),
@@ -145,7 +148,7 @@ export const setSizePercent = createAsyncThunk<
         );
       }
     } else {
-      // for limit orders we can just calculate based on balance and price
+      // for limit buy orders we can just calculate based on balance and price
       if (selectToken1Selected(state)) {
         balance = (proportion * unselectedBalance) / state.orderInput.price;
       } else {
@@ -153,7 +156,9 @@ export const setSizePercent = createAsyncThunk<
       }
     }
   } else {
+    //for sell orders the calculation is very simple
     balance = getSelectedToken(state).balance || 0 * proportion;
+    //for market sell orders the order quote is retrieved to check liquidity.
     if (state.orderInput.tab === OrderTab.MARKET) {
       const quote = await adex.getExchangeOrderQuote(
         state.pairSelector.address,
@@ -198,8 +203,9 @@ export const submitOrder = createAsyncThunk<
   }
 
   const result = await createTx(state, rdt);
+  //Updates account history + balances
   dispatch(fetchBalances());
-  dispatch(fetchAccountHistory()); // Add this line to also update History
+  dispatch(fetchAccountHistory());
 
   return result;
 });
@@ -306,6 +312,7 @@ export const orderInputSlice = createSlice({
 });
 
 function setFromSize(state: OrderInputState) {
+  //Sets the amount of token leaving the user wallet
   if (state.side === OrderSide.SELL) {
     state.fromSize = state.size;
   } else if (state.tab === OrderTab.LIMIT) {
@@ -343,6 +350,7 @@ async function createTx(state: RootState, rdt: RDT) {
   const slippage = state.orderInput.slippage;
   const orderPrice = tab === OrderTab.LIMIT ? price : -1;
   const orderSlippage = tab === OrderTab.MARKET ? slippage : -1;
+  //Adex creates the transaction manifest
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
@@ -355,7 +363,7 @@ async function createTx(state: RootState, rdt: RDT) {
     state.radix?.walletData.accounts[0]?.address || "",
     state.radix?.walletData.accounts[0]?.address || ""
   );
-
+  //Then submits the order to the wallet
   let submitTransactionResponse = await adex.submitTransaction(
     createOrderResponse.data,
     rdt
@@ -414,6 +422,7 @@ export const validatePriceInput = createSelector(
     if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
       return { valid: false, message: "Too many decimal places" };
     }
+
     if (
       ((side === OrderSide.BUY && token1Selected) ||
         (side === OrderSide.SELL && !token1Selected)) &&
@@ -471,6 +480,25 @@ export const validatePositionSize = createSelector(
       return { valid: false, message: "Insufficient funds" };
     }
 
+    //Checks user isn't using all their xrd. maybe excessive
+    const MIN_XRD_BALANCE = 25;
+    if (
+      (side === OrderSide.SELL &&
+        selectedToken.symbol === "XRD" &&
+        selectedToken.balance &&
+        size > selectedToken.balance - MIN_XRD_BALANCE) ||
+      (side === OrderSide.BUY &&
+        unSelectedToken.balance &&
+        unSelectedToken.symbol === "XRD" &&
+        fromSize &&
+        fromSize > unSelectedToken.balance - MIN_XRD_BALANCE)
+    ) {
+      return {
+        valid: true,
+        message: "WARNING: Leaves XRD balance dangerously low",
+      };
+    }
+
     return { valid: true, message: "" };
   }
 );
@@ -484,9 +512,6 @@ export const validateOrderInput = createSelector(
     slippageValidationResult,
     tab
   ) => {
-    //TODO: Check user has funds for tx (done for SELL orders)
-    //TODO: Check for crazy slippage
-    //TODO: Fat finger checks
     if (!sizeValidationResult.valid) {
       return sizeValidationResult;
     }

@@ -172,7 +172,7 @@ function PositionSizeInput() {
       </div>
       <label className="label">
         <span className="label-text-alt text-error">
-          {validationResult.valid ? "" : validationResult.message}
+          {validationResult.message}
         </span>
       </label>
 
@@ -192,7 +192,7 @@ function PositionSizeInput() {
         <input
           type="number"
           ref={customPercentInputRef}
-          className="input input-sm bg-gray-100"
+          className="input input-sm bg-gray-100 w-full"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(setSizePercent(size));
