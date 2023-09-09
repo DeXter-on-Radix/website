@@ -142,7 +142,7 @@ export const setSizePercent = createAsyncThunk<
       balance = quote.data.toAmount;
       if (quote.data.fromAmount < unselectedBalance) {
         //TODO: Display this message properly
-        console.log(
+        console.error(
           "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
         );
       }
@@ -172,7 +172,7 @@ export const setSizePercent = createAsyncThunk<
       if (quote.data.fromAmount < balance) {
         balance = quote.data.fromAmount;
         //TODO: Display this message properly
-        console.log(
+        console.error(
           "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
         );
       }
