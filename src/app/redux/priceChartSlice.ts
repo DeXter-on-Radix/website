@@ -10,11 +10,17 @@ export const CANDLE_PERIODS = adex.CandlePeriods;
 export interface PriceChartState {
   candlePeriod: string;
   ohlcv: OHLCVData[];
+  legendCandlePrice: OHLCVData | null;
+  legendPercChange: number | null;
+  legendCurrentVolume: number;
 }
 
 const initialState: PriceChartState = {
   candlePeriod: adex.CandlePeriods[0],
   ohlcv: [],
+  legendCandlePrice: null,
+  legendPercChange: null,
+  legendCurrentVolume: 0,
 };
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
@@ -65,7 +71,22 @@ export const priceChartSlice = createSlice({
     updateCandles: (state, action: PayloadAction<adex.Candle[]>) => {
       state.ohlcv = convertAlphaDEXData(action.payload);
     },
+    setLegendCandlePrice: (state, action: PayloadAction<OHLCVData | null>) => {
+      state.legendCandlePrice = action.payload;
+    },
+    setLegendPercChange: (state, action: PayloadAction<number | null>) => {
+      state.legendPercChange = action.payload;
+    },
+    setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
+      state.legendCurrentVolume = action.payload;
+    },
   },
 });
 
-export const { setCandlePeriod, updateCandles } = priceChartSlice.actions;
+export const {
+  setCandlePeriod,
+  updateCandles,
+  setLegendCandlePrice,
+  setLegendPercChange,
+  setLegendCurrentVolume,
+} = priceChartSlice.actions;

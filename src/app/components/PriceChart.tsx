@@ -4,6 +4,9 @@ import {
   CANDLE_PERIODS,
   OHLCVData,
   setCandlePeriod,
+  setLegendCandlePrice,
+  setLegendCurrentVolume,
+  setLegendPercChange,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
@@ -12,9 +15,15 @@ interface PriceChartProps {
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
-  const [candlePrice, setCandlePrice] = useState<OHLCVData | null>(null); //FOR LEGENDS
-  const [percChange, setPercChange] = useState<number | null>(null); //FOR PERCENT CHANGE
-  const [currentVolume, setCurrentVolume] = useState<number>(0); //FOR LEGEND VOLUME
+  const candlePrice = useAppSelector(
+    (state) => state.priceChart.legendCandlePrice
+  ); //for legend
+  const percChange = useAppSelector(
+    (state) => state.priceChart.legendPercChange
+  ); //for legend
+  const currentVolume = useAppSelector(
+    (state) => state.priceChart.legendCurrentVolume
+  ); //for legend
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch(); //TEMP
   const pairName = useAppSelector((state) => state.pairSelector.name);
@@ -91,9 +100,9 @@ function PriceChartCanvas(props: PriceChartProps) {
               currentData.close,
               prevCandle.close
             );
-            setPercChange(percentageDifference);
-            setCandlePrice(currentData);
-            setCurrentVolume(volumeData ? volumeData.value : 0);
+            dispatch(setLegendPercChange(percentageDifference));
+            dispatch(setLegendCandlePrice(currentData));
+            dispatch(setLegendCurrentVolume(volumeData ? volumeData.value : 0));
           }
         }
         //console.log(data);
@@ -161,9 +170,9 @@ function PriceChartCanvas(props: PriceChartProps) {
     <div ref={chartContainerRef} className="relative">
       <div className="absolute top-[1vh] left-0 w-full z-20 bg-gray-900 mt-[-2vh] rounded-t-md">
         <div className="flex space-x-[1vw] p-[1vh] transform scale-[calc(1 - 0.01*vw)]">
-          {/* <div className="pr-[2vw] text-lg font-roboto text-white">
+          <div className="pr-[2vw] text-lg font-roboto text-white">
             {pairName}
-          </div> */}
+          </div>
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
