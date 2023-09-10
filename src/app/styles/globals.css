@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --radix-connect-button-height: 40px;
+}
+
 /* remove up and down arrows on number input fields */
 
 /* For Firefox */

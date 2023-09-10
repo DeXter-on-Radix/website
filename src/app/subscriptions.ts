@@ -28,7 +28,7 @@ export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress:
       "account_tdx_d_12yhr42q497c46lr9vxkfsln9e9f3kjj8t5qexznpeq3ewxxqnhm527",
-    networkId: 13,
+    networkId: 14,
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
@@ -43,6 +43,8 @@ export function initializeSubscriptions(store: AppStore) {
     })
   );
   setRdt(rdtInstance);
+  // TODO: "black" on the light theme
+  rdtInstance.buttonApi.setTheme("white");
   adex.init();
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {

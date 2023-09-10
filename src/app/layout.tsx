@@ -11,18 +11,6 @@ import { Provider } from "react-redux";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// declare the radix-connect-button as a global custom element
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "radix-connect-button": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-    }
-  }
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -35,15 +23,20 @@ export default function RootLayout({
     };
   }, []);
 
+  // TODO: after MVP remove "use client", fix all as many Components as possible
+  // to be server components for better SSG and SEO
+  // and use metadata https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#step-2-creating-a-root-layout
+
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
+      <head>
+        <title>DeXter</title>
+      </head>
       <Provider store={store}>
         <body className={inter.className}>
-          <div className="flex flex-col prose md:prose-lg lg:prose-xl max-w-none">
+          <div className="grid grid-cols-12 h-full prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
             <Navbar />
-
-            <div className="h-full">{children}</div>
-
+            {children}
             <Footer />
           </div>
         </body>
