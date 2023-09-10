@@ -1,6 +1,8 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { CandlestickData, UTCTimestamp } from "lightweight-charts";
+import { CandlestickData, IChartApi, UTCTimestamp } from "lightweight-charts";
+import { computePercentageChange } from "../utils";
+
 export interface OHLCVData extends CandlestickData {
   value: number;
 }
@@ -43,6 +45,38 @@ function cleanData(data: OHLCVData[]): OHLCVData[] {
   );
 
   return cleanedData;
+}
+
+//Chart Crosshair
+export function handleCrosshairMove(
+  chart: IChartApi,
+  data: OHLCVData[],
+  volumeSeries: any
+) {
+  return (dispatch: any) => {
+    // Your logic here
+    chart.subscribeCrosshairMove((param) => {
+      if (param.time) {
+        const currentIndex = data.findIndex(
+          (candle) => candle.time === param.time
+        );
+
+        if (currentIndex > 0 && currentIndex < data.length) {
+          const currentData = data[currentIndex];
+          const prevCandle = data[currentIndex - 1];
+
+          const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
+          const percentageDifference = computePercentageChange(
+            currentData.close,
+            prevCandle.close
+          );
+          dispatch(setLegendPercChange(percentageDifference));
+          dispatch(setLegendCandlePrice(currentData));
+          dispatch(setLegendCurrentVolume(volumeData ? volumeData.value : 0));
+        }
+      }
+    });
+  };
 }
 
 function convertAlphaDEXData(data: adex.Candle[]): OHLCVData[] {

@@ -4,11 +4,17 @@ import {
   CANDLE_PERIODS,
   OHLCVData,
   setCandlePeriod,
+  handleCrosshairMove,
   setLegendCandlePrice,
   setLegendCurrentVolume,
   setLegendPercChange,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
+import {
+  formatPercentageChange,
+  computePercentageChange,
+  getVolumeBarColor,
+} from "../utils";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -29,14 +35,6 @@ function PriceChartCanvas(props: PriceChartProps) {
   const pairName = useAppSelector((state) => state.pairSelector.name);
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
   const { data } = props;
-
-  //Util functions
-  const formatPercentageChange = (percChange: number | null): string => {
-    if (percChange !== null) {
-      return `(${percChange.toFixed(2)}%)`;
-    }
-    return "(0.00%)";
-  };
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -72,41 +70,6 @@ function PriceChartCanvas(props: PriceChartProps) {
       const ohlcSeries = chart.addCandlestickSeries({});
       ohlcSeries.setData(clonedData);
 
-      //PERCENT CHANGE
-      const computePercentageChange = (
-        currentClose: number | null,
-        prevClose: number | null
-      ): number | null => {
-        if (currentClose !== null && prevClose !== null) {
-          const difference = currentClose - prevClose;
-          return (difference / prevClose) * 100;
-        }
-        return null;
-      };
-
-      // PRICEDATA FOR CROSSHAIR
-      chart.subscribeCrosshairMove((param) => {
-        if (param.time) {
-          const currentIndex = data.findIndex(
-            (candle) => candle.time === param.time
-          );
-
-          if (currentIndex > 0 && currentIndex < data.length) {
-            const currentData = data[currentIndex];
-            const prevCandle = data[currentIndex - 1];
-
-            const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
-            const percentageDifference = computePercentageChange(
-              currentData.close,
-              prevCandle.close
-            );
-            dispatch(setLegendPercChange(percentageDifference));
-            dispatch(setLegendCandlePrice(currentData));
-            dispatch(setLegendCurrentVolume(volumeData ? volumeData.value : 0));
-          }
-        }
-        //console.log(data);
-      });
       chart.priceScale("right").applyOptions({
         //COLOR
         borderColor: "#71649C",
@@ -117,14 +80,6 @@ function PriceChartCanvas(props: PriceChartProps) {
       });
 
       //VOLUME COLOR
-      const getVolumeBarColor = (
-        currentClose: number,
-        prevClose: number
-      ): string => {
-        const percChange = ((currentClose - prevClose) / prevClose) * 100;
-        return percChange < 0 ? "#f44336" : "#4caf50";
-      };
-
       const volumeDataWithColor = data.map((datum, index) => {
         if (index === 0) {
           return { ...datum, color: "#4caf50" };
@@ -150,6 +105,9 @@ function PriceChartCanvas(props: PriceChartProps) {
           bottom: 0,
         },
       });
+
+      //Crosshair Data for legend
+      dispatch(handleCrosshairMove(chart, data, volumeSeries));
 
       const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
       if (chartDiv) {
