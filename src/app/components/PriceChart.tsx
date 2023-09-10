@@ -122,7 +122,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         chart.remove();
       };
     }
-  }, [data]);
+  }, [data, dispatch]);
 
   return (
     <div ref={chartContainerRef} className="relative">
