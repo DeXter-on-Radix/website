@@ -161,9 +161,9 @@ function PriceChartCanvas(props: PriceChartProps) {
     <div ref={chartContainerRef} className="relative">
       <div className="absolute top-[1vh] left-0 w-full z-20 bg-gray-900 mt-[-2vh] rounded-t-md">
         <div className="flex space-x-[1vw] p-[1vh] transform scale-[calc(1 - 0.01*vw)]">
-          <div className="pr-[2vw] text-lg font-roboto text-white">
+          {/* <div className="pr-[2vw] text-lg font-roboto text-white">
             {pairName}
-          </div>
+          </div> */}
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
