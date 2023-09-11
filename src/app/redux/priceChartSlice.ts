@@ -13,8 +13,10 @@ export interface PriceChartState {
   candlePeriod: string;
   ohlcv: OHLCVData[];
   legendCandlePrice: OHLCVData | null;
+  legendChange: number | null;
   legendPercChange: number | null;
   legendCurrentVolume: number;
+  isNegativeOrZero: boolean;
 }
 
 const initialState: PriceChartState = {
@@ -22,7 +24,9 @@ const initialState: PriceChartState = {
   ohlcv: [],
   legendCandlePrice: null,
   legendPercChange: null,
+  legendChange: null,
   legendCurrentVolume: 0,
+  isNegativeOrZero: false,
 };
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
@@ -54,7 +58,6 @@ export function handleCrosshairMove(
   volumeSeries: any
 ) {
   return (dispatch: any) => {
-    // Your logic here
     chart.subscribeCrosshairMove((param) => {
       if (param.time) {
         const currentIndex = data.findIndex(
@@ -66,12 +69,18 @@ export function handleCrosshairMove(
           const prevCandle = data[currentIndex - 1];
 
           const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
-          const percentageDifference = computePercentageChange(
-            currentData.close,
-            prevCandle.close
-          );
-          dispatch(setLegendPercChange(percentageDifference));
+          // const percentageDifference = computePercentageChange(
+          //   currentData.close,
+          //   prevCandle.close
+          // );
+          dispatch(setLegendChange(currentData));
           dispatch(setLegendCandlePrice(currentData));
+          dispatch(
+            setLegendPercChange({
+              currentClose: currentData.close,
+              prevClose: prevCandle.close,
+            })
+          );
           dispatch(setLegendCurrentVolume(volumeData ? volumeData.value : 0));
         }
       }
@@ -107,9 +116,31 @@ export const priceChartSlice = createSlice({
     },
     setLegendCandlePrice: (state, action: PayloadAction<OHLCVData | null>) => {
       state.legendCandlePrice = action.payload;
+      if (action.payload) {
+        state.isNegativeOrZero =
+          action.payload.close - action.payload.open <= 0;
+      }
     },
-    setLegendPercChange: (state, action: PayloadAction<number | null>) => {
-      state.legendPercChange = action.payload;
+    setLegendChange: (state, action: PayloadAction<OHLCVData>) => {
+      if (action.payload) {
+        const difference = action.payload.close - action.payload.open;
+        state.legendChange = difference;
+      } else {
+        state.legendChange = null;
+      }
+    },
+    setLegendPercChange: (
+      state,
+      action: PayloadAction<{ currentClose: number; prevClose: number }>
+    ) => {
+      const { currentClose, prevClose } = action.payload;
+      if (currentClose !== null && prevClose !== null) {
+        const difference = currentClose - prevClose;
+        const percentageChange = (difference / prevClose) * 100;
+        state.legendPercChange = parseFloat(percentageChange.toFixed(2));
+      } else {
+        state.legendPercChange = null;
+      }
     },
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
       state.legendCurrentVolume = action.payload;
@@ -121,6 +152,7 @@ export const {
   setCandlePeriod,
   updateCandles,
   setLegendCandlePrice,
+  setLegendChange,
   setLegendPercChange,
   setLegendCurrentVolume,
 } = priceChartSlice.actions;

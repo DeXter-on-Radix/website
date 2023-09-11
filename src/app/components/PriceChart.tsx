@@ -7,7 +7,7 @@ import {
   handleCrosshairMove,
   setLegendCandlePrice,
   setLegendCurrentVolume,
-  setLegendPercChange,
+  setLegendChange,
   // selectVolumeDataWithColor,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -25,9 +25,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   ); //for legend
-  const percChange = useAppSelector(
-    (state) => state.priceChart.legendPercChange
-  ); //for legend
+  const percChange = useAppSelector((state) => state.priceChart.legendChange); //for legend
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   ); //for legend
@@ -169,12 +167,16 @@ export function PriceChart() {
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   ); //for legend
+  const change = useAppSelector((state) => state.priceChart.legendChange); //for legend
   const percChange = useAppSelector(
     (state) => state.priceChart.legendPercChange
   ); //for legend
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   ); //for legend
+  const isNegativeOrZero = useAppSelector(
+    (state) => state.priceChart.isNegativeOrZero
+  );
 
   return (
     <div>
@@ -193,15 +195,54 @@ export function PriceChart() {
           ))}
         </div>
         <div className="flex justify-between text-sm font-roboto">
-          <div className="ml-4">Open: {candlePrice?.open}</div>
-          <div>High: {candlePrice?.high}</div>
-          <div>Low: {candlePrice?.low}</div>
-          <div>Close: {candlePrice?.close}</div>
+          <div className="ml-4">
+            Open:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {candlePrice?.open}
+            </span>
+          </div>
           <div>
-            Volume: {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}
+            High:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {candlePrice?.high}
+            </span>
+          </div>
+          <div>
+            Low:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {candlePrice?.low}
+            </span>
+          </div>
+          <div>
+            Close:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {candlePrice?.close}
+            </span>
+          </div>
+          <div>
+            Volume:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}
+            </span>
           </div>
           <div className="mr-4">
-            Change: {formatPercentageChange(percChange)}
+            Change:{" "}
+            <span
+              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
+            >
+              {change}
+              {formatPercentageChange(percChange)}
+            </span>
           </div>
         </div>
       </div>
