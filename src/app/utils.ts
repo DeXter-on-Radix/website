@@ -211,7 +211,20 @@ export function displayTime(
   if (typeof date == "string") {
     date = new Date(date);
   }
-  if (!period) {
+
+  if (period === "full") {
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      })
+      .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
+  } else if (!period) {
     return date.toLocaleString([], {
       month: "2-digit",
       day: "2-digit",
@@ -231,4 +244,34 @@ export function displayTime(
       minute: "2-digit",
     });
   }
+}
+
+// Styling changes for Direction(side) in table
+// I think this would be unaffected by dark/light mode
+export function displayOrderSide(side: string): {
+  text: string;
+  className: string;
+} {
+  if (side === "BUY") {
+    return { text: "Buy", className: "text-green-500" };
+  } else if (side === "SELL") {
+    return { text: "Sell", className: "text-red-500" };
+  } else {
+    return { text: "-", className: "" };
+  }
+}
+
+//Compute Total fees from OrderReceipts
+//This rounds to 4 decimal places if applicable. Otherwise keep original
+export function calculateTotalFees(order: any): number {
+  const {
+    exchange_fee: exchangeFee,
+    liquidity_fee: liquidityFee,
+    platform_fee: platformFee,
+  } = order;
+  const totalFees = exchangeFee + liquidityFee + platformFee;
+  const decimalPart = (totalFees % 1).toString().split(".")[1];
+  return decimalPart && decimalPart.length > 4
+    ? roundTo(totalFees, 4, RoundType.NEAREST)
+    : totalFees;
 }

@@ -2,8 +2,6 @@ import "react";
 
 export function Footer() {
   return (
-    <footer className="footer p-2 bg-base-300 text-base-content">
-      <div>TODO: footer</div>
-    </footer>
+    <div className="min-h-[50px] col-span-12 text-center">Footer signature</div>
   );
 }
