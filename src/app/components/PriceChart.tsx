@@ -8,6 +8,7 @@ import {
   setLegendCandlePrice,
   setLegendCurrentVolume,
   setLegendPercChange,
+  // selectVolumeDataWithColor,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -34,6 +35,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   const dispatch = useAppDispatch(); //TEMP
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
   const { data } = props;
+  // const volumeDataWithColor = useAppSelector(selectVolumeDataWithColor);
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -73,8 +75,8 @@ function PriceChartCanvas(props: PriceChartProps) {
         //COLOR
         borderColor: "#71649C",
         scaleMargins: {
-          top: 0,
-          bottom: 0.2,
+          top: 0.1,
+          bottom: 0.3,
         },
       });
 
@@ -101,13 +103,14 @@ function PriceChartCanvas(props: PriceChartProps) {
       chart.priceScale("volume").applyOptions({
         scaleMargins: {
           top: 0.8,
-          bottom: 0,
+          bottom: 0.01,
         },
       });
 
       //Crosshair Data for legend
       dispatch(handleCrosshairMove(chart, data, volumeSeries));
 
+      //Prevent Chart from clipping
       const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
       if (chartDiv) {
         (chartDiv as HTMLElement).style.overflow = "visible";
@@ -124,8 +127,9 @@ function PriceChartCanvas(props: PriceChartProps) {
   }, [data, dispatch]);
 
   return (
-    <div ref={chartContainerRef} className="relative">
-      <div className="absolute top-[1vh] left-0 w-full z-20 bg-gray-900 mt-[-2vh] rounded-t-md">
+    <div ref={chartContainerRef} className="relative ">
+      {/* <div>selector bar</div> */}
+      {/* <div className="absolute top-[1vh] left-0 w-full z-20 bg-gray-900 mt-[-2vh] rounded-t-md">
         <div className="flex space-x-[1vw] p-[1vh] transform scale-[calc(1 - 0.01*vw)]">
           {CANDLE_PERIODS.map((period) => (
             <button
@@ -153,19 +157,55 @@ function PriceChartCanvas(props: PriceChartProps) {
           <div>{formatPercentageChange(percChange)}</div>
         </div>
         <div>Volume: {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}</div>
-      </div>
+      </div> */}
     </div>
   );
 }
 
 export function PriceChart() {
   const state = useAppSelector((state) => state.priceChart);
+  const dispatch = useAppDispatch();
+  const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
+  const candlePrice = useAppSelector(
+    (state) => state.priceChart.legendCandlePrice
+  ); //for legend
+  const percChange = useAppSelector(
+    (state) => state.priceChart.legendPercChange
+  ); //for legend
+  const currentVolume = useAppSelector(
+    (state) => state.priceChart.legendCurrentVolume
+  ); //for legend
 
   return (
     <div>
-      <div className="flex flex-col">
-        <PriceChartCanvas data={state.ohlcv} />
+      <div className="">
+        <div className="flex p-[1vh]">
+          {CANDLE_PERIODS.map((period) => (
+            <button
+              key={period}
+              className={`px-[0.5vw] py-[0.5vw] text-sm font-roboto text-#d4e7df hover:bg-white hover:bg-opacity-30 hover:rounded-md ${
+                candlePeriod === period ? "text-blue-500" : ""
+              }`}
+              onClick={() => dispatch(setCandlePeriod(period))}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-between text-sm font-roboto">
+          <div className="ml-4">Open: {candlePrice?.open}</div>
+          <div>High: {candlePrice?.high}</div>
+          <div>Low: {candlePrice?.low}</div>
+          <div>Close: {candlePrice?.close}</div>
+          <div>
+            Volume: {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}
+          </div>
+          <div className="mr-4">
+            Change: {formatPercentageChange(percChange)}
+          </div>
+        </div>
       </div>
+      <PriceChartCanvas data={state.ohlcv} />
     </div>
   );
 }

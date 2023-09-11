@@ -1,7 +1,7 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { CandlestickData, IChartApi, UTCTimestamp } from "lightweight-charts";
-import { computePercentageChange } from "../utils";
+import { computePercentageChange, getVolumeBarColor } from "../utils";
 
 export interface OHLCVData extends CandlestickData {
   value: number;
@@ -124,3 +124,15 @@ export const {
   setLegendPercChange,
   setLegendCurrentVolume,
 } = priceChartSlice.actions;
+
+// export const selectVolumeDataWithColor = (state: {
+//   priceChart: PriceChartState;
+// }): OHLCVData[] => {
+//   return state.priceChart.ohlcv.map((datum, index, data) => {
+//     if (index === 0) {
+//       return { ...datum, color: "#4caf50" };
+//     }
+//     const color = getVolumeBarColor(datum.close, data[index - 1].close);
+//     return { ...datum, color };
+//   });
+// };
