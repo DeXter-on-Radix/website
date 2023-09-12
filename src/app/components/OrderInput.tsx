@@ -7,7 +7,6 @@ import {
   fetchQuote,
   orderInputSlice,
   getSelectedToken,
-  getUnselectedToken,
   validateOrderInput,
   validatePositionSize,
   validatePriceInput,
@@ -16,7 +15,7 @@ import {
   setSizePercent,
 } from "../redux/orderInputSlice";
 import { fetchBalances } from "../redux/pairSelectorSlice";
-import { displayNumber } from "../utils";
+import { displayAmount } from "../utils";
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -56,14 +55,22 @@ function AvailableBalances() {
       </div>
       <div className="text-xs">
         <div className="flex flex-row justify-end">
-          <div>{token1.balance}</div>
-          <img src={token1.iconUrl} className="w-3 h-3 !my-auto mx-1" />
+          <div>{displayAmount(token1.balance || 0)}</div>
+          <img
+            alt="Token 1 Icon"
+            src={token1.iconUrl}
+            className="w-3 h-3 !my-auto mx-1"
+          />
           <span>{token1.symbol}</span>
         </div>
 
         <div className="flex flex-row justify-end">
-          <div>{token2.balance}</div>
-          <img src={token2.iconUrl} className="w-3 h-3 !my-auto mx-1" />
+          <div>{displayAmount(token2.balance || 0)}</div>
+          <img
+            alt="Token 2 Icon"
+            src={token2.iconUrl}
+            className="w-3 h-3 !my-auto mx-1"
+          />
           <span>{token2.symbol}</span>
         </div>
       </div>
@@ -97,7 +104,7 @@ function DirectionToggle() {
 function AssetToggle() {
   const pairToken1 = useAppSelector((state) => state.pairSelector.token1);
   const pairToken2 = useAppSelector((state) => state.pairSelector.token2);
-  const selecedToken = useAppSelector(getSelectedToken);
+  const selectedToken = useAppSelector(getSelectedToken);
 
   const dispatch = useAppDispatch();
 
@@ -106,7 +113,7 @@ function AssetToggle() {
       <button
         className={
           "btn" +
-          (selecedToken.address === pairToken1.address ? " btn-active" : "")
+          (selectedToken.address === pairToken1.address ? " btn-active" : "")
         }
         onClick={() => {
           dispatch(orderInputSlice.actions.setToken1Selected(true));
@@ -117,7 +124,7 @@ function AssetToggle() {
       <button
         className={
           "btn" +
-          (selecedToken.address === pairToken2.address ? " btn-active" : "")
+          (selectedToken.address === pairToken2.address ? " btn-active" : "")
         }
         onClick={() => {
           dispatch(orderInputSlice.actions.setToken1Selected(false));
@@ -166,13 +173,17 @@ function PositionSizeInput() {
         ></input>
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-          <img src={selectedToken.iconUrl} className="w-6 h-6 my-auto mx-1" />
+          <img
+            alt="Selected Token Icon"
+            src={selectedToken.iconUrl}
+            className="w-6 h-6 my-auto mx-1"
+          />
           <span>{selectedToken.symbol}</span>
         </div>
       </div>
       <label className="label">
         <span className="label-text-alt text-error">
-          {validationResult.valid ? "" : validationResult.message}
+          {validationResult.message}
         </span>
       </label>
 
@@ -192,7 +203,7 @@ function PositionSizeInput() {
         <input
           type="number"
           ref={customPercentInputRef}
-          className="input input-sm bg-neutral"
+          className="input input-sm bg-gray-100 w-full"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             const size = Number(event.target.value);
             dispatch(setSizePercent(size));
@@ -204,8 +215,8 @@ function PositionSizeInput() {
 }
 
 // TODO: test if floating point numbers are handled correctly
-function slippagePercentage(slippage: number): string {
-  return displayNumber(slippage * 100, 0);
+function slippagePercentage(slippage: number): number {
+  return slippage * 100;
 }
 
 function slippageFromPercentage(percentage: string): number {
@@ -242,7 +253,7 @@ function MarketOrderInput() {
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
       </div>
@@ -279,13 +290,17 @@ function LimitOrderInput() {
             }}
           ></input>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-            <img src={priceToken.iconUrl} className="w-6 h-6 my-auto mx-1" />
+            <img
+              alt="Price Token Icon"
+              src={priceToken.iconUrl}
+              className="w-6 h-6 my-auto mx-1"
+            />
             <span>{priceToken.symbol}</span>
           </div>
         </div>
         <label className="label">
           <span className="label-text-alt text-error">
-            {validationResult.valid ? "" : validationResult.message}
+            {validationResult.message}
           </span>
         </label>
         <div className="btn-group w-full">
@@ -335,11 +350,15 @@ function Description() {
       <p className="">{description}</p>
       <div className="flex">
         <label>Dex fees: </label>
-        <span className="ml-1">{quote?.platformFeesXrd || 0} XRD</span>
+        <span className="ml-1">
+          {displayAmount(quote?.platformFeesXrd || 0, 7)} XRD
+        </span>
       </div>
       <div className="flex">
         <label>Total fees: </label>
-        <span className="ml-1">{quote?.totalFeesXrd || 0} XRD</span>
+        <span className="ml-1">
+          {displayAmount(quote?.totalFeesXrd || 0, 7)} XRD
+        </span>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
+import { RootState } from "./store";
 
 export interface OrderBookRowProps {
   barColor?: string;
@@ -122,3 +123,6 @@ export const orderBookSlice = createSlice({
     },
   },
 });
+
+export const selectBestBuy = (state: RootState) => state.orderBook.bestBuy;
+export const selectBestSell = (state: RootState) => state.orderBook.bestSell;
