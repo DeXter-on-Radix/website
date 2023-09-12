@@ -1,6 +1,12 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { CandlestickData, IChartApi, UTCTimestamp } from "lightweight-charts";
+import {
+  CandlestickData,
+  IChartApi,
+  UTCTimestamp,
+  ISeriesApi,
+  SeriesOptionsMap,
+} from "lightweight-charts";
 import { computePercentageChange, getVolumeBarColor } from "../utils";
 
 export interface OHLCVData extends CandlestickData {
@@ -55,7 +61,7 @@ function cleanData(data: OHLCVData[]): OHLCVData[] {
 export function handleCrosshairMove(
   chart: IChartApi,
   data: OHLCVData[],
-  volumeSeries: any
+  volumeSeries: ISeriesApi<keyof SeriesOptionsMap>
 ) {
   return (dispatch: any) => {
     chart.subscribeCrosshairMove((param) => {
@@ -66,19 +72,14 @@ export function handleCrosshairMove(
 
         if (currentIndex > 0 && currentIndex < data.length) {
           const currentData = data[currentIndex];
-          const prevCandle = data[currentIndex - 1];
 
           const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
-          // const percentageDifference = computePercentageChange(
-          //   currentData.close,
-          //   prevCandle.close
-          // );
           dispatch(setLegendChange(currentData));
           dispatch(setLegendCandlePrice(currentData));
           dispatch(
             setLegendPercChange({
+              currentOpen: currentData.open,
               currentClose: currentData.close,
-              prevClose: prevCandle.close,
             })
           );
           dispatch(setLegendCurrentVolume(volumeData ? volumeData.value : 0));
@@ -131,12 +132,17 @@ export const priceChartSlice = createSlice({
     },
     setLegendPercChange: (
       state,
-      action: PayloadAction<{ currentClose: number; prevClose: number }>
+      action: PayloadAction<{ currentOpen: number; currentClose: number }>
     ) => {
-      const { currentClose, prevClose } = action.payload;
-      if (currentClose !== null && prevClose !== null) {
-        const difference = currentClose - prevClose;
-        const percentageChange = (difference / prevClose) * 100;
+      const { currentOpen, currentClose } = action.payload;
+      if (currentOpen !== null && currentClose !== null) {
+        const difference = currentClose - currentOpen;
+        let percentageChange = (difference / currentOpen) * 100;
+
+        if (Math.abs(percentageChange) < 0.01) {
+          percentageChange = 0;
+        }
+
         state.legendPercChange = parseFloat(percentageChange.toFixed(2));
       } else {
         state.legendPercChange = null;
@@ -156,15 +162,3 @@ export const {
   setLegendPercChange,
   setLegendCurrentVolume,
 } = priceChartSlice.actions;
-
-// export const selectVolumeDataWithColor = (state: {
-//   priceChart: PriceChartState;
-// }): OHLCVData[] => {
-//   return state.priceChart.ohlcv.map((datum, index, data) => {
-//     if (index === 0) {
-//       return { ...datum, color: "#4caf50" };
-//     }
-//     const color = getVolumeBarColor(datum.close, data[index - 1].close);
-//     return { ...datum, color };
-//   });
-// };
