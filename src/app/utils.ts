@@ -13,7 +13,8 @@ export function displayAmount(
   x: number,
   noDigits: number = 6,
   decimalSeparator: string = ".",
-  thousandsSeparator: string = " "
+  thousandsSeparator: string = " ",
+  fixedDecimals: number = -1
 ): string {
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
@@ -22,7 +23,12 @@ export function displayAmount(
     return 'ERROR: desiplayAmount decimalSeparator cannot be ""';
   }
   if (x < 1) {
-    return roundTo(x, noDigits - 2, RoundType.DOWN).toString();
+    let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
+    if (fixedDecimals >= 0 && fixedDecimals <= noDigits - 2) {
+      return roundedNumber.toFixed(fixedDecimals);
+    } else {
+      return roundedNumber.toString();
+    }
   }
   let numberStr = x.toString();
   let wholeNumber = Math.trunc(x);
@@ -50,10 +56,22 @@ export function displayAmount(
   } else {
     if (wholeNumberStr.length < noDigits) {
       const noDecimals = noDigits - wholeNumberStr.length;
+
       let decimalsStr = numberStr.split(".")[1];
       decimalsStr = decimalsStr
         ? decimalsStr.substring(0, noDecimals - 1).replace(/0+$/, "")
         : "";
+      if (fixedDecimals >= 0) {
+        if (decimalsStr.length > fixedDecimals) {
+          decimalsStr = decimalsStr.substring(0, fixedDecimals);
+        } else {
+          decimalsStr =
+            decimalsStr +
+            "0".repeat(
+              Math.min(fixedDecimals, noDecimals - 1) - decimalsStr.length
+            );
+        }
+      }
       if (decimalsStr) {
         decimalsStr = decimalSeparator + decimalsStr;
       }
@@ -211,7 +229,20 @@ export function displayTime(
   if (typeof date == "string") {
     date = new Date(date);
   }
-  if (!period) {
+
+  if (period === "full") {
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      })
+      .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
+  } else if (!period) {
     return date.toLocaleString([], {
       month: "2-digit",
       day: "2-digit",
@@ -231,4 +262,34 @@ export function displayTime(
       minute: "2-digit",
     });
   }
+}
+
+// Styling changes for Direction(side) in table
+// I think this would be unaffected by dark/light mode
+export function displayOrderSide(side: string): {
+  text: string;
+  className: string;
+} {
+  if (side === "BUY") {
+    return { text: "Buy", className: "text-green-500" };
+  } else if (side === "SELL") {
+    return { text: "Sell", className: "text-red-500" };
+  } else {
+    return { text: "-", className: "" };
+  }
+}
+
+//Compute Total fees from OrderReceipts
+//This rounds to 4 decimal places if applicable. Otherwise keep original
+export function calculateTotalFees(order: any): number {
+  const {
+    exchange_fee: exchangeFee,
+    liquidity_fee: liquidityFee,
+    platform_fee: platformFee,
+  } = order;
+  const totalFees = exchangeFee + liquidityFee + platformFee;
+  const decimalPart = (totalFees % 1).toString().split(".")[1];
+  return decimalPart && decimalPart.length > 4
+    ? roundTo(totalFees, 4, RoundType.NEAREST)
+    : totalFees;
 }

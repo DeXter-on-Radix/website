@@ -4,9 +4,12 @@ import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { createSelector } from "@reduxjs/toolkit";
 import { getRdt, RDT } from "../subscriptions";
-import { fetchBalances } from "./pairSelectorSlice";
+import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import * as utils from "../utils";
+import { fetchAccountHistory } from "./accountHistorySlice";
+import { selectBestBuy, selectBestSell } from "./orderBookSlice";
+import { displayAmount } from "../utils";
 
 export enum OrderTab {
   MARKET,
@@ -32,6 +35,7 @@ export interface OrderInputState {
   description?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
+  fromSize?: number;
 }
 
 function adexOrderType(state: OrderInputState): adex.OrderType {
@@ -61,7 +65,7 @@ const initialState: OrderInputState = {
 };
 
 export const fetchQuote = createAsyncThunk<
-  Quote, // Return type of the payload creator
+  Quote | undefined, // Return type of the payload creator
   undefined, // set to undefined if the thunk doesn't expect any arguments
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
@@ -78,7 +82,9 @@ export const fetchQuote = createAsyncThunk<
   } else {
     slippageToSend = state.orderInput.slippage;
   }
-
+  if (!state.orderInput.size) {
+    return;
+  }
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
@@ -98,46 +104,85 @@ export const setSizePercent = createAsyncThunk<
   number,
   { state: RootState }
 >("orderInput/setSizePercent", async (percentage, thunkAPI) => {
+  //Depending on the combination of input settings, the position size
+  //is set to x% of the tokens that will leave the user wallet
   const state = thunkAPI.getState();
   const dispatch = thunkAPI.dispatch;
   const side = state.orderInput.side;
   const proportion = percentage / 100;
-
+  if (proportion <= 0) {
+    dispatch(orderInputSlice.actions.setSize(0));
+    return;
+  }
+  if (percentage > 100) {
+    percentage = Math.floor(percentage / 10);
+    dispatch(setSizePercent(percentage));
+    return;
+  }
   let balance;
-  // TODO: check if this is correct compare to non-redux version
-  // https://github.com/DeXter-on-Radix/website/blob/b553c1d3dabf691961f1243d166ac71395dc3d4d/src/app/OrderButton.tsx#L314-L367
   // TODO: add tests for this
   if (side === OrderSide.BUY) {
-    // TODO: check what to do with the slippage here
+    const unselectedBalance = utils.roundTo(
+      proportion * (getUnselectedToken(state).balance || 0),
+      AMOUNT_MAX_DECIMALS - 1,
+      utils.RoundType.DOWN
+    );
     if (state.orderInput.tab === OrderTab.MARKET) {
+      //Market buy needs to get a quote to work out what will be returned
       const quote = await adex.getExchangeOrderQuote(
         state.pairSelector.address,
         adexOrderType(state.orderInput),
         adex.OrderSide.SELL,
         getUnselectedToken(state).address,
-        (getUnselectedToken(state).balance || 0) * proportion,
+        unselectedBalance,
         PLATFORM_FEE,
-        undefined,
-        10
+        -1,
+        state.orderInput.slippage
       );
       balance = quote.data.toAmount;
+      if (quote.data.fromAmount < unselectedBalance) {
+        //TODO: Display this message properly
+        console.error(
+          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
+        );
+      }
     } else {
-      // for limit orders we can just calculate based on balance and price
-      balance =
-        (getUnselectedToken(state).balance || 0) * state.orderInput.price;
+      // for limit buy orders we can just calculate based on balance and price
+      if (selectToken1Selected(state)) {
+        balance = (proportion * unselectedBalance) / state.orderInput.price;
+      } else {
+        balance = proportion * unselectedBalance * state.orderInput.price;
+      }
     }
   } else {
-    balance = getSelectedToken(state).balance;
+    //for sell orders the calculation is very simple
+    balance = getSelectedToken(state).balance || 0 * proportion;
+    //for market sell orders the order quote is retrieved to check liquidity.
+    if (state.orderInput.tab === OrderTab.MARKET) {
+      const quote = await adex.getExchangeOrderQuote(
+        state.pairSelector.address,
+        adexOrderType(state.orderInput),
+        adex.OrderSide.SELL,
+        getSelectedToken(state).address,
+        balance || 0,
+        PLATFORM_FEE,
+        -1,
+        state.orderInput.slippage
+      );
+      if (quote.data.fromAmount < balance) {
+        balance = quote.data.fromAmount;
+        //TODO: Display this message properly
+        console.error(
+          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
+        );
+      }
+    }
   }
-
-  let newSize = proportion * (balance || 0);
-  // Round to maximum number of AlphaDEX decimals
-  newSize = utils.roundTo(
-    proportion * (balance || 0),
+  const newSize = utils.roundTo(
+    balance || 0,
     adex.AMOUNT_MAX_DECIMALS,
     utils.RoundType.DOWN
   );
-
   dispatch(orderInputSlice.actions.setSize(newSize));
 
   return undefined;
@@ -157,7 +202,9 @@ export const submitOrder = createAsyncThunk<
   }
 
   const result = await createTx(state, rdt);
+  //Updates account history + balances
   dispatch(fetchBalances());
+  dispatch(fetchAccountHistory());
 
   return result;
 });
@@ -200,18 +247,25 @@ export const orderInputSlice = createSlice({
     },
     setToken1Selected(state, action: PayloadAction<boolean>) {
       state.token1Selected = action.payload;
+      setFromSize(state);
     },
     setSize(state, action: PayloadAction<number>) {
       state.size = action.payload;
+      setFromSize(state);
     },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
+      setFromSize(state);
     },
     setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
     },
     setSlippage(state, action: PayloadAction<number>) {
-      state.slippage = action.payload;
+      if (action.payload <= 1) {
+        state.slippage = action.payload;
+      } else {
+        state.slippage = 1;
+      }
     },
     togglePreventImmediateExecution(state) {
       state.preventImmediateExecution = !state.preventImmediateExecution;
@@ -223,7 +277,7 @@ export const orderInputSlice = createSlice({
     // fetchQuote
     builder.addCase(
       fetchQuote.fulfilled,
-      (state, action: PayloadAction<Quote>) => {
+      (state, action: PayloadAction<Quote | undefined>) => {
         const quote = action.payload;
 
         if (!quote) {
@@ -231,16 +285,17 @@ export const orderInputSlice = createSlice({
         }
 
         state.quote = quote;
-        state.description = toDescription(quote, state);
+        state.fromSize = quote.fromAmount;
+        state.description = toDescription(quote);
       }
     );
 
-    builder.addCase(fetchQuote.rejected, (state, action) => {
+    builder.addCase(fetchQuote.rejected, (_state, action) => {
       console.error("fetchQuote rejected:", action.error.message);
     });
 
     // submitOrder
-    builder.addCase(submitOrder.pending, (state, action) => {
+    builder.addCase(submitOrder.pending, (state) => {
       state.transactionInProgress = true;
       state.transactionResult = undefined;
     });
@@ -255,13 +310,32 @@ export const orderInputSlice = createSlice({
   },
 });
 
-function toDescription(quote: Quote, state: OrderInputState): string {
+function setFromSize(state: OrderInputState) {
+  //Sets the amount of token leaving the user wallet
+  if (state.side === OrderSide.SELL) {
+    state.fromSize = state.size;
+  } else if (state.tab === OrderTab.LIMIT) {
+    if (state.token1Selected) {
+      state.fromSize = state.size * state.price;
+    } else {
+      state.fromSize = state.size / state.price;
+    }
+  } else {
+    state.fromSize = 0; //will update when quote is requested
+  }
+}
+
+function toDescription(quote: Quote): string {
   let description = "";
 
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
     description +=
-      `Sending ${quote.fromAmount} ${quote.fromToken.symbol} ` +
-      `to receive ${quote.toAmount} ${quote.toToken.symbol}.\n`;
+      `Sending ${displayAmount(quote.fromAmount, 8)} ${
+        quote.fromToken.symbol
+      } ` +
+      `to receive ${displayAmount(quote.toAmount, 8)} ${
+        quote.toToken.symbol
+      }.\n`;
   } else {
     description += "Order will not immediately execute.\n";
   }
@@ -275,6 +349,7 @@ async function createTx(state: RootState, rdt: RDT) {
   const slippage = state.orderInput.slippage;
   const orderPrice = tab === OrderTab.LIMIT ? price : -1;
   const orderSlippage = tab === OrderTab.MARKET ? slippage : -1;
+  //Adex creates the transaction manifest
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
@@ -287,7 +362,7 @@ async function createTx(state: RootState, rdt: RDT) {
     state.radix?.walletData.accounts[0]?.address || "",
     state.radix?.walletData.accounts[0]?.address || ""
   );
-
+  //Then submits the order to the wallet
   let submitTransactionResponse = await adex.submitTransaction(
     createOrderResponse.data,
     rdt
@@ -302,13 +377,14 @@ async function createTx(state: RootState, rdt: RDT) {
 
 export interface ValidationResult {
   valid: boolean;
-  message?: string;
+  message: string;
 }
 
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSize = (state: RootState) => state.orderInput.size;
 const selectSide = (state: RootState) => state.orderInput.side;
+const selectFromSize = (state: RootState) => state.orderInput.fromSize;
 const selectPriceMaxDecimals = (state: RootState) => {
   return state.pairSelector.priceMaxDecimals;
 };
@@ -320,13 +396,24 @@ export const validateSlippageInput = createSelector(
       return { valid: false, message: "Slippage must be positive" };
     }
 
-    return { valid: true };
+    if (slippage >= 0.05) {
+      return { valid: true, message: "High slippage entered" };
+    }
+
+    return { valid: true, message: "" };
   }
 );
 
 export const validatePriceInput = createSelector(
-  [selectPrice, selectPriceMaxDecimals],
-  (price, priceMaxDecimals) => {
+  [
+    selectPrice,
+    selectPriceMaxDecimals,
+    selectBestBuy,
+    selectBestSell,
+    selectSide,
+    selectToken1Selected,
+  ],
+  (price, priceMaxDecimals, bestBuy, bestSell, side, token1Selected) => {
     if (price <= 0) {
       return { valid: false, message: "Price must be greater than 0" };
     }
@@ -335,22 +422,83 @@ export const validatePriceInput = createSelector(
       return { valid: false, message: "Too many decimal places" };
     }
 
-    return { valid: true };
+    if (
+      ((side === OrderSide.BUY && token1Selected) ||
+        (side === OrderSide.SELL && !token1Selected)) &&
+      bestSell
+        ? price > bestSell * 1.05
+        : false
+    ) {
+      return {
+        valid: true,
+        message: "Price is significantly higher than best sell",
+      };
+    }
+
+    if (
+      ((side === OrderSide.SELL && token1Selected) ||
+        (side === OrderSide.BUY && !token1Selected)) &&
+      bestBuy
+        ? price < bestBuy * 0.95
+        : false
+    ) {
+      return {
+        valid: true,
+        message: "Price is significantly lower than best buy",
+      };
+    }
+    return { valid: true, message: "" };
   }
 );
 
 export const validatePositionSize = createSelector(
-  [selectSide, selectSize, getSelectedToken],
-  (side, size, selectedToken) => {
-    if (side === OrderSide.SELL && size > (selectedToken.balance || 0)) {
-      return { valid: false, message: "Insufficient funds" };
-    }
-
+  [
+    selectSide,
+    selectSize,
+    getSelectedToken,
+    getUnselectedToken,
+    selectFromSize,
+  ],
+  (side, size, selectedToken, unSelectedToken, fromSize) => {
     if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
       return { valid: false, message: "Too many decimal places" };
     }
 
-    return { valid: true };
+    if (size <= 0) {
+      return { valid: false, message: "Order size must be greater than 0" };
+    }
+    if (
+      (side === OrderSide.SELL &&
+        selectedToken.balance &&
+        size > selectedToken.balance) ||
+      (side === OrderSide.BUY &&
+        unSelectedToken.balance &&
+        fromSize &&
+        fromSize > unSelectedToken.balance)
+    ) {
+      return { valid: false, message: "Insufficient funds" };
+    }
+
+    //Checks user isn't using all their xrd. maybe excessive
+    const MIN_XRD_BALANCE = 25;
+    if (
+      (side === OrderSide.SELL &&
+        selectedToken.symbol === "XRD" &&
+        selectedToken.balance &&
+        size > selectedToken.balance - MIN_XRD_BALANCE) ||
+      (side === OrderSide.BUY &&
+        unSelectedToken.balance &&
+        unSelectedToken.symbol === "XRD" &&
+        fromSize &&
+        fromSize > unSelectedToken.balance - MIN_XRD_BALANCE)
+    ) {
+      return {
+        valid: true,
+        message: "WARNING: Leaves XRD balance dangerously low",
+      };
+    }
+
+    return { valid: true, message: "" };
   }
 );
 
@@ -363,9 +511,6 @@ export const validateOrderInput = createSelector(
     slippageValidationResult,
     tab
   ) => {
-    //TODO: Check user has funds for tx (done for SELL orders)
-    //TODO: Check for crazy slippage
-    //TODO: Fat finger checks
     if (!sizeValidationResult.valid) {
       return sizeValidationResult;
     }
