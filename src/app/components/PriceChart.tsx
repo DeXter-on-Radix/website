@@ -79,23 +79,32 @@ function PriceChartCanvas(props: PriceChartProps) {
       });
 
       //VOLUME COLOR
-      const volumeDataWithColor = data.map((datum, index) => {
-        if (index === 0) {
-          return { ...datum, color: "#4caf50" };
-        }
-        const color = getVolumeBarColor(datum.close, data[index - 1].close);
-        return { ...datum, color };
-      });
+      // const volumeDataWithColor = data.map((datum, index) => {
+      //   if (index === 0) {
+      //     return { ...datum, color: "#4caf50" };
+      //   }
+      //   const color = getVolumeBarColor(datum.close, data[index - 1].close);
+      //   return { ...datum, color };
+      // });
+
       // Volume
       const volumeSeries = chart.addHistogramSeries({
         priceFormat: {
           type: "volume",
         },
         priceScaleId: "volume",
-        color: "#4caf50",
+        // color: "#4caf50",
       });
 
-      volumeSeries.setData(volumeDataWithColor);
+      // volumeSeries.setData(volumeDataWithColor);
+      // VOLUME BARS
+      // MODIFY THEME COLOR HERE
+      volumeSeries.setData(
+        data.map((datum) => ({
+          ...datum,
+          color: datum.close - datum.open <= 0 ? "#ef5350" : "#26a69a",
+        }))
+      );
 
       // volumeSeries.setData(clonedData);
       chart.priceScale("volume").applyOptions({
