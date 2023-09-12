@@ -9,6 +9,18 @@ export function displayPositiveNumber(x: number, decimals: number): string {
   }
 }
 
+export function getLocaleSeparators(): {
+  decimalSeparator: string;
+  thousandsSeparator: string;
+} {
+  let decimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
+  let thousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
+  return {
+    decimalSeparator,
+    thousandsSeparator,
+  };
+}
+
 export function displayAmount(
   x: number,
   noDigits: number = 6,
