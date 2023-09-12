@@ -5,9 +5,11 @@ import { orderBookSlice } from "./orderBookSlice";
 import { priceChartSlice } from "./priceChartSlice";
 import { accountHistorySlice } from "./accountHistorySlice";
 import { radixSlice } from "./radixSlice";
+import { uiSlice } from "./UiSlice";
 
 export const store = configureStore({
   reducer: {
+    ui: uiSlice.reducer,
     radix: radixSlice.reducer,
     pairSelector: pairSelectorSlice.reducer,
     orderInput: orderInputSlice.reducer,

@@ -11,6 +11,8 @@ import { orderBookSlice } from "./redux/orderBookSlice";
 import { updateCandles } from "./redux/priceChartSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
 import { AppStore } from "./redux/store";
+import { getLocaleSeparators } from "utils";
+import { uiSlice } from "redux/UiSlice";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
@@ -58,6 +60,11 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
     })
   );
+
+  // determine separators to be used when displaying numbers
+  let { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
+  store.dispatch(uiSlice.actions.setDecimalSeparator(decimalSeparator));
+  store.dispatch(uiSlice.actions.setThousandsSeparator(thousandsSeparator));
 }
 
 export function unsubscribeAll() {
