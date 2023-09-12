@@ -1,5 +1,5 @@
 import * as adex from "alphadex-sdk-js";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   CandlestickData,
   IChartApi,
@@ -8,6 +8,7 @@ import {
   SeriesOptionsMap,
 } from "lightweight-charts";
 import { computePercentageChange, getVolumeBarColor } from "../utils";
+import { AppDispatch } from "./store";
 
 export interface OHLCVData extends CandlestickData {
   value: number;
@@ -26,7 +27,7 @@ export interface PriceChartState {
 }
 
 const initialState: PriceChartState = {
-  candlePeriod: adex.CandlePeriods[0],
+  candlePeriod: adex.CandlePeriods[2],
   ohlcv: [],
   legendCandlePrice: null,
   legendPercChange: null,
@@ -63,7 +64,7 @@ export function handleCrosshairMove(
   data: OHLCVData[],
   volumeSeries: ISeriesApi<keyof SeriesOptionsMap>
 ) {
-  return (dispatch: any) => {
+  return (dispatch: AppDispatch) => {
     chart.subscribeCrosshairMove((param) => {
       if (param.time) {
         const currentIndex = data.findIndex(
@@ -72,7 +73,11 @@ export function handleCrosshairMove(
 
         if (currentIndex > 0 && currentIndex < data.length) {
           const currentData = data[currentIndex];
-
+          // console.log(adex.clientState.currentCandlePeriod);
+          // const candlesMap = adex.clientState.currentPairCandlesList;
+          // const lastItem = candlesMap[candlesMap.length - 1];
+          // console.log(lastItem);
+          // console.log(lastItem);
           const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
           dispatch(setLegendChange(currentData));
           dispatch(setLegendCandlePrice(currentData));
@@ -103,6 +108,34 @@ function convertAlphaDEXData(data: adex.Candle[]): OHLCVData[] {
   tradingViewData = cleanData(tradingViewData);
   return tradingViewData;
 }
+
+//Aysnc Thunk for the update the legend using current candle when site is first loaded
+export const fetchCandlesForInitialPeriod = createAsyncThunk(
+  "priceChart/fetchCandlesForInitialPeriod",
+  async (_, { dispatch }) => {
+    const candlesMap = adex.clientState.currentPairCandlesList;
+
+    // Convert and clean the data
+    const ohlcvData = convertAlphaDEXData(candlesMap);
+
+    // Check if ohlcvData has data
+    if (ohlcvData && ohlcvData.length > 0) {
+      const latestOHLCVData = ohlcvData[ohlcvData.length - 1];
+
+      dispatch(setLegendCandlePrice(latestOHLCVData));
+      // If you have other actions to dispatch for legendPercChange, legendChange, legendCurrentVolume,
+      // you can add them here. For example:
+      dispatch(setLegendChange(latestOHLCVData));
+      dispatch(
+        setLegendPercChange({
+          currentOpen: latestOHLCVData.open,
+          currentClose: latestOHLCVData.close,
+        })
+      );
+      dispatch(setLegendCurrentVolume(latestOHLCVData.value));
+    }
+  }
+);
 
 export const priceChartSlice = createSlice({
   name: "priceChart",

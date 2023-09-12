@@ -8,6 +8,7 @@ import {
   setLegendCandlePrice,
   setLegendCurrentVolume,
   setLegendChange,
+  fetchCandlesForInitialPeriod,
   // selectVolumeDataWithColor,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -37,6 +38,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
+    dispatch(fetchCandlesForInitialPeriod());
 
     if (chartContainer) {
       const handleResize = () => {
