@@ -111,22 +111,24 @@ export function OrderBook() {
   return (
     <div className="p-2 text-sx">
       <div className="sized-columns max-w-sm">
-        <div className="">
-          Order
-          <br />
-          Count
-        </div>
-        <div className="text-end">
-          Price
-          <br />({token2Symbol})
-        </div>
-        <div className="text-end">
-          Size
-          <br />({token1Symbol})
-        </div>
-        <div className="text-end">
-          Total
-          <br />({token1Symbol})
+        <div className="sized-columns col-span-4 text-sm text-secondary-content">
+          <div className="">
+            Order
+            <br />
+            Count
+          </div>
+          <div className="text-end">
+            Price
+            <br />({token2Symbol})
+          </div>
+          <div className="text-end">
+            Size
+            <br />({token1Symbol})
+          </div>
+          <div className="text-end">
+            Total
+            <br />({token1Symbol})
+          </div>
         </div>
 
         {sells.map((props, index) => (

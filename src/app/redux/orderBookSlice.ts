@@ -42,7 +42,6 @@ export function toOrderBookRowProps(
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  // TODO: custom daisyui variable bar color
   let barColor = "hsl(var(--su))";
   if (side === "sell") {
     adexRows.reverse();
