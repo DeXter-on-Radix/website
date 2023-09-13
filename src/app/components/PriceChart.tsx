@@ -1,5 +1,5 @@
 import { createChart } from "lightweight-charts";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
   OHLCVData,

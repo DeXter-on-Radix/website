@@ -7,7 +7,6 @@ import {
   ISeriesApi,
   SeriesOptionsMap,
 } from "lightweight-charts";
-import { computePercentageChange, getVolumeBarColor } from "../utils";
 import { AppDispatch } from "./store";
 
 export interface OHLCVData extends CandlestickData {
@@ -73,11 +72,6 @@ export function handleCrosshairMove(
 
         if (currentIndex > 0 && currentIndex < data.length) {
           const currentData = data[currentIndex];
-          // console.log(adex.clientState.currentCandlePeriod);
-          // const candlesMap = adex.clientState.currentPairCandlesList;
-          // const lastItem = candlesMap[candlesMap.length - 1];
-          // console.log(lastItem);
-          // console.log(lastItem);
           const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
           dispatch(setLegendChange(currentData));
           dispatch(setLegendCandlePrice(currentData));
@@ -114,17 +108,11 @@ export const fetchCandlesForInitialPeriod = createAsyncThunk(
   "priceChart/fetchCandlesForInitialPeriod",
   async (_, { dispatch }) => {
     const candlesMap = adex.clientState.currentPairCandlesList;
-
-    // Convert and clean the data
     const ohlcvData = convertAlphaDEXData(candlesMap);
-
-    // Check if ohlcvData has data
     if (ohlcvData && ohlcvData.length > 0) {
       const latestOHLCVData = ohlcvData[ohlcvData.length - 1];
 
       dispatch(setLegendCandlePrice(latestOHLCVData));
-      // If you have other actions to dispatch for legendPercChange, legendChange, legendCurrentVolume,
-      // you can add them here. For example:
       dispatch(setLegendChange(latestOHLCVData));
       dispatch(
         setLegendPercChange({
