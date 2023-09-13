@@ -9,7 +9,6 @@ export function PriceInfo() {
   const low = priceInfo.low24h;
   const volume = priceInfo.value24h;
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
-  //   const open = priceInfo.open24h;
 
   return (
     <div className="flex justify-between py-2">
