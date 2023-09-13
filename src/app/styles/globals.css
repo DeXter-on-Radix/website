@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  img {
+    @apply !my-0;
+  }
+  p {
+    @apply !my-0;
+  }
+  input {
+    @apply !bg-base-300;
+  }
+  input:focus {
+    @apply !outline-none;
+  }
+}
+
 :root {
   --radix-connect-button-height: 40px;
 }
@@ -23,4 +38,13 @@ input[type="number"]::-webkit-outer-spin-button {
 /* For IE11 and Edge */
 input[type="number"]::-ms-clear {
   display: none;
+}
+
+.tab-active {
+  @apply !border-accent;
+  @apply tab-border-2;
+}
+
+.btn-active {
+  @apply !bg-secondary;
 }
