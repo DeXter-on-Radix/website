@@ -69,7 +69,8 @@ export const fetchBalances = createAsyncThunk<
         const balance = parseFloat(response?.items[0]?.amount || "0");
         dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
       } catch (error) {
-        console.error("pairSelector/fetchBalances:", error);
+        dispatch(pairSelectorSlice.actions.setBalance({ balance: 0, token }));
+        throw new Error("Error getting data from Radix gateway");
       }
     }
   }
