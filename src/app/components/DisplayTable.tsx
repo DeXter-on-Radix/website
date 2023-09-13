@@ -38,7 +38,6 @@ function ActionButton({
 }
 
 export function DisplayTable() {
-  const dispatch = useAppDispatch();
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   );
