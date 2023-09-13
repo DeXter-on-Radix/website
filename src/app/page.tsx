@@ -5,6 +5,7 @@ import { OrderInput } from "components/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
+import { PriceInfo } from "components/PriceInfo";
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
         <PairSelector />
       </div>
       <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
-        Price Info
+        <PriceInfo />
       </div>
       <div className="col-span-12 xl:col-span-3 hidden xl:block  row-span-2 text-center border-l-4 border-base-300">
         <OrderBook />
