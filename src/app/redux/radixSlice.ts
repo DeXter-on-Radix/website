@@ -30,7 +30,4 @@ export const radixSlice = createSlice({
       state.walletData = action.payload;
     },
   },
-
-  // asynchronous reducers
-  extraReducers: (builder) => {},
 });

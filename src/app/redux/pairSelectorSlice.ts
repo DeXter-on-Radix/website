@@ -61,8 +61,13 @@ export const fetchBalances = createAsyncThunk<
             resource_address: token.address,
           },
         });
-      const balance = parseFloat(response ? response.items[0].amount : "0");
-      dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
+      try {
+        const balance = parseFloat(response ? response.items[0].amount : "0");
+        dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
+      } catch {
+        dispatch(pairSelectorSlice.actions.setBalance({ balance: 0, token }));
+        throw new Error("Error getting data from Radix gateway");
+      }
     }
   }
 
