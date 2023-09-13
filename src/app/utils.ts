@@ -283,22 +283,3 @@ export const formatPercentageChange = (percChange: number | null): string => {
   }
   return "(0.00%)";
 };
-
-export const computePercentageChange = (
-  currentClose: number | null,
-  prevClose: number | null
-): number | null => {
-  if (currentClose !== null && prevClose !== null) {
-    const difference = currentClose - prevClose;
-    return (difference / prevClose) * 100;
-  }
-  return null;
-};
-
-export const getVolumeBarColor = (
-  currentClose: number,
-  prevClose: number
-): string => {
-  const percChange = ((currentClose - prevClose) / prevClose) * 100;
-  return percChange < 0 ? "#f44336" : "#4caf50";
-};

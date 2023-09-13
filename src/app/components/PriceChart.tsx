@@ -5,36 +5,19 @@ import {
   OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
-  setLegendCandlePrice,
-  setLegendCurrentVolume,
-  setLegendChange,
   fetchCandlesForInitialPeriod,
-  // selectVolumeDataWithColor,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import {
-  formatPercentageChange,
-  computePercentageChange,
-  getVolumeBarColor,
-} from "../utils";
+import { formatPercentageChange } from "../utils";
 
 interface PriceChartProps {
   data: OHLCVData[];
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
-  const candlePrice = useAppSelector(
-    (state) => state.priceChart.legendCandlePrice
-  ); //for legend
-  const percChange = useAppSelector((state) => state.priceChart.legendChange); //for legend
-  const currentVolume = useAppSelector(
-    (state) => state.priceChart.legendCurrentVolume
-  ); //for legend
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const dispatch = useAppDispatch(); //TEMP
-  const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
+  const dispatch = useAppDispatch();
   const { data } = props;
-  // const volumeDataWithColor = useAppSelector(selectVolumeDataWithColor);
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -47,20 +30,20 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 450,
-        //COLOR
+        height: 485,
+        //MODIFY THEME COLOR HERE
         layout: {
           background: { color: "#181c27" },
           textColor: "#DDD",
         },
-        //COLOR
+        //MODIFY THEME COLOR HERE
         grid: {
           vertLines: { color: "#444" },
           horzLines: { color: "#444" },
         },
         timeScale: {
-          //COLOR
-          borderColor: "#71649C",
+          //MODIFY THEME COLOR HERE
+          borderColor: "#d3d3d4",
           timeVisible: true,
         },
       });
@@ -72,33 +55,22 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       chart.priceScale("right").applyOptions({
-        //COLOR
-        borderColor: "#71649C",
+        //MODIFY THEME COLOR HERE
+        borderColor: "#d3d3d4",
         scaleMargins: {
           top: 0.1,
           bottom: 0.3,
         },
       });
 
-      //VOLUME COLOR
-      // const volumeDataWithColor = data.map((datum, index) => {
-      //   if (index === 0) {
-      //     return { ...datum, color: "#4caf50" };
-      //   }
-      //   const color = getVolumeBarColor(datum.close, data[index - 1].close);
-      //   return { ...datum, color };
-      // });
-
-      // Volume
+      // Volume Initialization
       const volumeSeries = chart.addHistogramSeries({
         priceFormat: {
           type: "volume",
         },
         priceScaleId: "volume",
-        // color: "#4caf50",
       });
 
-      // volumeSeries.setData(volumeDataWithColor);
       // VOLUME BARS
       // MODIFY THEME COLOR HERE
       volumeSeries.setData(
@@ -129,46 +101,12 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       return () => {
         window.removeEventListener("resize", handleResize);
-        // clearInterval(intervalId);
         chart.remove();
       };
     }
   }, [data, dispatch]);
 
-  return (
-    <div ref={chartContainerRef} className="relative ">
-      {/* <div>selector bar</div> */}
-      {/* <div className="absolute top-[1vh] left-0 w-full z-20 bg-gray-900 mt-[-2vh] rounded-t-md">
-        <div className="flex space-x-[1vw] p-[1vh] transform scale-[calc(1 - 0.01*vw)]">
-          {CANDLE_PERIODS.map((period) => (
-            <button
-              key={period}
-              className={`px-[1vw] py-[0.5vh] text-sm font-roboto text-#d4e7df hover:bg-white hover:bg-opacity-30 hover:rounded-md ${
-                candlePeriod === period ? "text-blue-500" : ""
-              }`}
-              onClick={() => dispatch(setCandlePeriod(period))}
-            >
-              {period}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div
-        className={`absolute top-[3.5vh] left-[1vw] z-20 text-sm font-roboto ${
-          percChange && percChange < 0 ? "text-red-500" : "text-green-500"
-        }`}
-      >
-        <div className="flex space-x-[1.5vw] mt-[2vh]">
-          <div>O: {candlePrice?.open}</div>
-          <div>H: {candlePrice?.high}</div>
-          <div>L: {candlePrice?.low}</div>
-          <div>C: {candlePrice?.close}</div>
-          <div>{formatPercentageChange(percChange)}</div>
-        </div>
-        <div>Volume: {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}</div>
-      </div> */}
-    </div>
-  );
+  return <div ref={chartContainerRef} className="relative "></div>;
 }
 
 export function PriceChart() {
@@ -177,14 +115,14 @@ export function PriceChart() {
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
-  ); //for legend
-  const change = useAppSelector((state) => state.priceChart.legendChange); //for legend
+  );
+  const change = useAppSelector((state) => state.priceChart.legendChange);
   const percChange = useAppSelector(
     (state) => state.priceChart.legendPercChange
-  ); //for legend
+  );
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
-  ); //for legend
+  );
   const isNegativeOrZero = useAppSelector(
     (state) => state.priceChart.isNegativeOrZero
   );
