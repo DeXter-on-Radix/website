@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -16,6 +16,38 @@ import {
 } from "../redux/orderInputSlice";
 import { fetchBalances } from "../redux/pairSelectorSlice";
 import { displayAmount } from "../utils";
+import { TokenAvatar } from "common/tokenAvatar";
+import { Input } from "common/input";
+
+function SingleGroupButton({
+  isActive,
+  onClick,
+  avatarUrl,
+  text,
+  wrapperClass,
+}: {
+  isActive: boolean;
+  onClick: () => void;
+  avatarUrl?: string;
+  text: string;
+  wrapperClass?: string;
+}) {
+  return (
+    <div
+      className={
+        "btn btn-primary flex flex-row flex-nowrap !ml-0 max-w-[15ch] min-h-0 h-11 " +
+        (isActive ? "btn-active " : "") +
+        wrapperClass
+      }
+      onClick={onClick}
+    >
+      {avatarUrl && <TokenAvatar url={avatarUrl} />}
+      <p className="truncate" title={text}>
+        {text}
+      </p>
+    </div>
+  );
+}
 
 function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
@@ -24,23 +56,24 @@ function OrderTypeTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "flex-1 tab tab-bordered no-underline" + (isActive ? " tab-active" : "")
+      "flex-1 tab tab-bordered border-base-300 no-underline h-full text-base font-semibold pb-3" +
+      (isActive ? " tab-active" : "")
     );
   }
   return (
-    <div className="tabs flex flex-row my-2">
-      <a
+    <div className="tabs mb-2">
+      <div
         className={tabClass(activeTab === OrderTab.MARKET)}
         onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}
       >
         Market
-      </a>
-      <a
+      </div>
+      <div
         className={tabClass(activeTab === OrderTab.LIMIT)}
         onClick={() => dispatch(actions.setActiveTab(OrderTab.LIMIT))}
       >
         Limit
-      </a>
+      </div>
     </div>
   );
 }
@@ -82,21 +115,24 @@ function DirectionToggle() {
   const activeSide = useAppSelector((state) => state.orderInput.side);
   const dispatch = useAppDispatch();
   return (
-    <div className="btn-group">
-      <button
-        className={"btn" + (activeSide === OrderSide.BUY ? " btn-active" : "")}
-        onClick={() => dispatch(orderInputSlice.actions.setSide(OrderSide.BUY))}
-      >
-        {OrderSide.BUY}
-      </button>
-      <button
-        className={"btn" + (activeSide === OrderSide.SELL ? " btn-active" : "")}
-        onClick={() =>
-          dispatch(orderInputSlice.actions.setSide(OrderSide.SELL))
-        }
-      >
-        {OrderSide.SELL}
-      </button>
+    <div>
+      <p className="text-left text-sm font-medium">Direction</p>
+      <div className="btn-group border border-base-300 my-2">
+        <SingleGroupButton
+          text="Buy"
+          isActive={activeSide === OrderSide.BUY}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
+          }}
+        />
+        <SingleGroupButton
+          text="Sell"
+          isActive={activeSide === OrderSide.SELL}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -109,29 +145,26 @@ function AssetToggle() {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="btn-group">
-      <button
-        className={
-          "btn" +
-          (selectedToken.address === pairToken1.address ? " btn-active" : "")
-        }
-        onClick={() => {
-          dispatch(orderInputSlice.actions.setToken1Selected(true));
-        }}
-      >
-        {pairToken1.symbol}
-      </button>
-      <button
-        className={
-          "btn" +
-          (selectedToken.address === pairToken2.address ? " btn-active" : "")
-        }
-        onClick={() => {
-          dispatch(orderInputSlice.actions.setToken1Selected(false));
-        }}
-      >
-        {pairToken2.symbol}
-      </button>
+    <div>
+      <p className="text-left text-sm font-medium">Asset</p>
+      <div className="border btn-group border-base-300 my-2">
+        <SingleGroupButton
+          avatarUrl={pairToken1.iconUrl}
+          text={pairToken1.symbol}
+          isActive={selectedToken.address === pairToken1.address}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setToken1Selected(true));
+          }}
+        />
+        <SingleGroupButton
+          avatarUrl={pairToken2.iconUrl}
+          text={pairToken2.symbol}
+          isActive={selectedToken.address === pairToken2.address}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setToken1Selected(false));
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -142,73 +175,94 @@ function PositionSizeInput() {
   const validationResult = useAppSelector(validatePositionSize);
   const dispatch = useAppDispatch();
 
+  const [customPercentage, setCustomPercentage] = useState(0);
+  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
+
   const customPercentInputRef = useRef<HTMLInputElement>(null);
   const handleButtonClick = (percent: number) => {
+    setCustomPercentage(percent);
     dispatch(setSizePercent(percent));
     if (customPercentInputRef.current) {
       customPercentInputRef.current.value = "";
     }
   };
 
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isFirstInteraction) setIsFirstInteraction(false);
+    if (customPercentInputRef.current) {
+      customPercentInputRef.current.value = "";
+    }
+    const size = Number(event.target.value);
+    dispatch(orderInputSlice.actions.setSize(size));
+  };
+
+  const handleOnPercentChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (Number(event.target.value) > 100) return;
+    const size = Number(event.target.value);
+    setCustomPercentage(size);
+    dispatch(setSizePercent(size));
+  };
+
   return (
     <div className="form-control">
-      <label className="label">
-        <span className="label-text">Position Size</span>
-      </label>
-      <div className="relative">
-        <input
-          type="number"
-          className={
-            "input input-bordered w-full" +
-            (validationResult.valid ? "" : " input-error")
-          }
-          value={size}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            if (customPercentInputRef.current) {
-              customPercentInputRef.current.value = "";
-            }
-            const size = Number(event.target.value);
-            dispatch(orderInputSlice.actions.setSize(size));
-          }}
-        ></input>
-
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-          <img
-            alt="Selected Token Icon"
-            src={selectedToken.iconUrl}
-            className="w-6 h-6 my-auto mx-1"
-          />
-          <span>{selectedToken.symbol}</span>
-        </div>
-      </div>
+      <p className="text-left text-sm font-medium !mb-2">Position Size</p>
+      <Input
+        type="number"
+        value={size}
+        onChange={handleOnChange}
+        isError={!isFirstInteraction && !validationResult.valid}
+        endAdornment={
+          <div className="flex items-center space-x-2">
+            <TokenAvatar url={selectedToken.iconUrl} />
+            <span className="font-bold text-base">{selectedToken.symbol}</span>
+          </div>
+        }
+      />
       <label className="label">
         <span className="label-text-alt text-error">
           {validationResult.message}
         </span>
       </label>
 
-      <div className="btn-group w-full">
-        <button className="btn btn-sm" onClick={() => handleButtonClick(25)}>
-          25%
-        </button>
-        <button className="btn btn-sm" onClick={() => handleButtonClick(50)}>
-          50%
-        </button>
-        <button className="btn btn-sm" onClick={() => handleButtonClick(75)}>
-          75%
-        </button>
-        <button className="btn btn-sm" onClick={() => handleButtonClick(100)}>
-          100%
-        </button>
-        <input
+      <div className="@container flex flex-row items-center justify-between">
+        <div className="btn-group border border-base-300 mb-2 flex-wrap w-min @[360px]:w-max">
+          <div className="flex flex-row">
+            <SingleGroupButton
+              text="25%"
+              isActive={customPercentage === 25}
+              onClick={() => handleButtonClick(25)}
+            />
+            <SingleGroupButton
+              text="50%"
+              isActive={customPercentage === 50}
+              onClick={() => handleButtonClick(50)}
+            />
+          </div>
+          <div className="flex flex-row">
+            <SingleGroupButton
+              text="75%"
+              isActive={customPercentage === 75}
+              onClick={() => handleButtonClick(75)}
+            />
+            <SingleGroupButton
+              text="100%"
+              isActive={customPercentage === 100}
+              onClick={() => handleButtonClick(100)}
+            />
+          </div>
+        </div>
+        <Input
+          value={Boolean(customPercentage) ? customPercentage : undefined}
           type="number"
-          ref={customPercentInputRef}
-          className="input input-sm bg-gray-100 w-full"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            const size = Number(event.target.value);
-            dispatch(setSizePercent(size));
-          }}
-        ></input>
+          inputClasses="!w-14"
+          endAdornmentClasses="px-0 pr-2"
+          parentClasses="mb-2"
+          placeholder="0.00"
+          endAdornment={<span className="font-bold">%</span>}
+          onChange={handleOnPercentChange}
+        />
       </div>
     </div>
   );
@@ -219,8 +273,8 @@ function slippagePercentage(slippage: number): number {
   return slippage * 100;
 }
 
+// TODO: decimal numbers with dots (1.3) don't work (but 1,3 does)
 function slippageFromPercentage(percentage: string): number {
-  // TODO: decimal numbers with dots (1.3) don't work (but 1,3 does)
   return Number(percentage) / 100;
 }
 
@@ -228,29 +282,26 @@ function MarketOrderInput() {
   const slippage = useAppSelector((state) => state.orderInput.slippage);
   const validationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
+  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isFirstInteraction) setIsFirstInteraction(false);
+    const slippage = slippageFromPercentage(event.target.value);
+    dispatch(orderInputSlice.actions.setSlippage(slippage));
+  };
   return (
     <>
       <div className="form-control">
         <label className="label">
           <span className="label-text">Slippage</span>
         </label>
-        <div className="relative">
-          <input
-            type="number"
-            className={
-              "input input-bordered w-full" +
-              (validationResult.valid ? "" : " input-error")
-            }
-            value={slippagePercentage(slippage)}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const slippage = slippageFromPercentage(event.target.value);
-              dispatch(orderInputSlice.actions.setSlippage(slippage));
-            }}
-          ></input>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-            <span>%</span>
-          </div>
-        </div>
+        <Input
+          type="number"
+          value={slippagePercentage(slippage)}
+          onChange={handleOnChange}
+          endAdornment={<span className="font-bold">%</span>}
+          isError={!isFirstInteraction && !validationResult.valid}
+        />
         <label className="label">
           <span className="label-text-alt text-error">
             {validationResult.message}
@@ -269,57 +320,53 @@ function LimitOrderInput() {
   const validationResult = useAppSelector(validatePriceInput);
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
   const bestSellPrice = useAppSelector((state) => state.orderBook.bestSell);
+  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const dispatch = useAppDispatch();
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isFirstInteraction) setIsFirstInteraction(false);
+    const price = Number(event.target.value);
+    dispatch(orderInputSlice.actions.setPrice(price));
+  };
+
   return (
     <>
       <div className="form-control">
-        <label className="label">
-          <span className="label-text">Price</span>
-        </label>
-        <div className="relative">
-          <input
-            type="number"
-            className={
-              "input input-bordered w-full" +
-              (validationResult.valid ? "" : " input-error")
-            }
-            value={price}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const price = Number(event.target.value);
-              dispatch(orderInputSlice.actions.setPrice(price));
-            }}
-          ></input>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-            <img
-              alt="Price Token Icon"
-              src={priceToken.iconUrl}
-              className="w-6 h-6 my-auto mx-1"
-            />
-            <span>{priceToken.symbol}</span>
-          </div>
-        </div>
+        <p className="text-left text-sm font-medium !mb-2">Price</p>
+        <Input
+          type="number"
+          value={price}
+          onChange={handleOnChange}
+          isError={!isFirstInteraction && !validationResult.valid}
+          endAdornment={
+            <div className="flex items-center space-x-2">
+              <TokenAvatar url={priceToken.iconUrl} />
+              <span className="font-bold text-base">{priceToken.symbol}</span>
+            </div>
+          }
+        />
         <label className="label">
           <span className="label-text-alt text-error">
             {validationResult.message}
           </span>
         </label>
-        <div className="btn-group w-full">
-          <button
-            className="btn btn-sm"
+        <div className="btn-group border border-base-300 w-min mb-2">
+          <SingleGroupButton
+            text={`Best Buy: ${bestBuyPrice}`}
+            isActive={false}
             onClick={() =>
               dispatch(orderInputSlice.actions.setPrice(bestBuyPrice || 0))
             }
-          >
-            Best Buy: {bestBuyPrice}
-          </button>
-          <button
-            className="btn btn-sm"
+            wrapperClass="max-w-[30ch]"
+          />
+          <SingleGroupButton
+            text={`Best Sell: ${bestSellPrice}`}
+            isActive={false}
             onClick={() =>
               dispatch(orderInputSlice.actions.setPrice(bestSellPrice || 0))
             }
-          >
-            Best Sell: {bestSellPrice}
-          </button>
+            wrapperClass="max-w-[30ch]"
+          />
         </div>
       </div>
       <PositionSizeInput />
@@ -398,18 +445,16 @@ function SubmitButton() {
 export function OrderInput() {
   // updates quote when any of the listed dependencies changes
   const dispatch = useAppDispatch();
+  const {
+    token1Selected,
+    side,
+    size,
+    price,
+    preventImmediateExecution,
+    slippage,
+    tab,
+  } = useAppSelector((state) => state.orderInput);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const token1Selected = useAppSelector(
-    (state) => state.orderInput.token1Selected
-  );
-  const side = useAppSelector((state) => state.orderInput.side);
-  const size = useAppSelector((state) => state.orderInput.size);
-  const price = useAppSelector((state) => state.orderInput.price);
-  const preventImmediateExecution = useAppSelector(
-    (state) => state.orderInput.preventImmediateExecution
-  );
-  const slippage = useAppSelector((state) => state.orderInput.slippage);
-  const tab = useAppSelector((state) => state.orderInput.tab);
 
   const validationResult = useAppSelector(validateOrderInput);
 
@@ -435,12 +480,12 @@ export function OrderInput() {
   ]);
 
   return (
-    <div className="max-w-sm my-8 flex flex-col">
+    <>
       <OrderTypeTabs />
 
       <AvailableBalances />
 
-      <div className="flex flex-row justify-between my-2">
+      <div className="flex flex-row justify-between flex-wrap mb-3">
         <DirectionToggle />
         <AssetToggle />
       </div>
@@ -450,6 +495,6 @@ export function OrderInput() {
       <Description />
 
       <SubmitButton />
-    </div>
+    </>
   );
 }
