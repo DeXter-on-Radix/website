@@ -72,7 +72,7 @@ function MiddleRows() {
         priceMaxDecimals
       );
       const spreadPercent = utils.displayPositiveNumber(
-        orderBook.spreadPercent * 100,
+        orderBook.spreadPercent,
         2
       );
 

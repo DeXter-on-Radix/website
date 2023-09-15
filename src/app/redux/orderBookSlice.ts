@@ -109,7 +109,7 @@ export const orderBookSlice = createSlice({
       if (bestBuy !== null && bestSell !== null) {
         const spread = bestSell - bestBuy;
         if (bestBuy + bestSell !== 0) {
-          const spreadPercent = (2 * spread) / (bestBuy + bestSell);
+          const spreadPercent = ((2 * spread) / (bestBuy + bestSell)) * 100;
           state.spreadPercent = spreadPercent;
         }
         state.spread = spread;
