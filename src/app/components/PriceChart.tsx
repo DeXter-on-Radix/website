@@ -5,7 +5,8 @@ import {
   OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
-  fetchCandlesForInitialPeriod,
+  // fetchCandlesForInitialPeriod,
+  initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { formatPercentageChange } from "../utils";
@@ -21,7 +22,11 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
-    dispatch(fetchCandlesForInitialPeriod());
+
+    // dispatch(fetchCandlesForInitialPeriod());
+    if (data && data.length > 0) {
+      dispatch(initializeLegend());
+    }
 
     if (chartContainer) {
       const handleResize = () => {

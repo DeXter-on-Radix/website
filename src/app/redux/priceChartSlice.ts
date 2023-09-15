@@ -1,5 +1,5 @@
 import * as adex from "alphadex-sdk-js";
-import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import {
   CandlestickData,
   IChartApi,
@@ -103,28 +103,6 @@ function convertAlphaDEXData(data: adex.Candle[]): OHLCVData[] {
   return tradingViewData;
 }
 
-//Aysnc Thunk for the update the legend using current candle when site is first loaded
-export const fetchCandlesForInitialPeriod = createAsyncThunk(
-  "priceChart/fetchCandlesForInitialPeriod",
-  async (_, { dispatch }) => {
-    const candlesMap = adex.clientState.currentPairCandlesList;
-    const ohlcvData = convertAlphaDEXData(candlesMap);
-    if (ohlcvData && ohlcvData.length > 0) {
-      const latestOHLCVData = ohlcvData[ohlcvData.length - 1];
-
-      dispatch(setLegendCandlePrice(latestOHLCVData));
-      dispatch(setLegendChange(latestOHLCVData));
-      dispatch(
-        setLegendPercChange({
-          currentOpen: latestOHLCVData.open,
-          currentClose: latestOHLCVData.close,
-        })
-      );
-      dispatch(setLegendCurrentVolume(latestOHLCVData.value));
-    }
-  }
-);
-
 export const priceChartSlice = createSlice({
   name: "priceChart",
   initialState,
@@ -169,6 +147,23 @@ export const priceChartSlice = createSlice({
         state.legendPercChange = null;
       }
     },
+    initializeLegend: (state) => {
+      if (state.ohlcv && state.ohlcv.length > 0) {
+        const latestOHLCVData = state.ohlcv[state.ohlcv.length - 1];
+        state.legendCandlePrice = latestOHLCVData;
+        state.legendChange = latestOHLCVData.close - latestOHLCVData.open;
+        state.legendPercChange = parseFloat(
+          (
+            ((latestOHLCVData.close - latestOHLCVData.open) /
+              latestOHLCVData.open) *
+            100
+          ).toFixed(2)
+        );
+        state.legendCurrentVolume = latestOHLCVData.value;
+        state.isNegativeOrZero =
+          latestOHLCVData.close - latestOHLCVData.open <= 0;
+      }
+    },
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
       state.legendCurrentVolume = action.payload;
     },
@@ -182,4 +177,5 @@ export const {
   setLegendChange,
   setLegendPercChange,
   setLegendCurrentVolume,
+  initializeLegend,
 } = priceChartSlice.actions;
