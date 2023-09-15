@@ -35,7 +35,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 485,
+        height: 500,
         //MODIFY THEME COLOR HERE
         layout: {
           background: { color: "#181c27" },
@@ -110,8 +110,8 @@ function PriceChartCanvas(props: PriceChartProps) {
       };
     }
   }, [data, dispatch]);
-
-  return <div ref={chartContainerRef} className="relative "></div>;
+  //Temporary brute force approach to trim the top of the chart to remove the gap
+  return <div ref={chartContainerRef} className="relative mt-[-1.7rem]"></div>;
 }
 
 export function PriceChart() {
