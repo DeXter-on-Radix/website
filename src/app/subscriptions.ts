@@ -9,6 +9,7 @@ import { fetchBalances } from "./redux/pairSelectorSlice";
 import { pairSelectorSlice } from "./redux/pairSelectorSlice";
 import { orderBookSlice } from "./redux/orderBookSlice";
 import { updateCandles } from "./redux/priceChartSlice";
+import { updatePriceInfo } from "./redux/priceInfoSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
 import { AppStore } from "./redux/store";
 
@@ -55,6 +56,7 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
       store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
+      store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
     })
   );
