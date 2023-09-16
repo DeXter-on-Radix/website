@@ -42,10 +42,10 @@ export function toOrderBookRowProps(
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  let barColor = "hsl(var(--su))";
+  let barColor = "hsla(var(--su) / 0.33)";
   if (side === "sell") {
     adexRows.reverse();
-    barColor = "hsl(var(--er))";
+    barColor = "hsla(var(--er) / 0.33)";
   }
   adexRows = adexRows.slice(0, 8); // Limit to 8 rows
 
