@@ -81,19 +81,19 @@ function MiddleRows() {
 
     return (
       <>
-        <div className="text-2xl col-span-2 my-1 py-1 border-t border-b border-accent-content">
+        <div className="text-2xl text-left col-span-2 my-1 py-1 border-t border-b border-accent-content">
           {lastPrice}
         </div>
 
-        <div className="flex justify-end col-span-2 text-xl my-1 py-1 border-t border-b border-accent-content whitespace-nowrap ">
-          <span className="text-sm my-auto">Spread</span>{" "}
+        <div className="flex justify-end col-span-2 text-sm my-1 py-1 border-t border-b border-accent-content whitespace-nowrap ">
+          <span className="my-auto">Spread</span>{" "}
           <span className="my-auto pl-2">{spreadString}</span>
         </div>
       </>
     );
   } else {
     return (
-      <div className="text-2xl col-span-4 border-t border-b border-accent-content">
+      <div className="text-2xl text-left col-span-4 border-t border-b border-accent-content">
         {lastPrice}
       </div>
     );
