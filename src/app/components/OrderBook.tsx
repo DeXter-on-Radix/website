@@ -31,12 +31,12 @@ function OrderBookRow(props: OrderBookRowProps) {
     } as CSSProperties;
 
     return (
-      <div className="relative col-span-4 sized-columns text-xs">
-        <div style={barStyle}></div>
-        <div className="order-cell">{orderCount}</div>
+      <div className="relative col-span-4 sized-columns text-xs mb-0.5 py-0.5 ">
+        <div className="" style={barStyle}></div>
+        <div className="order-cell text-start ml-2">{orderCount}</div>
         <div className="order-cell text-end">{priceString}</div>
         <div className="order-cell text-end">{sizeString}</div>
-        <div className="order-cell text-end">{totalString}</div>
+        <div className="order-cell text-end mr-2">{totalString}</div>
       </div>
     );
   }
@@ -81,18 +81,24 @@ function CurrentPriceRow() {
 
     return (
       <>
-        <div className="text-2xl text-accent text-left col-span-2 my-1 py-1">
+        <div className="text-2xl text-accent text-left col-span-2 my-1 py-1 ml-2">
           {lastPrice}
         </div>
 
         <div className="flex text-accent justify-end col-span-2 text-sm my-1 py-1 whitespace-nowrap">
           <span className="my-auto">Spread</span>{" "}
-          <span className="my-auto pl-2">{spreadString}</span>
+          <span className="my-auto px-1 border-r-2 border-accent">
+            {spreadString}
+          </span>
         </div>
       </>
     );
   } else {
-    return <div className="text-2xl text-left col-span-4">{lastPrice}</div>;
+    return (
+      <div className="text-2xl text-left col-span-4  border-r-2 border-accent ml-2">
+        {lastPrice}
+      </div>
+    );
   }
 }
 
@@ -107,10 +113,13 @@ export function OrderBook() {
   const buys = useAppSelector((state) => state.orderBook.buys);
 
   return (
-    <div className="p-2 text-sx">
-      <div className="sized-columns max-w-sm">
-        <div className="sized-columns col-span-4 text-sm text-secondary-content">
-          <div className="">
+    <div className="p-2 text-sx text-primary-content">
+      <div className="sized-columns">
+        <div className="mx-2 my-4 whitespace-nowrap text-secondary-content">
+          ORDER BOOK
+        </div>
+        <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
+          <div className="text-start">
             Order
             <br />
             Count
