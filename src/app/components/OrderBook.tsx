@@ -45,7 +45,7 @@ function OrderBookRow(props: OrderBookRowProps) {
   return <div className="text-center col-span-4">{props.absentOrders}</div>;
 }
 
-function MiddleRows() {
+function CurrentPriceRow() {
   const trades = useAppSelector((state) => state.accountHistory.trades);
   const orderBook = useAppSelector((state) => state.orderBook);
   const priceMaxDecimals = useAppSelector(
@@ -81,22 +81,18 @@ function MiddleRows() {
 
     return (
       <>
-        <div className="text-2xl text-left col-span-2 my-1 py-1 border-t border-b border-accent-content">
+        <div className="text-2xl text-accent text-left col-span-2 my-1 py-1">
           {lastPrice}
         </div>
 
-        <div className="flex justify-end col-span-2 text-sm my-1 py-1 border-t border-b border-accent-content whitespace-nowrap ">
+        <div className="flex text-accent justify-end col-span-2 text-sm my-1 py-1 whitespace-nowrap">
           <span className="my-auto">Spread</span>{" "}
           <span className="my-auto pl-2">{spreadString}</span>
         </div>
       </>
     );
   } else {
-    return (
-      <div className="text-2xl text-left col-span-4 border-t border-b border-accent-content">
-        {lastPrice}
-      </div>
-    );
+    return <div className="text-2xl text-left col-span-4">{lastPrice}</div>;
   }
 }
 
@@ -137,7 +133,7 @@ export function OrderBook() {
           <OrderBookRow key={"sell-" + index} {...props} />
         ))}
 
-        <MiddleRows />
+        <CurrentPriceRow />
 
         {buys.map((props, index) => (
           <OrderBookRow key={"buy-" + index} {...props} />
