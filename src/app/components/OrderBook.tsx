@@ -115,9 +115,6 @@ export function OrderBook() {
   return (
     <div className="p-2 text-sx text-primary-content">
       <div className="sized-columns">
-        <div className="mx-2 my-4 whitespace-nowrap text-secondary-content">
-          ORDER BOOK
-        </div>
         <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
           <div className="text-start">
             Order
