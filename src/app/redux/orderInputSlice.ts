@@ -149,14 +149,15 @@ export const setSizePercent = createAsyncThunk<
     } else {
       // for limit buy orders we can just calculate based on balance and price
       if (selectToken1Selected(state)) {
-        balance = (proportion * unselectedBalance) / state.orderInput.price;
+        balance = unselectedBalance / state.orderInput.price;
       } else {
-        balance = proportion * unselectedBalance * state.orderInput.price;
+        balance = unselectedBalance * state.orderInput.price;
       }
     }
   } else {
     //for sell orders the calculation is very simple
-    balance = getSelectedToken(state).balance || 0 * proportion;
+    balance = getSelectedToken(state).balance || 0;
+    balance = balance * proportion;
     //for market sell orders the order quote is retrieved to check liquidity.
     if (state.orderInput.tab === OrderTab.MARKET) {
       const quote = await adex.getExchangeOrderQuote(
