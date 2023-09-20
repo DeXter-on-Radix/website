@@ -8,5 +8,6 @@
   },
   "tailwindCSS.includeLanguages": {
     "plaintext": "html"
-  }
+  },
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", ".*Class*"]
 }
