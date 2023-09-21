@@ -25,7 +25,7 @@ export function PriceInfo() {
           }
         >
           {lastPrice}
-          <span className="text-sm font-bold neutral"> {basePair}</span>
+          <span className="text-sm font-bold text-secondary-content"> {basePair}</span>
         </span>
       </div>
       <div className="flex flex-col items-start">
