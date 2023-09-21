@@ -42,9 +42,8 @@ input[type="number"]::-ms-clear {
 
 .tab-active {
   @apply !border-accent;
-  @apply tab-border-2;
 }
 
 .btn-active {
-  @apply !bg-secondary;
+  @apply bg-secondary;
 }
