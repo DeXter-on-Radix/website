@@ -21,7 +21,7 @@ export function PriceInfo() {
           className={
             isNegativeOrZero
               ? "text-sm font-bold text-red-500"
-              : "text-sm text-green-500"
+              : "text-sm font-bold text-green-500"
           }
         >
           {lastPrice}
@@ -39,7 +39,7 @@ export function PriceInfo() {
           className={
             isNegativeOrZero
               ? "text-sm font-bold text-red-500"
-              : "text-sm text-green-500"
+              : "text-sm font-bold text-green-500"
           }
         >
           {isNegativeOrZero ? change : "+" + change}
