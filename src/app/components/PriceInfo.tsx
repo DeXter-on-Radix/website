@@ -3,11 +3,11 @@ import { useAppSelector } from "../hooks";
 
 export function PriceInfo() {
   const priceInfo = useAppSelector((state) => state.priceInfo);
-  const lastPrice = priceInfo.lastPrice;
-  const change = priceInfo.change24h;
-  const high = priceInfo.high24h;
-  const low = priceInfo.low24h;
-  const volume = priceInfo.value24h;
+  const lastPrice = priceInfo.lastPrice.toFixed(3);
+  const change = priceInfo.change24h.toFixed(2);
+  const high = priceInfo.high24h.toFixed(3);
+  const low = priceInfo.low24h.toFixed(3);
+  const volume = priceInfo.value24h.toFixed(3);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
   const basePair = "XRD";
 
