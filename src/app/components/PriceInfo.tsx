@@ -10,11 +10,7 @@ export function PriceInfo() {
   const volume = priceInfo.value24h.toFixed(3);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
   const basePair = "XRD";
-
-  function formatNumber(lastPrice, basePair) {
-    return (lastPrice > 0 ? "+" : "") + lastPrice + " " + basePair;
-  }
-
+  
   return (
     <div className="flex justify-between py-2">
       <div className="flex flex-col items-start pl-8">
