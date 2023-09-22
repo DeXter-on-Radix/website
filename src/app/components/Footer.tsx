@@ -3,6 +3,12 @@ import "../styles/footer.css";
 import Image from "next/image";
 import { AccentLink } from "./AccentLink";
 
+import { FaXTwitter } from "react-icons/fa6";
+import { FaTelegram } from "react-icons/fa6";
+import { FaDiscord } from "react-icons/fa6";
+import { FaGithub } from "react-icons/fa6";
+import { SiGitbook } from "react-icons/si";
+
 export function Footer() {
   return (
     <footer className="col-span-12 p-4 grid grid-cols-1 grid-rows-5 gap-4 bg-base-300 text-xs text-secondary-content lg:grid-cols-3 lg:grid-rows-3 lg:p-12 lg:gap-8">
@@ -43,34 +49,52 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="grid grid-rows-2 grid-cols-4 gap-4 lg:row-span-2">
+      <div className="flex flex-col space-y-4 px-16 lg:row-span-2">
         <div className="">
           <AccentLink href="/">TRADE</AccentLink>
         </div>
 
-        <a
-          href="https://twitter.com/DexterOnRadix"
-          target="_blank"
-          className="col-start-1 my-auto whitespace-nowrap text-secondary-content"
-        >
-          X (Twitter)
-        </a>
+        <div className="flex justify-between">
+          <a
+            href="https://twitter.com/DexterOnRadix"
+            target="_blank"
+            className="text-secondary-content hover:text-primary-content"
+          >
+            <FaXTwitter size="1rem" />
+          </a>
 
-        <a
-          href="https://t.me/dexter_discussion"
-          target="_blank"
-          className="col-start-2 my-auto whitespace-nowrap text-secondary-content"
-        >
-          Telegram
-        </a>
+          <a
+            href="https://t.me/dexter_discussion"
+            target="_blank"
+            className="text-secondary-content hover:text-primary-content"
+          >
+            <FaTelegram size="1rem" />
+          </a>
 
-        <a
-          href="https://github.com/DeXter-on-Radix"
-          target="_blank"
-          className="col-start-3 my-auto whitespace-nowrap text-secondary-content"
-        >
-          GitHub
-        </a>
+          <a
+            href="https://discord.gg/YCtv3BDQ"
+            target="_blank"
+            className="text-secondary-content hover:text-primary-content"
+          >
+            <FaDiscord size="1rem" />
+          </a>
+
+          <a
+            href="https://github.com/DeXter-on-Radix"
+            target="_blank"
+            className="text-secondary-content hover:text-primary-content"
+          >
+            <FaGithub size="1rem" />
+          </a>
+
+          <a
+            href="https://dexter-on-radix.gitbook.io"
+            target="_blank"
+            className="text-secondary-content hover:text-primary-content"
+          >
+            <SiGitbook size="1rem" />
+          </a>
+        </div>
       </div>
 
       <div className="flex justify-end items-center space-x-4 lg:row-start-3 lg:col-start-3 lg:pr-8">
