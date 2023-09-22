@@ -31,7 +31,7 @@ export function PriceInfo() {
             isNegativeOrZero ? "text-sm font-bold text-red-500" : "text-xs text-green-500"
           }
         >
-          {isNegativeOrZero ? "-" + change : "+" + change} 
+          {isNegativeOrZero ? change : "+" + change} 
           <span className="text-sm font-bold text-secondary-content"> %</span>
         </span>
       </div>
