@@ -46,39 +46,6 @@ function SingleGroupButton({
   );
 }
 
-// function AvailableBalances() {
-//   const token1 = useAppSelector((state) => state.pairSelector.token1);
-//   const token2 = useAppSelector((state) => state.pairSelector.token2);
-//   return (
-//     <div className="flex justify-between">
-//       <div className="">
-//         <div className="text-sm">Available balances:</div>
-//       </div>
-//       <div className="text-xs">
-//         <div className="flex flex-row justify-end">
-//           <div>{displayAmount(token1.balance || 0)}</div>
-//           <img
-//             alt="Token 1 Icon"
-//             src={token1.iconUrl}
-//             className="w-3 h-3 !my-auto mx-1"
-//           />
-//           <span>{token1.symbol}</span>
-//         </div>
-
-//         <div className="flex flex-row justify-end">
-//           <div>{displayAmount(token2.balance || 0)}</div>
-//           <img
-//             alt="Token 2 Icon"
-//             src={token2.iconUrl}
-//             className="w-3 h-3 !my-auto mx-1"
-//           />
-//           <span>{token2.symbol}</span>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 function DirectionToggle() {
   const activeSide = useAppSelector((state) => state.orderInput.side);
   const dispatch = useAppDispatch();
@@ -112,55 +79,20 @@ function DirectionToggle() {
   );
 }
 
-// function AssetToggle() {
-//   const pairToken1 = useAppSelector((state) => state.pairSelector.token1);
-//   const pairToken2 = useAppSelector((state) => state.pairSelector.token2);
-//   const selectedToken = useAppSelector(getSelectedToken);
-
-//   const dispatch = useAppDispatch();
-
-//   return (
-//     <div>
-//       <p className="text-left text-sm font-medium">Asset</p>
-//       <div className="border btn-group border-base-300 my-2">
-//         <SingleGroupButton
-//           avatarUrl={pairToken1.iconUrl}
-//           text={pairToken1.symbol}
-//           isActive={selectedToken.address === pairToken1.address}
-//           onClick={() => {
-//             dispatch(orderInputSlice.actions.setToken1Selected(true));
-//           }}
-//         />
-//         <SingleGroupButton
-//           avatarUrl={pairToken2.iconUrl}
-//           text={pairToken2.symbol}
-//           isActive={selectedToken.address === pairToken2.address}
-//           onClick={() => {
-//             dispatch(orderInputSlice.actions.setToken1Selected(false));
-//           }}
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-
 function PositionSizeInput() {
-  const { size, quote, side } = useAppSelector((state) => state.orderInput);
-  const selectedToken = useAppSelector(getSelectedToken);
+  const { size, quote, side, tab, price } = useAppSelector(
+    (state) => state.orderInput
+  );
+  const {
+    token1: { balance: balance1 },
+    token2: { balance: balance2 },
+  } = useAppSelector((state) => state.pairSelector);
   const validationResult = useAppSelector(validatePositionSize);
-  const selectToken2 = useAppSelector((state) => state.pairSelector.token2);
+  const { token2, token1 } = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
-
   // const [customPercentage, setCustomPercentage] = useState(0);
 
   const customPercentInputRef = useRef<HTMLInputElement>(null);
-  // const handleButtonClick = (percent: number) => {
-  //   setCustomPercentage(percent);
-  //   dispatch(setSizePercent(percent));
-  //   if (customPercentInputRef.current) {
-  //     customPercentInputRef.current.value = "";
-  //   }
-  // };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (customPercentInputRef.current) {
@@ -181,12 +113,31 @@ function PositionSizeInput() {
 
   const isBuy = useMemo(() => side === OrderSide.BUY, [side]);
   const isSell = useMemo(() => side === OrderSide.SELL, [side]);
+  const feeToken = useMemo(
+    () => (isBuy ? token1 : token2),
+    [isBuy, token1, token2]
+  );
+
+  const token2Amount = useMemo(
+    () =>
+      tab === OrderTab.MARKET
+        ? (quote?.avgPrice ?? 0) * size
+        : (price ?? 0) * size,
+    [price, quote?.avgPrice, size, tab]
+  );
 
   return (
     <div className="form-control w-full">
-      <p className="text-left text-sm font-medium !mb-2">
-        {side.toUpperCase()} Amount:
-      </p>
+      <div className="flex flex-row items-center justify-between !mb-2">
+        <p className="text-left text-sm font-medium">
+          {side.toUpperCase()} Amount:
+        </p>
+        {isSell && (
+          <p className="text-left text-sm font-medium cursor-pointer">
+            Balance: <span className="text-white">{balance1}</span>
+          </p>
+        )}
+      </div>
       <Input
         type="number"
         value={size}
@@ -194,8 +145,8 @@ function PositionSizeInput() {
         isError={isSell && !validationResult.valid}
         endAdornment={
           <div className="flex items-center space-x-2">
-            <TokenAvatar url={selectedToken.iconUrl} />
-            <span className="font-bold text-base">{selectedToken.symbol}</span>
+            <TokenAvatar url={token1.iconUrl} />
+            <span className="font-bold text-base">{token1.symbol}</span>
           </div>
         }
       />
@@ -208,19 +159,25 @@ function PositionSizeInput() {
         </span>
       </label>
 
-      <p className="text-left text-sm font-medium !mb-2">
-        {isBuy ? "You will give:" : "You will get:"}
-      </p>
+      <div className="flex flex-row items-center justify-between !mb-2">
+        <p className="text-left text-sm font-medium">
+          {isBuy ? "You will give:" : "You will get:"}
+        </p>
+        {isBuy && (
+          <p className="text-left text-sm font-medium cursor-pointer">
+            Balance: <span className="text-white">{balance2}</span>
+          </p>
+        )}
+      </div>
       <Input
         type="number"
-        value={(quote?.avgPrice ?? 0) * size}
+        value={token2Amount}
         disabled
-        // onChange={handleOnChange}
         isError={isBuy && !validationResult.valid}
         endAdornment={
           <div className="flex items-center space-x-2">
-            <TokenAvatar url={selectToken2.iconUrl} />
-            <span className="font-bold text-base">{selectToken2.symbol}</span>
+            <TokenAvatar url={token2.iconUrl} />
+            <span className="font-bold text-base">{token2.symbol}</span>
           </div>
         }
       />
@@ -233,65 +190,32 @@ function PositionSizeInput() {
         </span>
       </label>
 
-      <div className="collapse collapse-arrow text-left ">
+      <div className="collapse collapse-arrow text-left">
         <input type="checkbox" />
         <div className="collapse-title font-medium text-sm pl-0">
-          Total fee: {quote?.totalFeesXrd?.toFixed(8) ?? 0}{" "}
-          {selectToken2.symbol}
+          Total fee: {quote?.totalFees ?? 0} {feeToken.symbol}
         </div>
         <div className="collapse-content text-sm pl-0">
           <div className="flex items-center justify-between">
             <div>Exchange Fee: </div>
-            <div>{quote?.exchangeFeesXrd} XRD</div>
+            <div>
+              {quote?.exchangeFees} {feeToken.symbol}
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <div>Platform Fee: </div>
-            <div>{quote?.platformFeesXrd} XRD</div>
+            <div>
+              {quote?.platformFees} {feeToken.symbol}
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <div>Liquidity Fee: </div>
-            <div>{quote?.liquidityFeesXrd} XRD</div>
+            <div>
+              {quote?.liquidityFees} {feeToken.symbol}
+            </div>
           </div>
         </div>
       </div>
-      {/* <div className="@container flex flex-row items-center justify-between">
-        <div className="btn-group border border-base-300 mb-2 flex-wrap w-min @[360px]:w-max">
-          <div className="flex flex-row">
-            <SingleGroupButton
-              text="25%"
-              isActive={customPercentage === 25}
-              onClick={() => handleButtonClick(25)}
-            />
-            <SingleGroupButton
-              text="50%"
-              isActive={customPercentage === 50}
-              onClick={() => handleButtonClick(50)}
-            />
-          </div>
-          <div className="flex flex-row">
-            <SingleGroupButton
-              text="75%"
-              isActive={customPercentage === 75}
-              onClick={() => handleButtonClick(75)}
-            />
-            <SingleGroupButton
-              text="100%"
-              isActive={customPercentage === 100}
-              onClick={() => handleButtonClick(100)}
-            />
-          </div>
-        </div>
-        <Input
-          value={Boolean(customPercentage) ? customPercentage : undefined}
-          type="number"
-          inputClasses="!w-14"
-          endAdornmentClasses="px-0 pr-2"
-          parentClasses="mb-2"
-          placeholder="0.00"
-          endAdornment={<span className="font-bold">%</span>}
-          onChange={handleOnPercentChange}
-        />
-      </div> */}
     </div>
   );
 }
@@ -340,7 +264,7 @@ function MarketOrderInput() {
 }
 
 function LimitOrderInput() {
-  const price = useAppSelector((state) => state.orderInput.price);
+  const { price, side } = useAppSelector((state) => state.orderInput);
   const priceToken = useAppSelector((state) => state.pairSelector.token2);
   const validationResult = useAppSelector(validatePriceInput);
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
@@ -354,8 +278,35 @@ function LimitOrderInput() {
 
   return (
     <>
-      <div className="form-control">
-        <p className="text-left text-sm font-medium !mb-2">Amount</p>
+      <div className="form-control w-full">
+        <div className="flex flex-row items-center justify-between">
+          <p className="text-left text-sm font-medium !mb-2">
+            {side.toUpperCase()} Price
+          </p>
+          <p
+            className="text-left text-sm font-medium !mb-2 cursor-pointer"
+            onClick={() =>
+              dispatch(
+                orderInputSlice.actions.setPrice(
+                  side === OrderSide.BUY
+                    ? bestBuyPrice || 0
+                    : bestSellPrice || 0
+                )
+              )
+            }
+          >
+            Best Price:{" "}
+            <span
+              className={
+                "font-semibold " +
+                (side === OrderSide.BUY ? "text-accent" : "text-error")
+              }
+            >
+              {side === OrderSide.BUY ? bestBuyPrice : bestSellPrice}{" "}
+              {priceToken.symbol}
+            </span>
+          </p>
+        </div>
         <Input
           type="number"
           value={price}
@@ -373,66 +324,11 @@ function LimitOrderInput() {
             {validationResult.message}
           </span>
         </label>
-        <div className="btn-group border border-base-300 w-min mb-2">
-          <SingleGroupButton
-            text={`Best Buy: ${bestBuyPrice}`}
-            isActive={false}
-            onClick={() =>
-              dispatch(orderInputSlice.actions.setPrice(bestBuyPrice || 0))
-            }
-            wrapperClass="max-w-[30ch]"
-          />
-          <SingleGroupButton
-            text={`Best Sell: ${bestSellPrice}`}
-            isActive={false}
-            onClick={() =>
-              dispatch(orderInputSlice.actions.setPrice(bestSellPrice || 0))
-            }
-            wrapperClass="max-w-[30ch]"
-          />
-        </div>
       </div>
       <PositionSizeInput />
-
-      <div className="flex justify-start">
-        <input
-          type="checkbox"
-          className="checkbox my-auto mr-2"
-          onClick={() =>
-            dispatch(orderInputSlice.actions.togglePreventImmediateExecution())
-          }
-        />
-        <span className="my-auto">Prevent immediate execution </span>
-      </div>
     </>
   );
 }
-
-// function Description() {
-//   const description = useAppSelector((state) => state.orderInput.description);
-//   const quote = useAppSelector((state) => state.orderInput.quote);
-//   return (
-//     <div className="text-xs my-2">
-//       <div className="flex">
-//         <label>AlphaDEX response: </label>
-//         <span className="ml-1">{quote?.message}</span>
-//       </div>
-//       <p className="">{description}</p>
-//       <div className="flex">
-//         <label>Dex fees: </label>
-//         <span className="ml-1">
-//           {displayAmount(quote?.platformFeesXrd || 0, 7)} XRD
-//         </span>
-//       </div>
-//       <div className="flex">
-//         <label>Total fees: </label>
-//         <span className="ml-1">
-//           {displayAmount(quote?.totalFeesXrd || 0, 7)} XRD
-//         </span>
-//       </div>
-//     </div>
-//   );
-// }
 
 function SubmitButton() {
   const symbol = useAppSelector(getSelectedToken).symbol;
@@ -453,6 +349,16 @@ function SubmitButton() {
 
   return (
     <div className="flex flex-col w-full">
+      <div className="flex justify-start">
+        <input
+          type="checkbox"
+          className="checkbox checkbox-sm my-auto mr-2"
+          onClick={() =>
+            dispatch(orderInputSlice.actions.togglePreventImmediateExecution())
+          }
+        />
+        <span className="my-auto text-sm">Prevent immediate execution </span>
+      </div>
       <button
         className="flex-1 btn btn-accent"
         disabled={!validationResult.valid || transactionInProgress}
@@ -466,7 +372,6 @@ function SubmitButton() {
 }
 
 export function OrderInput() {
-  // updates quote when any of the listed dependencies changes
   const dispatch = useAppDispatch();
   const {
     token1Selected,
@@ -499,23 +404,16 @@ export function OrderInput() {
     token1Selected,
     preventImmediateExecution,
     validationResult,
-    dispatch,
   ]);
 
   return (
     <div
       data-value={side}
-      className="data-[value=BUY]:bg-green-800/10 data-[value=SELL]:bg-red-800/10 min-h-full border flex flex-col items-start"
+      className="data-[value=BUY]:bg-green-800/10 data-[value=SELL]:bg-red-800/10 min-h-full flex flex-col items-start"
     >
-      {/* <OrderTypeTabs /> */}
       <DirectionToggle />
       <div className="flex flex-col justify-between items-start p-3 flex-1 w-full">
-        {/* <AvailableBalances /> */}
-        {/* <div className="flex flex-row justify-between flex-wrap mb-3">
-          <AssetToggle />
-        </div> */}
         {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
-        {/* <Description /> */}
         <SubmitButton />
       </div>
     </div>
