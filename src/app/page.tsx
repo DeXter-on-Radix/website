@@ -27,7 +27,7 @@ export default function Home() {
           <PriceChart />
         </div>
       </div>
-      <div className="col-span-5 hidden lg:block xl:hidden text-center border-r-4 border-base-300">
+      <div className="col-span-12 xl:hidden lg:col-span-5 lg:border-r-4 border-base-300">
         <OrderBook />
       </div>
       <div className="min-h-[200px] col-span-12 lg:col-span-7 xl:col-span-12 text-center">
