@@ -83,10 +83,10 @@ function PositionSizeInput() {
   const { size, quote, side, tab, price } = useAppSelector(
     (state) => state.orderInput
   );
-  const {
-    token1: { balance: balance1 },
-    token2: { balance: balance2 },
-  } = useAppSelector((state) => state.pairSelector);
+  // const {
+  //   token1: { balance: balance1 },
+  //   token2: { balance: balance2 },
+  // } = useAppSelector((state) => state.pairSelector);
   const validationResult = useAppSelector(validatePositionSize);
   const { token2, token1 } = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
@@ -130,13 +130,13 @@ function PositionSizeInput() {
     <div className="form-control w-full">
       <div className="flex flex-row items-center justify-between !mb-2">
         <p className="text-left text-sm font-medium">
-          {side.toUpperCase()} Amount:
+          {side === OrderSide.BUY ? "Buy" : "Sell"} Amount:
         </p>
-        {isSell && (
+        {/* {isSell && (
           <p className="text-left text-sm font-medium cursor-pointer">
             Balance: <span className="text-white">{balance1}</span>
           </p>
-        )}
+        )} */}
       </div>
       <Input
         type="number"
@@ -161,13 +161,13 @@ function PositionSizeInput() {
 
       <div className="flex flex-row items-center justify-between !mb-2">
         <p className="text-left text-sm font-medium">
-          {isBuy ? "You will give:" : "You will get:"}
+          {isBuy ? "You pay" : "You receive:"}
         </p>
-        {isBuy && (
+        {/* {isBuy && (
           <p className="text-left text-sm font-medium cursor-pointer">
             Balance: <span className="text-white">{balance2}</span>
           </p>
-        )}
+        )} */}
       </div>
       <Input
         type="number"
@@ -281,7 +281,7 @@ function LimitOrderInput() {
       <div className="form-control w-full">
         <div className="flex flex-row items-center justify-between">
           <p className="text-left text-sm font-medium !mb-2">
-            {side.toUpperCase()} Price
+            {side === OrderSide.BUY ? "Buy" : "Sell"} Price
           </p>
           <p
             className="text-left text-sm font-medium !mb-2 cursor-pointer"
@@ -349,16 +349,20 @@ function SubmitButton() {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="flex justify-start">
-        <input
-          type="checkbox"
-          className="checkbox checkbox-sm my-auto mr-2"
-          onClick={() =>
-            dispatch(orderInputSlice.actions.togglePreventImmediateExecution())
-          }
-        />
-        <span className="my-auto text-sm">Prevent immediate execution </span>
-      </div>
+      {tab === OrderTab.LIMIT && (
+        <div className="flex justify-start">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm my-auto mr-2"
+            onClick={() =>
+              dispatch(
+                orderInputSlice.actions.togglePreventImmediateExecution()
+              )
+            }
+          />
+          <span className="my-auto text-sm">Prevent immediate execution </span>
+        </div>
+      )}
       <button
         className="flex-1 btn btn-accent"
         disabled={!validationResult.valid || transactionInProgress}
