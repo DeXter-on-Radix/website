@@ -2,14 +2,11 @@
 
 import "./styles/globals.css";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
-import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -33,7 +30,7 @@ export default function RootLayout({
         <title>DeXter</title>
       </head>
       <Provider store={store}>
-        <body className={inter.className}>
+        <body>
           <div className="grid grid-cols-12 h-full prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
             <Navbar />
             {children}

@@ -16,6 +16,9 @@ module.exports = {
       screens: {
         xs: "320px",
       },
+      fontFamily: {
+        sourceCodePro: ["sourceCodePro"],
+      },
     },
   },
   daisyui: {
