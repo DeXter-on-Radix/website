@@ -16,6 +16,9 @@ module.exports = {
       screens: {
         xs: "320px",
       },
+      fontFamily: {
+        sourceCodePro: ["sourceCodePro"],
+      },
       // stretch the grid so that footer is always at the bottom
       // even on pages with little content
       gridTemplateRows: {
