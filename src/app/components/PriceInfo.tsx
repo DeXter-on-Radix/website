@@ -1,13 +1,14 @@
 import React from "react";
 import { useAppSelector } from "../hooks";
+import { displayAmount } from "../utils";
 
 export function PriceInfo() {
   const priceInfo = useAppSelector((state) => state.priceInfo);
-  const lastPrice = priceInfo.lastPrice.toFixed(3);
-  const change = priceInfo.change24h.toFixed(2);
-  const high = priceInfo.high24h.toFixed(3);
-  const low = priceInfo.low24h.toFixed(3);
-  const volume = priceInfo.value24h.toFixed(3);
+  const lastPrice = displayAmount(priceInfo.lastPrice, 4, ".", ",", 3);
+  const change = displayAmount(priceInfo.change24h, 4, ".", ",", 3);
+  const high = displayAmount(priceInfo.high24h, 4, ".", ",", 3);
+  const low = displayAmount(priceInfo.low24h, 4, ".", ",", 3);
+  const volume = displayAmount(priceInfo.value24h, 4, ".", ",", 3);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
   const basePair = "XRD";
 
@@ -17,13 +18,7 @@ export function PriceInfo() {
         <span className="text-sm font-bold text-secondary-content uppercase">
           Price
         </span>
-        <span
-          className={
-            isNegativeOrZero
-              ? "text-sm font-bold text-red-500"
-              : "text-sm font-bold text-green-500"
-          }
-        >
+        <span className={"text-sm font-bold"}>
           {lastPrice}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -38,8 +33,8 @@ export function PriceInfo() {
         <span
           className={
             isNegativeOrZero
-              ? "text-sm font-bold text-red-500"
-              : "text-sm font-bold text-green-500"
+              ? "text-sm font-bold text-success"
+              : "text-sm font-bold text-error"
           }
         >
           {isNegativeOrZero ? change : "+" + change}
