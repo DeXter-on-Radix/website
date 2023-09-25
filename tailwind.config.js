@@ -16,6 +16,14 @@ module.exports = {
       screens: {
         xs: "320px",
       },
+      fontFamily: {
+        sourceCodePro: ["sourceCodePro"],
+      },
+      // stretch the grid so that footer is always at the bottom
+      // even on pages with little content
+      gridTemplateRows: {
+        "auto-1fr": "auto 1fr",
+      },
     },
   },
   daisyui: {
@@ -24,16 +32,18 @@ module.exports = {
         dark: {
           ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
           primary: "#292C35",
-          "primary-content": "#F6F6F7",
+          "primary-content": "#fff",
           secondary: "#5C5E66",
-          "secondary-content": "#F6F6F7",
+          "secondary-content": "#858D92",
           accent: "#BFED3F",
           "accent-content": "#12141C",
           neutral: "#292C34",
           error: "#FF7A75",
+          "error-content": "#4D2929",
           success: "#73D2BD",
-          "base-100": "#292C35",
-          "base-300": "#12141C",
+          "success-content": "#243E17",
+          "base-100": "#191B1D",
+          "base-300": "#000",
           "base-content": "#F6F6F7",
           "--rounded-btn": "0",
           "--btn-text-case": "none",

@@ -31,12 +31,12 @@ function OrderBookRow(props: OrderBookRowProps) {
     } as CSSProperties;
 
     return (
-      <div className="relative col-span-4 sized-columns text-xs">
-        <div style={barStyle}></div>
-        <div className="order-cell">{orderCount}</div>
+      <div className="relative col-span-4 sized-columns text-xs mb-0.5 py-0.5 ">
+        <div className="" style={barStyle}></div>
+        <div className="order-cell text-start ml-2">{orderCount}</div>
         <div className="order-cell text-end">{priceString}</div>
         <div className="order-cell text-end">{sizeString}</div>
-        <div className="order-cell text-end">{totalString}</div>
+        <div className="order-cell text-end mr-2">{totalString}</div>
       </div>
     );
   }
@@ -45,7 +45,7 @@ function OrderBookRow(props: OrderBookRowProps) {
   return <div className="text-center col-span-4">{props.absentOrders}</div>;
 }
 
-function MiddleRows() {
+function CurrentPriceRow() {
   const trades = useAppSelector((state) => state.accountHistory.trades);
   const orderBook = useAppSelector((state) => state.orderBook);
   const priceMaxDecimals = useAppSelector(
@@ -81,19 +81,23 @@ function MiddleRows() {
 
     return (
       <>
-        <div className="text-2xl col-span-2 my-1 py-1 border-t border-b">
+        <div className="text-2xl text-accent text-left col-span-2 my-1 py-1 ml-2">
           {lastPrice}
         </div>
 
-        <div className="flex justify-end col-span-2 text-xl my-1 py-1 border-t border-b whitespace-nowrap ">
-          <span className="text-sm my-auto">Spread</span>{" "}
-          <span className="my-auto pl-2">{spreadString}</span>
+        <div className="flex text-accent justify-end col-span-2 text-sm my-1 py-1 whitespace-nowrap">
+          <span className="my-auto">Spread</span>{" "}
+          <span className="my-auto px-1 border-r-2 border-accent">
+            {spreadString}
+          </span>
         </div>
       </>
     );
   } else {
     return (
-      <div className="text-2xl col-span-4 border-t border-b">{lastPrice}</div>
+      <div className="text-2xl text-left col-span-4  border-r-2 border-accent ml-2">
+        {lastPrice}
+      </div>
     );
   }
 }
@@ -109,31 +113,33 @@ export function OrderBook() {
   const buys = useAppSelector((state) => state.orderBook.buys);
 
   return (
-    <div className="p-2 text-sx">
-      <div className="sized-columns max-w-sm">
-        <div className="">
-          Order
-          <br />
-          Count
-        </div>
-        <div className="text-end">
-          Price
-          <br />({token2Symbol})
-        </div>
-        <div className="text-end">
-          Size
-          <br />({token1Symbol})
-        </div>
-        <div className="text-end">
-          Total
-          <br />({token1Symbol})
+    <div className="p-2 text-sx text-primary-content">
+      <div className="sized-columns">
+        <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
+          <div className="text-start">
+            Order
+            <br />
+            Count
+          </div>
+          <div className="text-end">
+            Price
+            <br />({token2Symbol})
+          </div>
+          <div className="text-end">
+            Size
+            <br />({token1Symbol})
+          </div>
+          <div className="text-end">
+            Total
+            <br />({token1Symbol})
+          </div>
         </div>
 
         {sells.map((props, index) => (
           <OrderBookRow key={"sell-" + index} {...props} />
         ))}
 
-        <MiddleRows />
+        <CurrentPriceRow />
 
         {buys.map((props, index) => (
           <OrderBookRow key={"buy-" + index} {...props} />
