@@ -32,11 +32,11 @@ function OrdersTabs() {
             onClick={() => dispatch(setSelectedTable(tableName))}
           >
             {tableName}{" "}
-            {tableName === Tables.OPEN_ORDERS && openOrders.length && (
+            {tableName === Tables.OPEN_ORDERS && openOrders.length ? (
               <span className="badge badge-accent badge-sm ml-2">
                 {openOrders.length}
               </span>
-            )}
+            ) : null}
           </div>
         ))}
         {/* <div
