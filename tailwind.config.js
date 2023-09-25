@@ -16,6 +16,11 @@ module.exports = {
       screens: {
         xs: "320px",
       },
+      // stretch the grid so that footer is always at the bottom
+      // even on pages with little content
+      gridTemplateRows: {
+        "auto-1fr": "auto 1fr",
+      },
     },
   },
   daisyui: {
