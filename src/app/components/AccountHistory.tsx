@@ -17,14 +17,14 @@ function OrdersTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "flex-1 tab no-underline h-full text-base font-bold py-3 tab-border-1" +
+      "tab w-max no-underline h-full text-base font-bold py-3 tab-border-1" +
       (isActive ? " tab-active tab-bordered" : "")
     );
   }
 
   return (
     <div className="border-b-2 border-base-300">
-      <div className="tabs w-[30%] ">
+      <div className="tabs min-w-[30%] w-[80%]">
         {tables.map((tableName) => (
           <div
             key={tableName}
