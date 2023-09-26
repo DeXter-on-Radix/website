@@ -8,13 +8,10 @@ export function PairSelector() {
     dispatch(selectPairAddress(pairAddress));
   };
   return (
-    <div
-      className="dropdown dropdown-start w-full not-prose"
-      id="pair-selector"
-    >
+    <div className="dropdown dropdown-start w-full" id="pair-selector">
       <label
         tabIndex={0}
-        className="justify-between btn btn-block m-1 font-bold"
+        className="justify-between btn btn-block font-bold base-100"
       >
         <span>{pairSelector.name || "Loading"}</span>
         <span className="float-right">
@@ -31,7 +28,7 @@ export function PairSelector() {
       </label>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] menu shadow bg-neutral rounded-box w-full mt-0 mb-0"
+        className="dropdown-content z-[1] menu shadow bg-neutral rounded-box w-full !my-0"
       >
         <li className="text-xs text-left uppercase text-secondary-content px-4">
           Select a pair of tokens:
