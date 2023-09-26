@@ -24,7 +24,10 @@ export const Input = ({
         parentClasses
       }
     >
-      <input className={"input w-full px-2 " + inputClasses} {...inputProps} />
+      <input
+        className={"input w-full px-2 border-0 " + inputClasses}
+        {...inputProps}
+      />
       {endAdornment && (
         <div className={"px-3 " + endAdornmentClasses}>{endAdornment}</div>
       )}
