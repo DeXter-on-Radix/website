@@ -67,8 +67,8 @@ export function PriceInfo() {
         <span
           className={
             isNegativeOrZero
-              ? "text-sm font-bold text-success"
-              : "text-sm font-bold text-error"
+              ? "text-sm font-bold text-error"
+              : "text-sm font-bold text-success"
           }
         >
           {isNegativeOrZero ? change : "+" + change}
