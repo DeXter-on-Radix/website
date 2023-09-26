@@ -1,65 +1,114 @@
 import React from "react";
 import { useAppSelector } from "../hooks";
+import { displayAmount } from "../utils";
 
 export function PriceInfo() {
   const priceInfo = useAppSelector((state) => state.priceInfo);
-  const lastPrice = priceInfo.lastPrice;
-  const change = priceInfo.change24h;
-  const high = priceInfo.high24h;
-  const low = priceInfo.low24h;
-  const volume = priceInfo.value24h;
+  const noDigits = 4;
+  const decimalSeparator = ".";
+  const thousandSeparator = ",";
+  const fixedDecimals = 3;
+  const lastPrice = displayAmount(
+    priceInfo.lastPrice,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+  const change = displayAmount(
+    priceInfo.change24h,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+  const high = displayAmount(
+    priceInfo.high24h,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+  const low = displayAmount(
+    priceInfo.low24h,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+  const volume = displayAmount(
+    priceInfo.value24h,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
+  const basePair = "XRD";
 
   return (
     <div className="flex justify-between py-2">
       <div className="flex flex-col items-start pl-8">
-        <span className="text-sm">Price</span>
-        <span
-          className={
-            isNegativeOrZero ? "text-xs text-red-500" : "text-xs text-green-500"
-          }
-        >
+        <span className="text-sm font-bold text-secondary-content uppercase">
+          Price
+        </span>
+        <span className={"text-sm font-bold"}>
           {lastPrice}
+          <span className="text-sm font-bold text-secondary-content">
+            {" "}
+            {basePair}
+          </span>
         </span>
       </div>
       <div className="flex flex-col items-start">
-        <span className="text-sm">24h Change</span>
+        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+          24h Change
+        </span>
         <span
           className={
-            isNegativeOrZero ? "text-xs text-red-500" : "text-xs text-green-500"
+            isNegativeOrZero
+              ? "text-sm font-bold text-error"
+              : "text-sm font-bold text-success"
           }
         >
-          {change}
+          {isNegativeOrZero ? change : "+" + change}
+          <span className="text-sm font-bold text-secondary-content"> %</span>
         </span>
       </div>
       <div className="flex flex-col items-start">
-        <span className="text-sm">24h High</span>
-        <span
-          className={
-            isNegativeOrZero ? "text-xs text-red-500" : "text-xs text-green-500"
-          }
-        >
+        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+          24h Volume
+        </span>
+        <span className="text-sm font-bold primary-content">
+          {volume}
+          <span className="text-sm font-bold text-secondary-content">
+            {" "}
+            {basePair}
+          </span>
+        </span>
+      </div>
+      <div className="flex flex-col items-start">
+        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+          24h High
+        </span>
+        <span className="text-sm font-bold primary-content">
           {high}
-        </span>
-      </div>
-      <div className="flex flex-col items-start">
-        <span className="text-sm">24h Low</span>
-        <span
-          className={
-            isNegativeOrZero ? "text-xs text-red-500" : "text-xs text-green-500"
-          }
-        >
-          {low}
+          <span className="text-sm font-bold text-secondary-content">
+            {" "}
+            {basePair}
+          </span>
         </span>
       </div>
       <div className="flex flex-col items-start pr-8">
-        <span className="text-sm">24h Volume</span>
-        <span
-          className={
-            isNegativeOrZero ? "text-xs text-red-500" : "text-xs text-green-500"
-          }
-        >
-          {volume}
+        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+          24h Low
+        </span>
+        <span className="text-sm font-bold primary-content">
+          {low}
+          <span className="text-sm font-bold text-secondary-content">
+            {" "}
+            {basePair}
+          </span>
         </span>
       </div>
     </div>
