@@ -28,13 +28,13 @@ export function PairSelector() {
       </label>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] menu shadow bg-neutral rounded-box w-full !my-0"
+        className="dropdown-content z-[1] menu shadow bg-neutral rounded-box w-full !my-0 !px-0"
       >
-        <li className="text-xs text-left uppercase text-secondary-content px-4">
+        <li className="text-xs text-left uppercase text-secondary-content !pl-4 ">
           Select a pair of tokens:
         </li>
         {pairSelector.pairsList.map((pair, index) => (
-          <li className="font-bold" key={index}>
+          <li className="font-bold !pl-0" key={index}>
             <button
               className="justify-between"
               onClick={() => selectPair(pair.address)}
