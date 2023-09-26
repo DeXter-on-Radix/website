@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -11,10 +12,12 @@ import {
   validatePositionSize,
   validatePriceInput,
   submitOrder,
+  getUnselectedToken,
 } from "../redux/orderInputSlice";
 import { fetchBalances } from "../redux/pairSelectorSlice";
 import { TokenAvatar } from "common/tokenAvatar";
 import { Input } from "common/input";
+import { TokenWithSymbol } from "common/tokenWithSymbol";
 
 function SingleGroupButton({
   isActive,
@@ -80,7 +83,7 @@ function DirectionToggle() {
 }
 
 function PositionSizeInput() {
-  const { size, quote, side, tab, price } = useAppSelector(
+  const { size, quote, side, token1Selected } = useAppSelector(
     (state) => state.orderInput
   );
   // const {
@@ -88,7 +91,8 @@ function PositionSizeInput() {
   //   token2: { balance: balance2 },
   // } = useAppSelector((state) => state.pairSelector);
   const validationResult = useAppSelector(validatePositionSize);
-  const { token2, token1 } = useAppSelector((state) => state.pairSelector);
+  const selectedToken = useAppSelector(getSelectedToken);
+  const unSelectedToken = useAppSelector(getUnselectedToken);
   const dispatch = useAppDispatch();
   // const [customPercentage, setCustomPercentage] = useState(0);
 
@@ -113,18 +117,10 @@ function PositionSizeInput() {
 
   const isBuy = useMemo(() => side === OrderSide.BUY, [side]);
   const isSell = useMemo(() => side === OrderSide.SELL, [side]);
-  const feeToken = useMemo(
-    () => (isBuy ? token1 : token2),
-    [isBuy, token1, token2]
-  );
 
-  const token2Amount = useMemo(
-    () =>
-      tab === OrderTab.MARKET
-        ? (quote?.avgPrice ?? 0) * size
-        : (price ?? 0) * size,
-    [price, quote?.avgPrice, size, tab]
-  );
+  const handleTokenSwitch = () => {
+    dispatch(orderInputSlice.actions.setToken1Selected(!token1Selected));
+  };
 
   return (
     <div className="form-control w-full">
@@ -143,11 +139,40 @@ function PositionSizeInput() {
         value={size}
         onChange={handleOnChange}
         isError={isSell && !validationResult.valid}
+        endAdornmentClasses="flex"
         endAdornment={
-          <div className="flex items-center space-x-2">
-            <TokenAvatar url={token1.iconUrl} />
-            <span className="font-bold text-base">{token1.symbol}</span>
+          <div className="dropdown dropdown-end h-full cursor-pointer">
+            <div className="flex items-center" tabIndex={0}>
+              <TokenWithSymbol
+                logoUrl={selectedToken.iconUrl}
+                symbol={selectedToken.symbol}
+              />
+              <ChevronDownIcon className="w-6" />
+            </div>
+            <ul className="dropdown-content z-[1] menu  shadow bg-base-100 min-w-[7rem] rounded-box !mt-2 !p-0">
+              <li
+                className="!pl-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTokenSwitch();
+                }}
+              >
+                <button onClick={handleTokenSwitch}>
+                  <TokenWithSymbol
+                    logoUrl={unSelectedToken.iconUrl}
+                    symbol={unSelectedToken.symbol}
+                  />
+                </button>
+              </li>
+            </ul>
           </div>
+          // <div
+          //   className="flex items-center space-x-2"
+          //   onClick={handleTokenSwitch}
+          // >
+          //   <TokenAvatar url={selectedToken.iconUrl} />
+          //   <span className="font-bold text-base">{selectedToken.symbol}</span>
+          // </div>
         }
       />
       <label className="label">
@@ -171,13 +196,15 @@ function PositionSizeInput() {
       </div>
       <Input
         type="number"
-        value={token2Amount}
+        value={quote?.fromAmount ?? 0}
         disabled
         isError={isBuy && !validationResult.valid}
         endAdornment={
           <div className="flex items-center space-x-2">
-            <TokenAvatar url={token2.iconUrl} />
-            <span className="font-bold text-base">{token2.symbol}</span>
+            <TokenAvatar url={unSelectedToken.iconUrl} />
+            <span className="font-bold text-base">
+              {unSelectedToken.symbol}
+            </span>
           </div>
         }
       />
@@ -193,25 +220,25 @@ function PositionSizeInput() {
       <div className="collapse collapse-arrow text-left">
         <input type="checkbox" />
         <div className="collapse-title font-medium text-sm pl-0">
-          Total fee: {quote?.totalFees ?? 0} {feeToken.symbol}
+          Total fee: {quote?.totalFees ?? 0} {quote?.toToken.symbol}
         </div>
         <div className="collapse-content text-sm pl-0">
           <div className="flex items-center justify-between">
             <div>Exchange Fee: </div>
             <div>
-              {quote?.exchangeFees} {feeToken.symbol}
+              {quote?.exchangeFees} {quote?.toToken.symbol}
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div>Platform Fee: </div>
             <div>
-              {quote?.platformFees} {feeToken.symbol}
+              {quote?.platformFees} {quote?.toToken.symbol}
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div>Liquidity Fee: </div>
             <div>
-              {quote?.liquidityFees} {feeToken.symbol}
+              {quote?.liquidityFees} {quote?.toToken.symbol}
             </div>
           </div>
         </div>
@@ -313,10 +340,10 @@ function LimitOrderInput() {
           onChange={handleOnChange}
           isError={!validationResult.valid}
           endAdornment={
-            <div className="flex items-center space-x-2">
-              <TokenAvatar url={priceToken.iconUrl} />
-              <span className="font-bold text-base">{priceToken.symbol}</span>
-            </div>
+            <TokenWithSymbol
+              logoUrl={priceToken.iconUrl}
+              symbol={priceToken.symbol}
+            />
           }
         />
         <label className="label">
@@ -350,7 +377,7 @@ function SubmitButton() {
   return (
     <div className="flex flex-col w-full">
       {tab === OrderTab.LIMIT && (
-        <div className="flex justify-start">
+        <div className="flex justify-start mb-2">
           <input
             type="checkbox"
             className="checkbox checkbox-sm my-auto mr-2"
