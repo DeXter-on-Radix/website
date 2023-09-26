@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { RxChevronDown } from "react-icons/rx";
 
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -147,7 +147,7 @@ function PositionSizeInput() {
                 logoUrl={selectedToken.iconUrl}
                 symbol={selectedToken.symbol}
               />
-              <ChevronDownIcon className="w-6" />
+              <RxChevronDown className="w-6" />
             </div>
             <ul className="dropdown-content z-[1] menu  shadow bg-base-100 min-w-[7rem] rounded-box !mt-2 !p-0">
               <li
