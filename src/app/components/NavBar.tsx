@@ -1,16 +1,17 @@
 import React from "react";
 import Image from "next/image";
 import { FaRegMoon } from "react-icons/fa6";
+import Link from "next/link";
 
 // TODO: theme switching
 
 export function Navbar() {
   return (
-    <div className="col-span-12 navbar">
-      <div className="navbar-start">
-        <a
+    <div className="col-span-12 navbar p-0 min-h-6">
+      <div className="flex-none px-2 mx-2">
+        <Link
           href="/"
-          className="btn btn-ghost hover:bg-transparent no-underline text-xl p-0"
+          className="btn btn-ghost hover:bg-transparent no-underline text-xl p-0 join-item"
         >
           <Image
             src="/logo_icon.svg"
@@ -20,7 +21,29 @@ export function Navbar() {
             className="!my-0"
           />
           <span className="xs:invisible sm:visible uppercase">DeXter</span>
-        </a>
+        </Link>
+      </div>
+      <div className="flex-1 px-2 mx-2">
+        <div className="items-stretch hidden lg:flex">
+          <Link
+            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
+            href="/landing"
+          >
+            Landing
+          </Link>
+          <Link
+            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
+            href="/trade"
+          >
+            Trade
+          </Link>
+          <Link
+            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
+            href="/markets"
+          >
+            Markets
+          </Link>
+        </div>
       </div>
 
       <div className="navbar-end">
