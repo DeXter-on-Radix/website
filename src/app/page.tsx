@@ -30,7 +30,7 @@ export default function Home() {
       <div className="col-span-12 xl:hidden lg:col-span-5 lg:border-r-4 border-base-300">
         <OrderBook />
       </div>
-      <div className="min-h-[200px] col-span-12 lg:col-span-7 xl:col-span-12 text-center">
+      <div className="col-span-12 lg:col-span-7 xl:col-span-12 text-center">
         <AccountHistory />
       </div>
     </>
