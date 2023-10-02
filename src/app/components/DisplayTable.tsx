@@ -66,7 +66,7 @@ function ActionButton({
             cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
           );
         }}
-        className="text-error py-2 hover:underline transition"
+        className="text-error hover:underline transition"
       >
         Cancel
       </button>
