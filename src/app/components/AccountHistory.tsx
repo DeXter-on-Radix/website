@@ -23,7 +23,7 @@ function OrdersTabs() {
   }
 
   return (
-    <div className="border-b-2 border-base-300">
+    <div className="mb-4">
       <div className="tabs min-w-[30%]">
         {tables.map((tableName) => (
           <div
@@ -58,7 +58,7 @@ export function AccountHistory() {
   return (
     <div>
       <OrdersTabs />
-      <div className="px-4">
+      <div className="">
         <DisplayTable />
       </div>
     </div>

@@ -12,6 +12,8 @@ interface TableProps {
   data: AccountHistoryState["orderHistory"];
 }
 
+import "../styles/table.css";
+
 const headers = {
   [Tables.OPEN_ORDERS]: [
     "Pair",
@@ -111,7 +113,7 @@ export function DisplayTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table table-xs !mt-0">
+      <table className="table table-zebra table-xs !mt-0">
         <thead>
           <tr>
             {tableToShow.headers.map((header, i) => (

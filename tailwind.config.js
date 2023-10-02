@@ -28,26 +28,40 @@ module.exports = {
   },
   daisyui: {
     themes: [
+      // browse DeXter colors at https://www.figma.com/file/qushS15h87wjpoXaY6ND4W/DeXter-UI---refresh?node-id=456%3A129&mode=dev
+      // by clicking on "Show more colors" in dev mode (while the whole page is selected)
       {
         dark: {
+          // full list of available color vars at https://daisyui.com/docs/colors/
           ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
-          primary: "#292C35",
-          "primary-content": "#fff",
-          secondary: "#5C5E66",
+
+          // unused colors not listed
+          // override more colors if needed below
+
           "secondary-content": "#858D92",
           accent: "#BFED3F",
-          "accent-content": "#12141C",
-          neutral: "#292C34",
-          error: "#FF7A75",
+          "accent-content": "#000000",
+          primary: "#000000",
+          "primary-content": "#FFFFFF",
+          neutral: "#383C3E",
+
+          error: "#FF5C5C",
           "error-content": "#4D2929",
+
+          // TODO: check up with designers on the success color
+          // used in tables for buy/sell indicators
+          // and in charts for the green line and candles
           success: "#73D2BD",
           "success-content": "#243E17",
-          "base-100": "#191B1D",
-          "base-300": "#000",
-          "base-content": "#F6F6F7",
+
+          "base-100": "#232629",
+          "base-200": "#191B1D",
+          "base-300": "#000000",
+          "base-content": "#FFFFFF",
+
           "--rounded-btn": "0",
           "--btn-text-case": "none",
-          "--rounded-box": "0px",
+          "--rounded-box": "0",
         },
       },
       {
@@ -55,20 +69,27 @@ module.exports = {
           ...require("daisyui/src/theming/themes")["[data-theme=light]"],
           // TODO: configure these colors when working with light theme
 
-          // "primary-content": "",
-          // secondary: "",
-          // "secondary-content": "",
-          // accent: "",
-          // "accent-content": "",
-          // neutral: "",
-          // error: "",
-          // success: "",
-          // "base-100": "",
-          // "base-300": "",
-          // "base-content": "",
+          "secondary-content": "#858D92",
+          accent: "#BFED3F",
+          "accent-content": "#000000",
+          primary: "#000000",
+          "primary-content": "#FFFFFF",
+          neutral: "#383C3E",
+
+          error: "#FF5C5C",
+          "error-content": "#4D2929",
+
+          success: "#73D2BD",
+          "success-content": "#243E17",
+
+          "base-100": "#232629",
+          "base-200": "#191B1D",
+          "base-300": "#000000",
+          "base-content": "#FFFFFF",
+
           "--rounded-btn": "0",
           "--btn-text-case": "none",
-          "--rounded-box": "0px",
+          "--rounded-box": "0",
         },
       },
     ], // true: all themes | false: only light + dark | array: specific themes like this ["light", "dark", "cupcake"]
