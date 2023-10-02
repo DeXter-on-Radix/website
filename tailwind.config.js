@@ -39,7 +39,8 @@ module.exports = {
           // override more colors if needed below
 
           "secondary-content": "#858D92",
-          accent: "#BFED3F",
+          accent: "#CBFC42",
+          "accent-focus": "#CBFC42",
           "accent-content": "#000000",
           primary: "#000000",
           "primary-content": "#FFFFFF",
