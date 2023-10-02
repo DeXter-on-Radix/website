@@ -265,15 +265,14 @@ export function displayTime(
 }
 
 // Styling changes for Direction(side) in table
-// I think this would be unaffected by dark/light mode
 export function displayOrderSide(side: string): {
   text: string;
   className: string;
 } {
   if (side === "BUY") {
-    return { text: "Buy", className: "text-green-500" };
+    return { text: "Buy", className: "text-success" };
   } else if (side === "SELL") {
-    return { text: "Sell", className: "text-red-500" };
+    return { text: "Sell", className: "text-error" };
   } else {
     return { text: "-", className: "" };
   }

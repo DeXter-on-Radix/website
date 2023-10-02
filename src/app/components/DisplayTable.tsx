@@ -64,7 +64,7 @@ function ActionButton({
             cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
           );
         }}
-        className="text-lime-400 px-4 py-2 rounded hover:bg-lime-400 hover:text-black transition"
+        className="text-error py-2 hover:underline transition"
       >
         Cancel
       </button>
@@ -111,14 +111,11 @@ export function DisplayTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table !mt-0">
+      <table className="table table-xs !mt-0">
         <thead>
           <tr>
             {tableToShow.headers.map((header, i) => (
-              <th
-                className="text-secondary-content text-base	font-medium"
-                key={i}
-              >
+              <th className="text-secondary-content uppercase" key={i}>
                 {header}
               </th>
             ))}
@@ -133,7 +130,7 @@ export function DisplayTable() {
 const OpenOrdersRows = ({ data }: TableProps) => {
   return data.length ? (
     data.map((order) => (
-      <tr key={order.id} className="text-base">
+      <tr key={order.id} className="">
         <td>{order.pairName}</td>
         <td>{order.orderType}</td>
         <td className={displayOrderSide(order.side).className}>
@@ -163,7 +160,7 @@ const OpenOrdersRows = ({ data }: TableProps) => {
 const OrderHistoryRows = ({ data }: TableProps) => {
   return data.length ? (
     data.map((order) => (
-      <tr key={order.id} className="text-base">
+      <tr key={order.id} className="">
         <td>{order.pairName}</td>
         <td>{order.orderType}</td>
         <td className={displayOrderSide(order.side).className}>
@@ -199,7 +196,7 @@ const OrderHistoryRows = ({ data }: TableProps) => {
 const TradeHistoryTable = ({ data }: TableProps) => {
   return data.length ? (
     data.map((order) => (
-      <tr key={order.id} className="text-base">
+      <tr key={order.id} className="">
         <td>{order.pairName}</td>
         <td className={displayOrderSide(order.side).className}>
           {displayOrderSide(order.side).text}

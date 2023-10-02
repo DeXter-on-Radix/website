@@ -17,14 +17,14 @@ function OrdersTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "tab w-max no-underline h-full text-base font-bold py-3 tab-border-1" +
+      "tab w-max no-underline h-full py-3 tab-border-1 uppercase" +
       (isActive ? " tab-active tab-bordered" : "")
     );
   }
 
   return (
     <div className="border-b-2 border-base-300">
-      <div className="tabs min-w-[30%] w-[80%]">
+      <div className="tabs min-w-[30%]">
         {tables.map((tableName) => (
           <div
             key={tableName}
@@ -33,24 +33,12 @@ function OrdersTabs() {
           >
             {tableName}{" "}
             {tableName === Tables.OPEN_ORDERS && openOrders.length ? (
-              <span className="badge badge-accent badge-sm ml-2">
+              <span className="badge badge-xs font-bold badge-accent ml-2 p-0.5 rounded-none">
                 {openOrders.length}
               </span>
             ) : null}
           </div>
         ))}
-        {/* <div
-        className={tabClass(activeTab === OrderTab.MARKET)}
-        onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}
-      >
-        Market
-      </div>
-      <div
-        className={tabClass(activeTab === OrderTab.LIMIT)}
-        onClick={() => dispatch(actions.setActiveTab(OrderTab.LIMIT))}
-      >
-        Limit
-      </div> */}
       </div>
     </div>
   );
@@ -70,22 +58,6 @@ export function AccountHistory() {
   return (
     <div>
       <OrdersTabs />
-      {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
-        //TO NOT CONFUSE THE TESTERS----------------------------- */}
-      {/* <button
-        <button
-          className="btn btn-ghost normal-case text-xl"
-          aria-label="Show all orders"
-        >
-          Show all orders
-        </button>
-        
-          className="btn btn-ghost normal-case text-xl"
-          aria-label="Export as CSV"
-        >
-          Export as CSV
-        </button> */}
-      {/* </div> */}
       <div className="px-4">
         <DisplayTable />
       </div>
