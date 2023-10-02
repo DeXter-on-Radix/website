@@ -31,7 +31,10 @@ export const priceInfoSlice = createSlice({
       const currentPairInfo = action.payload.currentPairInfo;
       state.lastPrice = currentPairInfo.lastPrice;
       state.open24h = currentPairInfo.open24h;
-      state.change24h = currentPairInfo.change24h;
+      state.change24h =
+        ((currentPairInfo.lastPrice - currentPairInfo.open24h) /
+          currentPairInfo.open24h) *
+        100;
       state.high24h = currentPairInfo.high24h;
       state.low24h = currentPairInfo.low24h;
       state.value24h = currentPairInfo.value24h;
