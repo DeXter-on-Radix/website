@@ -25,8 +25,8 @@ function OrdersTabs() {
   }
 
   return (
-    <div className="mb-4">
-      <div className="tabs min-w-[30%]">
+    <div className="m-4">
+      <div className="tabs min-w-fit flex flex-nowrap space-x-4">
         {tables.map((tableName) => (
           <div
             key={tableName}
