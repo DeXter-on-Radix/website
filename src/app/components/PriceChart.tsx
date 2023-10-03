@@ -10,6 +10,8 @@ import {
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { formatPercentageChange } from "../utils";
+import { hsl } from "daisyui";
+import { displayAmount } from "../utils";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -38,17 +40,17 @@ function PriceChartCanvas(props: PriceChartProps) {
         height: 500,
         //MODIFY THEME COLOR HERE
         layout: {
-          background: { color: "#181c27" },
-          textColor: "#DDD",
+          background: { color: "#191B1D" }, //base-100
+          textColor: "#fff", //primary-content
         },
         //MODIFY THEME COLOR HERE
         grid: {
-          vertLines: { color: "#444" },
-          horzLines: { color: "#444" },
+          vertLines: { color: "#292C34" }, //neutral
+          horzLines: { color: "#292C34" }, //neutral
         },
         timeScale: {
           //MODIFY THEME COLOR HERE
-          borderColor: "#d3d3d4",
+          borderColor: "#fff", //primary-content
           timeVisible: true,
         },
       });
@@ -59,9 +61,16 @@ function PriceChartCanvas(props: PriceChartProps) {
       const ohlcSeries = chart.addCandlestickSeries({});
       ohlcSeries.setData(clonedData);
 
+      ohlcSeries.applyOptions({
+        wickUpColor: "hsl(var(--su))", //success
+        upColor: "#73D2BD", //success
+        wickDownColor: "hsl(var(--er))", //error
+        downColor: "#FF7A75", //error
+      });
+
       chart.priceScale("right").applyOptions({
         //MODIFY THEME COLOR HERE
-        borderColor: "#d3d3d4",
+        borderColor: "#fff", //primary-content
         scaleMargins: {
           top: 0.1,
           bottom: 0.3,
@@ -81,7 +90,7 @@ function PriceChartCanvas(props: PriceChartProps) {
       volumeSeries.setData(
         data.map((datum) => ({
           ...datum,
-          color: datum.close - datum.open <= 0 ? "#ef5350" : "#26a69a",
+          color: datum.close - datum.open <= 0 ? "#FF7A75" : "#73D2BD", //error : success
         }))
       );
 
@@ -131,16 +140,20 @@ export function PriceChart() {
   const isNegativeOrZero = useAppSelector(
     (state) => state.priceChart.isNegativeOrZero
   );
+  const noDigits = 4;
+  const decimalSeparator = ".";
+  const thousandSeparator = ",";
+  const fixedDecimals = 3;
 
   return (
     <div>
       <div className="">
-        <div className="flex p-[1vh]">
+        <div className="flex">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`px-[0.5vw] py-[0.5vw] text-sm font-roboto text-#d4e7df hover:bg-white hover:bg-opacity-30 hover:rounded-md ${
-                candlePeriod === period ? "text-blue-500" : ""
+              className={`btn btn-sm ${
+                candlePeriod === period ? "text-accent" : ""
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
@@ -148,52 +161,70 @@ export function PriceChart() {
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-sm font-roboto">
+        <div className="flex justify-between text-sm">
           <div className="ml-4">
             Open:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
-              {candlePrice?.open}
+            <span>
+              {displayAmount(
+                candlePrice?.open || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
             </span>
           </div>
           <div>
             High:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
-              {candlePrice?.high}
+            <span>
+              {displayAmount(
+                candlePrice?.high || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
             </span>
           </div>
           <div>
             Low:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
-              {candlePrice?.low}
+            <span>
+              {displayAmount(
+                candlePrice?.low || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
             </span>
           </div>
           <div>
             Close:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
-              {candlePrice?.close}
+            <span>
+              {displayAmount(
+                candlePrice?.close || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
             </span>
           </div>
           <div>
             Volume:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
-              {currentVolume === 0 ? 0 : currentVolume.toFixed(2)}
+            <span>
+              {displayAmount(
+                currentVolume,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
             </span>
           </div>
           <div className="mr-4">
             Change:{" "}
-            <span
-              className={isNegativeOrZero ? "text-red-500" : "text-green-500"}
-            >
+            <span className={isNegativeOrZero ? "text-error" : "text-success"}>
               {change}
               {formatPercentageChange(percChange)}
             </span>
