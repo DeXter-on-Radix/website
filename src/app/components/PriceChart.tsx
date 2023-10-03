@@ -10,7 +10,6 @@ import {
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { formatPercentageChange } from "../utils";
-import { hsl } from "daisyui";
 import { displayAmount } from "../utils";
 
 interface PriceChartProps {
