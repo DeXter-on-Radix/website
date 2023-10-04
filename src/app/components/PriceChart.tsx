@@ -11,6 +11,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { formatPercentageChange } from "../utils";
 import { displayAmount } from "../utils";
+import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -20,6 +21,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { data } = props;
+  const theme = tailwindConfig.daisyui.themes[0].dark;
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -39,17 +41,19 @@ function PriceChartCanvas(props: PriceChartProps) {
         height: 500,
         //MODIFY THEME COLOR HERE
         layout: {
-          background: { color: "#191B1D" }, //base-100
-          textColor: "#fff", //primary-content
+          background: {
+            color: theme["base-100"],
+          }, //base-100
+          textColor: theme["primary-content"],
         },
         //MODIFY THEME COLOR HERE
         grid: {
-          vertLines: { color: "#292C34" }, //neutral
-          horzLines: { color: "#292C34" }, //neutral
+          vertLines: { color: theme["secondary-content"] },
+          horzLines: { color: theme["secondary-content"] },
         },
         timeScale: {
           //MODIFY THEME COLOR HERE
-          borderColor: "#fff", //primary-content
+          borderColor: theme["primary-content"],
           timeVisible: true,
         },
       });
@@ -61,15 +65,15 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
-        wickUpColor: "hsl(var(--su))", //success
-        upColor: "#73D2BD", //success
-        wickDownColor: "hsl(var(--er))", //error
-        downColor: "#FF7A75", //error
+        wickUpColor: theme["success"], //success
+        upColor: theme["success"], //success
+        wickDownColor: theme["error"], //error
+        downColor: theme["error"], //error
       });
 
       chart.priceScale("right").applyOptions({
         //MODIFY THEME COLOR HERE
-        borderColor: "#fff", //primary-content
+        borderColor: theme["primary-content"], //primary-content
         scaleMargins: {
           top: 0.1,
           bottom: 0.3,
@@ -89,7 +93,7 @@ function PriceChartCanvas(props: PriceChartProps) {
       volumeSeries.setData(
         data.map((datum) => ({
           ...datum,
-          color: datum.close - datum.open <= 0 ? "#FF7A75" : "#73D2BD", //error : success
+          color: datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
         }))
       );
 
