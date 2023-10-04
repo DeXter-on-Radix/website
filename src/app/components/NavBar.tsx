@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { MoonIcon } from "@heroicons/react/24/outline";
+import { FaRegMoon } from "react-icons/fa6";
 
 // TODO: theme switching
 
@@ -28,7 +28,7 @@ export function Navbar() {
           className="btn mx-2 border-none"
           style={{ height: "40px", minHeight: "40px" }}
         >
-          <MoonIcon className="h-6 w-6" />
+          <FaRegMoon className="h-6 w-6 text-secondary-content" />
         </div>
 
         <radix-connect-button></radix-connect-button>
