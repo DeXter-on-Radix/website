@@ -293,3 +293,11 @@ export function calculateTotalFees(order: any): number {
     ? roundTo(totalFees, 4, RoundType.NEAREST)
     : totalFees;
 }
+
+//Chart Helper Functions
+export const formatPercentageChange = (percChange: number | null): string => {
+  if (percChange !== null) {
+    return `(${percChange.toFixed(2)}%)`;
+  }
+  return "(0.00%)";
+};
