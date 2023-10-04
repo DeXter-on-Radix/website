@@ -72,7 +72,7 @@ export function Footer() {
           </a>
 
           <a
-            href="https://discord.gg/YCtv3BDQ"
+            href="https://discord.gg/Y44jqe2q2W"
             target="_blank"
             className="text-secondary-content hover:text-primary-content"
           >
