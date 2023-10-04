@@ -93,7 +93,8 @@ function PriceChartCanvas(props: PriceChartProps) {
       volumeSeries.setData(
         data.map((datum) => ({
           ...datum,
-          color: datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
+          color:
+            datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
         }))
       );
 
