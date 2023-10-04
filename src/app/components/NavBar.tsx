@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export function Navbar() {
   return (
-    <div className="col-span-12 navbar p-0 min-h-6">
+    <div className="col-span-12 !py-0 navbar">
       <div className="flex-none px-2 mx-2">
         <Link
           href="/"
@@ -26,19 +26,13 @@ export function Navbar() {
       <div className="flex-1 px-2 mx-2">
         <div className="items-stretch hidden lg:flex">
           <Link
-            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
-            href="/landing"
-          >
-            Landing
-          </Link>
-          <Link
-            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
-            href="/trade"
+            className="btn btn-lg btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
+            href="/"
           >
             Trade
           </Link>
           <Link
-            className="btn btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-success hover:text-success uppercase"
+            className="btn btn-lg btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
             href="/markets"
           >
             Markets
