@@ -79,3 +79,9 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"]::-ms-clear {
   display: none;
 }
+
+/* Use slightly darker base color for backgrounds by default */
+:root,
+[data-theme] {
+  background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
+}
