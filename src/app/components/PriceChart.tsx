@@ -4,8 +4,14 @@ import {
   CANDLE_PERIODS,
   OHLCVData,
   setCandlePeriod,
+  handleCrosshairMove,
+  // fetchCandlesForInitialPeriod,
+  initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
+import { formatPercentageChange } from "../utils";
+import { displayAmount } from "../utils";
+import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -13,9 +19,17 @@ interface PriceChartProps {
 
 function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
   const { data } = props;
+  const theme = tailwindConfig.daisyui.themes[0].dark;
+
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
+
+    // dispatch(fetchCandlesForInitialPeriod());
+    if (data && data.length > 0) {
+      dispatch(initializeLegend());
+    }
 
     if (chartContainer) {
       const handleResize = () => {
@@ -24,10 +38,22 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 450,
-
-        // TODO: timescale is not visible
+        height: 500,
+        //MODIFY THEME COLOR HERE
+        layout: {
+          background: {
+            color: theme["base-100"],
+          }, //base-100
+          textColor: theme["primary-content"],
+        },
+        //MODIFY THEME COLOR HERE
+        grid: {
+          vertLines: { color: theme["secondary-content"] },
+          horzLines: { color: theme["secondary-content"] },
+        },
         timeScale: {
+          //MODIFY THEME COLOR HERE
+          borderColor: theme["primary-content"],
           timeVisible: true,
         },
       });
@@ -37,30 +63,53 @@ function PriceChartCanvas(props: PriceChartProps) {
       // OHLC
       const ohlcSeries = chart.addCandlestickSeries({});
       ohlcSeries.setData(clonedData);
+
+      ohlcSeries.applyOptions({
+        wickUpColor: theme["success"], //success
+        upColor: theme["success"], //success
+        wickDownColor: theme["error"], //error
+        downColor: theme["error"], //error
+      });
+
       chart.priceScale("right").applyOptions({
+        //MODIFY THEME COLOR HERE
+        borderColor: theme["primary-content"], //primary-content
         scaleMargins: {
-          top: 0,
-          bottom: 0.2,
+          top: 0.1,
+          bottom: 0.3,
         },
       });
 
-      // Volume
+      // Volume Initialization
       const volumeSeries = chart.addHistogramSeries({
         priceFormat: {
           type: "volume",
         },
         priceScaleId: "volume",
-        color: "#eaeff5",
       });
 
-      volumeSeries.setData(clonedData);
+      // VOLUME BARS
+      // MODIFY THEME COLOR HERE
+      volumeSeries.setData(
+        data.map((datum) => ({
+          ...datum,
+          color:
+            datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
+        }))
+      );
+
+      // volumeSeries.setData(clonedData);
       chart.priceScale("volume").applyOptions({
         scaleMargins: {
           top: 0.8,
-          bottom: 0,
+          bottom: 0.01,
         },
       });
 
+      //Crosshair Data for legend
+      dispatch(handleCrosshairMove(chart, data, volumeSeries));
+
+      //Prevent Chart from clipping
       const chartDiv = chartContainer.querySelector(".tv-lightweight-charts");
       if (chartDiv) {
         (chartDiv as HTMLElement).style.overflow = "visible";
@@ -70,37 +119,122 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       return () => {
         window.removeEventListener("resize", handleResize);
-        // clearInterval(intervalId);
         chart.remove();
       };
     }
-  }, [data]);
-
-  return <div ref={chartContainerRef} />;
+  }, [data, dispatch]);
+  //Temporary brute force approach to trim the top of the chart to remove the gap
+  return <div ref={chartContainerRef} className="relative mt-[-1.7rem]"></div>;
 }
 
 export function PriceChart() {
   const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
+  const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
+  const candlePrice = useAppSelector(
+    (state) => state.priceChart.legendCandlePrice
+  );
+  const change = useAppSelector((state) => state.priceChart.legendChange);
+  const percChange = useAppSelector(
+    (state) => state.priceChart.legendPercChange
+  );
+  const currentVolume = useAppSelector(
+    (state) => state.priceChart.legendCurrentVolume
+  );
+  const isNegativeOrZero = useAppSelector(
+    (state) => state.priceChart.isNegativeOrZero
+  );
+  const noDigits = 4;
+  const decimalSeparator = ".";
+  const thousandSeparator = ",";
+  const fixedDecimals = 3;
 
   return (
     <div>
-      <label htmlFor="candle-period-selector">Candle Period:</label>
-      <select
-        className="select select-ghost"
-        id="candle-period-selector"
-        value={state.candlePeriod}
-        onChange={(e) => {
-          dispatch(setCandlePeriod(e.target.value));
-        }}
-      >
-        {CANDLE_PERIODS.map((period) => (
-          <option key={period} value={period}>
-            {period}
-          </option>
-        ))}
-      </select>
-
+      <div className="">
+        <div className="flex">
+          {CANDLE_PERIODS.map((period) => (
+            <button
+              key={period}
+              className={`btn btn-sm ${
+                candlePeriod === period ? "text-accent" : ""
+              }`}
+              onClick={() => dispatch(setCandlePeriod(period))}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-between text-sm">
+          <div className="ml-4">
+            Open:{" "}
+            <span>
+              {displayAmount(
+                candlePrice?.open || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
+            </span>
+          </div>
+          <div>
+            High:{" "}
+            <span>
+              {displayAmount(
+                candlePrice?.high || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
+            </span>
+          </div>
+          <div>
+            Low:{" "}
+            <span>
+              {displayAmount(
+                candlePrice?.low || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
+            </span>
+          </div>
+          <div>
+            Close:{" "}
+            <span>
+              {displayAmount(
+                candlePrice?.close || 0,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
+            </span>
+          </div>
+          <div>
+            Volume:{" "}
+            <span>
+              {displayAmount(
+                currentVolume,
+                noDigits,
+                decimalSeparator,
+                thousandSeparator,
+                fixedDecimals
+              )}
+            </span>
+          </div>
+          <div className="mr-4">
+            Change:{" "}
+            <span className={isNegativeOrZero ? "text-error" : "text-success"}>
+              {change}
+              {formatPercentageChange(percChange)}
+            </span>
+          </div>
+        </div>
+      </div>
       <PriceChartCanvas data={state.ohlcv} />
     </div>
   );
