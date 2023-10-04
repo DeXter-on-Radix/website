@@ -41,13 +41,6 @@ export function Navbar() {
       </div>
 
       <div className="navbar-end">
-        <div
-          className="btn mx-2 border-none"
-          style={{ height: "40px", minHeight: "40px" }}
-        >
-          <FaRegMoon className="h-6 w-6 text-secondary-content" />
-        </div>
-
         <radix-connect-button></radix-connect-button>
       </div>
     </div>
