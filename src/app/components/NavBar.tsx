@@ -19,7 +19,9 @@ export function Navbar() {
             height={40}
             className="!my-0"
           />
-          <span className="ml-6 pt-1 xs:invisible sm:visible hover:text-accent uppercase">DeXter</span>
+          <span className="ml-6 pt-1 xs:invisible sm:visible hover:text-accent uppercase">
+            DeXter
+          </span>
         </Link>
       </div>
       <div className="flex-1 px-2 mx-2">
