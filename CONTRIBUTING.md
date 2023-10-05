@@ -4,7 +4,7 @@ Check out [existing issues (especially Todo)](https://github.com/orgs/DeXter-on-
 
 Here are a few guidelines to follow:
 
-- **Discuss** major changes with the maintainers before starting work, our [Discord](https://discord.gg/YCtv3BDQ) is a good place to do that
+- **Discuss** major changes with the maintainers before starting work, our [Discord](https://discord.gg/Y44jqe2q2W) is a good place to do that
 - **Use [Pull Requests (PRs)](https://docs.github.com/en/pull-requests)** - commits direclty to `main` branch are not allowed
 - **Use [Prettier](https://prettier.io/)** and automatic code formatting to keep PRs focused on the changes
 - **Use [ESLint](https://eslint.org/)** to keep code clean and consistent

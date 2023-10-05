@@ -9,10 +9,7 @@ export function PairSelector() {
   };
   return (
     <div className="dropdown dropdown-start w-full" id="pair-selector">
-      <label
-        tabIndex={0}
-        className="justify-between btn btn-block font-bold base-100"
-      >
+      <label tabIndex={0} className="justify-between btn btn-block font-bold">
         <span>{pairSelector.name || "Loading"}</span>
         <span className="float-right">
           <svg
@@ -28,7 +25,7 @@ export function PairSelector() {
       </label>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] menu shadow bg-neutral rounded-box w-full !my-0 !px-0"
+        className="dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !px-0"
       >
         <li className="text-xs text-left uppercase text-secondary-content !pl-4 ">
           Select a pair of tokens:
