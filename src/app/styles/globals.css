@@ -103,3 +103,9 @@ input[type="number"]::-ms-clear {
 .btn-active {
   @apply bg-secondary;
 }
+
+/* Use slightly darker base color for backgrounds by default */
+:root,
+[data-theme] {
+  background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
+}

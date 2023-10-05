@@ -2,6 +2,7 @@ import { Subscription } from "rxjs";
 import {
   DataRequestBuilder,
   RadixDappToolkit,
+  RadixNetwork,
 } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
 import { radixSlice, WalletData } from "./redux/radixSlice";
@@ -29,7 +30,7 @@ export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress:
       "account_tdx_d_12yhr42q497c46lr9vxkfsln9e9f3kjj8t5qexznpeq3ewxxqnhm527",
-    networkId: 14,
+    networkId: RadixNetwork.Stokenet,
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)

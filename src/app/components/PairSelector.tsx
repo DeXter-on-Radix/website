@@ -1,35 +1,5 @@
-import { OrderTab, orderInputSlice } from "redux/orderInputSlice";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { selectPairAddress } from "../redux/pairSelectorSlice";
-
-function OrderTypeTabs() {
-  const activeTab = useAppSelector((state) => state.orderInput.tab);
-  const actions = orderInputSlice.actions;
-  const dispatch = useAppDispatch();
-
-  function tabClass(isActive: boolean) {
-    return (
-      "flex-1 tab no-underline h-full text-base font-semibold py-3 tab-border-2" +
-      (isActive ? " tab-active tab-bordered" : "")
-    );
-  }
-  return (
-    <div className="tabs">
-      <div
-        className={tabClass(activeTab === OrderTab.MARKET)}
-        onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}
-      >
-        Market
-      </div>
-      <div
-        className={tabClass(activeTab === OrderTab.LIMIT)}
-        onClick={() => dispatch(actions.setActiveTab(OrderTab.LIMIT))}
-      >
-        Limit
-      </div>
-    </div>
-  );
-}
 
 export function PairSelector() {
   const pairSelector = useAppSelector((state) => state.pairSelector);
@@ -38,25 +8,40 @@ export function PairSelector() {
     dispatch(selectPairAddress(pairAddress));
   };
   return (
-    <>
-      <div className="dropdown" id="pair-selector">
-        <label tabIndex={0} className="btn m-1">
-          {pairSelector.name}
-        </label>
-        <ul
-          tabIndex={0}
-          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-        >
-          {pairSelector.pairsList.map((pair, index) => (
-            <li key={index}>
-              <button onClick={() => selectPair(pair.address)}>
-                {pair.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <OrderTypeTabs />
-    </>
+    <div className="dropdown dropdown-start w-full" id="pair-selector">
+      <label tabIndex={0} className="justify-between btn btn-block font-bold">
+        <span>{pairSelector.name || "Loading"}</span>
+        <span className="float-right">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="white"
+            viewBox="0 0 16 16"
+          >
+            <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+          </svg>
+        </span>
+      </label>
+      <ul
+        tabIndex={0}
+        className="dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !px-0"
+      >
+        <li className="text-xs text-left uppercase text-secondary-content !pl-4 ">
+          Select a pair of tokens:
+        </li>
+        {pairSelector.pairsList.map((pair, index) => (
+          <li className="font-bold !pl-0" key={index}>
+            <button
+              className="justify-between"
+              onClick={() => selectPair(pair.address)}
+            >
+              {pair.name}
+              <span>+</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

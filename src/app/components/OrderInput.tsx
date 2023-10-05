@@ -19,6 +19,35 @@ import { TokenAvatar } from "common/tokenAvatar";
 import { Input } from "common/input";
 import { TokenWithSymbol } from "common/tokenWithSymbol";
 
+function OrderTypeTabs() {
+  const activeTab = useAppSelector((state) => state.orderInput.tab);
+  const actions = orderInputSlice.actions;
+  const dispatch = useAppDispatch();
+
+  function tabClass(isActive: boolean) {
+    return (
+      "flex-1 tab no-underline h-full text-base font-semibold py-3 tab-border-2" +
+      (isActive ? " tab-active tab-bordered" : "")
+    );
+  }
+  return (
+    <div className="tabs">
+      <div
+        className={tabClass(activeTab === OrderTab.MARKET)}
+        onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}
+      >
+        Market
+      </div>
+      <div
+        className={tabClass(activeTab === OrderTab.LIMIT)}
+        onClick={() => dispatch(actions.setActiveTab(OrderTab.LIMIT))}
+      >
+        Limit
+      </div>
+    </div>
+  );
+}
+
 function SingleGroupButton({
   isActive,
   onClick,
@@ -63,8 +92,7 @@ function DirectionToggle() {
           dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
         }}
         wrapperClass={
-          "w-1/2 max-w-none border-none " +
-          (isBuyActive ? "!bg-green-800/10" : "")
+          "w-1/2 max-w-none border-none " + (isBuyActive ? "!bg-neutral" : "")
         }
       />
       <SingleGroupButton
@@ -74,8 +102,7 @@ function DirectionToggle() {
           dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
         }}
         wrapperClass={
-          "w-1/2 max-w-none border-none " +
-          (isSellActive ? "!bg-red-800/10" : "")
+          "w-1/2 max-w-none border-none " + (isSellActive ? "!bg-neutral" : "")
         }
       />
     </div>
@@ -426,6 +453,7 @@ export function OrderInput() {
       dispatch(fetchQuote());
     }
   }, [
+    dispatch,
     pairAddress,
     side,
     size,
@@ -438,15 +466,15 @@ export function OrderInput() {
   ]);
 
   return (
-    <div
-      data-value={side}
-      className="data-[value=BUY]:bg-green-800/10 data-[value=SELL]:bg-red-800/10 min-h-full flex flex-col items-start"
-    >
-      <DirectionToggle />
-      <div className="flex flex-col justify-between items-start p-3 flex-1 w-full">
-        {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
-        <SubmitButton />
+    <>
+      <OrderTypeTabs />
+      <div data-value={side} className="flex flex-col items-start">
+        <DirectionToggle />
+        <div className="flex flex-col justify-between items-start bg-neutral p-3 flex-1 w-full">
+          {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
+          <SubmitButton />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
