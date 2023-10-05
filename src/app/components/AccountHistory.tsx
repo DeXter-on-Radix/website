@@ -1,34 +1,50 @@
-import React, { useEffect, useCallback } from "react";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "hooks";
 import {
-  fetchAccountHistory,
   Tables,
+  fetchAccountHistory,
+  selectOpenOrders,
   setSelectedTable,
-  selectTables,
-} from "../redux/accountHistorySlice";
+} from "redux/accountHistorySlice";
 import { DisplayTable } from "./DisplayTable";
 
-interface ButtonProps {
-  label: string;
-  value: Tables;
-  selectedValue: Tables;
-  onClick: (value: Tables) => void;
-}
+function OrdersTabs() {
+  const dispatch = useAppDispatch();
+  const { selectedTable, tables } = useAppSelector(
+    (state) => state.accountHistory
+  );
+  const openOrders = useAppSelector(selectOpenOrders);
 
-const Button: React.FC<ButtonProps> = ({
-  label,
-  value,
-  selectedValue,
-  onClick,
-}) => (
-  <button
-    onClick={() => onClick(value)}
-    aria-label={label}
-    className={"btn" + (selectedValue === value ? " btn-active" : "")}
-  >
-    {label}
-  </button>
-);
+  function tabClass(isActive: boolean) {
+    return (
+      "tab w-max no-underline h-full py-3 tab-border-1 uppercase" +
+      (isActive
+        ? " tab-active tab-bordered text-accent-focus !border-accent"
+        : "")
+    );
+  }
+
+  return (
+    <div className="m-4">
+      <div className="tabs min-w-fit flex flex-nowrap space-x-4">
+        {tables.map((tableName) => (
+          <div
+            key={tableName}
+            className={tabClass(selectedTable === tableName)}
+            onClick={() => dispatch(setSelectedTable(tableName))}
+          >
+            {tableName}{" "}
+            {tableName === Tables.OPEN_ORDERS && openOrders.length ? (
+              <span className="badge badge-xs font-bold badge-accent ml-2 p-0.5 rounded-none">
+                {openOrders.length}
+              </span>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function AccountHistory() {
   const dispatch = useAppDispatch();
@@ -36,51 +52,17 @@ export function AccountHistory() {
     (state) => state.radix?.walletData.accounts[0]?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const selectedTable = useAppSelector(
-    (state) => state.accountHistory.selectedTable
-  );
-  const tables = useAppSelector(selectTables);
 
   useEffect(() => {
     dispatch(fetchAccountHistory());
   }, [dispatch, account, pairAddress]);
 
-  const handleButtonClick = useCallback(
-    (table: Tables) => {
-      dispatch(setSelectedTable(table));
-    },
-    [dispatch]
-  );
-
   return (
     <div>
-      <div className="btn-group">
-        {tables.map((table) => (
-          <Button
-            key={table}
-            label={table}
-            value={table}
-            selectedValue={selectedTable}
-            onClick={handleButtonClick}
-          />
-        ))}
-        {/* //---COMMENTED OUT BUTTONS FOR SHOW ALL ORDERS AND EXPORT
-        //TO NOT CONFUSE THE TESTERS----------------------------- */}
-        {/* <button
-        <button
-          className="btn btn-ghost normal-case text-xl"
-          aria-label="Show all orders"
-        >
-          Show all orders
-        </button>
-        
-          className="btn btn-ghost normal-case text-xl"
-          aria-label="Export as CSV"
-        >
-          Export as CSV
-        </button> */}
+      <OrdersTabs />
+      <div className="">
+        <DisplayTable />
       </div>
-      <DisplayTable />
     </div>
   );
 }

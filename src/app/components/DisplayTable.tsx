@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { displayTime, displayOrderSide, calculateTotalFees } from "../utils";
 import {
@@ -11,6 +11,44 @@ import { AccountHistoryState, Tables } from "../redux/accountHistorySlice";
 interface TableProps {
   data: AccountHistoryState["orderHistory"];
 }
+
+import "../styles/table.css";
+
+const headers = {
+  [Tables.OPEN_ORDERS]: [
+    "Pair",
+    "Order Type",
+    "Direction",
+    "Time Ordered",
+    "Amount",
+    "Order Price",
+    "Filled Qty",
+    "Completed %",
+    "Action",
+  ],
+  [Tables.ORDER_HISTORY]: [
+    "Pair",
+    "Order Type",
+    "Direction",
+    "Status",
+    "Filled Qty",
+    "Order Qty",
+    "Avg Filled Price",
+    "Order Price",
+    "Order Fee",
+    "Time Ordered",
+    "Action",
+  ],
+  [Tables.TRADE_HISTORY]: [
+    "Pair",
+    "Direction",
+    "Order Price",
+    "Avg Filled Price",
+    "Filled Qty",
+    "Order Fee",
+    "Time Completed",
+  ],
+};
 
 function ActionButton({
   order,
@@ -28,7 +66,7 @@ function ActionButton({
             cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
           );
         }}
-        className="text-lime-400 px-4 py-2 rounded hover:bg-lime-400 hover:text-black transition"
+        className="text-error hover:underline transition"
       >
         Cancel
       </button>
@@ -45,166 +83,142 @@ export function DisplayTable() {
   const orderHistory = useAppSelector(selectOrderHistory);
   const tradeHistory = useAppSelector(selectTradeHistory);
 
-  switch (selectedTable) {
-    case Tables.OPEN_ORDERS:
-      return <OpenOrdersTable data={openOrders} />;
-    case Tables.ORDER_HISTORY:
-      return <OrderHistoryTable data={orderHistory} />;
-    case Tables.TRADE_HISTORY:
-      return <TradeHistoryTable data={tradeHistory} />;
-    default:
-      return null;
-  }
-}
+  const tableToShow = useMemo(() => {
+    switch (selectedTable) {
+      case Tables.OPEN_ORDERS:
+        return {
+          headers: headers[Tables.OPEN_ORDERS],
+          rows: <OpenOrdersRows data={openOrders} />,
+        };
 
-//TABLE FUNCTIONS
-function OpenOrdersTable({ data }: TableProps) {
+      case Tables.ORDER_HISTORY:
+        return {
+          headers: headers[Tables.ORDER_HISTORY],
+          rows: <OrderHistoryRows data={orderHistory} />,
+        };
+
+      case Tables.TRADE_HISTORY:
+        return {
+          headers: headers[Tables.TRADE_HISTORY],
+          rows: <TradeHistoryTable data={tradeHistory} />,
+        };
+
+      default:
+        return {
+          headers: [],
+          rows: <></>,
+        };
+    }
+  }, [openOrders, orderHistory, selectedTable, tradeHistory]);
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Pair</th>
-          <th>Order Type</th>
-          <th>Direction</th>
-          <th>Time Ordered</th>
-          <th>Amount</th>
-          <th>Order Price</th>
-          <th>Filled Qty</th>
-          <th>Completed %</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.length === 0 ? (
+    <div className="overflow-x-auto">
+      <table className="table table-zebra table-xs !mt-0">
+        <thead>
           <tr>
-            <td colSpan={9}>No Active Orders</td>
+            {tableToShow.headers.map((header, i) => (
+              <th className="text-secondary-content uppercase" key={i}>
+                {header}
+              </th>
+            ))}
           </tr>
-        ) : (
-          data.map((order) => (
-            <tr key={order.id}>
-              <td>{order.pairName}</td>
-              <td>{order.orderType}</td>
-              <td className={displayOrderSide(order.side).className}>
-                {displayOrderSide(order.side).text}
-              </td>
-              <td>{displayTime(order.timeSubmitted, "full")}</td>
-              <td>
-                {order.amount} {order.specifiedToken.symbol}
-              </td>
-              <td>PlaceHolder {order.specifiedToken.symbol}</td>
-              <td>
-                {order.amountFilled} {order.specifiedToken.symbol}
-              </td>
-              <td>{order.completedPerc}%</td>
-              <td>
-                <ActionButton order={order} />
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>{tableToShow.rows}</tbody>
+      </table>
+    </div>
   );
 }
 
-function OrderHistoryTable({ data }: TableProps) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th>Pair</th>
-          <th>Order Type</th>
-          <th>Direction</th>
-          <th>Status</th>
-          <th>Filled Qty</th>
-          <th>Order Qty</th>
-          <th>Avg Filled Price</th>
-          <th>Order Price</th>
-          <th>Order Fee</th>
-          <th>Time Ordered</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.length === 0 ? (
-          <tr>
-            <td colSpan={11}>No Order History to display</td>
-          </tr>
-        ) : (
-          data.map((order) => (
-            <tr key={order.id}>
-              <td>{order.pairName}</td>
-              <td>{order.orderType}</td>
-              <td className={displayOrderSide(order.side).className}>
-                {displayOrderSide(order.side).text}
-              </td>
-              <td>{order.status}</td>
-              <td>
-                {order.amountFilled} {order.specifiedToken.symbol}
-              </td>
-              <td>
-                {order.amount} {order.specifiedToken.symbol}
-              </td>
-              <td>
-                {order.price} {order.specifiedToken.symbol}
-              </td>
-              <td>PlaceHolder {order.specifiedToken.symbol}</td>
-              <td>
-                {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-              </td>
-              <td>{displayTime(order.timeSubmitted, "full")}</td>
-              <td>
-                <ActionButton order={order} />
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+const OpenOrdersRows = ({ data }: TableProps) => {
+  return data.length ? (
+    data.map((order) => (
+      <tr key={order.id} className="">
+        <td>{order.pairName}</td>
+        <td>{order.orderType}</td>
+        <td className={displayOrderSide(order.side).className}>
+          {displayOrderSide(order.side).text}
+        </td>
+        <td>{displayTime(order.timeSubmitted, "full")}</td>
+        <td>
+          {order.amount} {order.specifiedToken.symbol}
+        </td>
+        <td>PlaceHolder {order.specifiedToken.symbol}</td>
+        <td>
+          {order.amountFilled} {order.specifiedToken.symbol}
+        </td>
+        <td>{order.completedPerc}%</td>
+        <td>
+          <ActionButton order={order} />
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={7}>No Active Orders</td>
+    </tr>
   );
-}
+};
 
-function TradeHistoryTable({ data }: TableProps) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th>Pair</th>
-          <th>Direction</th>
-          <th>Order Price</th>
-          <th>Avg Filled Price</th>
-          <th>Filled Qty</th>
-          <th>Order Fee</th>
-          <th>Time Completed</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.length === 0 ? (
-          <tr>
-            <td colSpan={7}>No Trade History to display</td>
-          </tr>
-        ) : (
-          data.map((order) => (
-            <tr key={order.id}>
-              <td>{order.pairName}</td>
-              <td className={displayOrderSide(order.side).className}>
-                {displayOrderSide(order.side).text}
-              </td>
-              <td>PlaceHolder {order.specifiedToken.symbol}</td>
-              <td>
-                {order.price} {order.specifiedToken.symbol}
-              </td>
-              <td>
-                {order.amountFilled} {order.specifiedToken.symbol}
-              </td>
-              <td>
-                {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-              </td>
-              <td>{displayTime(order.timeCompleted, "full")}</td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+const OrderHistoryRows = ({ data }: TableProps) => {
+  return data.length ? (
+    data.map((order) => (
+      <tr key={order.id} className="">
+        <td>{order.pairName}</td>
+        <td>{order.orderType}</td>
+        <td className={displayOrderSide(order.side).className}>
+          {displayOrderSide(order.side).text}
+        </td>
+        <td>{order.status}</td>
+        <td>
+          {order.amountFilled} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {order.amount} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {order.price} {order.specifiedToken.symbol}
+        </td>
+        <td>PlaceHolder {order.specifiedToken.symbol}</td>
+        <td>
+          {calculateTotalFees(order)} {order.unclaimedToken.symbol}
+        </td>
+        <td>{displayTime(order.timeSubmitted, "full")}</td>
+        <td>
+          <ActionButton order={order} />
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={7}>No Order History</td>
+    </tr>
   );
-}
+};
+
+const TradeHistoryTable = ({ data }: TableProps) => {
+  return data.length ? (
+    data.map((order) => (
+      <tr key={order.id} className="">
+        <td>{order.pairName}</td>
+        <td className={displayOrderSide(order.side).className}>
+          {displayOrderSide(order.side).text}
+        </td>
+        <td>PlaceHolder {order.specifiedToken.symbol}</td>
+        <td>
+          {order.price} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {order.amountFilled} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {calculateTotalFees(order)} {order.unclaimedToken.symbol}
+        </td>
+        <td>{displayTime(order.timeCompleted, "full")}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={7}>No Trade History</td>
+    </tr>
+  );
+};

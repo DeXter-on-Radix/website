@@ -37,5 +37,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-logs/*
-playwright-report/*
+/logs/
+.swc/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+localhost:3000/
+
