@@ -17,22 +17,64 @@ interface PriceChartProps {
   data: OHLCVData[];
 }
 
-interface candleData {
-  open: number | undefined;
-  high: number | undefined;
-  low: number | undefined;
-  close: number | undefined;
-}
-function PriceChartCanvas(props: PriceChartProps) {
+function PriceChartCanvas(props) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
-  const { data } = props;
+  const { data, candlePrice, change, percChange, volume } = props;
   const theme = tailwindConfig.daisyui.themes[0].dark;
+
+  // Update the legend
+  if (legendRef.current && candlePrice) {
+    const noDigits = 4;
+    const decimalSeparator = ".";
+    const thousandSeparator = ",";
+    const fixedDecimals = 3;
+    //This is a fix because for some rease the useEffect is called multiple times.
+    if (legendRef.current.firstChild) {
+      const firstRow = legendRef.current;
+      firstRow.style.color = theme["primary-content"];
+      firstRow.innerText =
+        "Open: " +
+        displayAmount(
+          candlePrice.open,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        ) +
+        " High: " +
+        displayAmount(
+          candlePrice.high,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        ) +
+        " Low: " +
+        displayAmount(
+          candlePrice.low,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        ) +
+        " Close: " +
+        displayAmount(
+          candlePrice.close,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        );
+      console.log(candlePrice);
+    }
+  }
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
+
     // dispatch(fetchCandlesForInitialPeriod());
     if (data && data.length > 0) {
       dispatch(initializeLegend());
@@ -73,7 +115,6 @@ function PriceChartCanvas(props: PriceChartProps) {
           legendRef.current.appendChild(firstRow);
           firstRow.style.color = theme["primary-content"];
         }
-        firstRow.innerText = "OHLC";
       }
 
       const clonedData = JSON.parse(JSON.stringify(data));
@@ -169,17 +210,8 @@ export function PriceChart() {
   const isNegativeOrZero = useAppSelector(
     (state) => state.priceChart.isNegativeOrZero
   );
-  const noDigits = 4;
-  const decimalSeparator = ".";
-  const thousandSeparator = ",";
-  const fixedDecimals = 3;
 
-  const candleData = {
-    open: candlePrice?.open,
-    high: candlePrice?.high,
-    low: candlePrice?.low,
-    close: candlePrice?.close,
-  };
+  //console.log(candlePrice.close)
 
   return (
     <div>
@@ -197,77 +229,14 @@ export function PriceChart() {
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-sm">
-          <div className="ml-4">
-            Open:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.open || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            High:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.high || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Low:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.low || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Close:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.close || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Volume:{" "}
-            <span>
-              {displayAmount(
-                currentVolume,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div className="mr-4">
-            Change:{" "}
-            <span className={isNegativeOrZero ? "text-error" : "text-success"}>
-              {change}
-              {formatPercentageChange(percChange)}
-            </span>
-          </div>
-        </div>
       </div>
-      <PriceChartCanvas data={state.ohlcv} />
+      <PriceChartCanvas
+        data={state.ohlcv}
+        candlePrice={candlePrice}
+        change={change}
+        percChange={percChange}
+        volume={currentVolume}
+      />
     </div>
   );
 }
