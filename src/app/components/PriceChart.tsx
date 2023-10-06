@@ -17,15 +17,22 @@ interface PriceChartProps {
   data: OHLCVData[];
 }
 
+interface candleData {
+  open: number | undefined;
+  high: number | undefined;
+  low: number | undefined;
+  close: number | undefined;
+}
 function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const legendRef = useRef<HTMLDivElement>(null);
+
   const dispatch = useAppDispatch();
   const { data } = props;
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
-
     // dispatch(fetchCandlesForInitialPeriod());
     if (data && data.length > 0) {
       dispatch(initializeLegend());
@@ -57,6 +64,17 @@ function PriceChartCanvas(props: PriceChartProps) {
           timeVisible: true,
         },
       });
+
+      // Create the legend
+      if (legendRef.current) {
+        const firstRow = document.createElement("div");
+        //This is a fix because for some rease the useEffect is called multiple times.
+        if (!legendRef.current.firstChild) {
+          legendRef.current.appendChild(firstRow);
+          firstRow.style.color = theme["primary-content"];
+        }
+        firstRow.innerText = "OHLC";
+      }
 
       const clonedData = JSON.parse(JSON.stringify(data));
 
@@ -124,13 +142,20 @@ function PriceChartCanvas(props: PriceChartProps) {
     }
   }, [data, dispatch]);
   //Temporary brute force approach to trim the top of the chart to remove the gap
-  return <div ref={chartContainerRef} className="relative mt-[-1.7rem]"></div>;
+  return (
+    <div>
+      <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
+        <div ref={legendRef} className="absolute z-50"></div>
+      </div>
+    </div>
+  );
 }
 
 export function PriceChart() {
   const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
+
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   );
@@ -148,6 +173,13 @@ export function PriceChart() {
   const decimalSeparator = ".";
   const thousandSeparator = ",";
   const fixedDecimals = 3;
+
+  const candleData = {
+    open: candlePrice?.open,
+    high: candlePrice?.high,
+    low: candlePrice?.low,
+    close: candlePrice?.close,
+  };
 
   return (
     <div>
