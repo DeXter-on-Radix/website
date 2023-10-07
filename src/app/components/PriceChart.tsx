@@ -2,6 +2,7 @@ import { createChart } from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
+  OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
   // fetchCandlesForInitialPeriod,
@@ -11,7 +12,15 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
-function PriceChartCanvas(props: any) {
+interface PriceChartProps {
+  data: OHLCVData[];
+  candlePrice: OHLCVData | null;
+  change: number | null;
+  percChange: number | null;
+  volume: number | null;
+}
+
+function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +72,7 @@ function PriceChartCanvas(props: any) {
         ) +
         " Change " +
         displayAmount(
-          change,
+          change ? change : 0,
           noDigits,
           decimalSeparator,
           thousandSeparator,
@@ -71,7 +80,7 @@ function PriceChartCanvas(props: any) {
         ) +
         "(" +
         displayAmount(
-          percChange,
+          percChange ? percChange : 0,
           noDigits,
           decimalSeparator,
           thousandSeparator,
@@ -80,7 +89,7 @@ function PriceChartCanvas(props: any) {
         "%)" +
         " Volume " +
         displayAmount(
-          volume,
+          volume ? volume : 0,
           noDigits,
           decimalSeparator,
           thousandSeparator,
@@ -197,7 +206,7 @@ function PriceChartCanvas(props: any) {
         chart.remove();
       };
     }
-  }, [data, dispatch]);
+  }, [data, theme, dispatch]);
   //Temporary brute force approach to trim the top of the chart to remove the gap
   return (
     <div>
