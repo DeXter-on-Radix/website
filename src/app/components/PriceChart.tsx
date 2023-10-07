@@ -114,7 +114,7 @@ function PriceChartCanvas(props) {
         layout: {
           background: {
             color: theme["base-200"],
-          }, 
+          },
           textColor: theme["primary-content"],
         },
         //MODIFY THEME COLOR HERE
