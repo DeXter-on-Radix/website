@@ -2,7 +2,6 @@ import { createChart } from "lightweight-charts";
 import React, { useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
-  OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
   // fetchCandlesForInitialPeriod,
@@ -11,10 +10,6 @@ import {
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
-
-interface PriceChartProps {
-  data: OHLCVData[];
-}
 
 function PriceChartCanvas(props) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
