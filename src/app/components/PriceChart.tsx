@@ -231,12 +231,6 @@ export function PriceChart() {
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   );
-  const isNegativeOrZero = useAppSelector(
-    (state) => state.priceChart.isNegativeOrZero
-  );
-
-  //console.log(candlePrice.close)
-
   return (
     <div>
       <div className="flex items-center justify-between">
