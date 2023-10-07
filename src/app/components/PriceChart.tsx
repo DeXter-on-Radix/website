@@ -9,7 +9,6 @@ import {
   initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { formatPercentageChange } from "../utils";
 import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
@@ -36,7 +35,7 @@ function PriceChartCanvas(props) {
       const firstRow = legendRef.current;
       firstRow.style.color = theme["primary-content"];
       firstRow.innerText =
-        "Open: " +
+        "Open " +
         displayAmount(
           candlePrice.open,
           noDigits,
@@ -44,7 +43,7 @@ function PriceChartCanvas(props) {
           thousandSeparator,
           fixedDecimals
         ) +
-        " High: " +
+        " High " +
         displayAmount(
           candlePrice.high,
           noDigits,
@@ -52,7 +51,7 @@ function PriceChartCanvas(props) {
           thousandSeparator,
           fixedDecimals
         ) +
-        " Low: " +
+        " Low " +
         displayAmount(
           candlePrice.low,
           noDigits,
@@ -60,15 +59,39 @@ function PriceChartCanvas(props) {
           thousandSeparator,
           fixedDecimals
         ) +
-        " Close: " +
+        " Close " +
         displayAmount(
           candlePrice.close,
           noDigits,
           decimalSeparator,
           thousandSeparator,
           fixedDecimals
+        ) +
+        " Change " +
+        displayAmount(
+          change,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        ) +
+        "(" +
+        displayAmount(
+          percChange,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
+        ) +
+        "%)" +
+        " Volume " +
+        displayAmount(
+          volume,
+          noDigits,
+          decimalSeparator,
+          thousandSeparator,
+          fixedDecimals
         );
-      console.log(candlePrice);
     }
   }
 
@@ -186,7 +209,7 @@ function PriceChartCanvas(props) {
   return (
     <div>
       <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
-        <div ref={legendRef} className="absolute z-50"></div>
+        <div ref={legendRef} className="absolute text-xs ml-5 mt-3 z-50 uppercase"></div>
       </div>
     </div>
   );
@@ -215,8 +238,8 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="">
-        <div className="flex">
+      <div className="flex flex-row-reverse">
+        <div className="">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
