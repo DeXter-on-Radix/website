@@ -238,13 +238,16 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="flex flex-row-reverse">
+      <div className="flex items-center justify-between">
+        <div className="">
+          <span className="text-sm uppercase">Trading Chart</span>
+        </div>
         <div className="">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`btn btn-sm ${
-                candlePeriod === period ? "text-accent" : ""
+              className={`btn btn-sm text-secondary-content ${
+                candlePeriod === period ? "!text-primary-content underline underline-offset-8 decoration-accent" : ""
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
