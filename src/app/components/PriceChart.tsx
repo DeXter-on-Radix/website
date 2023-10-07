@@ -33,7 +33,6 @@ function PriceChartCanvas(props) {
     //This is a fix because for some rease the useEffect is called multiple times.
     if (legendRef.current.firstChild) {
       const firstRow = legendRef.current;
-      firstRow.style.color = theme["primary-content"];
       firstRow.innerText =
         "Open " +
         displayAmount(
@@ -114,18 +113,18 @@ function PriceChartCanvas(props) {
         //MODIFY THEME COLOR HERE
         layout: {
           background: {
-            color: theme["base-100"],
-          }, //base-100
+            color: theme["base-200"],
+          }, 
           textColor: theme["primary-content"],
         },
         //MODIFY THEME COLOR HERE
         grid: {
-          vertLines: { color: theme["secondary-content"] },
-          horzLines: { color: theme["secondary-content"] },
+          vertLines: { color: theme["base-100"] },
+          horzLines: { color: theme["base-100"] },
         },
         timeScale: {
           //MODIFY THEME COLOR HERE
-          borderColor: theme["primary-content"],
+          borderColor: theme["base-100"],
           timeVisible: true,
         },
       });
@@ -136,7 +135,6 @@ function PriceChartCanvas(props) {
         //This is a fix because for some rease the useEffect is called multiple times.
         if (!legendRef.current.firstChild) {
           legendRef.current.appendChild(firstRow);
-          firstRow.style.color = theme["primary-content"];
         }
       }
 
@@ -147,15 +145,15 @@ function PriceChartCanvas(props) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
-        wickUpColor: theme["success"], //success
-        upColor: theme["success"], //success
-        wickDownColor: theme["error"], //error
-        downColor: theme["error"], //error
+        wickUpColor: theme["success"],
+        upColor: theme["success"],
+        wickDownColor: theme["error"],
+        downColor: theme["error"],
       });
 
       chart.priceScale("right").applyOptions({
         //MODIFY THEME COLOR HERE
-        borderColor: theme["primary-content"], //primary-content
+        borderColor: theme["base-100"],
         scaleMargins: {
           top: 0.1,
           bottom: 0.3,
@@ -209,7 +207,10 @@ function PriceChartCanvas(props) {
   return (
     <div>
       <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
-        <div ref={legendRef} className="absolute text-xs ml-5 mt-3 z-50 uppercase"></div>
+        <div
+          ref={legendRef}
+          className="absolute text-xs text-secondary-content mt-3 z-50 uppercase"
+        ></div>
       </div>
     </div>
   );
@@ -240,14 +241,18 @@ export function PriceChart() {
     <div>
       <div className="flex items-center justify-between">
         <div className="">
-          <span className="text-sm uppercase">Trading Chart</span>
+          <span className="text-secondary-content text-sm font-bold uppercase">
+            Trading Chart
+          </span>
         </div>
         <div className="">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
               className={`btn btn-sm text-secondary-content ${
-                candlePeriod === period ? "!text-primary-content underline underline-offset-8 decoration-accent" : ""
+                candlePeriod === period
+                  ? "!text-primary-content underline underline-offset-8 decoration-accent"
+                  : ""
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
