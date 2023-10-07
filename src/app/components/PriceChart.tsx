@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
-function PriceChartCanvas(props) {
+function PriceChartCanvas(props: any) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
 
