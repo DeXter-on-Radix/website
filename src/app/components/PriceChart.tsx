@@ -9,7 +9,7 @@ import {
   initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { displayAmount, displayTime } from "../utils";
+import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
@@ -27,7 +27,11 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const dispatch = useAppDispatch();
   const { data, candlePrice } = props;
-  const candleDate = displayTime(candlePrice?.time || "", "full");
+  //displayTime offsets by local timezone, causing discrepancy on chart
+  const candleDate = new Date(
+    parseInt(candlePrice?.time.toString() || "") * 1000
+  ).toUTCString();
+
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
   const noDigits = 8;
@@ -125,15 +129,6 @@ function PriceChartCanvas(props: PriceChartProps) {
           timeVisible: true,
         },
       });
-
-      // Create the legend
-      if (legendRef.current) {
-        const firstRow = document.createElement("div");
-        //This is a fix because for some rease the useEffect is called multiple times.
-        if (!legendRef.current.firstChild) {
-          legendRef.current.appendChild(firstRow);
-        }
-      }
 
       const clonedData = JSON.parse(JSON.stringify(data));
 
