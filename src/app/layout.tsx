@@ -31,7 +31,7 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body>
-          <div className="grid grid-cols-12 h-screen grid-rows-auto-1fr prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
+          <div className="grid grid-cols-12 custom-auto-row-grid h-screen prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
             <Navbar />
             {children}
             <Footer />

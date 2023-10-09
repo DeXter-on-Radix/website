@@ -85,3 +85,7 @@ input[type="number"]::-ms-clear {
 [data-theme] {
   background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
 }
+
+.custom-auto-row-grid {
+  grid-auto-rows: auto auto auto 1fr 1fr;
+}
