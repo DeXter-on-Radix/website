@@ -1,34 +1,42 @@
+import { useAppDispatch, useAppSelector } from "hooks";
 import { AmountInput } from "./AmountInput";
+import { orderInputSlice, validateSlippageInput } from "redux/orderInputSlice";
+import { Input } from "common/input";
+
+function uiSlippageToSlippage(slippage: number) {
+  return slippage / 100;
+}
+
+function slippageToUiSlippage(slippage: number) {
+  return slippage * 100;
+}
 
 export function MarketOrderInput() {
-  // const slippage = useAppSelector((state) => state.orderInput.slippage);
-  // const validationResult = useAppSelector(validateSlippageInput);
-  // const dispatch = useAppDispatch();
+  const slippage = useAppSelector((state) => state.orderInput.slippage);
+  const validationResult = useAppSelector(validateSlippageInput);
+  const dispatch = useAppDispatch();
 
-  // const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const slippage = slippageFromPercentage(event.target.value);
-  //   dispatch(orderInputSlice.actions.setSlippage(slippage));
-  // };
   return (
     <>
-      {/* <div className="form-control">
-          <label className="label">
-            <span className="label-text">Slippage</span>
-          </label>
-          <Input
-            type="number"
-            value={slippagePercentage(slippage)}
-            onChange={handleOnChange}
-            endAdornment={<span className="font-bold">%</span>}
-            isError={!validationResult.valid}
-          />
-          <label className="label">
-            <span className="label-text-alt text-error">
-              {validationResult.message}
-            </span>
-          </label>
-        </div> */}
-      <AmountInput />
+      <div className="form-control w-full">
+        <AmountInput />
+        <label className="label">
+          <span className="label-text">Slippage</span>
+        </label>
+        <Input
+          type="number"
+          value={slippageToUiSlippage(slippage)}
+          onChange={(event) => {
+            dispatch(
+              orderInputSlice.actions.setSlippage(
+                uiSlippageToSlippage(event.target.valueAsNumber)
+              )
+            );
+          }}
+          endAdornment={<span className="font-bold">%</span>}
+          validation={validationResult}
+        />
+      </div>
     </>
   );
 }

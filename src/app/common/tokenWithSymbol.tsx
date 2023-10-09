@@ -8,7 +8,7 @@ type Props = {
 
 export const TokenWithSymbol = ({ logoUrl, symbol }: Props) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 bg-transparent">
       <TokenAvatar url={logoUrl} />
       <span className="font-bold text-base">{symbol}</span>
     </div>

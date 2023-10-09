@@ -1,152 +1,117 @@
-import React, { useMemo, useRef } from "react";
-import { RxChevronDown } from "react-icons/rx";
+import React from "react";
 
-import { Input } from "common/input";
-import { TokenAvatar } from "common/tokenAvatar";
-import { TokenWithSymbol } from "common/tokenWithSymbol";
 import { useAppDispatch, useAppSelector } from "hooks";
-import {
-  OrderSide,
-  getSelectedToken,
-  getUnselectedToken,
-  orderInputSlice,
-  validatePositionSize,
-} from "redux/orderInputSlice";
+import { OrderSide, TokenInput, orderInputSlice } from "redux/orderInputSlice";
+
+interface TokenInputFiledProps extends TokenInput {
+  onFocus: () => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+function nullableNumberInput(event: React.ChangeEvent<HTMLInputElement>) {
+  let amount: number | "";
+  if (event.target.value === "") {
+    amount = "";
+  } else {
+    amount = Number(event.target.value);
+  }
+  return amount;
+}
+
+function TokenInputFiled(props: TokenInputFiledProps) {
+  const {
+    symbol,
+    iconUrl,
+    valid,
+    message,
+    amount,
+    balance,
+    onChange,
+    onFocus,
+  } = props;
+  return (
+    <div className="form-control">
+      {/* balance */}
+      <div className="flex justify-between text-secondary-content text-xs">
+        <span>Current balance:</span>
+        <span>{balance || "unknown"}</span>
+      </div>
+
+      {/* input */}
+      <div
+        className={
+          "flex flex-row flex-nowrap bg-base-300 justify-between py-1 focus:border-accent" +
+          (!valid ? " border border-error" : "")
+        }
+      >
+        <img src={iconUrl} alt={symbol} className="w-4 object-contain ml-1" />
+        <span className="mx-1">{symbol}</span>
+        <input
+          type="number"
+          value={amount}
+          className="flex-1 text-end mr-1 min-w-0"
+          onChange={onChange}
+          onFocus={onFocus}
+        ></input>
+      </div>
+
+      {/* error message */}
+      <label className="text-xs flex">
+        <span className="text-error">{message}</span>
+      </label>
+    </div>
+  );
+}
 
 export function AmountInput() {
-  const { size, quote, side, token1Selected } = useAppSelector(
+  const { token1, token2, quote, description } = useAppSelector(
     (state) => state.orderInput
   );
-  // const {
-  //   token1: { balance: balance1 },
-  //   token2: { balance: balance2 },
-  // } = useAppSelector((state) => state.pairSelector);
-  const validationResult = useAppSelector(validatePositionSize);
-  const selectedToken = useAppSelector(getSelectedToken);
-  const unSelectedToken = useAppSelector(getUnselectedToken);
+
   const dispatch = useAppDispatch();
-  // const [customPercentage, setCustomPercentage] = useState(0);
-
-  const customPercentInputRef = useRef<HTMLInputElement>(null);
-
-  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (customPercentInputRef.current) {
-      customPercentInputRef.current.value = "";
-    }
-    const size = Number(event.target.value);
-    dispatch(orderInputSlice.actions.setSize(size));
-  };
-
-  // const handleOnPercentChange = (
-  //   event: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   if (Number(event.target.value) > 100) return;
-  //   const size = Number(event.target.value);
-  //   setCustomPercentage(size);
-  //   dispatch(setSizePercent(size));
-  // };
-
-  const isBuy = useMemo(() => side === OrderSide.BUY, [side]);
-  const isSell = useMemo(() => side === OrderSide.SELL, [side]);
-
-  const handleTokenSwitch = () => {
-    dispatch(orderInputSlice.actions.setToken1Selected(!token1Selected));
-  };
 
   return (
-    <div className="form-control w-full">
-      <div className="flex flex-row items-center justify-between !mb-2">
-        <p className="text-left text-sm font-medium">
-          {side === OrderSide.BUY ? "Buy" : "Sell"} Amount:
-        </p>
-        {/* {isSell && (
-            <p className="text-left text-sm font-medium cursor-pointer">
-              Balance: <span className="text-white">{balance1}</span>
-            </p>
-          )} */}
-      </div>
-      <Input
-        type="number"
-        value={size}
-        onChange={handleOnChange}
-        isError={isSell && !validationResult.valid}
-        endAdornmentClasses="flex"
-        endAdornment={
-          <div className="dropdown dropdown-end h-full cursor-pointer">
-            <div className="flex items-center" tabIndex={0}>
-              <TokenWithSymbol
-                logoUrl={selectedToken.iconUrl}
-                symbol={selectedToken.symbol}
-              />
-              <RxChevronDown className="w-6" />
-            </div>
-            <ul className="dropdown-content z-[1] menu  shadow bg-base-100 min-w-[7rem] rounded-box !mt-2 !p-0">
-              <li
-                className="!pl-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleTokenSwitch();
-                }}
-              >
-                <button onClick={handleTokenSwitch}>
-                  <TokenWithSymbol
-                    logoUrl={unSelectedToken.iconUrl}
-                    symbol={unSelectedToken.symbol}
-                  />
-                </button>
-              </li>
-            </ul>
-          </div>
-          // <div
-          //   className="flex items-center space-x-2"
-          //   onClick={handleTokenSwitch}
-          // >
-          //   <TokenAvatar url={selectedToken.iconUrl} />
-          //   <span className="font-bold text-base">{selectedToken.symbol}</span>
-          // </div>
-        }
+    <div className="">
+      <TokenInputFiled
+        {...token1}
+        onFocus={() => {
+          dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
+        }}
+        onChange={(event) => {
+          dispatch(
+            orderInputSlice.actions.setAmountToken1(nullableNumberInput(event))
+          );
+        }}
       />
-      <label className="label">
-        <span
-          data-value={isSell}
-          className="label-text-alt text-error opacity-0 data-[value=true]:opacity-100"
-        >
-          {validationResult.message}
-        </span>
-      </label>
 
-      <div className="flex flex-row items-center justify-between !mb-2">
-        <p className="text-left text-sm font-medium">
-          {isBuy ? "You pay" : "You receive:"}
-        </p>
-        {/* {isBuy && (
-            <p className="text-left text-sm font-medium cursor-pointer">
-              Balance: <span className="text-white">{balance2}</span>
-            </p>
-          )} */}
-      </div>
-      <Input
-        type="number"
-        value={quote?.fromAmount ?? 0}
-        disabled
-        isError={isBuy && !validationResult.valid}
-        endAdornment={
-          <div className="flex items-center space-x-2">
-            <TokenAvatar url={unSelectedToken.iconUrl} />
-            <span className="font-bold text-base">
-              {unSelectedToken.symbol}
-            </span>
-          </div>
-        }
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="20"
+        viewBox="0 0 16 20"
+        className="text-primary-content hover:text-accent"
+        fill="none"
+        onClick={() => {
+          dispatch(orderInputSlice.actions.swapTokens());
+        }}
+      >
+        <path
+          d="M4 11V3.825L1.425 6.4L0 5L5 0L10 5L8.575 6.4L6 3.825V11H4ZM11 20L6 15L7.425 13.6L10 16.175V9H12V16.175L14.575 13.6L16 15L11 20Z"
+          fill="currentColor"
+        />
+      </svg>
+
+      <TokenInputFiled
+        {...token2}
+        onFocus={() => {
+          dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
+        }}
+        onChange={(event) => {
+          dispatch(
+            orderInputSlice.actions.setAmountToken2(nullableNumberInput(event))
+          );
+        }}
       />
-      <label className="label">
-        <span
-          data-value={isBuy}
-          className="label-text-alt text-error opacity-0 data-[value=true]:opacity-100"
-        >
-          {validationResult.message}
-        </span>
-      </label>
 
       <div className="collapse collapse-arrow text-left">
         <input type="checkbox" />
@@ -171,6 +136,10 @@ export function AmountInput() {
             <div>
               {quote?.liquidityFees} {quote?.toToken.symbol}
             </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>Description: </div>
+            <div>{description}</div>
           </div>
         </div>
       </div>

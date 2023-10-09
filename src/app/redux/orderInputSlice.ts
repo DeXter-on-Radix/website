@@ -1,19 +1,21 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
-import { RootState } from "./store";
-import { createSelector } from "@reduxjs/toolkit";
-import { getRdt, RDT } from "../subscriptions";
-import { AMOUNT_MAX_DECIMALS, fetchBalances } from "./pairSelectorSlice";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-import * as utils from "../utils";
+import { RDT, getRdt } from "../subscriptions";
+import { displayAmount } from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
-import { displayAmount } from "../utils";
+import { TokenInfo, fetchBalances } from "./pairSelectorSlice";
+import { RootState } from "./store";
 
 export enum OrderTab {
-  MARKET,
-  LIMIT,
+  MARKET = "MARKET",
+  LIMIT = "LIMIT",
 }
 
 export const PLATFORM_BADGE_ID = 1; //TODO: Get this data from the platform badge
@@ -23,19 +25,33 @@ export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
 
+export interface ValidationResult {
+  valid: boolean;
+  message: string;
+}
+
+export interface TokenInput {
+  address: string;
+  symbol: string;
+  iconUrl: string;
+  valid: boolean;
+  message: string;
+  amount: number | "";
+  balance?: number;
+}
+
 export interface OrderInputState {
-  token1Selected: boolean;
+  token1: TokenInput;
+  token2: TokenInput;
   tab: OrderTab;
   preventImmediateExecution: boolean;
   side: OrderSide;
-  size: number;
   price: number;
   slippage: number;
   quote?: Quote;
   description?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
-  fromSize?: number;
 }
 
 function adexOrderType(state: OrderInputState): adex.OrderType {
@@ -53,12 +69,21 @@ function adexOrderType(state: OrderInputState): adex.OrderType {
   throw new Error("Invalid order type");
 }
 
+const initialTokenInput = {
+  address: "",
+  symbol: "",
+  iconUrl: "",
+  amount: 0,
+  valid: true,
+  message: "",
+};
+
 const initialState: OrderInputState = {
-  token1Selected: true,
+  token1: initialTokenInput,
+  token2: initialTokenInput,
   tab: OrderTab.MARKET,
   preventImmediateExecution: false,
   side: adex.OrderSide.BUY,
-  size: 0,
   price: 0,
   slippage: 0.01,
   transactionInProgress: false,
@@ -82,111 +107,25 @@ export const fetchQuote = createAsyncThunk<
   } else {
     slippageToSend = state.orderInput.slippage;
   }
-  if (!state.orderInput.size) {
-    return;
+  const targetToken = selectTargetToken(state);
+
+  if (!targetToken?.amount) {
+    throw new Error("No amount specified when fetching quote.");
   }
+
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
     state.orderInput.side,
-    getSelectedToken(state).address,
-    state.orderInput.size,
+    targetToken.address,
+    targetToken.amount,
     PLATFORM_FEE,
     priceToSend,
     slippageToSend
   );
   const quote = JSON.parse(JSON.stringify(response.data));
+
   return { ...quote };
-});
-
-export const setSizePercent = createAsyncThunk<
-  undefined,
-  number,
-  { state: RootState }
->("orderInput/setSizePercent", async (percentage, thunkAPI) => {
-  //Depending on the combination of input settings, the position size
-  //is set to x% of the tokens that will leave the user wallet
-  const state = thunkAPI.getState();
-  const dispatch = thunkAPI.dispatch;
-  const side = state.orderInput.side;
-  const proportion = percentage / 100;
-  if (proportion <= 0) {
-    dispatch(orderInputSlice.actions.setSize(0));
-    return;
-  }
-  if (percentage > 100) {
-    percentage = Math.floor(percentage / 10);
-    dispatch(setSizePercent(percentage));
-    return;
-  }
-  let balance;
-  // TODO: add tests for this
-  if (side === OrderSide.BUY) {
-    const unselectedBalance = utils.roundTo(
-      proportion * (getUnselectedToken(state).balance || 0),
-      AMOUNT_MAX_DECIMALS - 1,
-      utils.RoundType.DOWN
-    );
-    if (state.orderInput.tab === OrderTab.MARKET) {
-      //Market buy needs to get a quote to work out what will be returned
-      const quote = await adex.getExchangeOrderQuote(
-        state.pairSelector.address,
-        adexOrderType(state.orderInput),
-        adex.OrderSide.SELL,
-        getUnselectedToken(state).address,
-        unselectedBalance,
-        PLATFORM_FEE,
-        -1,
-        state.orderInput.slippage
-      );
-      balance = quote.data.toAmount;
-      if (quote.data.fromAmount < unselectedBalance) {
-        //TODO: Display this message properly
-        console.error(
-          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
-        );
-      }
-    } else {
-      // for limit buy orders we can just calculate based on balance and price
-      if (selectToken1Selected(state)) {
-        balance = unselectedBalance / state.orderInput.price;
-      } else {
-        balance = unselectedBalance * state.orderInput.price;
-      }
-    }
-  } else {
-    //for sell orders the calculation is very simple
-    balance = getSelectedToken(state).balance || 0;
-    balance = balance * proportion;
-    //for market sell orders the order quote is retrieved to check liquidity.
-    if (state.orderInput.tab === OrderTab.MARKET) {
-      const quote = await adex.getExchangeOrderQuote(
-        state.pairSelector.address,
-        adexOrderType(state.orderInput),
-        adex.OrderSide.SELL,
-        getSelectedToken(state).address,
-        balance || 0,
-        PLATFORM_FEE,
-        -1,
-        state.orderInput.slippage
-      );
-      if (quote.data.fromAmount < balance) {
-        balance = quote.data.fromAmount;
-        //TODO: Display this message properly
-        console.error(
-          "Insufficient liquidity to execute full market order. Increase slippage or reduce position"
-        );
-      }
-    }
-  }
-  const newSize = utils.roundTo(
-    balance || 0,
-    adex.AMOUNT_MAX_DECIMALS,
-    utils.RoundType.DOWN
-  );
-  dispatch(orderInputSlice.actions.setSize(newSize));
-
-  return undefined;
 });
 
 export const submitOrder = createAsyncThunk<
@@ -210,32 +149,21 @@ export const submitOrder = createAsyncThunk<
   return result;
 });
 
-const selectToken1 = (state: RootState) => state.pairSelector.token1;
-const selectToken2 = (state: RootState) => state.pairSelector.token2;
-const selectToken1Selected = (state: RootState) =>
-  state.orderInput.token1Selected;
-
-export const getSelectedToken = createSelector(
-  [selectToken1, selectToken2, selectToken1Selected],
-  (token1, token2, token1Selected) => {
-    if (token1Selected) {
-      return token1;
-    } else {
-      return token2;
-    }
+export const selectTargetToken = (state: RootState) => {
+  if (state.orderInput.side === OrderSide.SELL) {
+    return state.orderInput.token1;
+  } else {
+    return state.orderInput.token2;
   }
-);
-
-export const getUnselectedToken = createSelector(
-  [selectToken1, selectToken2, selectToken1Selected],
-  (token1, token2, token1Selected) => {
-    if (token1Selected) {
-      return token2;
-    } else {
-      return token1;
-    }
-  }
-);
+};
+const selectSlippage = (state: RootState) => state.orderInput.slippage;
+const selectPrice = (state: RootState) => state.orderInput.price;
+const selectSide = (state: RootState) => state.orderInput.side;
+const selectPriceMaxDecimals = (state: RootState) => {
+  return state.pairSelector.priceMaxDecimals;
+};
+const selectToken1 = (state: RootState) => state.orderInput.token1;
+const selectToken2 = (state: RootState) => state.orderInput.token2;
 
 export const orderInputSlice = createSlice({
   name: "orderInput",
@@ -246,17 +174,84 @@ export const orderInputSlice = createSlice({
     setActiveTab(state, action: PayloadAction<OrderTab>) {
       state.tab = action.payload;
     },
-    setToken1Selected(state, action: PayloadAction<boolean>) {
-      state.token1Selected = action.payload;
-      setFromSize(state);
+    updateAdex(state, action: PayloadAction<adex.StaticState>) {
+      const serializedState: adex.StaticState = JSON.parse(
+        JSON.stringify(action.payload)
+      );
+      const adexToken1 = serializedState.currentPairInfo.token1;
+      const adexToken2 = serializedState.currentPairInfo.token2;
+      if (state.token1.address !== adexToken1.address) {
+        state.token1 = {
+          address: adexToken1.address,
+          symbol: adexToken1.symbol,
+          iconUrl: adexToken1.iconUrl,
+          amount: "",
+          valid: true,
+          message: "",
+        };
+      }
+      if (state.token2.address !== adexToken2.address) {
+        state.token2 = {
+          address: adexToken2.address,
+          symbol: adexToken2.symbol,
+          iconUrl: adexToken2.iconUrl,
+          amount: "",
+          valid: true,
+          message: "",
+        };
+      }
+
+      // set up a valid default price
+      if (state.price === 0) {
+        state.price =
+          serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
+      }
     },
-    setSize(state, action: PayloadAction<number>) {
-      state.size = action.payload;
-      setFromSize(state);
+    updateBalance(
+      state,
+      action: PayloadAction<{ balance: number; token: TokenInfo }>
+    ) {
+      const { token, balance } = action.payload;
+      if (token.address === state.token1.address) {
+        state.token1 = { ...state.token1, balance };
+      } else if (token.address === state.token2.address) {
+        state.token2 = { ...state.token2, balance };
+      }
+    },
+    setAmountToken1(state, action: PayloadAction<number | "">) {
+      const amount = action.payload;
+      let token1 = {
+        ...state.token1,
+        amount,
+      };
+      token1 = validateAmountToken1(token1);
+      state.token1 = token1;
+
+      if (amount === "") {
+        state.token2.amount = "";
+      }
+    },
+    setAmountToken2(state, action: PayloadAction<number | "">) {
+      const amount = action.payload;
+      let token2 = {
+        ...state.token2,
+        amount,
+      };
+
+      token2 = validateAmount(token2);
+      state.token2 = token2;
+
+      if (amount === "") {
+        state.token1.amount = "";
+      }
+    },
+    swapTokens(state) {
+      const temp = state.token1;
+      state.token1 = state.token2;
+      state.token2 = temp;
     },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
-      setFromSize(state);
     },
     setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
@@ -286,12 +281,44 @@ export const orderInputSlice = createSlice({
         }
 
         state.quote = quote;
-        state.fromSize = quote.fromAmount;
         state.description = toDescription(quote);
+        if (state.tab === OrderTab.MARKET) {
+          if (state.side === OrderSide.SELL) {
+            state.token2.amount = quote.toAmount;
+          } else {
+            state.token1.amount = quote.fromAmount;
+          }
+
+          if (quote.message.startsWith("Not enough liquidity")) {
+            if (state.side === OrderSide.SELL) {
+              state.token1.amount = quote.fromAmount;
+              state.token1.message = quote.message;
+            } else {
+              state.token2.amount = quote.toAmount;
+              state.token2.message = quote.message;
+            }
+          }
+        } else {
+          // limit order
+          if (state.side === OrderSide.SELL) {
+            state.token2.amount = Number(state.token1.amount) * state.price;
+          } else {
+            state.token1.amount = Number(state.token2.amount) / state.price;
+          }
+        }
       }
     );
 
-    builder.addCase(fetchQuote.rejected, (_state, action) => {
+    builder.addCase(fetchQuote.rejected, (state, action) => {
+      if (state.side === OrderSide.SELL) {
+        state.token2.amount = "";
+        state.token2.valid = false;
+        state.token2.message = "Could not get quote";
+      } else {
+        state.token1.amount = "";
+        state.token1.valid = false;
+        state.token1.message = "Could not get quote";
+      }
       console.error("fetchQuote rejected:", action.error.message);
     });
 
@@ -310,21 +337,6 @@ export const orderInputSlice = createSlice({
     });
   },
 });
-
-function setFromSize(state: OrderInputState) {
-  //Sets the amount of token leaving the user wallet
-  if (state.side === OrderSide.SELL) {
-    state.fromSize = state.size;
-  } else if (state.tab === OrderTab.LIMIT) {
-    if (state.token1Selected) {
-      state.fromSize = state.size * state.price;
-    } else {
-      state.fromSize = state.size / state.price;
-    }
-  } else {
-    state.fromSize = 0; //will update when quote is requested
-  }
-}
 
 function toDescription(quote: Quote): string {
   let description = "";
@@ -351,12 +363,17 @@ async function createTx(state: RootState, rdt: RDT) {
   const orderPrice = tab === OrderTab.LIMIT ? price : -1;
   const orderSlippage = tab === OrderTab.MARKET ? slippage : -1;
   //Adex creates the transaction manifest
+  const targetToken = selectTargetToken(state);
+
+  if (!targetToken?.amount) {
+    throw new Error("No amount specified when creating transaction.");
+  }
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
     state.orderInput.side,
-    getSelectedToken(state).address,
-    state.orderInput.size,
+    targetToken.address,
+    targetToken.amount,
     orderPrice,
     orderSlippage,
     PLATFORM_BADGE_ID,
@@ -375,20 +392,6 @@ async function createTx(state: RootState, rdt: RDT) {
 
   return submitTransactionResponse;
 }
-
-export interface ValidationResult {
-  valid: boolean;
-  message: string;
-}
-
-const selectSlippage = (state: RootState) => state.orderInput.slippage;
-const selectPrice = (state: RootState) => state.orderInput.price;
-const selectSize = (state: RootState) => state.orderInput.size;
-const selectSide = (state: RootState) => state.orderInput.side;
-const selectFromSize = (state: RootState) => state.orderInput.fromSize;
-const selectPriceMaxDecimals = (state: RootState) => {
-  return state.pairSelector.priceMaxDecimals;
-};
 
 export const validateSlippageInput = createSelector(
   [selectSlippage],
@@ -412,9 +415,8 @@ export const validatePriceInput = createSelector(
     selectBestBuy,
     selectBestSell,
     selectSide,
-    selectToken1Selected,
   ],
-  (price, priceMaxDecimals, bestBuy, bestSell, side, token1Selected) => {
+  (price, priceMaxDecimals, bestBuy, bestSell, side) => {
     if (price <= 0) {
       return { valid: false, message: "Price must be greater than 0" };
     }
@@ -423,97 +425,68 @@ export const validatePriceInput = createSelector(
       return { valid: false, message: "Too many decimal places" };
     }
 
-    if (
-      ((side === OrderSide.BUY && token1Selected) ||
-        (side === OrderSide.SELL && !token1Selected)) &&
-      bestSell
-        ? price > bestSell * 1.05
-        : false
-    ) {
-      return {
-        valid: true,
-        message: "Price is significantly higher than best sell",
-      };
+    if (bestSell) {
+      if (side === OrderSide.BUY && price > bestSell * 1.05) {
+        return {
+          valid: true,
+          message: "Price is significantly higher than best sell",
+        };
+      }
     }
 
-    if (
-      ((side === OrderSide.SELL && token1Selected) ||
-        (side === OrderSide.BUY && !token1Selected)) &&
-      bestBuy
-        ? price < bestBuy * 0.95
-        : false
-    ) {
-      return {
-        valid: true,
-        message: "Price is significantly lower than best buy",
-      };
+    if (bestBuy) {
+      if (side === OrderSide.SELL && price < bestBuy * 0.95) {
+        return {
+          valid: true,
+          message: "Price is significantly lower than best buy",
+        };
+      }
     }
     return { valid: true, message: "" };
   }
 );
 
-export const validatePositionSize = createSelector(
-  [
-    selectSide,
-    selectSize,
-    getSelectedToken,
-    getUnselectedToken,
-    selectFromSize,
-  ],
-  (side, size, selectedToken, unSelectedToken, fromSize) => {
-    if (size.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
-      return { valid: false, message: "Too many decimal places" };
-    }
-
-    if (size <= 0) {
-      return { valid: false, message: "Order size must be greater than 0" };
-    }
-    if (
-      (side === OrderSide.SELL &&
-        selectedToken.balance &&
-        size > selectedToken.balance) ||
-      (side === OrderSide.BUY &&
-        unSelectedToken.balance &&
-        fromSize &&
-        fromSize > unSelectedToken.balance)
-    ) {
-      return { valid: false, message: "Insufficient funds" };
-    }
-
-    //Checks user isn't using all their xrd. maybe excessive
-    const MIN_XRD_BALANCE = 25;
-    if (
-      (side === OrderSide.SELL &&
-        selectedToken.symbol === "XRD" &&
-        selectedToken.balance &&
-        size > selectedToken.balance - MIN_XRD_BALANCE) ||
-      (side === OrderSide.BUY &&
-        unSelectedToken.balance &&
-        unSelectedToken.symbol === "XRD" &&
-        fromSize &&
-        fromSize > unSelectedToken.balance - MIN_XRD_BALANCE)
-    ) {
-      return {
-        valid: true,
-        message: "WARNING: Leaves XRD balance dangerously low",
-      };
-    }
-
-    return { valid: true, message: "" };
+function validateAmount(token: TokenInput): TokenInput {
+  const amount = token.amount;
+  let valid = true;
+  let message = "";
+  if (amount.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
+    valid = false;
+    message = "Too many decimal places";
   }
-);
+
+  if (amount !== "" && amount <= 0) {
+    valid = false;
+    message = "Amount must be greater than 0";
+  }
+
+  return { ...token, valid, message };
+}
+
+function validateAmountToken1(token1: TokenInput): TokenInput {
+  if ((token1.balance || 0) < (token1.amount || 0)) {
+    return { ...token1, valid: false, message: "Insufficient funds" };
+  } else {
+    return validateAmount(token1);
+  }
+}
 
 const selectTab = (state: RootState) => state.orderInput.tab;
 export const validateOrderInput = createSelector(
-  [validatePositionSize, validatePriceInput, validateSlippageInput, selectTab],
-  (
-    sizeValidationResult,
-    priceValidationResult,
-    slippageValidationResult,
-    tab
-  ) => {
-    if (!sizeValidationResult.valid) {
-      return sizeValidationResult;
+  [
+    selectToken1,
+    selectToken2,
+    validatePriceInput,
+    validateSlippageInput,
+    selectTab,
+  ],
+  (token1, token2, priceValidationResult, slippageValidationResult, tab) => {
+    if (!token1.valid || token1.amount === undefined) {
+      return { valid: false, message: token1.message };
+    }
+
+    if (!token2.valid || token2.amount === undefined) {
+      return { valid: false, message: token2.message };
     }
 
     if (tab === OrderTab.LIMIT && !priceValidationResult.valid) {
