@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-ExtraLight.ttf") format("truetype");
+    font-weight: 200;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-Light.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "sourceCodePro";
+    src: url("./fonts/SourceCodePro-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
+  }
+
+  html {
+    font-family: "sourceCodePro";
+  }
+}
+
 :root {
   --radix-connect-button-height: 40px;
 }
@@ -23,4 +78,10 @@ input[type="number"]::-webkit-outer-spin-button {
 /* For IE11 and Edge */
 input[type="number"]::-ms-clear {
   display: none;
+}
+
+/* Use slightly darker base color for backgrounds by default */
+:root,
+[data-theme] {
+  background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
 }
