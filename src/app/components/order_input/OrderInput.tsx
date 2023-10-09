@@ -7,7 +7,8 @@ import {
   orderInputSlice,
   selectTargetToken,
   submitOrder,
-  validateOrderInput,
+  isValidQuoteInput,
+  isValidTransaction,
 } from "redux/orderInputSlice";
 import { fetchBalances } from "redux/pairSelectorSlice";
 import { OrderTypeTabs } from "./OrderTypeTabs";
@@ -24,7 +25,7 @@ function SubmitButton() {
   const transactionResult = useAppSelector(
     (state) => state.orderInput.transactionResult
   );
-  const validationResult = useAppSelector(validateOrderInput);
+  const transactionValidation = useAppSelector(isValidTransaction);
   const dispatch = useAppDispatch();
   const submitString = tab.toString() + " " + side.toString() + " " + symbol;
 
@@ -35,18 +36,14 @@ function SubmitButton() {
           <input
             type="checkbox"
             className="checkbox checkbox-sm my-auto mr-2"
-            onClick={() =>
-              dispatch(
-                orderInputSlice.actions.togglePreventImmediateExecution()
-              )
-            }
+            onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
           />
-          <span className="my-auto text-sm">Prevent immediate execution </span>
+          <span className="my-auto text-sm">Post only</span>
         </div>
       )}
       <button
         className="flex-1 btn btn-accent"
-        disabled={!validationResult.valid || transactionInProgress}
+        disabled={!transactionValidation.valid || transactionInProgress}
         onClick={() => dispatch(submitOrder())}
       >
         {transactionInProgress ? "Transaction in progress..." : submitString}
@@ -58,26 +55,19 @@ function SubmitButton() {
 
 export function OrderInput() {
   const dispatch = useAppDispatch();
-  const {
-    token1,
-    token2,
-    side,
-    price,
-    preventImmediateExecution,
-    slippage,
-    tab,
-  } = useAppSelector((state) => state.orderInput);
+  const { token1, token2, side, price, postOnly, slippage, tab } =
+    useAppSelector((state) => state.orderInput);
   const tartgetToken = useAppSelector(selectTargetToken);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
-  const validationResult = useAppSelector(validateOrderInput);
+  const quoteValidation = useAppSelector(isValidQuoteInput);
 
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
 
   useEffect(() => {
-    if (validationResult.valid && tartgetToken.amount !== "") {
+    if (quoteValidation.valid && tartgetToken.amount !== "") {
       dispatch(fetchQuote());
     }
   }, [
@@ -89,15 +79,15 @@ export function OrderInput() {
     price,
     slippage,
     tab,
-    preventImmediateExecution,
-    validationResult,
+    postOnly,
+    quoteValidation,
     tartgetToken,
   ]);
 
   return (
     <>
       <OrderTypeTabs />
-      <div className="form-control justify-between items-start bg-neutral p-3 flex-1 w-full">
+      <div className="form-control justify-between items-start bg-neutral px-4 py-8 w-full">
         {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
         <SubmitButton />
       </div>

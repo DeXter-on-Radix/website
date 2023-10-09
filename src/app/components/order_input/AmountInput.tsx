@@ -1,7 +1,12 @@
 import React from "react";
 
 import { useAppDispatch, useAppSelector } from "hooks";
-import { OrderSide, TokenInput, orderInputSlice } from "redux/orderInputSlice";
+import {
+  OrderSide,
+  TokenInput,
+  orderInputSlice,
+  selectTargetToken,
+} from "redux/orderInputSlice";
 
 interface TokenInputFiledProps extends TokenInput {
   onFocus: () => void;
@@ -19,7 +24,9 @@ function nullableNumberInput(event: React.ChangeEvent<HTMLInputElement>) {
 }
 
 function TokenInputFiled(props: TokenInputFiledProps) {
+  const targetToken = useAppSelector(selectTargetToken);
   const {
+    address,
     symbol,
     iconUrl,
     valid,
@@ -30,7 +37,7 @@ function TokenInputFiled(props: TokenInputFiledProps) {
     onFocus,
   } = props;
   return (
-    <div className="form-control">
+    <div className="form-control my-2">
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
         <span>Current balance:</span>
@@ -40,12 +47,20 @@ function TokenInputFiled(props: TokenInputFiledProps) {
       {/* input */}
       <div
         className={
-          "flex flex-row flex-nowrap bg-base-300 justify-between py-1 focus:border-accent" +
+          "flex flex-row flex-nowrap bg-base-300 justify-between py-1" +
+          (targetToken.address === address ? " border border-accent" : "") +
           (!valid ? " border border-error" : "")
         }
       >
-        <img src={iconUrl} alt={symbol} className="w-4 object-contain ml-1" />
-        <span className="mx-1">{symbol}</span>
+        <div className="flex flex-nowrap items-center">
+          <img
+            src={iconUrl}
+            alt={symbol}
+            className="w-6 h-6 rounded-full mx-2"
+          />
+          <span>{symbol}</span>
+        </div>
+
         <input
           type="number"
           value={amount}
@@ -89,7 +104,7 @@ export function AmountInput() {
         width="16"
         height="20"
         viewBox="0 0 16 20"
-        className="text-primary-content hover:text-accent"
+        className="text-primary-content hover:text-accent ml-4"
         fill="none"
         onClick={() => {
           dispatch(orderInputSlice.actions.swapTokens());

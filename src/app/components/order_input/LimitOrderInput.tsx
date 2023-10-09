@@ -27,9 +27,6 @@ export function LimitOrderInput() {
     <>
       <div className="form-control w-full">
         <AmountInput />
-        <p className="text-left text-sm font-medium !mb-2">
-          {side === OrderSide.BUY ? "Buy" : "Sell"} Price
-        </p>
         <p
           className="text-left text-sm font-medium !mb-2 cursor-pointer"
           onClick={() =>
@@ -40,7 +37,7 @@ export function LimitOrderInput() {
             )
           }
         >
-          Best Price:{" "}
+          Best {side} Price:{" "}
           <span
             className={
               "font-semibold " +

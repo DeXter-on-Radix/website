@@ -8,12 +8,12 @@ export function OrderTypeTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "flex-1 tab no-underline h-full text-base font-semibold py-3 tab-border-2" +
+      "flex-1 tab no-underline h-full text-base font-semibold py-3 mx-4 tab-border-2" +
       (isActive ? " tab-active tab-bordered" : "")
     );
   }
   return (
-    <div className="tabs">
+    <div className="tabs mt-4 uppercase">
       <div
         className={tabClass(activeTab === OrderTab.MARKET)}
         onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}

@@ -44,7 +44,7 @@ export interface OrderInputState {
   token1: TokenInput;
   token2: TokenInput;
   tab: OrderTab;
-  preventImmediateExecution: boolean;
+  postOnly: boolean;
   side: OrderSide;
   price: number;
   slippage: number;
@@ -59,7 +59,7 @@ function adexOrderType(state: OrderInputState): adex.OrderType {
     return adex.OrderType.MARKET;
   }
   if (state.tab === OrderTab.LIMIT) {
-    if (state.preventImmediateExecution) {
+    if (state.postOnly) {
       return adex.OrderType.POSTONLY;
     } else {
       return adex.OrderType.LIMIT;
@@ -82,7 +82,7 @@ const initialState: OrderInputState = {
   token1: initialTokenInput,
   token2: initialTokenInput,
   tab: OrderTab.MARKET,
-  preventImmediateExecution: false,
+  postOnly: false,
   side: adex.OrderSide.BUY,
   price: 0,
   slippage: 0.01,
@@ -263,8 +263,8 @@ export const orderInputSlice = createSlice({
         state.slippage = 1;
       }
     },
-    togglePreventImmediateExecution(state) {
-      state.preventImmediateExecution = !state.preventImmediateExecution;
+    togglePostOnly(state) {
+      state.postOnly = !state.postOnly;
     },
   },
 
@@ -472,7 +472,7 @@ function validateAmountToken1(token1: TokenInput): TokenInput {
 }
 
 const selectTab = (state: RootState) => state.orderInput.tab;
-export const validateOrderInput = createSelector(
+export const isValidQuoteInput = createSelector(
   [
     selectToken1,
     selectToken2,
@@ -495,6 +495,20 @@ export const validateOrderInput = createSelector(
 
     if (tab === OrderTab.MARKET && !slippageValidationResult.valid) {
       return slippageValidationResult;
+    }
+
+    return { valid: true };
+  }
+);
+
+export const isValidTransaction = createSelector(
+  [isValidQuoteInput, selectToken1, selectToken2],
+  (quoteInputValid, token1, token2) => {
+    if (!quoteInputValid.valid) {
+      return quoteInputValid;
+    }
+    if (token1.amount === "" || token2.amount === "") {
+      return { valid: false };
     }
 
     return { valid: true };
