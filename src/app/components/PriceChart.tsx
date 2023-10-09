@@ -9,7 +9,7 @@ import {
   initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { displayAmount } from "../utils";
+import { displayAmount, displayTime } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
@@ -18,6 +18,7 @@ interface PriceChartProps {
   change: number | null;
   percChange: number | null;
   volume: number | null;
+  isNegativeOrZero: boolean;
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
@@ -25,78 +26,70 @@ function PriceChartCanvas(props: PriceChartProps) {
   const legendRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
-  const { data, candlePrice, change, percChange, volume } = props;
+  const { data, candlePrice } = props;
+  const candleDate = displayTime(candlePrice?.time || "", "full");
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
-  // Update the legend
-  if (legendRef.current && candlePrice) {
-    const noDigits = 4;
-    const decimalSeparator = ".";
-    const thousandSeparator = ",";
-    const fixedDecimals = 3;
-    //This is a fix because for some rease the useEffect is called multiple times.
-    if (legendRef.current.firstChild) {
-      const firstRow = legendRef.current;
-      firstRow.innerText =
-        "Open " +
-        displayAmount(
-          candlePrice.open,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        " High " +
-        displayAmount(
-          candlePrice.high,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        " Low " +
-        displayAmount(
-          candlePrice.low,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        " Close " +
-        displayAmount(
-          candlePrice.close,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        " Change " +
-        displayAmount(
-          change ? change : 0,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        "(" +
-        displayAmount(
-          percChange ? percChange : 0,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        ) +
-        "%)" +
-        " Volume " +
-        displayAmount(
-          volume ? volume : 0,
-          noDigits,
-          decimalSeparator,
-          thousandSeparator,
-          fixedDecimals
-        );
-    }
-  }
+  const noDigits = 8;
+  const decimalSeparator = ".";
+  const thousandSeparator = ",";
+  const fixedDecimals = 6;
+
+  const volume = displayAmount(
+    props.volume || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    2
+  );
+
+  const percChange = displayAmount(
+    props.percChange || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    2
+  );
+
+  const change = displayAmount(
+    props.change || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    2
+  );
+
+  const candleOpen = displayAmount(
+    candlePrice?.open || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+
+  const candleHigh = displayAmount(
+    candlePrice?.high || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+
+  const candleLow = displayAmount(
+    candlePrice?.low || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
+
+  const candleClose = displayAmount(
+    candlePrice?.close || 0,
+    noDigits,
+    decimalSeparator,
+    thousandSeparator,
+    fixedDecimals
+  );
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -213,8 +206,40 @@ function PriceChartCanvas(props: PriceChartProps) {
       <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
         <div
           ref={legendRef}
-          className="absolute text-xs text-secondary-content mt-3 z-50 uppercase"
-        ></div>
+          className={
+            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-50 uppercase " +
+            (props.isNegativeOrZero ? "!text-error" : "!text-success")
+          }
+        >
+          <div className="flex justify-start gap-x-6">
+            <div className="text-secondary-content">{candleDate}</div>
+            <div>
+              <span className="text-secondary-content">Change</span> {change} (
+              {percChange})%
+            </div>
+            <div>
+              <span className="text-secondary-content">Volume</span> {volume}
+            </div>
+          </div>
+          <div className="flex justify-start gap-x-6">
+            <div>
+              <span className="text-secondary-content">Open </span>
+              {candleOpen}
+            </div>
+            <div>
+              <span className="text-secondary-content">High </span>
+              {candleHigh}
+            </div>
+            <div>
+              <span className="text-secondary-content">Low </span>
+              {candleLow}
+            </div>
+            <div>
+              <span className="text-secondary-content">Close </span>
+              {candleClose}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -234,6 +259,9 @@ export function PriceChart() {
   );
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
+  );
+  const isNegativeOrZero = useAppSelector(
+    (state) => state.priceChart.isNegativeOrZero
   );
   return (
     <div>
@@ -265,6 +293,7 @@ export function PriceChart() {
         change={change}
         percChange={percChange}
         volume={currentVolume}
+        isNegativeOrZero={isNegativeOrZero}
       />
     </div>
   );
