@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import { AmountInput } from "./AmountInput";
+import { SwapAmountInput } from "./AmountInput";
 import { orderInputSlice, validateSlippageInput } from "redux/orderInputSlice";
 import { Input } from "common/input";
 
@@ -19,7 +19,7 @@ export function MarketOrderInput() {
   return (
     <>
       <div className="form-control w-full">
-        <AmountInput />
+        <SwapAmountInput />
         <label className="label">
           <span className="label-text">Slippage</span>
         </label>

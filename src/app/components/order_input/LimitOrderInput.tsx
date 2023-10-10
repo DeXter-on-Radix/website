@@ -8,7 +8,7 @@ import {
   orderInputSlice,
   validatePriceInput,
 } from "redux/orderInputSlice";
-import { AmountInput } from "./AmountInput";
+import { LimitAmountInput } from "./AmountInput";
 
 export function LimitOrderInput() {
   const { price, side } = useAppSelector((state) => state.orderInput);
@@ -26,8 +26,8 @@ export function LimitOrderInput() {
   return (
     <>
       <div className="form-control w-full">
-        <AmountInput />
-        <p
+        <LimitAmountInput />
+        {/* <p
           className="text-left text-sm font-medium !mb-2 cursor-pointer"
           onClick={() =>
             dispatch(
@@ -47,18 +47,21 @@ export function LimitOrderInput() {
             {side === OrderSide.BUY ? bestBuyPrice : bestSellPrice}{" "}
             {priceToken.symbol}
           </span>
-        </p>
-        <Input
+        </p> */}
+        {/* <Input
           type="number"
           value={price}
           onChange={handleOnChange}
           validation={validationResult}
-          endAdornment={
-            <TokenWithSymbol
-              logoUrl={priceToken.iconUrl}
-              symbol={priceToken.symbol}
-            />
-          }
+        /> */}
+        <div className="text-sm text-end">At price rate:</div>
+        <input
+          type="number"
+          min="0"
+          max="100"
+          value={price}
+          onChange={handleOnChange}
+          className="p-2 text-end"
         />
       </div>
     </>

@@ -14,6 +14,7 @@ import { fetchBalances } from "redux/pairSelectorSlice";
 import { OrderTypeTabs } from "./OrderTypeTabs";
 import { MarketOrderInput } from "./MarketOrderInput";
 import { LimitOrderInput } from "./LimitOrderInput";
+import { OrderSideTabs } from "./OrderSideTabs";
 
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
@@ -59,6 +60,8 @@ export function OrderInput() {
     useAppSelector((state) => state.orderInput);
   const tartgetToken = useAppSelector(selectTargetToken);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const quote = useAppSelector((state) => state.orderInput.quote);
+  const description = useAppSelector((state) => state.orderInput.description);
 
   const quoteValidation = useAppSelector(isValidQuoteInput);
 
@@ -85,12 +88,43 @@ export function OrderInput() {
   ]);
 
   return (
-    <>
+    <div className="text-base">
       <OrderTypeTabs />
-      <div className="form-control justify-between items-start bg-neutral px-4 py-8 w-full">
+      {tab === OrderTab.LIMIT && <OrderSideTabs />}
+      <div className="form-control justify-between items-start bg-neutral p-4 w-full">
         {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
         <SubmitButton />
+        <div className="collapse collapse-arrow text-left">
+          <input type="checkbox" />
+          <div className="collapse-title font-medium text-sm pl-0">
+            Total fee: {quote?.totalFees ?? 0} {quote?.toToken.symbol}
+          </div>
+          <div className="collapse-content text-sm pl-0">
+            <div className="flex items-center justify-between">
+              <div>Exchange Fee: </div>
+              <div>
+                {quote?.exchangeFees} {quote?.toToken.symbol}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>Platform Fee: </div>
+              <div>
+                {quote?.platformFees} {quote?.toToken.symbol}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>Liquidity Fee: </div>
+              <div>
+                {quote?.liquidityFees} {quote?.toToken.symbol}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>Description: </div>
+              <div>{description}</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,13 +3,15 @@ import React from "react";
 import { useAppDispatch, useAppSelector } from "hooks";
 import {
   OrderSide,
+  OrderTab,
   TokenInput,
   orderInputSlice,
   selectTargetToken,
 } from "redux/orderInputSlice";
 
 interface TokenInputFiledProps extends TokenInput {
-  onFocus: () => void;
+  disabled?: boolean;
+  onFocus?: () => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -24,6 +26,7 @@ function nullableNumberInput(event: React.ChangeEvent<HTMLInputElement>) {
 }
 
 function TokenInputFiled(props: TokenInputFiledProps) {
+  const orderTab = useAppSelector((state) => state.orderInput.tab);
   const targetToken = useAppSelector(selectTargetToken);
   const {
     address,
@@ -33,6 +36,7 @@ function TokenInputFiled(props: TokenInputFiledProps) {
     message,
     amount,
     balance,
+    disabled,
     onChange,
     onFocus,
   } = props;
@@ -47,9 +51,14 @@ function TokenInputFiled(props: TokenInputFiledProps) {
       {/* input */}
       <div
         className={
-          "flex flex-row flex-nowrap bg-base-300 justify-between py-1" +
-          (targetToken.address === address ? " border border-accent" : "") +
-          (!valid ? " border border-error" : "")
+          "flex flex-row flex-nowrap bg-base-300 justify-between py-2 border border-secondary-content" +
+          (targetToken.address === address &&
+          orderTab === OrderTab.MARKET &&
+          valid
+            ? " !border-accent"
+            : "") +
+          (!valid ? " !border-error" : "") +
+          (disabled ? " !bg-neutral" : "")
         }
       >
         <div className="flex flex-nowrap items-center">
@@ -62,9 +71,12 @@ function TokenInputFiled(props: TokenInputFiledProps) {
         </div>
 
         <input
+          disabled={disabled || false}
           type="number"
           value={amount}
-          className="flex-1 text-end mr-1 min-w-0"
+          className={
+            "flex-1 text-end mr-1 min-w-0" + (disabled ? " !bg-neutral" : "")
+          }
           onChange={onChange}
           onFocus={onFocus}
         ></input>
@@ -78,15 +90,35 @@ function TokenInputFiled(props: TokenInputFiledProps) {
   );
 }
 
-export function AmountInput() {
-  const { token1, token2, quote, description } = useAppSelector(
-    (state) => state.orderInput
+function SwitchTokenPlacesButton() {
+  const dispatch = useAppDispatch();
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="20"
+      viewBox="0 0 16 20"
+      className="text-primary-content hover:text-accent ml-4"
+      fill="none"
+      onClick={() => {
+        dispatch(orderInputSlice.actions.swapTokens());
+      }}
+    >
+      <path
+        d="M4 11V3.825L1.425 6.4L0 5L5 0L10 5L8.575 6.4L6 3.825V11H4ZM11 20L6 15L7.425 13.6L10 16.175V9H12V16.175L14.575 13.6L16 15L11 20Z"
+        fill="currentColor"
+      />
+    </svg>
   );
+}
+
+export function SwapAmountInput() {
+  const { token1, token2 } = useAppSelector((state) => state.orderInput);
 
   const dispatch = useAppDispatch();
 
   return (
-    <div className="">
+    <div className="my-4">
       <TokenInputFiled
         {...token1}
         onFocus={() => {
@@ -99,23 +131,7 @@ export function AmountInput() {
         }}
       />
 
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="20"
-        viewBox="0 0 16 20"
-        className="text-primary-content hover:text-accent ml-4"
-        fill="none"
-        onClick={() => {
-          dispatch(orderInputSlice.actions.swapTokens());
-        }}
-      >
-        <path
-          d="M4 11V3.825L1.425 6.4L0 5L5 0L10 5L8.575 6.4L6 3.825V11H4ZM11 20L6 15L7.425 13.6L10 16.175V9H12V16.175L14.575 13.6L16 15L11 20Z"
-          fill="currentColor"
-        />
-      </svg>
-
+      <SwitchTokenPlacesButton />
       <TokenInputFiled
         {...token2}
         onFocus={() => {
@@ -127,37 +143,39 @@ export function AmountInput() {
           );
         }}
       />
+    </div>
+  );
+}
 
-      <div className="collapse collapse-arrow text-left">
-        <input type="checkbox" />
-        <div className="collapse-title font-medium text-sm pl-0">
-          Total fee: {quote?.totalFees ?? 0} {quote?.toToken.symbol}
-        </div>
-        <div className="collapse-content text-sm pl-0">
-          <div className="flex items-center justify-between">
-            <div>Exchange Fee: </div>
-            <div>
-              {quote?.exchangeFees} {quote?.toToken.symbol}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>Platform Fee: </div>
-            <div>
-              {quote?.platformFees} {quote?.toToken.symbol}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>Liquidity Fee: </div>
-            <div>
-              {quote?.liquidityFees} {quote?.toToken.symbol}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>Description: </div>
-            <div>{description}</div>
-          </div>
-        </div>
-      </div>
+export function LimitAmountInput() {
+  const { token1, token2 } = useAppSelector((state) => state.orderInput);
+  const { side } = useAppSelector((state) => state.orderInput);
+
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className="my-4">
+      <TokenInputFiled
+        disabled={side === OrderSide.BUY}
+        {...token1}
+        onChange={(event) => {
+          dispatch(
+            orderInputSlice.actions.setAmountToken1(nullableNumberInput(event))
+          );
+        }}
+      />
+
+      <SwitchTokenPlacesButton />
+
+      <TokenInputFiled
+        disabled={side === OrderSide.SELL}
+        {...token2}
+        onChange={(event) => {
+          dispatch(
+            orderInputSlice.actions.setAmountToken2(nullableNumberInput(event))
+          );
+        }}
+      />
     </div>
   );
 }

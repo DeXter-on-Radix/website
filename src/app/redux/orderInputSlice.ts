@@ -280,6 +280,12 @@ export const orderInputSlice = createSlice({
           throw new Error("Invalid quote");
         }
 
+        // clear any previous message if it was set
+        // cannot do in "pending" because it causes infinite loop
+        // for getting the quote
+        // TODO: do not call fetchQuote when message is changed
+        state.token1.message = "";
+
         state.quote = quote;
         state.description = toDescription(quote);
         if (state.tab === OrderTab.MARKET) {
@@ -310,6 +316,11 @@ export const orderInputSlice = createSlice({
     );
 
     builder.addCase(fetchQuote.rejected, (state, action) => {
+      // clear any previous message if it was set
+      // cannot do in "pending" because it causes infinite loop
+      // for getting the quote
+      // TODO: do not call fetchQuote when message is changed
+      state.token1.message = "";
       if (state.side === OrderSide.SELL) {
         state.token2.amount = "";
         state.token2.valid = false;
