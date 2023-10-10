@@ -96,10 +96,6 @@ input[type="number"]::-ms-clear {
   display: none;
 }
 
-.tab-active {
-  @apply !border-accent;
-}
-
 .btn-active {
   @apply bg-secondary;
 }
