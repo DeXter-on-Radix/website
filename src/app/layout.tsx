@@ -7,12 +7,15 @@ import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const path = usePathname();
+
   useEffect(() => {
     initializeSubscriptions(store);
     return () => {
@@ -31,7 +34,10 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body>
-          <div className="grid grid-cols-12 custom-auto-row-grid h-screen prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
+          <div
+            data-path={path}
+            className="grid grid-cols-12 custom-auto-row-grid h-screen prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300"
+          >
             <Navbar />
             {children}
             <Footer />

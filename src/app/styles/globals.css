@@ -86,6 +86,11 @@ input[type="number"]::-ms-clear {
   background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
 }
 
+/* Grid layout for home page */
+.custom-auto-row-grid[data-path="/"] {
+  grid-auto-rows: 0fr auto auto 1fr 1fr;
+}
+/* Grid layout for rest of the pages */
 .custom-auto-row-grid {
-  grid-auto-rows: auto auto auto 1fr 1fr;
+  grid-auto-rows: 0fr auto 0fr;
 }
