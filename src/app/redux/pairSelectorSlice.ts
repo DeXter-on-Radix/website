@@ -2,7 +2,6 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
-import { orderInputSlice } from "./orderInputSlice";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
@@ -69,11 +68,8 @@ export const fetchBalances = createAsyncThunk<
         // if there are no items in response, set the balance to 0
         const balance = parseFloat(response?.items[0]?.amount || "0");
         dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));
-        // TODO: store balances in one place only?
-        dispatch(orderInputSlice.actions.updateBalance({ balance, token }));
       } catch (error) {
         dispatch(pairSelectorSlice.actions.setBalance({ balance: 0, token }));
-        dispatch(orderInputSlice.actions.updateBalance({ balance: 0, token }));
         throw new Error("Error getting data from Radix gateway");
       }
     }

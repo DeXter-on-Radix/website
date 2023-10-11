@@ -10,7 +10,7 @@ import { RDT, getRdt } from "../subscriptions";
 import { displayAmount } from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
-import { TokenInfo, fetchBalances } from "./pairSelectorSlice";
+import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
 
 export enum OrderTab {
@@ -37,7 +37,6 @@ export interface TokenInput {
   valid: boolean;
   message: string;
   amount: number | "";
-  balance?: number;
 }
 
 export interface OrderInputState {
@@ -165,6 +164,27 @@ const selectPriceMaxDecimals = (state: RootState) => {
 const selectToken1 = (state: RootState) => state.orderInput.token1;
 const selectToken2 = (state: RootState) => state.orderInput.token2;
 
+// for getting balances out of pairSelector slice
+const selectInfoToken1 = (state: RootState) => state.pairSelector.token1;
+const selectInfoToken2 = (state: RootState) => state.pairSelector.token2;
+export const selectBalanceByAddress = createSelector(
+  [
+    selectInfoToken1,
+    selectInfoToken2,
+    (state: RootState, address: string) => address,
+  ],
+
+  (infoToken1, infoToken2, address) => {
+    if (infoToken1.address === address) {
+      return infoToken1.balance;
+    } else if (infoToken2.address === address) {
+      return infoToken2.balance;
+    } else {
+      return 0;
+    }
+  }
+);
+
 export const orderInputSlice = createSlice({
   name: "orderInput",
   initialState,
@@ -207,25 +227,17 @@ export const orderInputSlice = createSlice({
           serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       }
     },
-    updateBalance(
+    setAmountToken1(
       state,
-      action: PayloadAction<{ balance: number; token: TokenInfo }>
+      action: PayloadAction<{ amount: number | ""; balance: number }>
     ) {
-      const { token, balance } = action.payload;
-      if (token.address === state.token1.address) {
-        state.token1 = { ...state.token1, balance };
-      } else if (token.address === state.token2.address) {
-        state.token2 = { ...state.token2, balance };
-      }
-    },
-    setAmountToken1(state, action: PayloadAction<number | "">) {
-      const amount = action.payload;
-      let token1 = {
+      const { amount, balance } = action.payload;
+      let token = {
         ...state.token1,
         amount,
       };
-      token1 = validateAmountToken1(token1);
-      state.token1 = token1;
+      token = validateAmountWithBalance({ token, balance });
+      state.token1 = token;
 
       if (amount === "") {
         state.token2.amount = "";
@@ -474,11 +486,17 @@ function validateAmount(token: TokenInput): TokenInput {
   return { ...token, valid, message };
 }
 
-function validateAmountToken1(token1: TokenInput): TokenInput {
-  if ((token1.balance || 0) < (token1.amount || 0)) {
-    return { ...token1, valid: false, message: "Insufficient funds" };
+function validateAmountWithBalance({
+  token,
+  balance,
+}: {
+  token: TokenInput;
+  balance: number;
+}): TokenInput {
+  if ((balance || 0) < (token.amount || 0)) {
+    return { ...token, valid: false, message: "Insufficient funds" };
   } else {
-    return validateAmount(token1);
+    return validateAmount(token);
   }
 }
 

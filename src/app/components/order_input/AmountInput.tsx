@@ -7,6 +7,7 @@ import {
   TokenInput,
   orderInputSlice,
   selectTargetToken,
+  selectBalanceByAddress,
 } from "redux/orderInputSlice";
 
 interface TokenInputFiledProps extends TokenInput {
@@ -28,6 +29,9 @@ function nullableNumberInput(event: React.ChangeEvent<HTMLInputElement>) {
 function TokenInputFiled(props: TokenInputFiledProps) {
   const orderTab = useAppSelector((state) => state.orderInput.tab);
   const targetToken = useAppSelector(selectTargetToken);
+  const balance = useAppSelector((state) =>
+    selectBalanceByAddress(state, props.address)
+  );
   const {
     address,
     symbol,
@@ -35,16 +39,15 @@ function TokenInputFiled(props: TokenInputFiledProps) {
     valid,
     message,
     amount,
-    balance,
     disabled,
-    onChange,
     onFocus,
+    onChange,
   } = props;
   return (
     <div className="form-control my-2">
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
-        <span>Current balance:</span>
+        <span>BALANCE:</span>
         <span>{balance || "unknown"}</span>
       </div>
 
@@ -114,6 +117,9 @@ function SwitchTokenPlacesButton() {
 
 export function SwapAmountInput() {
   const { token1, token2 } = useAppSelector((state) => state.orderInput);
+  const balanceToken1 = useAppSelector((state) =>
+    selectBalanceByAddress(state, token1.address)
+  );
 
   const dispatch = useAppDispatch();
 
@@ -125,9 +131,11 @@ export function SwapAmountInput() {
           dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
         }}
         onChange={(event) => {
-          dispatch(
-            orderInputSlice.actions.setAmountToken1(nullableNumberInput(event))
-          );
+          const params = {
+            amount: nullableNumberInput(event),
+            balance: balanceToken1 || 0,
+          };
+          dispatch(orderInputSlice.actions.setAmountToken1(params));
         }}
       />
 
@@ -150,6 +158,9 @@ export function SwapAmountInput() {
 export function LimitAmountInput() {
   const { token1, token2 } = useAppSelector((state) => state.orderInput);
   const { side } = useAppSelector((state) => state.orderInput);
+  const balanceToken1 = useAppSelector((state) =>
+    selectBalanceByAddress(state, token1.address)
+  );
 
   const dispatch = useAppDispatch();
 
@@ -159,9 +170,11 @@ export function LimitAmountInput() {
         disabled={side === OrderSide.BUY}
         {...token1}
         onChange={(event) => {
-          dispatch(
-            orderInputSlice.actions.setAmountToken1(nullableNumberInput(event))
-          );
+          const params = {
+            amount: nullableNumberInput(event),
+            balance: balanceToken1 || 0,
+          };
+          dispatch(orderInputSlice.actions.setAmountToken1(params));
         }}
       />
 
