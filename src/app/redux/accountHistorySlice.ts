@@ -45,8 +45,12 @@ export const fetchAccountHistory = createAsyncThunk<
   }
 
   const apiResponse = await adex.getAccountOrders(account, pairAddress, 0);
-  const plainApiResponse = JSON.parse(JSON.stringify(apiResponse)); //TODO -> need to find a better way to handle serialization
-  return plainApiResponse;
+  const plainApiResponse: SdkResult = JSON.parse(JSON.stringify(apiResponse));
+  if (plainApiResponse.status === "SUCCESS") {
+    return plainApiResponse;
+  } else {
+    throw new Error(plainApiResponse.message);
+  }
 });
 
 export const cancelOrder = createAsyncThunk<
