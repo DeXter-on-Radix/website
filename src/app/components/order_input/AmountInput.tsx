@@ -2,32 +2,27 @@ import React from "react";
 
 import { useAppDispatch, useAppSelector } from "hooks";
 import {
-  OrderSide,
   OrderTab,
   TokenInput,
   orderInputSlice,
-  selectTargetToken,
   selectBalanceByAddress,
+  selectTargetToken,
 } from "redux/orderInputSlice";
 
+export const enum PayReceive {
+  PAY = "YOU PAY:",
+  RECEIVE = "YOU RECEIVE:",
+}
+
 interface TokenInputFiledProps extends TokenInput {
+  payReceive: string;
   disabled?: boolean;
   onFocus?: () => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function nullableNumberInput(event: React.ChangeEvent<HTMLInputElement>) {
-  let amount: number | "";
-  if (event.target.value === "") {
-    amount = "";
-  } else {
-    amount = Number(event.target.value);
-  }
-  return amount;
-}
-
-function TokenInputFiled(props: TokenInputFiledProps) {
-  const orderTab = useAppSelector((state) => state.orderInput.tab);
+export function AmountInput(props: TokenInputFiledProps) {
+  const tab = useAppSelector((state) => state.orderInput.tab);
   const targetToken = useAppSelector(selectTargetToken);
   const balance = useAppSelector((state) =>
     selectBalanceByAddress(state, props.address)
@@ -40,24 +35,27 @@ function TokenInputFiled(props: TokenInputFiledProps) {
     message,
     amount,
     disabled,
+    payReceive,
     onFocus,
     onChange,
   } = props;
+
   return (
     <div className="form-control my-2">
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
-        <span>BALANCE:</span>
-        <span>{balance || "unknown"}</span>
+        <div className="space-x-1">
+          <span>BALANCE:</span>
+          <span>{balance || "unknown"}</span>
+        </div>
+        <span className="text-primary-content">{payReceive}</span>
       </div>
 
       {/* input */}
       <div
         className={
-          "flex flex-row flex-nowrap bg-base-300 justify-between py-2 border border-secondary-content" +
-          (targetToken.address === address &&
-          orderTab === OrderTab.MARKET &&
-          valid
+          "flex flex-row flex-nowrap bg-base-200 justify-between py-2 border-2 border-secondary-content" +
+          (targetToken.address === address && tab === OrderTab.MARKET && valid
             ? " !border-accent"
             : "") +
           (!valid ? " !border-error" : "") +
@@ -78,7 +76,8 @@ function TokenInputFiled(props: TokenInputFiledProps) {
           type="number"
           value={amount}
           className={
-            "flex-1 text-end mr-1 min-w-0" + (disabled ? " !bg-neutral" : "")
+            "flex-1 text-end mr-1 min-w-0" +
+            (disabled ? " !bg-neutral" : " !bg-base-200")
           }
           onChange={onChange}
           onFocus={onFocus}
@@ -86,14 +85,14 @@ function TokenInputFiled(props: TokenInputFiledProps) {
       </div>
 
       {/* error message */}
-      <label className="text-xs flex">
-        <span className="text-error">{message}</span>
+      <label className="label justify-end">
+        <span className="label-text-alt text-error">{message}</span>
       </label>
     </div>
   );
 }
 
-function SwitchTokenPlacesButton() {
+export function SwitchTokenPlacesButton() {
   const dispatch = useAppDispatch();
   return (
     <svg
@@ -112,83 +111,5 @@ function SwitchTokenPlacesButton() {
         fill="currentColor"
       />
     </svg>
-  );
-}
-
-export function SwapAmountInput() {
-  const { token1, token2 } = useAppSelector((state) => state.orderInput);
-  const balanceToken1 = useAppSelector((state) =>
-    selectBalanceByAddress(state, token1.address)
-  );
-
-  const dispatch = useAppDispatch();
-
-  return (
-    <div className="my-4">
-      <TokenInputFiled
-        {...token1}
-        onFocus={() => {
-          dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
-        }}
-        onChange={(event) => {
-          const params = {
-            amount: nullableNumberInput(event),
-            balance: balanceToken1 || 0,
-          };
-          dispatch(orderInputSlice.actions.setAmountToken1(params));
-        }}
-      />
-
-      <SwitchTokenPlacesButton />
-      <TokenInputFiled
-        {...token2}
-        onFocus={() => {
-          dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
-        }}
-        onChange={(event) => {
-          dispatch(
-            orderInputSlice.actions.setAmountToken2(nullableNumberInput(event))
-          );
-        }}
-      />
-    </div>
-  );
-}
-
-export function LimitAmountInput() {
-  const { token1, token2 } = useAppSelector((state) => state.orderInput);
-  const { side } = useAppSelector((state) => state.orderInput);
-  const balanceToken1 = useAppSelector((state) =>
-    selectBalanceByAddress(state, token1.address)
-  );
-
-  const dispatch = useAppDispatch();
-
-  return (
-    <div className="my-4">
-      <TokenInputFiled
-        disabled={side === OrderSide.BUY}
-        {...token1}
-        onChange={(event) => {
-          const params = {
-            amount: nullableNumberInput(event),
-            balance: balanceToken1 || 0,
-          };
-          dispatch(orderInputSlice.actions.setAmountToken1(params));
-        }}
-      />
-
-      <SwitchTokenPlacesButton />
-
-      <TokenInputFiled
-        disabled={side === OrderSide.SELL}
-        {...token2}
-        onChange={(event) => {
-          dispatch(
-            orderInputSlice.actions.setAmountToken2(nullableNumberInput(event))
-          );
-        }}
-      />
-    </div>
   );
 }

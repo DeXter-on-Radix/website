@@ -149,10 +149,14 @@ export const submitOrder = createAsyncThunk<
 });
 
 export const selectTargetToken = (state: RootState) => {
-  if (state.orderInput.side === OrderSide.SELL) {
-    return state.orderInput.token1;
+  if (state.orderInput.tab === OrderTab.MARKET) {
+    if (state.orderInput.side === OrderSide.SELL) {
+      return state.orderInput.token1;
+    } else {
+      return state.orderInput.token2;
+    }
   } else {
-    return state.orderInput.token2;
+    return state.orderInput.token1;
   }
 };
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
@@ -283,6 +287,11 @@ export const orderInputSlice = createSlice({
   // asynchronous reducers
   extraReducers: (builder) => {
     // fetchQuote
+    builder.addCase(fetchQuote.pending, (state) => {
+      state.quote = undefined;
+      state.description = undefined;
+    });
+
     builder.addCase(
       fetchQuote.fulfilled,
       (state, action: PayloadAction<Quote | undefined>) => {
@@ -291,12 +300,6 @@ export const orderInputSlice = createSlice({
         if (!quote) {
           throw new Error("Invalid quote");
         }
-
-        // clear any previous message if it was set
-        // cannot do in "pending" because it causes infinite loop
-        // for getting the quote
-        // TODO: do not call fetchQuote when message is changed
-        state.token1.message = "";
 
         state.quote = quote;
         state.description = toDescription(quote);
@@ -308,31 +311,29 @@ export const orderInputSlice = createSlice({
           }
 
           if (quote.message.startsWith("Not enough liquidity")) {
-            if (state.side === OrderSide.SELL) {
-              state.token1.amount = quote.fromAmount;
-              state.token1.message = quote.message;
-            } else {
-              state.token2.amount = quote.toAmount;
-              state.token2.message = quote.message;
+            if (state.tab === OrderTab.MARKET) {
+              if (state.side === OrderSide.SELL) {
+                state.token1.amount = quote.fromAmount;
+                state.token1.message = "Not enough liquidity.";
+              } else {
+                state.token2.amount = quote.toAmount;
+                state.token2.message = "Not enough liquidity.";
+              }
             }
           }
         } else {
           // limit order
+          // always changing the second token here because it's always the non-target token
           if (state.side === OrderSide.SELL) {
             state.token2.amount = Number(state.token1.amount) * state.price;
           } else {
-            state.token1.amount = Number(state.token2.amount) / state.price;
+            state.token2.amount = Number(state.token2.amount) / state.price;
           }
         }
       }
     );
 
     builder.addCase(fetchQuote.rejected, (state, action) => {
-      // clear any previous message if it was set
-      // cannot do in "pending" because it causes infinite loop
-      // for getting the quote
-      // TODO: do not call fetchQuote when message is changed
-      state.token1.message = "";
       if (state.side === OrderSide.SELL) {
         state.token2.amount = "";
         state.token2.valid = false;

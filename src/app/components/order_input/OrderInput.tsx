@@ -4,17 +4,16 @@ import { useAppDispatch, useAppSelector } from "hooks";
 import {
   OrderTab,
   fetchQuote,
-  orderInputSlice,
-  selectTargetToken,
-  submitOrder,
   isValidQuoteInput,
   isValidTransaction,
+  selectTargetToken,
+  submitOrder,
 } from "redux/orderInputSlice";
 import { fetchBalances } from "redux/pairSelectorSlice";
-import { OrderTypeTabs } from "./OrderTypeTabs";
-import { MarketOrderInput } from "./MarketOrderInput";
 import { LimitOrderInput } from "./LimitOrderInput";
+import { MarketOrderInput } from "./MarketOrderInput";
 import { OrderSideTabs } from "./OrderSideTabs";
+import { OrderTypeTabs } from "./OrderTypeTabs";
 
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
@@ -32,16 +31,6 @@ function SubmitButton() {
 
   return (
     <div className="flex flex-col w-full">
-      {tab === OrderTab.LIMIT && (
-        <div className="flex justify-start mb-2">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-sm my-auto mr-2"
-            onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
-          />
-          <span className="my-auto text-sm">Post only</span>
-        </div>
-      )}
       <button
         className="flex-1 btn btn-accent"
         disabled={!transactionValidation.valid || transactionInProgress}
@@ -56,36 +45,15 @@ function SubmitButton() {
 
 export function OrderInput() {
   const dispatch = useAppDispatch();
-  const { token1, token2, side, price, postOnly, slippage, tab } =
-    useAppSelector((state) => state.orderInput);
-  const tartgetToken = useAppSelector(selectTargetToken);
-  const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const quote = useAppSelector((state) => state.orderInput.quote);
-  const description = useAppSelector((state) => state.orderInput.description);
 
-  const quoteValidation = useAppSelector(isValidQuoteInput);
+  const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const { tab, quote, description } = useAppSelector(
+    (state) => state.orderInput
+  );
 
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
-
-  useEffect(() => {
-    if (quoteValidation.valid && tartgetToken.amount !== "") {
-      dispatch(fetchQuote());
-    }
-  }, [
-    dispatch,
-    pairAddress,
-    token1,
-    token2,
-    side,
-    price,
-    slippage,
-    tab,
-    postOnly,
-    quoteValidation,
-    tartgetToken,
-  ]);
 
   return (
     <div className="text-base">
@@ -118,8 +86,7 @@ export function OrderInput() {
                 {quote?.liquidityFees} {quote?.toToken.symbol}
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <div>Description: </div>
+            <div className="">
               <div>{description}</div>
             </div>
           </div>
