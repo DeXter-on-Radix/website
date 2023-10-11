@@ -3,8 +3,6 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "hooks";
 import {
   OrderTab,
-  fetchQuote,
-  isValidQuoteInput,
   isValidTransaction,
   selectTargetToken,
   submitOrder,
