@@ -34,7 +34,7 @@ function NonTargetToken() {
       <div className="flex justify-between text-secondary-content text-xs">
         <div className="space-x-1">
           <span>BALANCE:</span>
-          <span>{balance || "unknown"}</span>
+          <span>{balance}</span>
         </div>
         <span className="text-secondary-content">
           {side === OrderSide.BUY ? PayReceive.PAY : PayReceive.RECEIVE}
