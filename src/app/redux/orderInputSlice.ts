@@ -231,6 +231,8 @@ export const orderInputSlice = createSlice({
           serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       }
     },
+    // TODO: refactor setAmount... and swapToken methods - too much inverted duplication
+    // there is got to be a more elegant way to do this
     setAmountToken1(
       state,
       action: PayloadAction<{ amount: number | ""; balance: number }>
@@ -240,9 +242,23 @@ export const orderInputSlice = createSlice({
         ...state.token1,
         amount,
       };
-      token = validateAmountWithBalance({ token, balance });
+
+      if (state.tab === OrderTab.MARKET) {
+        // token1 on market tab is always the one being sold
+        token = validateAmountWithBalance({ token, balance });
+      } else {
+        // limit order
+        if (state.side === OrderSide.SELL) {
+          token = validateAmountWithBalance({ token, balance });
+        } else {
+          token = validateAmount(token);
+        }
+      }
+
       state.token1 = token;
 
+      // FIXME: when deleting the amount very quickly with backspace,
+      // state.token2.amount gets overritten with lagged quote data and stays filled in
       if (amount === "") {
         state.token2.amount = "";
       }
@@ -265,6 +281,14 @@ export const orderInputSlice = createSlice({
       const temp = state.token1;
       state.token1 = state.token2;
       state.token2 = temp;
+
+      // otherwise amount validation is incorrect
+      state.token1.amount = "";
+      state.token1.valid = true;
+      state.token1.message = "";
+      state.token2.amount = "";
+      state.token2.valid = true;
+      state.token2.message = "";
     },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
@@ -310,7 +334,7 @@ export const orderInputSlice = createSlice({
             state.token1.amount = quote.fromAmount;
           }
 
-          if (quote.message.startsWith("Not enough liquidity")) {
+          if (quote.resultCode === 5 || quote.resultCode === 6) {
             if (state.tab === OrderTab.MARKET) {
               if (state.side === OrderSide.SELL) {
                 state.token1.amount = quote.fromAmount;

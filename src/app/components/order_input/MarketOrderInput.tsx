@@ -57,7 +57,7 @@ export function MarketOrderInput() {
 
   return (
     <div className="form-control w-full">
-      <div className="my-4">
+      <div className="mt-4">
         <AmountInput
           {...token1}
           payReceive={PayReceive.PAY}

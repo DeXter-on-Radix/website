@@ -85,7 +85,7 @@ export function AmountInput(props: TokenInputFiledProps) {
       </div>
 
       {/* error message */}
-      <label className="label justify-end">
+      <label className="label justify-end pt-0">
         <span className="label-text-alt text-error">{message}</span>
       </label>
     </div>

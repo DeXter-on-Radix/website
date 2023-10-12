@@ -4,9 +4,9 @@ import { useAppDispatch, useAppSelector } from "hooks";
 import {
   OrderSide,
   fetchQuote,
-  isValidQuoteInput,
   orderInputSlice,
   selectBalanceByAddress,
+  validatePriceInput,
 } from "redux/orderInputSlice";
 import {
   AmountInput,
@@ -61,8 +61,8 @@ function NonTargetToken() {
       </div>
 
       {/* error message */}
-      <label className="text-xs flex">
-        <span className="text-error">{message}</span>
+      <label className="label justify-end pt-0">
+        <span className="label-text-alt text-error">{message}</span>
       </label>
     </div>
   );
@@ -74,12 +74,18 @@ function PriceInput() {
   );
   const { side, price } = useAppSelector((state) => state.orderInput);
   const dispatch = useAppDispatch();
+  const priceValidationResult = useAppSelector(validatePriceInput);
   return (
     <>
       <div className="text-xs text-end">
         {side === OrderSide.BUY ? "AT MAX PRICE:" : "AT MIN PRICE:"}
       </div>
-      <div className="flex items-center justify-between space-x-2 border-2 border-secondary-content bg-base-200">
+      <div
+        className={
+          "flex items-center justify-between space-x-2 border-2 border-secondary-content bg-base-200" +
+          (priceValidationResult.valid ? "" : " !border-error")
+        }
+      >
         <div className="flex ml-1">
           <span>1</span>
           <img
@@ -107,6 +113,12 @@ function PriceInput() {
           />
         </div>
       </div>
+      {/* error message */}
+      <label className="label justify-end pt-0">
+        <span className="label-text-alt text-error">
+          {priceValidationResult.message}
+        </span>
+      </label>
     </>
   );
 }
@@ -128,11 +140,10 @@ export function LimitOrderInput() {
 
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
   const bestSellPrice = useAppSelector((state) => state.orderBook.bestSell);
-
-  const quoteValidation = useAppSelector(isValidQuoteInput);
+  const priceValidationResult = useAppSelector(validatePriceInput);
 
   useEffect(() => {
-    if (quoteValidation.valid && token1.amount !== "") {
+    if (token1.valid && token1.amount !== "" && priceValidationResult.valid) {
       dispatch(fetchQuote());
     }
   }, [
@@ -143,7 +154,7 @@ export function LimitOrderInput() {
     price,
     tab,
     postOnly,
-    quoteValidation,
+    priceValidationResult,
   ]);
 
   return (
