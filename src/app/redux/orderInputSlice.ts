@@ -81,7 +81,7 @@ const initialState: OrderInputState = {
   token1: initialTokenInput,
   token2: initialTokenInput,
   tab: OrderTab.MARKET,
-  postOnly: false,
+  postOnly: true,
   side: adex.OrderSide.BUY,
   price: 0,
   slippage: 0.01,

@@ -14,6 +14,12 @@ import {
   SwitchTokenPlacesButton,
 } from "./AmountInput";
 import { numberOrEmptyInput } from "utils";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+
+const POST_ONLY_TOOLTIP =
+  "If your price is very close to the current market price, your limit order might fill immediately, " +
+  "making you pay taker fees. This option prevents your order from being executed immediately, " +
+  "guarantees that your order will make it to the order book and you will earn the liquidity provider fees.";
 
 function NonTargetToken() {
   const { token2, side } = useAppSelector((state) => state.orderInput);
@@ -193,11 +199,20 @@ export function LimitOrderInput() {
 
           <div className="flex">
             <input
+              checked={postOnly}
               type="checkbox"
               className="checkbox checkbox-sm my-auto mr-2"
               onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
             />
-            <span className="my-auto text-xs">POST ONLY</span>
+            <span className="my-auto text-secondary-content text-sm">
+              POST ONLY
+            </span>
+            <div
+              className="my-auto ml-2 tooltip z-10"
+              data-tip={POST_ONLY_TOOLTIP}
+            >
+              <AiOutlineInfoCircle className="text-secondary-content text-sm" />
+            </div>
           </div>
         </div>
       </div>
