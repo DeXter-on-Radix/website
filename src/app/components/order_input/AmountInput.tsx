@@ -7,6 +7,7 @@ import {
   orderInputSlice,
   selectBalanceByAddress,
   selectTargetToken,
+  selectValidationByAddress,
 } from "redux/orderInputSlice";
 
 export const enum PayReceive {
@@ -27,12 +28,13 @@ export function AmountInput(props: TokenInputFiledProps) {
   const balance = useAppSelector((state) =>
     selectBalanceByAddress(state, props.address)
   );
+  const { valid, message } = useAppSelector((state) =>
+    selectValidationByAddress(state, props.address)
+  );
   const {
     address,
     symbol,
     iconUrl,
-    valid,
-    message,
     amount,
     disabled,
     payReceive,

@@ -7,7 +7,6 @@ import {
 import {
   OrderSide,
   fetchQuote,
-  isValidQuoteInput,
   orderInputSlice,
   selectBalanceByAddress,
   selectTargetToken,
@@ -25,21 +24,30 @@ function slippageToUiSlippage(slippage: number) {
 }
 
 export function MarketOrderInput() {
-  const { token1, token2, side, slippage, tab } = useAppSelector(
-    (state) => state.orderInput
-  );
+  const {
+    token1,
+    token2,
+    validationToken1,
+    validationToken2,
+    side,
+    slippage,
+    tab,
+  } = useAppSelector((state) => state.orderInput);
   const balanceToken1 = useAppSelector((state) =>
     selectBalanceByAddress(state, token1.address)
   );
   const tartgetToken = useAppSelector(selectTargetToken);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
-  const quoteValidation = useAppSelector(isValidQuoteInput);
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (quoteValidation.valid && tartgetToken.amount !== "") {
+    if (
+      tartgetToken.amount !== "" &&
+      validationToken1.valid &&
+      validationToken2.valid
+    ) {
       dispatch(fetchQuote());
     }
   }, [
@@ -50,10 +58,29 @@ export function MarketOrderInput() {
     side,
     slippage,
     tab,
-    quoteValidation,
     tartgetToken,
-    slippage,
+    validationToken1.valid,
+    validationToken2.valid,
   ]);
+
+  useEffect(() => {
+    dispatch(
+      orderInputSlice.actions.validateAmountWithBalance({
+        address: token1.address,
+        amount: token1.amount,
+        balance: balanceToken1 || 0,
+      })
+    );
+  }, [token1, balanceToken1, side, dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      orderInputSlice.actions.validateAmount({
+        address: token2.address,
+        amount: token2.amount,
+      })
+    );
+  }, [token2, dispatch]);
 
   return (
     <div className="form-control w-full">
@@ -65,11 +92,9 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
           onChange={(event) => {
-            const params = {
-              amount: numberOrEmptyInput(event),
-              balance: balanceToken1 || 0,
-            };
-            dispatch(orderInputSlice.actions.setAmountToken1(params));
+            dispatch(
+              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
+            );
           }}
         />
 

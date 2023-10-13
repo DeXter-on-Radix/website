@@ -22,11 +22,29 @@ const POST_ONLY_TOOLTIP =
   "guarantees that your order will make it to the order book and you will earn the liquidity provider fees.";
 
 function NonTargetToken() {
-  const { token2, side } = useAppSelector((state) => state.orderInput);
+  const { token2, validationToken2, side } = useAppSelector(
+    (state) => state.orderInput
+  );
   const balance = useAppSelector((state) =>
     selectBalanceByAddress(state, token2.address)
   );
-  const { symbol, iconUrl, valid, message, amount } = token2;
+  const { symbol, iconUrl, amount, address } = token2;
+  const { valid, message } = validationToken2;
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (side === OrderSide.SELL) {
+      dispatch(orderInputSlice.actions.validateAmount({ amount, address }));
+    } else {
+      dispatch(
+        orderInputSlice.actions.validateAmountWithBalance({
+          amount,
+          address,
+          balance: balance || 0,
+        })
+      );
+    }
+  }, [amount, side, dispatch, balance, address]);
 
   return (
     <div className="form-control my-2">
@@ -91,9 +109,9 @@ function PriceInput() {
           <img
             src={pairToken1.iconUrl}
             alt={pairToken1.symbol}
-            className="w-6 h-6 rounded-full mx-2"
+            className="w-6 h-6 rounded-full mx-1"
           />
-          =
+          <span>=</span>
         </div>
         <div className="flex items-center">
           <input
@@ -124,9 +142,8 @@ function PriceInput() {
 }
 
 export function LimitOrderInput() {
-  const { token1, price, side, tab, postOnly } = useAppSelector(
-    (state) => state.orderInput
-  );
+  const { token1, validationToken1, price, side, tab, postOnly } =
+    useAppSelector((state) => state.orderInput);
 
   const { address: pairAddress } = useAppSelector(
     (state) => state.pairSelector
@@ -143,19 +160,38 @@ export function LimitOrderInput() {
   const priceValidationResult = useAppSelector(validatePriceInput);
 
   useEffect(() => {
-    if (token1.valid && token1.amount !== "" && priceValidationResult.valid) {
+    if (
+      validationToken1.valid &&
+      token1.amount !== "" &&
+      priceValidationResult.valid
+    ) {
       dispatch(fetchQuote());
     }
   }, [
     dispatch,
     pairAddress,
     token1,
+    validationToken1,
     side,
     price,
     tab,
     postOnly,
     priceValidationResult,
   ]);
+
+  useEffect(() => {
+    if (side === OrderSide.BUY) {
+      dispatch(orderInputSlice.actions.validateAmount(token1));
+    } else {
+      const tokenWithBalance = {
+        ...token1,
+        balance: balanceToken1 || 0,
+      };
+      dispatch(
+        orderInputSlice.actions.validateAmountWithBalance(tokenWithBalance)
+      );
+    }
+  }, [token1, balanceToken1, side, dispatch]);
 
   return (
     <>
@@ -167,11 +203,11 @@ export function LimitOrderInput() {
               side === OrderSide.BUY ? PayReceive.RECEIVE : PayReceive.PAY
             }
             onChange={(event) => {
-              const params = {
-                amount: numberOrEmptyInput(event),
-                balance: balanceToken1 || 0,
-              };
-              dispatch(orderInputSlice.actions.setAmountToken1(params));
+              dispatch(
+                orderInputSlice.actions.setAmountToken1(
+                  numberOrEmptyInput(event)
+                )
+              );
             }}
           />
 

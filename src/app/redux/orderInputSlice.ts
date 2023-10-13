@@ -34,14 +34,14 @@ export interface TokenInput {
   address: string;
   symbol: string;
   iconUrl: string;
-  valid: boolean;
-  message: string;
   amount: number | "";
 }
 
 export interface OrderInputState {
   token1: TokenInput;
+  validationToken1: ValidationResult;
   token2: TokenInput;
+  validationToken2: ValidationResult;
   tab: OrderTab;
   postOnly: boolean;
   side: OrderSide;
@@ -73,13 +73,18 @@ const initialTokenInput = {
   symbol: "",
   iconUrl: "",
   amount: 0,
+};
+
+const initialValidationResult = {
   valid: true,
   message: "",
 };
 
 const initialState: OrderInputState = {
   token1: initialTokenInput,
+  validationToken1: initialValidationResult,
   token2: initialTokenInput,
+  validationToken2: initialValidationResult,
   tab: OrderTab.MARKET,
   postOnly: true,
   side: adex.OrderSide.BUY,
@@ -165,8 +170,30 @@ const selectSide = (state: RootState) => state.orderInput.side;
 const selectPriceMaxDecimals = (state: RootState) => {
   return state.pairSelector.priceMaxDecimals;
 };
+
+// TODO: find out if it's possible to do the same with less boilerplate
 const selectToken1 = (state: RootState) => state.orderInput.token1;
 const selectToken2 = (state: RootState) => state.orderInput.token2;
+export const selectValidationToken1 = (state: RootState) =>
+  state.orderInput.validationToken1;
+export const selectValidationToken2 = (state: RootState) =>
+  state.orderInput.validationToken2;
+export const selectValidationByAddress = createSelector(
+  [
+    selectToken1,
+    selectToken2,
+    selectValidationToken1,
+    selectValidationToken2,
+    (state: RootState, address: string) => address,
+  ],
+  (token1, token2, validationToken1, validationToken2, address) => {
+    if (token1.address === address) {
+      return validationToken1;
+    } else {
+      return validationToken2;
+    }
+  }
+);
 
 // for getting balances out of pairSelector slice
 const selectInfoToken1 = (state: RootState) => state.pairSelector.token1;
@@ -210,8 +237,6 @@ export const orderInputSlice = createSlice({
           symbol: adexToken1.symbol,
           iconUrl: adexToken1.iconUrl,
           amount: "",
-          valid: true,
-          message: "",
         };
       }
       if (state.token2.address !== adexToken2.address) {
@@ -220,8 +245,6 @@ export const orderInputSlice = createSlice({
           symbol: adexToken2.symbol,
           iconUrl: adexToken2.iconUrl,
           amount: "",
-          valid: true,
-          message: "",
         };
       }
 
@@ -231,29 +254,12 @@ export const orderInputSlice = createSlice({
           serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       }
     },
-    // TODO: refactor setAmount... and swapToken methods - too much inverted duplication
-    // there is got to be a more elegant way to do this
-    setAmountToken1(
-      state,
-      action: PayloadAction<{ amount: number | ""; balance: number }>
-    ) {
-      const { amount, balance } = action.payload;
+    setAmountToken1(state, action: PayloadAction<number | "">) {
+      const amount = action.payload;
       let token = {
         ...state.token1,
         amount,
       };
-
-      if (state.tab === OrderTab.MARKET) {
-        // token1 on market tab is always the one being sold
-        token = validateAmountWithBalance({ token, balance });
-      } else {
-        // limit order
-        if (state.side === OrderSide.SELL) {
-          token = validateAmountWithBalance({ token, balance });
-        } else {
-          token = validateAmount(token);
-        }
-      }
 
       state.token1 = token;
 
@@ -265,30 +271,49 @@ export const orderInputSlice = createSlice({
     },
     setAmountToken2(state, action: PayloadAction<number | "">) {
       const amount = action.payload;
-      let token2 = {
+      state.token2 = {
         ...state.token2,
         amount,
       };
 
-      token2 = validateAmount(token2);
-      state.token2 = token2;
-
       if (amount === "") {
         state.token1.amount = "";
+      }
+    },
+    validateAmount(
+      state,
+      action: PayloadAction<{ amount: number | ""; address: string }>
+    ) {
+      const { amount, address: tokenAddress } = action.payload;
+      if (tokenAddress === state.token1.address) {
+        state.validationToken1 = _validateAmount(amount);
+      } else if (tokenAddress === state.token2.address) {
+        state.validationToken2 = _validateAmount(amount);
+      }
+    },
+    validateAmountWithBalance(
+      state,
+      action: PayloadAction<{
+        amount: number | "";
+        address: string;
+        balance: number;
+      }>
+    ) {
+      const { amount, address: tokenAddress, balance } = action.payload;
+      const validation = _validateAmountWithBalance({
+        amount,
+        balance,
+      });
+      if (tokenAddress === state.token1.address) {
+        state.validationToken1 = validation;
+      } else if (tokenAddress === state.token2.address) {
+        state.validationToken2 = validation;
       }
     },
     swapTokens(state) {
       const temp = state.token1;
       state.token1 = state.token2;
       state.token2 = temp;
-
-      // otherwise amount validation is incorrect
-      state.token1.amount = "";
-      state.token1.valid = true;
-      state.token1.message = "";
-      state.token2.amount = "";
-      state.token2.valid = true;
-      state.token2.message = "";
     },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
@@ -322,7 +347,23 @@ export const orderInputSlice = createSlice({
         const quote = action.payload;
 
         if (!quote) {
-          throw new Error("Invalid quote");
+          console.debug("quote not valid", quote);
+          return;
+        }
+
+        function quoteResultCodeOk(quote: Quote) {
+          let ok = true;
+          if (quote.resultCode < 100 || quote.resultCode > 199) {
+            ok = false;
+          }
+          if (quote.resultCode === 5 || quote.resultCode === 6) {
+            ok = true;
+          }
+          return ok;
+        }
+        if (!quoteResultCodeOk(quote)) {
+          console.debug("quote not valid", quote);
+          return;
         }
 
         state.quote = quote;
@@ -339,10 +380,8 @@ export const orderInputSlice = createSlice({
           if (quote.resultCode === 5 || quote.resultCode === 6) {
             if (state.side === OrderSide.SELL) {
               state.token1.amount = quote.fromAmount;
-              state.token1.message = "Not enough liquidity.";
             } else {
               state.token2.amount = quote.toAmount;
-              state.token2.message = "Not enough liquidity.";
             }
           }
         } else {
@@ -357,7 +396,6 @@ export const orderInputSlice = createSlice({
             );
           } else {
             const amount = Number(state.token1.amount) / state.price;
-            // TODO: validate with balance
             state.token2.amount = roundTo(
               amount,
               adex.AMOUNT_MAX_DECIMALS,
@@ -369,15 +407,18 @@ export const orderInputSlice = createSlice({
     );
 
     builder.addCase(fetchQuote.rejected, (state, action) => {
-      if (state.side === OrderSide.SELL) {
-        state.token2.amount = "";
-        state.token2.valid = false;
-        state.token2.message = "Could not get quote";
-      } else {
-        state.token1.amount = "";
-        state.token1.valid = false;
-        state.token1.message = "Could not get quote";
+      if (state.tab === OrderTab.MARKET) {
+        if (state.side === OrderSide.SELL) {
+          state.token2.amount = "";
+          state.validationToken2.valid = false;
+          state.validationToken2.message = "Could not get quote";
+        } else {
+          state.token1.amount = "";
+          state.validationToken1.valid = false;
+          state.validationToken1.message = "Could not get quote";
+        }
       }
+      state.quote = undefined;
       console.error("fetchQuote rejected:", action.error.message);
     });
 
@@ -507,77 +548,37 @@ export const validatePriceInput = createSelector(
   }
 );
 
-function validateAmount(token: TokenInput): TokenInput {
-  const amount = token.amount;
+function _validateAmount(amount: number | ""): ValidationResult {
   let valid = true;
   let message = "";
+
+  if (amount === "" || amount === undefined) {
+    return { valid, message };
+  }
+
   if (amount.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
     valid = false;
     message = "Too many decimal places";
   }
 
-  if (amount !== "" && amount <= 0) {
+  if (amount <= 0) {
     valid = false;
     message = "Amount must be greater than 0";
   }
 
-  return { ...token, valid, message };
+  return { valid, message };
 }
 
-function validateAmountWithBalance({
-  token,
+function _validateAmountWithBalance({
+  amount,
   balance,
 }: {
-  token: TokenInput;
+  amount: number | "";
   balance: number;
-}): TokenInput {
-  if ((balance || 0) < (token.amount || 0)) {
-    return { ...token, valid: false, message: "Insufficient funds" };
+}): ValidationResult {
+  if ((balance || 0) < (amount || 0)) {
+    return { valid: false, message: "Insufficient funds" };
   } else {
-    return validateAmount(token);
+    return _validateAmount(amount);
   }
 }
-
-const selectTab = (state: RootState) => state.orderInput.tab;
-export const isValidQuoteInput = createSelector(
-  [
-    selectToken1,
-    selectToken2,
-    validatePriceInput,
-    validateSlippageInput,
-    selectTab,
-  ],
-  (token1, token2, priceValidationResult, slippageValidationResult, tab) => {
-    if (!token1.valid || token1.amount === undefined) {
-      return { valid: false, message: token1.message };
-    }
-
-    if (!token2.valid || token2.amount === undefined) {
-      return { valid: false, message: token2.message };
-    }
-
-    if (tab === OrderTab.LIMIT && !priceValidationResult.valid) {
-      return priceValidationResult;
-    }
-
-    if (tab === OrderTab.MARKET && !slippageValidationResult.valid) {
-      return slippageValidationResult;
-    }
-
-    return { valid: true };
-  }
-);
-
-export const isValidTransaction = createSelector(
-  [isValidQuoteInput, selectToken1, selectToken2],
-  (quoteInputValid, token1, token2) => {
-    if (!quoteInputValid.valid) {
-      return quoteInputValid;
-    }
-    if (token1.amount === "" || token2.amount === "") {
-      return { valid: false };
-    }
-
-    return { valid: true };
-  }
-);
