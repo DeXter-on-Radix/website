@@ -122,7 +122,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         chart.remove();
       };
     }
-  }, [data, dispatch]);
+  }, [data, dispatch, theme]);
   //Temporary brute force approach to trim the top of the chart to remove the gap
   return <div ref={chartContainerRef} className="relative mt-[-1.7rem]"></div>;
 }
