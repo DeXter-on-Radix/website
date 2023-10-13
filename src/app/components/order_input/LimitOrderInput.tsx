@@ -213,7 +213,9 @@ export function LimitOrderInput() {
               checked={postOnly}
               type="checkbox"
               className="checkbox checkbox-sm my-auto mr-2"
-              onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
+              onChange={() =>
+                dispatch(orderInputSlice.actions.togglePostOnly())
+              }
             />
             <span className="my-auto text-secondary-content text-sm">
               POST ONLY

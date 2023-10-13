@@ -7,7 +7,7 @@ import {
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { RDT, getRdt } from "../subscriptions";
-import { displayAmount } from "../utils";
+import { RoundType, displayAmount, roundTo } from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
@@ -327,7 +327,9 @@ export const orderInputSlice = createSlice({
 
         state.quote = quote;
         state.description = toDescription(quote);
+
         if (state.tab === OrderTab.MARKET) {
+          // MARKET
           if (state.side === OrderSide.SELL) {
             state.token2.amount = quote.toAmount;
           } else {
@@ -335,23 +337,32 @@ export const orderInputSlice = createSlice({
           }
 
           if (quote.resultCode === 5 || quote.resultCode === 6) {
-            if (state.tab === OrderTab.MARKET) {
-              if (state.side === OrderSide.SELL) {
-                state.token1.amount = quote.fromAmount;
-                state.token1.message = "Not enough liquidity.";
-              } else {
-                state.token2.amount = quote.toAmount;
-                state.token2.message = "Not enough liquidity.";
-              }
+            if (state.side === OrderSide.SELL) {
+              state.token1.amount = quote.fromAmount;
+              state.token1.message = "Not enough liquidity.";
+            } else {
+              state.token2.amount = quote.toAmount;
+              state.token2.message = "Not enough liquidity.";
             }
           }
         } else {
-          // limit order
+          // LIMIT order
           // always changing the second token here because it's always the non-target token
           if (state.side === OrderSide.SELL) {
-            state.token2.amount = Number(state.token1.amount) * state.price;
+            const amount = Number(state.token1.amount) * state.price;
+            state.token2.amount = roundTo(
+              amount,
+              adex.AMOUNT_MAX_DECIMALS,
+              RoundType.UP
+            );
           } else {
-            state.token2.amount = Number(state.token2.amount) / state.price;
+            const amount = Number(state.token1.amount) / state.price;
+            // TODO: validate with balance
+            state.token2.amount = roundTo(
+              amount,
+              adex.AMOUNT_MAX_DECIMALS,
+              RoundType.UP
+            );
           }
         }
       }
@@ -397,8 +408,10 @@ function toDescription(quote: Quote): string {
       `to receive ${displayAmount(quote.toAmount, 8)} ${
         quote.toToken.symbol
       }.\n`;
-  } else {
-    description += "Order will not immediately execute.\n";
+  }
+
+  if (quote.resultMessageLong) {
+    description += "\n" + quote.resultMessageLong;
   }
 
   return description;
