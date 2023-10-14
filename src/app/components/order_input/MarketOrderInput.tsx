@@ -120,7 +120,7 @@ export function MarketOrderInput() {
         <div className="flex-none form-control">
           <label className="label justify-center">
             <span className="label-text-alt text-secondary-content">
-              SLIPPAGE
+              SLIPPAGE LIMIT
             </span>
           </label>
           <div
@@ -132,11 +132,22 @@ export function MarketOrderInput() {
             <input
               className="!bg-base-200 w-12 text-end"
               type="number"
-              value={slippageToUiSlippage(slippage)}
+              min="0"
+              lang="en"
+              step={0.5}
+              max="100"
+              formNoValidate
+              value={slippageToUiSlippage(slippage).toString()}
               onChange={(event) => {
+                let value: string | number = event.target.value;
+                if (value === "") {
+                  value = 0;
+                } else {
+                  value = Number(value);
+                }
                 dispatch(
                   orderInputSlice.actions.setSlippage(
-                    uiSlippageToSlippage(event.target.valueAsNumber)
+                    uiSlippageToSlippage(value)
                   )
                 );
               }}
