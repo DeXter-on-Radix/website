@@ -1,9 +1,6 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import {
-  AmountInput,
-  PayReceive,
-  SwitchTokenPlacesButton,
-} from "./AmountInput";
+import { useEffect } from "react";
+
 import {
   OrderSide,
   fetchQuote,
@@ -12,8 +9,12 @@ import {
   selectTargetToken,
   validateSlippageInput,
 } from "redux/orderInputSlice";
-import { useEffect } from "react";
 import { numberOrEmptyInput } from "utils";
+import {
+  AmountInput,
+  PayReceive,
+  SwitchTokenPlacesButton,
+} from "./AmountInput";
 
 function uiSlippageToSlippage(slippage: number) {
   return slippage / 100;

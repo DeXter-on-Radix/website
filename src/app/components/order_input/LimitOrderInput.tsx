@@ -194,77 +194,71 @@ export function LimitOrderInput() {
   }, [token1, balanceToken1, side, dispatch]);
 
   return (
-    <>
-      <div className="form-control w-full">
-        <div className="my-4">
-          <AmountInput
-            {...token1}
-            payReceive={
-              side === OrderSide.BUY ? PayReceive.RECEIVE : PayReceive.PAY
-            }
-            onChange={(event) => {
-              dispatch(
-                orderInputSlice.actions.setAmountToken1(
-                  numberOrEmptyInput(event)
-                )
-              );
-            }}
-          />
+    <div className="form-control w-full">
+      <div className="my-4">
+        <AmountInput
+          {...token1}
+          payReceive={
+            side === OrderSide.BUY ? PayReceive.RECEIVE : PayReceive.PAY
+          }
+          onChange={(event) => {
+            dispatch(
+              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
+            );
+          }}
+        />
 
-          <SwitchTokenPlacesButton />
+        <SwitchTokenPlacesButton />
 
-          <NonTargetToken />
+        <NonTargetToken />
+      </div>
+
+      <PriceInput />
+
+      <div className="flex flex-row justify-between space-x-2">
+        <div className="text-left my-2 text-sm">
+          <div>
+            BEST BUY&nbsp;&nbsp;={" "}
+            <span
+              className="cursor-pointer hover:text-accent"
+              onClick={() =>
+                dispatch(orderInputSlice.actions.setPrice(bestBuyPrice || 0))
+              }
+            >
+              {bestBuyPrice}
+            </span>
+          </div>
+          <div>
+            BEST SELL ={" "}
+            <span
+              className="cursor-pointer hover:text-accent"
+              onClick={() =>
+                dispatch(orderInputSlice.actions.setPrice(bestSellPrice || 0))
+              }
+            >
+              {bestSellPrice}
+            </span>
+          </div>
         </div>
 
-        <PriceInput />
-
-        <div className="flex flex-row justify-between space-x-2">
-          <div className="text-left my-2 text-sm">
-            <div>
-              BEST BUY&nbsp;&nbsp;={" "}
-              <span
-                className="cursor-pointer hover:text-accent"
-                onClick={() =>
-                  dispatch(orderInputSlice.actions.setPrice(bestBuyPrice || 0))
-                }
-              >
-                {bestBuyPrice}
-              </span>
-            </div>
-            <div>
-              BEST SELL ={" "}
-              <span
-                className="cursor-pointer hover:text-accent"
-                onClick={() =>
-                  dispatch(orderInputSlice.actions.setPrice(bestSellPrice || 0))
-                }
-              >
-                {bestSellPrice}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex">
-            <input
-              checked={postOnly}
-              type="checkbox"
-              className="checkbox checkbox-sm my-auto mr-2"
-              onChange={() =>
-                dispatch(orderInputSlice.actions.togglePostOnly())
-              }
-            />
-            <span className="my-auto text-secondary-content text-sm">
-              POST ONLY
-            </span>
-            <div
-              className="my-auto ml-2 tooltip z-10"
-              data-tip={POST_ONLY_TOOLTIP}
-            >
-              <AiOutlineInfoCircle className="text-secondary-content text-sm" />
-            </div>
+        <div className="flex">
+          <input
+            checked={postOnly}
+            type="checkbox"
+            className="checkbox checkbox-sm my-auto mr-2"
+            onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
+          />
+          <span className="my-auto text-secondary-content text-sm">
+            POST ONLY
+          </span>
+          <div
+            className="my-auto ml-2 tooltip z-10"
+            data-tip={POST_ONLY_TOOLTIP}
+          >
+            <AiOutlineInfoCircle className="text-secondary-content text-sm" />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

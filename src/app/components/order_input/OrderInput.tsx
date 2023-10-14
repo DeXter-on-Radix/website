@@ -96,7 +96,7 @@ export function OrderInput() {
                 {quote?.liquidityFees} {quote?.toToken?.symbol}
               </div>
             </div>
-            <div className="">
+            <div>
               <div>{description}</div>
             </div>
           </div>
