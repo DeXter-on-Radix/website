@@ -13,7 +13,7 @@ export function OrderTypeTabs() {
     );
   }
   return (
-    <div className="tabs mt-4 uppercase">
+    <div className="tabs uppercase">
       <div
         className={tabClass(activeTab === OrderTab.MARKET)}
         onClick={() => dispatch(actions.setActiveTab(OrderTab.MARKET))}
