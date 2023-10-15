@@ -15,6 +15,7 @@ import {
   PayReceive,
   SwitchTokenPlacesButton,
 } from "./AmountInput";
+import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
 function uiSlippageToSlippage(slippage: number) {
   return slippage / 100;
@@ -156,11 +157,8 @@ export function MarketOrderInput() {
           </div>
         </div>
       </div>
-      <label className="label pt-0 justify-end">
-        <span className="label-text-alt text-error">
-          {slippageValidationResult.message}
-        </span>
-      </label>
+
+      <BottomRightErrorLabel message={slippageValidationResult.message} />
     </div>
   );
 }

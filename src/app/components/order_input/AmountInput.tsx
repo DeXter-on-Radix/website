@@ -9,6 +9,7 @@ import {
   selectTargetToken,
   selectValidationByAddress,
 } from "redux/orderInputSlice";
+import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -86,10 +87,7 @@ export function AmountInput(props: TokenInputFiledProps) {
         ></input>
       </div>
 
-      {/* error message */}
-      <label className="label justify-end pt-0">
-        <span className="label-text-alt text-error">{message}</span>
-      </label>
+      <BottomRightErrorLabel message={message} />
     </div>
   );
 }

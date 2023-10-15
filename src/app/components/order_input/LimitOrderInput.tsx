@@ -15,6 +15,7 @@ import {
 } from "./AmountInput";
 import { numberOrEmptyInput } from "utils";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
 const POST_ONLY_TOOLTIP =
   "If your price is very close to the current market price, your limit order might fill immediately, " +
@@ -78,10 +79,7 @@ function NonTargetToken() {
         <span className="mr-1">{amount}</span>
       </div>
 
-      {/* error message */}
-      <label className="label justify-end pt-0">
-        <span className="label-text-alt text-error">{message}</span>
-      </label>
+      <BottomRightErrorLabel message={message} />
     </div>
   );
 }
@@ -130,12 +128,8 @@ function PriceInput() {
           />
         </div>
       </div>
-      {/* error message */}
-      <label className="label justify-end pt-0">
-        <span className="label-text-alt text-error">
-          {priceValidationResult.message}
-        </span>
-      </label>
+
+      <BottomRightErrorLabel message={priceValidationResult.message} />
     </>
   );
 }
