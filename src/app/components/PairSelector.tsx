@@ -13,12 +13,14 @@ export function PairSelector() {
   };
 
   return (
-    <div className="dropdown w-full" id="pair-selector">
+    <div className="dropdown w-full">
       <label
         tabIndex={0}
         className="justify-between btn btn-block px-8 text-xl font-bold"
       >
-        <span>{displayName(pairSelector.name) || "Loading"}</span>
+        <span id="pair-selector-text">
+          {displayName(pairSelector.name) || "Loading"}
+        </span>
         <span className="float-right">
           <svg
             xmlns="http://www.w3.org/2000/svg"
