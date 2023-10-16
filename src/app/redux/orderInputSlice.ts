@@ -24,6 +24,9 @@ export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
+interface QuoteWithPriceTokenAddress extends Quote {
+  priceTokenAddress: string;
+}
 
 export interface ValidationResult {
   valid: boolean;
@@ -68,7 +71,7 @@ function adexOrderType(state: OrderInputState): adex.OrderType {
   throw new Error("Invalid order type");
 }
 
-const initialTokenInput = {
+export const initialTokenInput = {
   address: "",
   symbol: "",
   iconUrl: "",
@@ -80,7 +83,7 @@ const initialValidationResult = {
   message: "",
 };
 
-const initialState: OrderInputState = {
+export const initialState: OrderInputState = {
   token1: initialTokenInput,
   validationToken1: initialValidationResult,
   token2: initialTokenInput,
@@ -92,66 +95,6 @@ const initialState: OrderInputState = {
   slippage: 0.01,
   transactionInProgress: false,
 };
-
-export const fetchQuote = createAsyncThunk<
-  Quote | undefined, // Return type of the payload creator
-  undefined, // set to undefined if the thunk doesn't expect any arguments
-  { state: RootState }
->("orderInput/fetchQuote", async (_arg, thunkAPI) => {
-  const state = thunkAPI.getState();
-  if (state.pairSelector.address === "") {
-    throw new Error("Pair address is not initilized yet.");
-  }
-
-  let priceToSend = undefined;
-  let slippageToSend = undefined;
-
-  if (state.orderInput.tab === OrderTab.LIMIT) {
-    priceToSend = state.orderInput.price;
-  } else {
-    slippageToSend = state.orderInput.slippage;
-  }
-  const targetToken = selectTargetToken(state);
-
-  if (!targetToken?.amount) {
-    throw new Error("No amount specified when fetching quote.");
-  }
-
-  const response = await adex.getExchangeOrderQuote(
-    state.pairSelector.address,
-    adexOrderType(state.orderInput),
-    state.orderInput.side,
-    targetToken.address,
-    targetToken.amount,
-    PLATFORM_FEE,
-    priceToSend,
-    slippageToSend
-  );
-  const quote = JSON.parse(JSON.stringify(response.data));
-
-  return { ...quote };
-});
-
-export const submitOrder = createAsyncThunk<
-  SdkResult,
-  undefined,
-  { state: RootState }
->("orderInput/submitOrder", async (_arg, thunkAPI) => {
-  const state = thunkAPI.getState();
-  const dispatch = thunkAPI.dispatch;
-  const rdt = getRdt();
-
-  if (!rdt) {
-    throw new Error("RDT is not initialized yet.");
-  }
-
-  const result = await createTx(state, rdt);
-  //Updates account history + balances
-  dispatch(fetchBalances());
-  dispatch(fetchAccountHistory());
-
-  return result;
-});
 
 export const selectTargetToken = (state: RootState) => {
   if (state.orderInput.tab === OrderTab.MARKET) {
@@ -215,6 +158,66 @@ export const selectBalanceByAddress = createSelector(
     }
   }
 );
+
+export const fetchQuote = createAsyncThunk<
+  QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
+  undefined, // set to undefined if the thunk doesn't expect any arguments
+  { state: RootState }
+>("orderInput/fetchQuote", async (_arg, thunkAPI) => {
+  const state = thunkAPI.getState();
+  if (state.pairSelector.address === "") {
+    throw new Error("Pair address is not initilized yet.");
+  }
+
+  let priceToSend = undefined;
+  let slippageToSend = undefined;
+
+  if (state.orderInput.tab === OrderTab.LIMIT) {
+    priceToSend = state.orderInput.price;
+  } else {
+    slippageToSend = state.orderInput.slippage;
+  }
+  const targetToken = selectTargetToken(state);
+
+  if (!targetToken?.amount) {
+    throw new Error("No amount specified when fetching quote.");
+  }
+
+  const response = await adex.getExchangeOrderQuote(
+    state.pairSelector.address,
+    adexOrderType(state.orderInput),
+    state.orderInput.side,
+    targetToken.address,
+    targetToken.amount,
+    PLATFORM_FEE,
+    priceToSend,
+    slippageToSend
+  );
+  const quote: Quote = JSON.parse(JSON.stringify(response.data));
+
+  return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
+});
+
+export const submitOrder = createAsyncThunk<
+  SdkResult,
+  undefined,
+  { state: RootState }
+>("orderInput/submitOrder", async (_arg, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const dispatch = thunkAPI.dispatch;
+  const rdt = getRdt();
+
+  if (!rdt) {
+    throw new Error("RDT is not initialized yet.");
+  }
+
+  const result = await createTx(state, rdt);
+  //Updates account history + balances
+  dispatch(fetchBalances());
+  dispatch(fetchAccountHistory());
+
+  return result;
+});
 
 export const orderInputSlice = createSlice({
   name: "orderInput",
@@ -343,7 +346,10 @@ export const orderInputSlice = createSlice({
 
     builder.addCase(
       fetchQuote.fulfilled,
-      (state, action: PayloadAction<Quote | undefined>) => {
+      (
+        state,
+        action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
+      ) => {
         const quote = action.payload;
 
         if (!quote) {
@@ -387,21 +393,11 @@ export const orderInputSlice = createSlice({
         } else {
           // LIMIT order
           // always changing the second token here because it's always the non-target token
-          if (state.side === OrderSide.SELL) {
-            const amount = Number(state.token1.amount) * state.price;
-            state.token2.amount = roundTo(
-              amount,
-              adex.AMOUNT_MAX_DECIMALS,
-              RoundType.UP
-            );
-          } else {
-            const amount = Number(state.token1.amount) / state.price;
-            state.token2.amount = roundTo(
-              amount,
-              adex.AMOUNT_MAX_DECIMALS,
-              RoundType.UP
-            );
-          }
+          state.token2.amount = calculateCost(
+            state.token1,
+            state.price,
+            quote.priceTokenAddress
+          );
         }
       }
     );
@@ -581,4 +577,30 @@ function _validateAmountWithBalance({
   } else {
     return _validateAmount(amount);
   }
+}
+
+export function calculateCost(
+  token1: { amount: number | ""; address: string },
+  price: number,
+  priceTokenAddress: string
+): number | "" {
+  if (token1.amount === "" || token1.amount === 0) {
+    return token1.amount;
+  }
+  const amountToken1 = Number(token1.amount);
+  if (isNaN(amountToken1)) {
+    console.error("Invalid amount:", token1.amount);
+    return "";
+  }
+
+  let cost;
+  if (token1.address === priceTokenAddress) {
+    cost = amountToken1 / price;
+  } else {
+    cost = amountToken1 * price;
+  }
+
+  cost = roundTo(cost, adex.AMOUNT_MAX_DECIMALS, RoundType.NEAREST);
+
+  return cost;
 }
