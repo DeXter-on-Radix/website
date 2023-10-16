@@ -1,4 +1,4 @@
-// utiluty function to display numbers in a fixed format
+import { store } from "redux/store";
 
 export function displayPositiveNumber(x: number, decimals: number): string {
   // the same as with displayNumber, but if the number is negative, it will return empty string
@@ -9,11 +9,26 @@ export function displayPositiveNumber(x: number, decimals: number): string {
   }
 }
 
+export function getLocaleSeparators(): {
+  decimalSeparator: string;
+  thousandsSeparator: string;
+} {
+  let decimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
+  let thousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
+  if (thousandsSeparator == "0") {
+    thousandsSeparator = "";
+  }
+  return {
+    decimalSeparator,
+    thousandsSeparator,
+  };
+}
+
 export function displayAmount(
   x: number,
   noDigits: number = 6,
-  decimalSeparator: string = ".",
-  thousandsSeparator: string = " ",
+  decimalSeparator: string = store.getState().ui.decimalSeparator,
+  thousandsSeparator: string = store.getState().ui.thousandsSeparator,
   fixedDecimals: number = -1
 ): string {
   if (noDigits < 4) {
