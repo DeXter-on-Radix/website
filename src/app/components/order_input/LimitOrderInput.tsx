@@ -115,10 +115,11 @@ function PriceInput() {
           <input
             type="number"
             className="p-2 text-end text-accent min-w-0 !bg-base-200"
-            value={price.toString()}
+            value={price}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const price = event.target.valueAsNumber;
-              dispatch(orderInputSlice.actions.setPrice(price));
+              dispatch(
+                orderInputSlice.actions.setPrice(numberOrEmptyInput(event))
+              );
             }}
           />
           <img

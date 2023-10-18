@@ -48,8 +48,8 @@ export interface OrderInputState {
   tab: OrderTab;
   postOnly: boolean;
   side: OrderSide;
-  price: number;
-  slippage: number;
+  price: number | "";
+  slippage: number | "";
   quote?: Quote;
   description?: string;
   transactionInProgress: boolean;
@@ -172,9 +172,12 @@ export const fetchQuote = createAsyncThunk<
   let priceToSend = undefined;
   let slippageToSend = undefined;
 
-  if (state.orderInput.tab === OrderTab.LIMIT) {
+  if (
+    state.orderInput.tab === OrderTab.LIMIT &&
+    state.orderInput.price !== ""
+  ) {
     priceToSend = state.orderInput.price;
-  } else {
+  } else if (state.orderInput.slippage !== "") {
     slippageToSend = state.orderInput.slippage;
   }
   const targetToken = selectTargetToken(state);
@@ -321,7 +324,7 @@ export const orderInputSlice = createSlice({
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
     },
-    setPrice(state, action: PayloadAction<number>) {
+    setPrice(state, action: PayloadAction<number | "">) {
       state.price = action.payload;
     },
     setSlippage(state, action: PayloadAction<number>) {
@@ -456,24 +459,30 @@ function toDescription(quote: Quote): string {
 
 async function createTx(state: RootState, rdt: RDT) {
   const tab = state.orderInput.tab;
-  const price = state.orderInput.price;
-  const slippage = state.orderInput.slippage;
-  const orderPrice = tab === OrderTab.LIMIT ? price : -1;
-  const orderSlippage = tab === OrderTab.MARKET ? slippage : -1;
-  //Adex creates the transaction manifest
   const targetToken = selectTargetToken(state);
+
+  let slippage = -1;
+  let price = -1;
+
+  if (tab === OrderTab.MARKET && state.orderInput.slippage !== "") {
+    slippage = state.orderInput.slippage;
+  } else if (tab === OrderTab.LIMIT && state.orderInput.price !== "") {
+    price = state.orderInput.price;
+  }
 
   if (!targetToken?.amount) {
     throw new Error("No amount specified when creating transaction.");
   }
+
+  //Adex creates the transaction manifest
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
     state.orderInput.side,
     targetToken.address,
     targetToken.amount,
-    orderPrice,
-    orderSlippage,
+    price,
+    slippage,
     PLATFORM_BADGE_ID,
     state.radix?.walletData.accounts[0]?.address || "",
     state.radix?.walletData.accounts[0]?.address || ""
@@ -494,6 +503,10 @@ async function createTx(state: RootState, rdt: RDT) {
 export const validateSlippageInput = createSelector(
   [selectSlippage],
   (slippage) => {
+    if (slippage === "") {
+      return { valid: false, message: "Slippage must be specified" };
+    }
+
     if (slippage < 0) {
       return { valid: false, message: "Slippage must be positive" };
     }
@@ -515,6 +528,10 @@ export const validatePriceInput = createSelector(
     selectSide,
   ],
   (price, priceMaxDecimals, bestBuy, bestSell, side) => {
+    if (price === "") {
+      return { valid: false, message: "Price must be specified" };
+    }
+
     if (price <= 0) {
       return { valid: false, message: "Price must be greater than 0" };
     }
@@ -581,11 +598,14 @@ function _validateAmountWithBalance({
 
 export function calculateCost(
   token1: { amount: number | ""; address: string },
-  price: number,
+  price: number | "",
   priceTokenAddress: string
 ): number | "" {
   if (token1.amount === "" || token1.amount === 0) {
     return token1.amount;
+  }
+  if (price === "" || price === 0) {
+    return "";
   }
   const amountToken1 = Number(token1.amount);
   if (isNaN(amountToken1)) {

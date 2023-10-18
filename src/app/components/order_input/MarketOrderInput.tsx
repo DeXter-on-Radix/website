@@ -17,11 +17,17 @@ import {
 } from "./AmountInput";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
-function uiSlippageToSlippage(slippage: number) {
+function uiSlippageToSlippage(slippage: number | "") {
+  if (slippage === "") {
+    return "";
+  }
   return slippage / 100;
 }
 
-function slippageToUiSlippage(slippage: number) {
+function slippageToUiSlippage(slippage: number | "") {
+  if (slippage === "") {
+    return "";
+  }
   return slippage * 100;
 }
 
@@ -138,17 +144,11 @@ export function MarketOrderInput() {
               step={0.5}
               max="100"
               formNoValidate
-              value={slippageToUiSlippage(slippage).toString()}
+              value={slippageToUiSlippage(slippage)}
               onChange={(event) => {
-                let value: string | number = event.target.value;
-                if (value === "") {
-                  value = 0;
-                } else {
-                  value = Number(value);
-                }
                 dispatch(
                   orderInputSlice.actions.setSlippage(
-                    uiSlippageToSlippage(value)
+                    uiSlippageToSlippage(numberOrEmptyInput(event))
                   )
                 );
               }}
