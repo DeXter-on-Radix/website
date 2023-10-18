@@ -115,6 +115,11 @@ export function OrderBook() {
   return (
     <div className="p-2 text-sx text-primary-content">
       <div className="sized-columns">
+        <div className="">
+          <span className="text-secondary-content text-sm font-bold uppercase">
+            Orderbook
+          </span>
+        </div>
         <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
           <div className="text-start">
             Order
@@ -134,7 +139,8 @@ export function OrderBook() {
             <br />({token1Symbol})
           </div>
         </div>
-
+      </div>
+      <div className="sized-columns mx-2 col-span-4 text-sm">
         {sells.map((props, index) => (
           <OrderBookRow key={"sell-" + index} {...props} />
         ))}

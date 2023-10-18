@@ -47,7 +47,7 @@ export function toOrderBookRowProps(
     adexRows.reverse();
     barColor = "hsl(var(--erc))";
   }
-  adexRows = adexRows.slice(0, 8); // Limit to 8 rows
+  adexRows = adexRows.slice(0, 11); // Limit to 8 rows
 
   let total = 0;
   let maxTotal = 0;
@@ -70,7 +70,7 @@ export function toOrderBookRowProps(
   }
 
   // If there are fewer than 8 orders, fill the remaining rows with empty values
-  while (props.length < 8) {
+  while (props.length < 11) {
     props.push({ absentOrders: "\u00A0" });
   }
 
@@ -101,7 +101,6 @@ export const orderBookSlice = createSlice({
         adexState.currentPairOrderbook.buys,
         "buy"
       );
-
       let bestSell = sells[sells.length - 1]?.price || null;
       let bestBuy = buys[0]?.price || null;
 
