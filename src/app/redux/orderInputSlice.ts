@@ -327,12 +327,8 @@ export const orderInputSlice = createSlice({
     setPrice(state, action: PayloadAction<number | "">) {
       state.price = action.payload;
     },
-    setSlippage(state, action: PayloadAction<number>) {
-      if (action.payload <= 1) {
-        state.slippage = action.payload;
-      } else {
-        state.slippage = 1;
-      }
+    setSlippage(state, action: PayloadAction<number | "">) {
+      state.slippage = action.payload;
     },
     togglePostOnly(state) {
       state.postOnly = !state.postOnly;
