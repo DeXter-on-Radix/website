@@ -43,6 +43,15 @@ export function AmountInput(props: TokenInputFiledProps) {
     onChange,
   } = props;
 
+  // TODO: after https://github.com/DeXter-on-Radix/website/pull/159
+  // read this from the state instead
+  const getDecimalSeparator = () => {
+    const numberWithDecimal = 1.1;
+    return numberWithDecimal.toLocaleString().substring(1, 2);
+  };
+
+  const placeholder = `0${getDecimalSeparator()}0`;
+
   return (
     <div className="form-control my-2">
       {/* balance */}
@@ -77,6 +86,7 @@ export function AmountInput(props: TokenInputFiledProps) {
         <input
           disabled={disabled || false}
           type="number"
+          placeholder={placeholder}
           value={amount}
           className={
             "flex-1 text-end mr-1 min-w-0" +
