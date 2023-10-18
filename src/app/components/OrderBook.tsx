@@ -114,13 +114,17 @@ export function OrderBook() {
 
   return (
     <div className="p-2 text-sx text-primary-content">
-      <div className="sized-columns">
-        <div className="">
-          <span className="text-secondary-content text-sm font-bold uppercase">
-            Orderbook
-          </span>
+      <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
+        <div className="justify-self-start">Order book</div>
+        <div className="join">
+          <span className="join-item">Grouping: </span>
+          <input className="input-xs w-16 join-item"></input>
+          <button className="btn btn-xs btn-accent join-item">-</button>
+          <button className="btn btn-xs btn-accent join-item">+</button>
         </div>
-        <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
+      </div>
+      <div className="sized-columns">
+        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
           <div className="text-start">
             Order
             <br />
