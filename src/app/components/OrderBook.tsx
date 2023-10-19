@@ -1,8 +1,9 @@
 import { CSSProperties } from "react";
+
+import { useAppSelector } from "../hooks";
+import { OrderBookRowProps } from "../redux/orderBookSlice";
 import "../styles/orderbook.css";
 import * as utils from "../utils";
-import { OrderBookRowProps } from "../redux/orderBookSlice";
-import { useAppSelector } from "../hooks";
 
 function OrderBookRow(props: OrderBookRowProps) {
   const { barColor, orderCount, price, size, total, maxTotal } = props;
@@ -32,7 +33,7 @@ function OrderBookRow(props: OrderBookRowProps) {
 
     return (
       <div className="relative col-span-4 sized-columns text-xs mb-0.5 py-0.5 ">
-        <div className="" style={barStyle}></div>
+        <div style={barStyle}></div>
         <div className="order-cell text-start ml-2">{orderCount}</div>
         <div className="order-cell text-end">{priceString}</div>
         <div className="order-cell text-end">{sizeString}</div>

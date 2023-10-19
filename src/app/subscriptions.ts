@@ -12,6 +12,7 @@ import { orderBookSlice } from "./redux/orderBookSlice";
 import { updateCandles } from "./redux/priceChartSlice";
 import { updatePriceInfo } from "./redux/priceInfoSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
+import { orderInputSlice } from "redux/orderInputSlice";
 import { AppStore } from "./redux/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
@@ -59,6 +60,7 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
+      store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
     })
   );
 }

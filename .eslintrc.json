@@ -4,7 +4,7 @@
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
-    "no-console": ["warn", { "allow": ["error"] }],
+    "no-console": ["warn", { "allow": ["error", "debug"] }],
     "prettier/prettier": [
       "error",
       {
