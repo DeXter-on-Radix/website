@@ -52,31 +52,40 @@ export function toOrderBookRowProps(
   }
   //console.log(adexRows);
   //group the by the grouping amount
-  //console.log(grouping);
+  console.log("grouping %d", grouping);
+  let groupedArray;
+  if (grouping > 0) {
+    const roundToGroup = (num: number) => Math.round(num / grouping) * grouping;
 
-  const groupedArray = adexRows.reduce((result, item) => {
-    const existingItem: adex.OrderbookLine = result.find(
-      (x: adex.OrderbookLine) => x.price === item.price
-    );
-    //if (existingItem === undefined) return result;
-    if (existingItem) {
-      // If an item with the same price exists, aggregate the values
-      existingItem.quantityRemaining += item.quantityRemaining;
-      existingItem.valueRemaining += item.valueRemaining;
-      existingItem.noOrders += item.noOrders;
-      existingItem.orders = existingItem.orders.concat(item.orders);
-      existingItem.total += item.total;
-    } else {
-      // If it's a new price, add it to the result
-      result.push({ ...item });
+    if (adexRows.length > 0) {
+      groupedArray = adexRows.reduce((result: adex.OrderbookLine[], item) => {
+        const key = roundToGroup(item.price);
+        const foundItem = result.find(
+          (x: adex.OrderbookLine) => x.price === key
+        ); // note that we don't specify the type here
+        let existingItem: adex.OrderbookLine; // declare the variable without assigning it
+        if (foundItem !== undefined) {
+          // if the foundItem is not undefined, we can assign it safely
+          existingItem = foundItem;
+          existingItem.quantityRemaining += item.quantityRemaining;
+          existingItem.valueRemaining += item.valueRemaining;
+          existingItem.noOrders += item.noOrders;
+          existingItem.orders = existingItem.orders.concat(item.orders);
+          existingItem.total += item.total;
+        } else {
+          // If it's a new price, add it to the result
+          item.price = key;
+          result.push({ ...item });
+        }
+        return result;
+      }, []);
     }
-
-    return result;
-  }, []);
-  console.log(groupedArray);
-
-  adexRows = adexRows.slice(0, 11); // Limit to 8 rows
-
+  }
+  if (groupedArray != null) {
+    adexRows = groupedArray.slice(0, 11); //adexRows.slice(0, 11); // Limit to 8 rows
+  } else {
+    adexRows = adexRows.slice(0, 11);
+  }
   let total = 0;
   let maxTotal = 0;
   for (let adexRow of adexRows) {
