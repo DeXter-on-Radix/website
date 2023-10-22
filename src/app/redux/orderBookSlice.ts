@@ -130,6 +130,7 @@ export const orderBookSlice = createSlice({
   reducers: {
     updateAdex(state: OrderBookState, action: PayloadAction<adex.StaticState>) {
       const adexState = action.payload;
+      console.log(adexState);
       const grouping = state.grouping;
 
       const sells = toOrderBookRowProps(
@@ -161,19 +162,45 @@ export const orderBookSlice = createSlice({
       state.bestBuy = bestBuy;
     },
     setGrouping(state, action: PayloadAction<number>) {
-      state.grouping = action.payload;
-      setFromGrouping(state);
+      if (action.payload === null) {
+        state.grouping = 0;
+      } else if (action.payload < 0) {
+        state.grouping = 0;
+      } else {
+        state.grouping = action.payload;
+      }
+
+      const sells = toOrderBookRowProps(
+        adex.clientState.currentPairOrderbook.sells,
+        "sell",
+        state.grouping || 0
+      );
+      const buys = toOrderBookRowProps(
+        adex.clientState.currentPairOrderbook.buys,
+        "buy",
+        state.grouping || 0
+      );
+
+      let bestSell = sells[sells.length - 1]?.price || null;
+      let bestBuy = buys[0]?.price || null;
+
+      if (bestBuy !== null && bestSell !== null) {
+        const spread = bestSell - bestBuy;
+        if (bestBuy + bestSell !== 0) {
+          const spreadPercent = ((2 * spread) / (bestBuy + bestSell)) * 100;
+          state.spreadPercent = spreadPercent;
+        }
+        state.spread = spread;
+      }
+
+      state.sells = sells;
+      state.buys = buys;
+      state.lastPrice = adex.clientState.currentPairInfo.lastPrice;
+      state.bestSell = bestSell;
+      state.bestBuy = bestBuy;
     },
   },
 });
-
-function setFromGrouping(state: OrderBookState) {
-  if (state.grouping === null) {
-    state.grouping = 0;
-  } else if (state.grouping < 0) {
-    state.grouping = 0;
-  }
-}
 
 export const selectBestBuy = (state: RootState) => state.orderBook.bestBuy;
 export const selectBestSell = (state: RootState) => state.orderBook.bestSell;
