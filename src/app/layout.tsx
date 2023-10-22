@@ -8,8 +8,6 @@ import { Navbar } from "./components/NavBar";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
-import { getLocaleSeparators } from "utils";
-import { uiSlice } from "redux/uiSlice";
 
 export default function RootLayout({
   children,
@@ -20,13 +18,6 @@ export default function RootLayout({
 
   useEffect(() => {
     initializeSubscriptions(store);
-    let separators = getLocaleSeparators();
-    store.dispatch(
-      uiSlice.actions.setDecimalSeparator(separators.decimalSeparator)
-    );
-    store.dispatch(
-      uiSlice.actions.setThousandsSeparator(separators.thousandsSeparator)
-    );
     return () => {
       unsubscribeAll();
     };

@@ -1,5 +1,3 @@
-import { store } from "redux/store";
-
 export function displayPositiveNumber(x: number, decimals: number): string {
   // the same as with displayNumber, but if the number is negative, it will return empty string
   if (x < 0) {
@@ -27,16 +25,14 @@ export function getLocaleSeparators(): {
 export function displayAmount(
   x: number,
   noDigits: number = 6,
-  decimalSeparator: string = store.getState().ui.decimalSeparator,
-  thousandsSeparator: string = store.getState().ui.thousandsSeparator,
   fixedDecimals: number = -1
 ): string {
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
   }
-  if (decimalSeparator == "") {
-    return 'ERROR: desiplayAmount decimalSeparator cannot be ""';
-  }
+
+  const { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
+
   if (x < 1) {
     let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
     if (fixedDecimals >= 0 && fixedDecimals <= noDigits - 2) {
