@@ -1,7 +1,5 @@
 import { CSSProperties } from "react";
 
-import { useAppSelector } from "../hooks";
-import { OrderBookRowProps } from "../redux/orderBookSlice";
 import "../styles/orderbook.css";
 import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../redux/orderBookSlice";
