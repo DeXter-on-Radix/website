@@ -1,7 +1,7 @@
 "use client";
 
 import { OrderBook } from "components/OrderBook";
-import { OrderInput } from "components/OrderInput";
+import { OrderInput } from "components/order_input/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
