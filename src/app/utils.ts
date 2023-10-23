@@ -1,5 +1,3 @@
-// utiluty function to display numbers in a fixed format
-
 export function displayPositiveNumber(x: number, decimals: number): string {
   // the same as with displayNumber, but if the number is negative, it will return empty string
   if (x < 0) {
@@ -9,19 +7,41 @@ export function displayPositiveNumber(x: number, decimals: number): string {
   }
 }
 
+export function getLocaleSeparators(): {
+  localeDecimalSeparator: string;
+  localeThousandsSeparator: string;
+} {
+  let localeDecimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
+  let localeThousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
+  if (localeThousandsSeparator == "0") {
+    localeThousandsSeparator = "";
+  }
+  return {
+    localeDecimalSeparator,
+    localeThousandsSeparator,
+  };
+}
+
 export function displayAmount(
   x: number,
   noDigits: number = 6,
-  decimalSeparator: string = ".",
-  thousandsSeparator: string = " ",
-  fixedDecimals: number = -1
+  fixedDecimals: number = -1,
+  decimalSeparator: string | undefined = undefined,
+  thousandsSeparator: string | undefined = undefined
 ): string {
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
   }
-  if (decimalSeparator == "") {
-    return 'ERROR: desiplayAmount decimalSeparator cannot be ""';
+
+  const { localeDecimalSeparator, localeThousandsSeparator } =
+    getLocaleSeparators();
+  if (decimalSeparator == undefined) {
+    decimalSeparator = localeDecimalSeparator;
   }
+  if (thousandsSeparator == undefined) {
+    thousandsSeparator = localeThousandsSeparator;
+  }
+
   if (x < 1) {
     let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
     if (fixedDecimals >= 0 && fixedDecimals <= noDigits - 2) {
