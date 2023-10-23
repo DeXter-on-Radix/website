@@ -30,7 +30,7 @@ let subs: Subscription[] = [];
 export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress:
-      "account_tdx_d_12yhr42q497c46lr9vxkfsln9e9f3kjj8t5qexznpeq3ewxxqnhm527",
+      "account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y",
     networkId: RadixNetwork.Stokenet,
   });
   rdtInstance.walletApi.setRequestData(
