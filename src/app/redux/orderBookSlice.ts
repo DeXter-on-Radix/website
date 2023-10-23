@@ -39,9 +39,6 @@ export function toOrderBookRowProps(
   side: "sell" | "buy",
   grouping: number
 ): OrderBookRowProps[] {
-  // this will drop the rows that do not fit into 8 buys/sells
-  // TODO: implement pagination or scrolling
-
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
@@ -79,7 +76,7 @@ export function toOrderBookRowProps(
     }
   }
   if (groupedArray != null) {
-    adexRows = groupedArray.slice(0, 11); //adexRows.slice(0, 11); // Limit to 8 rows
+    adexRows = groupedArray.slice(0, 11); //adexRows.slice(0, 11); // Limit to 11 rows
   } else {
     adexRows = adexRows.slice(0, 11);
   }
@@ -103,7 +100,7 @@ export function toOrderBookRowProps(
     props[i].maxTotal = maxTotal;
   }
 
-  // If there are fewer than 8 orders, fill the remaining rows with empty values
+  // If there are fewer than 11 orders, fill the remaining rows with empty values
   while (props.length < 11) {
     props.push({ absentOrders: "\u00A0" });
   }
