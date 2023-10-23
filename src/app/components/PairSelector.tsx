@@ -89,15 +89,11 @@ export function PairSelector() {
   const selectPair = (pairAddress: string) => {
     dispatch(selectPairAddress(pairAddress));
   };
-  const options = [
-    { id: 1, name: "Graspus graspus" },
-    { id: 2, name: "Grus rubicundus" },
-    { id: 3, name: "Speothos vanaticus" },
-  ];
-  const label = "name";
+  console.log(pairSelector.pairsList);
+  const options = pairSelector.pairsList;
   const id = "pairAddress";
-  const selectedVal = "A";
-  const handleChange = (val) => setValue(val);
+  const selectedVal = pairSelector.pairsList[0] ? pairSelector.pairsList[0].name : "Loading";
+  const handleChange = (val) => {console.log(val);selectPair(val)};
 
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +107,7 @@ export function PairSelector() {
 
   const selectOption = (option) => {
     setQuery(() => "");
-    handleChange(option[label]);
+    handleChange(option["address"]);
     setIsOpen((isOpen) => !isOpen);
   };
 
@@ -128,12 +124,12 @@ export function PairSelector() {
 
   const filter = (options) => {
     return options.filter(
-      (option) => option[label].toLowerCase().indexOf(query.toLowerCase()) > -1
+      (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
   };
 
   return (
-    <div className="dropdown w-full">
+    <div className="w-full">
       <div className="control">
         <div className="selected-value">
           <input
@@ -148,19 +144,20 @@ export function PairSelector() {
             onClick={toggle}
           />
         </div>
-        <div className={`arrow ${isOpen ? "open" : ""}`}></div>
+        <div className={`arrow ${isOpen ? "" : "hidden"}`}></div>
       </div>
 
-      <div className={`options ${isOpen ? "open" : ""}`}>
+      <div className={`options ${isOpen ? "" : "hidden"}`}>
         {filter(options).map((option, index) => {
           return (
             <div
               onClick={() => selectOption(option)}
-              className={`option ${option[label] === selectedVal ? "selected" : ""
-                }`}
+              className={`option ${
+                option["name"] === selectedVal ? "selected" : ""
+              }`}
               key={`${id}-${index}`}
             >
-              {option[label]}
+              {option["name"]}
             </div>
           );
         })}
