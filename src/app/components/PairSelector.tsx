@@ -89,11 +89,15 @@ export function PairSelector() {
   const selectPair = (pairAddress: string) => {
     dispatch(selectPairAddress(pairAddress));
   };
-  console.log(pairSelector.pairsList);
   const options = pairSelector.pairsList;
-  const id = "pairAddress";
-  const selectedVal = pairSelector.pairsList[0] ? pairSelector.pairsList[0].name : "Loading";
-  const handleChange = (val) => {console.log(val);selectPair(val)};
+  const id = "pairOption";
+  const selectedVal = pairSelector.pairsList[0]
+    ? pairSelector.pairsList[0].name
+    : "Loading";
+  const handleChange = (val) => {
+    console.log(val);
+    selectPair(val);
+  };
 
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -130,37 +134,58 @@ export function PairSelector() {
 
   return (
     <div className="w-full">
-      <div className="control">
-        <div className="selected-value">
-          <input
-            ref={inputRef}
-            type="text"
-            value={getDisplayValue()}
-            name="searchTerm"
-            onChange={(e) => {
-              setQuery(e.target.value);
-              handleChange(null);
-            }}
-            onClick={toggle}
-          />
-        </div>
-        <div className={`arrow ${isOpen ? "" : "hidden"}`}></div>
-      </div>
-
-      <div className={`options ${isOpen ? "" : "hidden"}`}>
-        {filter(options).map((option, index) => {
-          return (
-            <div
-              onClick={() => selectOption(option)}
-              className={`option ${
-                option["name"] === selectedVal ? "selected" : ""
-              }`}
-              key={`${id}-${index}`}
-            >
-              {option["name"]}
-            </div>
-          );
-        })}
+      <div className="dropdown dropdown-end">
+        <label className="justify-between btn btn-block px-8 text-xl font-bold">
+          <div className="selected-value">
+            <input
+              ref={inputRef}
+              type="text"
+              value={getDisplayValue()}
+              name="searchTerm"
+              onChange={(e) => {
+                setQuery(e.target.value);
+                handleChange(null);
+              }}
+              onClick={toggle}
+            />
+            <span className="float-right">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="white"
+                viewBox="0 0 16 16"
+              >
+                <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+              </svg>
+            </span>
+          </div>
+        </label>
+        <ul
+          tabIndex={0}
+          className={
+            `options ${isOpen ? "" : ""}` +
+            " dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
+          }
+        >
+          {filter(options).map((option, index) => {
+            return (
+              <li
+                onClick={() => selectOption(option)}
+                className={
+                  `${option["name"] === selectedVal ? "selected" : ""}` +
+                  " font-bold !pl-0"
+                }
+                key={`${id}-${index}`}
+              >
+                <button>
+                  {displayName(option["name"])}
+                  <span>+</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
