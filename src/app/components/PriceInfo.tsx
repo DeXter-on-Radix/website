@@ -5,44 +5,12 @@ import { displayAmount } from "../utils";
 export function PriceInfo() {
   const priceInfo = useAppSelector((state) => state.priceInfo);
   const noDigits = 4;
-  const decimalSeparator = ".";
-  const thousandSeparator = ",";
   const fixedDecimals = 3;
-  const lastPrice = displayAmount(
-    priceInfo.lastPrice,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    fixedDecimals
-  );
-  const change = displayAmount(
-    priceInfo.change24h,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    fixedDecimals
-  );
-  const high = displayAmount(
-    priceInfo.high24h,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    fixedDecimals
-  );
-  const low = displayAmount(
-    priceInfo.low24h,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    fixedDecimals
-  );
-  const volume = displayAmount(
-    priceInfo.value24h,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    fixedDecimals
-  );
+  const lastPrice = displayAmount(priceInfo.lastPrice, noDigits, fixedDecimals);
+  const change = displayAmount(priceInfo.change24h, noDigits, fixedDecimals);
+  const high = displayAmount(priceInfo.high24h, noDigits, fixedDecimals);
+  const low = displayAmount(priceInfo.low24h, noDigits, fixedDecimals);
+  const volume = displayAmount(priceInfo.value24h, noDigits, fixedDecimals);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
   const basePair = "XRD";
 

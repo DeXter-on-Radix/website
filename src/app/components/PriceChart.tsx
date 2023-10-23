@@ -35,63 +35,33 @@ function PriceChartCanvas(props: PriceChartProps) {
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
   const noDigits = 8;
-  const decimalSeparator = ".";
-  const thousandSeparator = ",";
   const fixedDecimals = 6;
 
-  const volume = displayAmount(
-    props.volume || 0,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    2
-  );
-
-  const percChange = displayAmount(
-    props.percChange || 0,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    2
-  );
-
-  const change = displayAmount(
-    props.change || 0,
-    noDigits,
-    decimalSeparator,
-    thousandSeparator,
-    2
-  );
+  const volume = displayAmount(props.volume || 0, noDigits, 2);
+  const percChange = displayAmount(props.percChange || 0, noDigits, 2);
+  const change = displayAmount(props.change || 0, noDigits, 2);
 
   const candleOpen = displayAmount(
     candlePrice?.open || 0,
     noDigits,
-    decimalSeparator,
-    thousandSeparator,
     fixedDecimals
   );
 
   const candleHigh = displayAmount(
     candlePrice?.high || 0,
     noDigits,
-    decimalSeparator,
-    thousandSeparator,
     fixedDecimals
   );
 
   const candleLow = displayAmount(
     candlePrice?.low || 0,
     noDigits,
-    decimalSeparator,
-    thousandSeparator,
     fixedDecimals
   );
 
   const candleClose = displayAmount(
     candlePrice?.close || 0,
     noDigits,
-    decimalSeparator,
-    thousandSeparator,
     fixedDecimals
   );
 

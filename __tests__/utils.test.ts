@@ -3,41 +3,29 @@ import { displayAmount, displayNumber } from "../src/app/utils";
 describe("displayAmount", () => {
   it("sends error message if noDigits is less than 4", () => {
     let digits = 3;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [1234, "ERROR: displayAmount cannot work with noDigits less than 4"],
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits)).toBe(expected);
     });
     digits = 0;
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits)).toBe(expected);
     });
     digits = -3;
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits)).toBe(expected);
     });
     digits = -10;
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits)).toBe(expected);
     });
   });
 
   it("displays amounts in 4 digits with thousands_separator", () => {
     const digits = 4;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [0, "0"],
       [0.1, "0.1"],
@@ -66,16 +54,12 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits)).toBe(expected);
     });
   });
 
   it("displays amounts in 4 digits without thousands_separator", () => {
     const digits = 4;
-    const decimalSeparator = ".";
-    const thousandsSeparator = "";
     const inputs: [number, string][] = [
       [0, "0"],
       [0.1, "0.1"],
@@ -106,16 +90,12 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", "")).toBe(expected);
     });
   });
 
   it("displays amounts in 6 digits with thousands_separator", () => {
     const digits = 6;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [0, "0"],
       [0.1, "0.1"],
@@ -147,16 +127,12 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", " ")).toBe(expected);
     });
   });
 
   it("displays amounts in 10 digits with thousands_separator", () => {
     const digits = 10;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [0, "0"],
       [0.1, "0.1"],
@@ -189,16 +165,12 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator)
-      ).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", " ")).toBe(expected);
     });
   });
 
   it("displays amounts in 6 digits with thousands_separator and fixed decimals = 3", () => {
     const digits = 6;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [0, "0.000"],
       [0.1, "0.100"],
@@ -231,16 +203,12 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator, 3)
-      ).toBe(expected);
+      expect(displayAmount(input, digits, 3, ".", " ")).toBe(expected);
     });
   });
 
   it("displays amounts in 10 digits with thousands_separator and fixed decimals = 3", () => {
     const digits = 10;
-    const decimalSeparator = ".";
-    const thousandsSeparator = " ";
     const inputs: [number, string][] = [
       [0, "0.000"],
       [0.1, "0.100"],
@@ -273,9 +241,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(
-        displayAmount(input, digits, decimalSeparator, thousandsSeparator, 3)
-      ).toBe(expected);
+      expect(displayAmount(input, digits, 3, ".", " ")).toBe(expected);
     });
   });
 });
