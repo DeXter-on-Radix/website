@@ -90,7 +90,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", "")).toBe(expected);
     });
   });
 
@@ -127,7 +127,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", " ")).toBe(expected);
     });
   });
 
@@ -165,7 +165,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayAmount(input, digits, -1, ".", " ")).toBe(expected);
     });
   });
 
@@ -203,7 +203,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, 3)).toBe(expected);
+      expect(displayAmount(input, digits, 3, ".", " ")).toBe(expected);
     });
   });
 
@@ -241,7 +241,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, 3)).toBe(expected);
+      expect(displayAmount(input, digits, 3, ".", " ")).toBe(expected);
     });
   });
 });

@@ -8,30 +8,39 @@ export function displayPositiveNumber(x: number, decimals: number): string {
 }
 
 export function getLocaleSeparators(): {
-  decimalSeparator: string;
-  thousandsSeparator: string;
+  localeDecimalSeparator: string;
+  localeThousandsSeparator: string;
 } {
-  let decimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
-  let thousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
-  if (thousandsSeparator == "0") {
-    thousandsSeparator = "";
+  let localeDecimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
+  let localeThousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
+  if (localeThousandsSeparator == "0") {
+    localeThousandsSeparator = "";
   }
   return {
-    decimalSeparator,
-    thousandsSeparator,
+    localeDecimalSeparator,
+    localeThousandsSeparator,
   };
 }
 
 export function displayAmount(
   x: number,
   noDigits: number = 6,
-  fixedDecimals: number = -1
+  fixedDecimals: number = -1,
+  decimalSeparator: string | undefined = undefined,
+  thousandsSeparator: string | undefined = undefined
 ): string {
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
   }
 
-  const { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
+  const { localeDecimalSeparator, localeThousandsSeparator } =
+    getLocaleSeparators();
+  if (decimalSeparator == undefined) {
+    decimalSeparator = localeDecimalSeparator;
+  }
+  if (thousandsSeparator == undefined) {
+    thousandsSeparator = localeThousandsSeparator;
+  }
 
   if (x < 1) {
     let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
