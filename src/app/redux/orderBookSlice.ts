@@ -50,9 +50,6 @@ export function toOrderBookRowProps(
     adexRows.reverse();
     barColor = "hsl(var(--erc))";
   }
-  //console.log(adexRows);
-  //group the by the grouping amount
-  console.log("grouping %d", grouping);
   let groupedArray;
   if (grouping > 0) {
     const roundToGroup = (num: number) => Math.round(num / grouping) * grouping;
@@ -130,7 +127,6 @@ export const orderBookSlice = createSlice({
   reducers: {
     updateAdex(state: OrderBookState, action: PayloadAction<adex.StaticState>) {
       const adexState = action.payload;
-      console.log(adexState);
       const grouping = state.grouping;
 
       const sells = toOrderBookRowProps(
