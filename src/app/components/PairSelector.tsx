@@ -1,6 +1,6 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { selectPairAddress } from "../redux/pairSelectorSlice";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 function displayName(name?: string) {
   return name?.replace("/", " - ");
