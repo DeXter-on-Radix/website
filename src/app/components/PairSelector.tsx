@@ -91,37 +91,42 @@ export function PairSelector() {
   };
   const options = pairSelector.pairsList;
   const id = "pairOption";
-  const selectedVal = pairSelector.pairsList[0]
+  let selectedVal = pairSelector.pairsList[0]
     ? pairSelector.pairsList[0].name
     : "Loading";
   const handleChange = (val) => {
-    console.log(val);
     selectPair(val);
   };
 
   const [query, setQuery] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const inputRef = useRef(null);
-
+  const dropdownRef = useRef(null);
+  /*
   useEffect(() => {
     document.addEventListener("click", toggle);
     return () => document.removeEventListener("click", toggle);
   }, []);
-
+*/
   const selectOption = (option) => {
     setQuery(() => "");
     handleChange(option["address"]);
+    console.log(option);
+    selectedVal = option["name"];
     setIsOpen((isOpen) => !isOpen);
   };
 
   function toggle(e) {
+    console.log(inputRef.current);
     setIsOpen(e && e.target === inputRef.current);
   }
 
   const getDisplayValue = () => {
-    if (query) return query;
-    if (selectedVal) return selectedVal;
+    console.log("query %s", query);
+    console.log("sel %s", selectedVal);
+    if (query) return displayName(query);
+    if (selectedVal) return displayName(selectedVal);
 
     return "";
   };
@@ -134,9 +139,9 @@ export function PairSelector() {
 
   return (
     <div className="w-full">
-      <div className="dropdown dropdown-end">
-        <label className="justify-between btn btn-block px-8 text-xl font-bold">
-          <div className="selected-value">
+      <div className="dropdown dropdown-end w-full">
+        <label className="btn btn-block text-xl font-bold no-animation">
+          <div className="flex justify-between selected-value w-full">
             <input
               ref={inputRef}
               type="text"
@@ -147,8 +152,9 @@ export function PairSelector() {
                 handleChange(null);
               }}
               onClick={toggle}
+              className="flex-initial !bg-transparent"
             />
-            <span className="float-right">
+            <span className="flex-none order-last pt-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -162,9 +168,10 @@ export function PairSelector() {
           </div>
         </label>
         <ul
+          ref={dropdownRef}
           tabIndex={0}
           className={
-            `options ${isOpen ? "" : ""}` +
+            `options ${isOpen ? "" : "hidden"}` +
             " dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
           }
         >
@@ -177,11 +184,12 @@ export function PairSelector() {
                   " font-bold !pl-0"
                 }
                 key={`${id}-${index}`}
+                value={option["name"]}
               >
-                <button>
-                  {displayName(option["name"])}
-                  <span>+</span>
-                </button>
+                <div className="flex justify-between">
+                  <span className="flex-1">{displayName(option["name"])}</span>
+                  <span className="flex-none">+</span>
+                </div>
               </li>
             );
           })}
