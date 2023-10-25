@@ -89,7 +89,7 @@ export const initialState: OrderInputState = {
   token2: initialTokenInput,
   validationToken2: initialValidationResult,
   tab: OrderTab.MARKET,
-  postOnly: true,
+  postOnly: false,
   side: adex.OrderSide.BUY,
   price: 0,
   slippage: 0.01,
