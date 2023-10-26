@@ -18,9 +18,9 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
 const POST_ONLY_TOOLTIP =
-  "Select 'POST ONLY' to ensure your order is added to the order book without matching existing orders. " +
-  "If your order can be partially or completely executed immediately, it will not be created. " +
-  "This option removes trading fees completely and ensures you receive the maker rebate.";
+  "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
+  "If the order can be matched immediately, it will not be created. " +
+  "This option helps ensure you receive the maker rebate.";
 
 function NonTargetToken() {
   const { token2, validationToken2, side } = useAppSelector(
