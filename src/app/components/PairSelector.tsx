@@ -58,6 +58,7 @@ export function PairSelector() {
         <label className="btn btn-block text-xl font-bold no-animation">
           <div className="flex justify-between selected-value w-full">
             <input
+              id="pair-selector-text"
               ref={inputRef}
               type="text"
               value={getDisplayValue()}
