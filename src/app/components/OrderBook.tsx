@@ -1,9 +1,9 @@
 import { CSSProperties } from "react";
 
-import { useAppSelector } from "../hooks";
-import { OrderBookRowProps } from "../redux/orderBookSlice";
 import "../styles/orderbook.css";
 import * as utils from "../utils";
+import { OrderBookRowProps, orderBookSlice } from "../redux/orderBookSlice";
+import { useAppDispatch, useAppSelector } from "../hooks";
 
 function OrderBookRow(props: OrderBookRowProps) {
   const { barColor, orderCount, price, size, total, maxTotal } = props;
@@ -104,6 +104,7 @@ function CurrentPriceRow() {
 }
 
 export function OrderBook() {
+  const dispatch = useAppDispatch();
   const token1Symbol = useAppSelector(
     (state) => state.pairSelector.token1.symbol
   );
@@ -112,11 +113,25 @@ export function OrderBook() {
   );
   const sells = useAppSelector((state) => state.orderBook.sells);
   const buys = useAppSelector((state) => state.orderBook.buys);
+  //const grouping = useAppSelector((state) => state.orderBook.grouping);
 
   return (
     <div className="p-2 text-sx text-primary-content">
+      <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
+        <div className="justify-self-start">Order book</div>
+        <div className="flex justify-end join">
+          <span className="join-item mr-2">Grouping </span>
+          <input
+            className="input-xs w-16 join-item"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const grouping = Number(event.target.value);
+              dispatch(orderBookSlice.actions.setGrouping(grouping));
+            }}
+          ></input>
+        </div>
+      </div>
       <div className="sized-columns">
-        <div className="sized-columns mx-2 col-span-4 text-sm text-secondary-content">
+        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
           <div className="text-start">
             Order
             <br />
@@ -135,7 +150,8 @@ export function OrderBook() {
             <br />({token1Symbol})
           </div>
         </div>
-
+      </div>
+      <div className="sized-columns mx-2 col-span-4 text-sm">
         {sells.map((props, index) => (
           <OrderBookRow key={"sell-" + index} {...props} />
         ))}

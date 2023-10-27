@@ -18,9 +18,9 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
 const POST_ONLY_TOOLTIP =
-  "If your price is very close to the current market price, your limit order might fill immediately, " +
-  "making you pay taker fees. This option prevents your order from being executed immediately, " +
-  "guarantees that your order will make it to the order book and you will earn the liquidity provider fees.";
+  "Select 'POST ONLY' to ensure your order is added to the order book without matching existing orders. " +
+  "If your order can be partially or completely executed immediately, it will not be created. " +
+  "This option removes trading fees completely and ensures you receive the maker rebate.";
 
 function NonTargetToken() {
   const { token2, validationToken2, side } = useAppSelector(
@@ -246,7 +246,7 @@ export function LimitOrderInput() {
             POST ONLY
           </span>
           <div
-            className="my-auto ml-2 tooltip z-10"
+            className="my-auto ml-2 tooltip before:bg-base-300 z-10"
             data-tip={POST_ONLY_TOOLTIP}
           >
             <AiOutlineInfoCircle className="text-secondary-content text-sm" />
