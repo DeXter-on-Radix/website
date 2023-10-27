@@ -18,7 +18,7 @@ export enum OrderTab {
   LIMIT = "LIMIT",
 }
 
-export const PLATFORM_BADGE_ID = 1; //TODO: Get this data from the platform badge
+export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
 export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 
 export const OrderSide = adex.OrderSide;
