@@ -1,8 +1,7 @@
 "use client";
 
 import "./styles/globals.css";
-import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
-import { useEffect } from "react";
+
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
 import { store } from "./redux/store";
@@ -15,13 +14,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const path = usePathname();
-
-  useEffect(() => {
-    initializeSubscriptions(store);
-    return () => {
-      unsubscribeAll();
-    };
-  }, []);
 
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
