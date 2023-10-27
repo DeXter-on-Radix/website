@@ -2,6 +2,10 @@ import { useAppSelector, useAppDispatch } from "../hooks";
 import { selectPairAddress } from "../redux/pairSelectorSlice";
 import { useRef, useState } from "react";
 
+interface PairInfo {
+  name: string;
+  address: string;
+}
 function displayName(name?: string) {
   return name?.replace("/", " - ");
 }
@@ -14,10 +18,8 @@ export function PairSelector() {
   };
   const options = pairSelector.pairsList;
   const id = "pairOption";
-  let selectedVal = useRef<string>(
-    pairSelector.pairsList[0] ? pairSelector.pairsList[0].name : "Loading"
-  );
-  const handleChange = (val) => {
+  const handleChange = (val: PairInfo | null) => {
+    if (val == null) return;
     selectPair(val["address"]);
   };
 
@@ -27,10 +29,9 @@ export function PairSelector() {
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  const selectOption = (option) => {
+  const selectOption = (option: PairInfo) => {
     setQuery(() => "");
     handleChange(option);
-    selectedVal.current = option["name"];
     setIsOpen((isOpen) => !isOpen);
   };
 
@@ -40,12 +41,12 @@ export function PairSelector() {
 
   const getDisplayValue = () => {
     if (query) return displayName(query);
-    if (selectedVal.current) return displayName(selectedVal.current);
+    if (pairSelector.name) return displayName(pairSelector.name);
 
     return "";
   };
 
-  const filter = (options) => {
+  const filter = (options: PairInfo[]) => {
     return options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
@@ -93,11 +94,7 @@ export function PairSelector() {
             return (
               <li
                 onClick={() => selectOption(option)}
-                className={
-                  `${
-                    option["name"] === selectedVal.current ? "selected" : ""
-                  }` + " font-bold !pl-0"
-                }
+                className=" font-bold !pl-0"
                 key={`${id}-${index}`}
               >
                 <div className="flex justify-between">
@@ -107,6 +104,17 @@ export function PairSelector() {
               </li>
             );
           })}
+          <li>
+            <div
+              className={
+                filter(options).length == 0
+                  ? "flex justify-between"
+                  : "flex justify-between hidden"
+              }
+            >
+              <span className="flex-1">No Results</span>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
