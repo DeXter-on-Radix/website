@@ -35,7 +35,7 @@ export function PairSelector() {
     setIsOpen((isOpen) => !isOpen);
   };
 
-  function toggle(e) {
+  function toggle(e: React.MouseEvent<HTMLInputElement>) {
     setIsOpen(e && e.target === inputRef.current);
   }
 
