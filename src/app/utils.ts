@@ -315,7 +315,6 @@ export function calculateTotalFees(order: any): number {
 
 //Calculate the Avg Filled from recieved token amounts
 export function calculateAvgFilled(tokenOne: number, tokenTwo: number): number {
-  console.log(tokenOne, tokenTwo);
   if (tokenOne == 0 || tokenTwo == 0) return 0;
   const avgFilled = tokenTwo / tokenOne;
   const decimalPart = (avgFilled % 1).toString().split(".")[1];

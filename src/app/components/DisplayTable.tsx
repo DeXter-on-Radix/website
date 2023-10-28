@@ -87,7 +87,6 @@ export function DisplayTable() {
   const openOrders = useAppSelector(selectOpenOrders);
   const orderHistory = useAppSelector(selectOrderHistory);
   const tradeHistory = useAppSelector(selectTradeHistory);
-  console.log(orderHistory);
 
   const tableToShow = useMemo(() => {
     switch (selectedTable) {
