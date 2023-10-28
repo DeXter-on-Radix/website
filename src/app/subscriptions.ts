@@ -12,6 +12,7 @@ import { orderBookSlice } from "./redux/orderBookSlice";
 import { updateCandles } from "./redux/priceChartSlice";
 import { updatePriceInfo } from "./redux/priceInfoSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
+import { orderInputSlice } from "redux/orderInputSlice";
 import { AppStore } from "./redux/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
@@ -29,7 +30,7 @@ let subs: Subscription[] = [];
 export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress:
-      "account_tdx_d_12yhr42q497c46lr9vxkfsln9e9f3kjj8t5qexznpeq3ewxxqnhm527",
+      "account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y",
     networkId: RadixNetwork.Stokenet,
   });
   rdtInstance.walletApi.setRequestData(
@@ -59,6 +60,7 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
+      store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
     })
   );
 }

@@ -20,6 +20,7 @@ export interface OrderBookState {
   bestBuy: number | null;
   spread: number | null;
   spreadPercent: number | null;
+  grouping: number | null;
 }
 
 const initialState: OrderBookState = {
@@ -30,15 +31,14 @@ const initialState: OrderBookState = {
   bestBuy: null,
   spread: null,
   spreadPercent: null,
+  grouping: 0,
 };
 
 export function toOrderBookRowProps(
   adexOrderbookLines: adex.OrderbookLine[],
-  side: "sell" | "buy"
+  side: "sell" | "buy",
+  grouping: number
 ): OrderBookRowProps[] {
-  // this will drop the rows that do not fit into 8 buys/sells
-  // TODO: implement pagination or scrolling
-
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
@@ -47,8 +47,39 @@ export function toOrderBookRowProps(
     adexRows.reverse();
     barColor = "hsl(var(--erc))";
   }
-  adexRows = adexRows.slice(0, 8); // Limit to 8 rows
+  let groupedArray;
+  if (grouping > 0) {
+    const roundToGroup = (num: number) => Math.round(num / grouping) * grouping;
 
+    if (adexRows.length > 0) {
+      groupedArray = adexRows.reduce((result: adex.OrderbookLine[], item) => {
+        const key = roundToGroup(item.price);
+        const foundItem = result.find(
+          (x: adex.OrderbookLine) => x.price === key
+        ); // note that we don't specify the type here
+        let existingItem: adex.OrderbookLine; // declare the variable without assigning it
+        if (foundItem !== undefined) {
+          // if the foundItem is not undefined, we can assign it safely
+          existingItem = foundItem;
+          existingItem.quantityRemaining += item.quantityRemaining;
+          existingItem.valueRemaining += item.valueRemaining;
+          existingItem.noOrders += item.noOrders;
+          existingItem.orders = existingItem.orders.concat(item.orders);
+          existingItem.total += item.total;
+        } else {
+          // If it's a new price, add it to the result
+          item.price = key;
+          result.push({ ...item });
+        }
+        return result;
+      }, []);
+    }
+  }
+  if (groupedArray != null) {
+    adexRows = groupedArray.slice(0, 11); //adexRows.slice(0, 11); // Limit to 11 rows
+  } else {
+    adexRows = adexRows.slice(0, 11);
+  }
   let total = 0;
   let maxTotal = 0;
   for (let adexRow of adexRows) {
@@ -69,8 +100,8 @@ export function toOrderBookRowProps(
     props[i].maxTotal = maxTotal;
   }
 
-  // If there are fewer than 8 orders, fill the remaining rows with empty values
-  while (props.length < 8) {
+  // If there are fewer than 11 orders, fill the remaining rows with empty values
+  while (props.length < 11) {
     props.push({ absentOrders: "\u00A0" });
   }
 
@@ -93,13 +124,54 @@ export const orderBookSlice = createSlice({
   reducers: {
     updateAdex(state: OrderBookState, action: PayloadAction<adex.StaticState>) {
       const adexState = action.payload;
+      const grouping = state.grouping;
+
       const sells = toOrderBookRowProps(
         adexState.currentPairOrderbook.sells,
-        "sell"
+        "sell",
+        grouping || 0
       );
       const buys = toOrderBookRowProps(
         adexState.currentPairOrderbook.buys,
-        "buy"
+        "buy",
+        grouping || 0
+      );
+      let bestSell = sells[sells.length - 1]?.price || null;
+      let bestBuy = buys[0]?.price || null;
+
+      if (bestBuy !== null && bestSell !== null) {
+        const spread = bestSell - bestBuy;
+        if (bestBuy + bestSell !== 0) {
+          const spreadPercent = ((2 * spread) / (bestBuy + bestSell)) * 100;
+          state.spreadPercent = spreadPercent;
+        }
+        state.spread = spread;
+      }
+
+      state.sells = sells;
+      state.buys = buys;
+      state.lastPrice = adexState.currentPairInfo.lastPrice;
+      state.bestSell = bestSell;
+      state.bestBuy = bestBuy;
+    },
+    setGrouping(state, action: PayloadAction<number>) {
+      if (action.payload === null) {
+        state.grouping = 0;
+      } else if (action.payload < 0) {
+        state.grouping = 0;
+      } else {
+        state.grouping = action.payload;
+      }
+
+      const sells = toOrderBookRowProps(
+        adex.clientState.currentPairOrderbook.sells,
+        "sell",
+        state.grouping || 0
+      );
+      const buys = toOrderBookRowProps(
+        adex.clientState.currentPairOrderbook.buys,
+        "buy",
+        state.grouping || 0
       );
 
       let bestSell = sells[sells.length - 1]?.price || null;
@@ -116,7 +188,7 @@ export const orderBookSlice = createSlice({
 
       state.sells = sells;
       state.buys = buys;
-      state.lastPrice = adexState.currentPairInfo.lastPrice;
+      state.lastPrice = adex.clientState.currentPairInfo.lastPrice;
       state.bestSell = bestSell;
       state.bestBuy = bestBuy;
     },

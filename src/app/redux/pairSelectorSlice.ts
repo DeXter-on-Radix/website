@@ -40,7 +40,7 @@ export const fetchBalances = createAsyncThunk<
   {
     state: RootState;
   }
->("pairSelector/fetchToken1Balance", async (_arg, thunkAPI) => {
+>("pairSelector/fetchBalances", async (_arg, thunkAPI) => {
   const dispatch = thunkAPI.dispatch;
   const state = thunkAPI.getState();
 

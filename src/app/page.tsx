@@ -1,13 +1,38 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { OrderBook } from "components/OrderBook";
-import { OrderInput } from "components/OrderInput";
+import { OrderInput } from "components/order_input/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
+import { fetchBalances } from "redux/pairSelectorSlice";
+import { useAppDispatch } from "hooks";
+import { fetchAccountHistory } from "redux/accountHistorySlice";
+import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
+import { store } from "./redux/store";
 
 export default function Home() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    initializeSubscriptions(store);
+    return () => {
+      unsubscribeAll();
+    };
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      dispatch(fetchBalances());
+      dispatch(fetchAccountHistory());
+    }, 1000); // Dispatch every 1000 milliseconds (1 second)
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [dispatch]);
+
   return (
     <>
       <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-base-300">

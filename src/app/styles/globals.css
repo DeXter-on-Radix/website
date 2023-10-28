@@ -3,6 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  img {
+    @apply !my-0;
+  }
+
+  p {
+    @apply !my-0;
+  }
+
+  input {
+    @apply !bg-base-300;
+  }
+
+  input:focus {
+    @apply !outline-none;
+  }
+
+  html {
+    font-family: "sourceCodePro";
+  }
+
   @font-face {
     font-family: "sourceCodePro";
     src: url("./fonts/SourceCodePro-ExtraLight.ttf") format("truetype");
@@ -51,10 +71,6 @@
     font-weight: 800;
     font-style: normal;
   }
-
-  html {
-    font-family: "sourceCodePro";
-  }
 }
 
 :root {
@@ -80,8 +96,21 @@ input[type="number"]::-ms-clear {
   display: none;
 }
 
+.btn-active {
+  @apply bg-secondary;
+}
+
 /* Use slightly darker base color for backgrounds by default */
 :root,
 [data-theme] {
   background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
+}
+
+/* Grid layout for home page */
+.custom-auto-row-grid[data-path="/"] {
+  grid-auto-rows: 0fr auto auto 1fr 1fr;
+}
+/* Grid layout for rest of the pages */
+.custom-auto-row-grid {
+  grid-auto-rows: 0fr auto 0fr;
 }

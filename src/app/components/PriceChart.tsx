@@ -9,19 +9,61 @@ import {
   initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { formatPercentageChange } from "../utils";
 import { displayAmount } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
   data: OHLCVData[];
+  candlePrice: OHLCVData | null;
+  change: number | null;
+  percChange: number | null;
+  volume: number | null;
+  isNegativeOrZero: boolean;
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const legendRef = useRef<HTMLDivElement>(null);
+
   const dispatch = useAppDispatch();
-  const { data } = props;
+  const { data, candlePrice } = props;
+  //displayTime offsets by local timezone, causing discrepancy on chart
+  const candleDate = new Date(
+    parseInt(candlePrice?.time.toString() || "") * 1000
+  ).toUTCString();
+
   const theme = tailwindConfig.daisyui.themes[0].dark;
+
+  const noDigits = 8;
+  const fixedDecimals = 6;
+
+  const volume = displayAmount(props.volume || 0, noDigits, 2);
+  const percChange = displayAmount(props.percChange || 0, noDigits, 2);
+  const change = displayAmount(props.change || 0, noDigits, 2);
+
+  const candleOpen = displayAmount(
+    candlePrice?.open || 0,
+    noDigits,
+    fixedDecimals
+  );
+
+  const candleHigh = displayAmount(
+    candlePrice?.high || 0,
+    noDigits,
+    fixedDecimals
+  );
+
+  const candleLow = displayAmount(
+    candlePrice?.low || 0,
+    noDigits,
+    fixedDecimals
+  );
+
+  const candleClose = displayAmount(
+    candlePrice?.close || 0,
+    noDigits,
+    fixedDecimals
+  );
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -42,18 +84,18 @@ function PriceChartCanvas(props: PriceChartProps) {
         //MODIFY THEME COLOR HERE
         layout: {
           background: {
-            color: theme["base-100"],
-          }, //base-100
+            color: theme["base-200"],
+          },
           textColor: theme["primary-content"],
         },
         //MODIFY THEME COLOR HERE
         grid: {
-          vertLines: { color: theme["secondary-content"] },
-          horzLines: { color: theme["secondary-content"] },
+          vertLines: { color: theme["base-100"] },
+          horzLines: { color: theme["base-100"] },
         },
         timeScale: {
           //MODIFY THEME COLOR HERE
-          borderColor: theme["primary-content"],
+          borderColor: theme["base-100"],
           timeVisible: true,
         },
       });
@@ -65,15 +107,15 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
-        wickUpColor: theme["success"], //success
-        upColor: theme["success"], //success
-        wickDownColor: theme["error"], //error
-        downColor: theme["error"], //error
+        wickUpColor: theme["success"],
+        upColor: theme["success"],
+        wickDownColor: theme["error"],
+        downColor: theme["error"],
       });
 
       chart.priceScale("right").applyOptions({
         //MODIFY THEME COLOR HERE
-        borderColor: theme["primary-content"], //primary-content
+        borderColor: theme["base-100"],
         scaleMargins: {
           top: 0.1,
           bottom: 0.3,
@@ -122,15 +164,57 @@ function PriceChartCanvas(props: PriceChartProps) {
         chart.remove();
       };
     }
-  }, [data, dispatch]);
+  }, [data, theme, dispatch]);
   //Temporary brute force approach to trim the top of the chart to remove the gap
-  return <div ref={chartContainerRef} className="relative mt-[-1.7rem]"></div>;
+  return (
+    <div>
+      <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
+        <div
+          ref={legendRef}
+          className={
+            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-50 uppercase " +
+            (props.isNegativeOrZero ? "!text-error" : "!text-success")
+          }
+        >
+          <div className="flex justify-start gap-x-6">
+            <div className="text-secondary-content">{candleDate}</div>
+            <div>
+              <span className="text-secondary-content">Change</span> {change} (
+              {percChange})%
+            </div>
+            <div>
+              <span className="text-secondary-content">Volume</span> {volume}
+            </div>
+          </div>
+          <div className="flex justify-start gap-x-6">
+            <div>
+              <span className="text-secondary-content">Open </span>
+              {candleOpen}
+            </div>
+            <div>
+              <span className="text-secondary-content">High </span>
+              {candleHigh}
+            </div>
+            <div>
+              <span className="text-secondary-content">Low </span>
+              {candleLow}
+            </div>
+            <div>
+              <span className="text-secondary-content">Close </span>
+              {candleClose}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function PriceChart() {
   const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
+
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   );
@@ -144,20 +228,22 @@ export function PriceChart() {
   const isNegativeOrZero = useAppSelector(
     (state) => state.priceChart.isNegativeOrZero
   );
-  const noDigits = 4;
-  const decimalSeparator = ".";
-  const thousandSeparator = ",";
-  const fixedDecimals = 3;
-
   return (
     <div>
-      <div className="">
-        <div className="flex">
+      <div className="flex items-center justify-between">
+        <div className="">
+          <span className="text-secondary-content text-sm font-bold uppercase">
+            Trading Chart
+          </span>
+        </div>
+        <div className="">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`btn btn-sm ${
-                candlePeriod === period ? "text-accent" : ""
+              className={`btn btn-sm text-secondary-content ${
+                candlePeriod === period
+                  ? "!text-primary-content underline underline-offset-8 decoration-accent"
+                  : ""
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
@@ -165,77 +251,15 @@ export function PriceChart() {
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-sm">
-          <div className="ml-4">
-            Open:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.open || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            High:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.high || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Low:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.low || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Close:{" "}
-            <span>
-              {displayAmount(
-                candlePrice?.close || 0,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div>
-            Volume:{" "}
-            <span>
-              {displayAmount(
-                currentVolume,
-                noDigits,
-                decimalSeparator,
-                thousandSeparator,
-                fixedDecimals
-              )}
-            </span>
-          </div>
-          <div className="mr-4">
-            Change:{" "}
-            <span className={isNegativeOrZero ? "text-error" : "text-success"}>
-              {change}
-              {formatPercentageChange(percChange)}
-            </span>
-          </div>
-        </div>
       </div>
-      <PriceChartCanvas data={state.ohlcv} />
+      <PriceChartCanvas
+        data={state.ohlcv}
+        candlePrice={candlePrice}
+        change={change}
+        percChange={percChange}
+        volume={currentVolume}
+        isNegativeOrZero={isNegativeOrZero}
+      />
     </div>
   );
 }

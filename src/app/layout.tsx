@@ -1,24 +1,19 @@
 "use client";
 
 import "./styles/globals.css";
-import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
-import { useEffect } from "react";
+
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    initializeSubscriptions(store);
-    return () => {
-      unsubscribeAll();
-    };
-  }, []);
+  const path = usePathname();
 
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
@@ -31,7 +26,10 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body>
-          <div className="grid grid-cols-12 h-screen grid-rows-auto-1fr prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300">
+          <div
+            data-path={path}
+            className="grid grid-cols-12 custom-auto-row-grid h-screen prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300"
+          >
             <Navbar />
             {children}
             <Footer />
