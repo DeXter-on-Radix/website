@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../hooks";
-import { displayTime, displayOrderSide, calculateTotalFees } from "../utils";
+import {
+  displayTime,
+  displayOrderSide,
+  calculateTotalFees,
+  calculateAvgFilled,
+} from "../utils";
 import {
   cancelOrder,
   selectOpenOrders,
@@ -142,7 +147,9 @@ const OpenOrdersRows = ({ data }: TableProps) => {
         <td>
           {order.amount} {order.specifiedToken.symbol}
         </td>
-        <td>PlaceHolder {order.specifiedToken.symbol}</td>
+        <td>
+          {order.price} {order.specifiedToken.symbol}
+        </td>
         <td>
           {order.amountFilled} {order.specifiedToken.symbol}
         </td>
@@ -176,9 +183,12 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {order.amount} {order.specifiedToken.symbol}
         </td>
         <td>
+          {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
+          {order.specifiedToken.symbol}
+        </td>
+        <td>
           {order.price} {order.specifiedToken.symbol}
         </td>
-        <td>PlaceHolder {order.specifiedToken.symbol}</td>
         <td>
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
         </td>
@@ -203,9 +213,12 @@ const TradeHistoryTable = ({ data }: TableProps) => {
         <td className={displayOrderSide(order.side).className}>
           {displayOrderSide(order.side).text}
         </td>
-        <td>PlaceHolder {order.specifiedToken.symbol}</td>
         <td>
           {order.price} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
+          {order.specifiedToken.symbol}
         </td>
         <td>
           {order.amountFilled} {order.specifiedToken.symbol}
