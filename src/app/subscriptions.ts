@@ -12,6 +12,7 @@ import { orderBookSlice } from "./redux/orderBookSlice";
 import { updateCandles } from "./redux/priceChartSlice";
 import { updatePriceInfo } from "./redux/priceInfoSlice";
 import { accountHistorySlice } from "./redux/accountHistorySlice";
+import { marketSlice } from "./redux/marketSlice";
 import { orderInputSlice } from "redux/orderInputSlice";
 import { AppStore } from "./redux/store";
 
@@ -49,6 +50,7 @@ export function initializeSubscriptions(store: AppStore) {
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
   adex.init("stokenet");
+  adex.clientState.getAllPairsMarketData = true;
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
@@ -60,6 +62,8 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
+      store.dispatch(marketSlice.actions.updateAdex(serializedState));
+
       store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
     })
   );

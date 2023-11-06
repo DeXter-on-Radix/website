@@ -33,6 +33,14 @@ export function Navbar() {
             Trade
           </Link>
         </div>
+        <div className="items-stretch hidden lg:flex">
+          <Link
+            className="btn btn-lg h-20 btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
+            href="/markets"
+          >
+            Markets
+          </Link>
+        </div>
       </div>
       <div className="navbar-end">
         <radix-connect-button></radix-connect-button>
