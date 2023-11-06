@@ -28,7 +28,7 @@ export default function Home() {
     const intervalId = setInterval(() => {
       dispatch(fetchBalances());
       dispatch(fetchAccountHistory());
-    }, 1000); // Dispatch every 1000 milliseconds (1 second)
+    }, 5000); // Dispatch every 5000 milliseconds (5 second)
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, [dispatch]);
