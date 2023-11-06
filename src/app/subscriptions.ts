@@ -48,7 +48,7 @@ export function initializeSubscriptions(store: AppStore) {
   setRdt(rdtInstance);
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
-  adex.init("stokenet");
+  adex.init("localhost-mainnet");
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
