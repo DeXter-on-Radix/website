@@ -192,7 +192,7 @@ export const fetchQuote = createAsyncThunk<
     state.orderInput.side,
     targetToken.address,
     targetToken.amount,
-    PLATFORM_FEE,
+    PLATFORM_BADGE_ID,
     priceToSend,
     slippageToSend
   );

@@ -61,8 +61,8 @@ export function toOrderBookRowProps(
         if (foundItem !== undefined) {
           // if the foundItem is not undefined, we can assign it safely
           existingItem = foundItem;
-          existingItem.quantityRemaining += item.quantityRemaining;
-          existingItem.valueRemaining += item.valueRemaining;
+          existingItem.token1Remaining += item.token1Remaining;
+          existingItem.token2Remaining += item.token2Remaining;
           existingItem.noOrders += item.noOrders;
           existingItem.orders = existingItem.orders.concat(item.orders);
           existingItem.total += item.total;
@@ -83,12 +83,12 @@ export function toOrderBookRowProps(
   let total = 0;
   let maxTotal = 0;
   for (let adexRow of adexRows) {
-    total += adexRow.quantityRemaining;
+    total += adexRow.token1Remaining;
     const currentProps = {
       barColor,
       orderCount: adexRow.noOrders,
       price: adexRow.price,
-      size: adexRow.quantityRemaining,
+      size: adexRow.token1Remaining,
       total: total,
     };
     maxTotal = Math.max(maxTotal, total);
