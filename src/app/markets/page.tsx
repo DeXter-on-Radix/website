@@ -1,38 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAppDispatch } from "../hooks";
+import { useEffect } from "react";
 
-import { DisplayMarketTable } from "components/MarketsTable";
+import { DisplayMarketTable } from "components/markets/MarketsTable";
+import { MarketsInfo } from "components/markets/MarketsInfo";
 
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 
 import { store } from "../redux/store";
-import { fetchMarketData } from "redux/marketSlice";
 
 export default function Markets() {
-  const dispatch = useAppDispatch();
-  const marketPairs = useState(0);
-  const xrdVolume = useState(0);
-  const volumeChange = useState(0);
   useEffect(() => {
-    //initializeSubscriptions(store);
-    dispatch(fetchMarketData());
+    initializeSubscriptions(store);
     return () => {
       unsubscribeAll();
     };
-  }, [dispatch]);
+  }, []);
 
   return (
-    <div className="col-span-full p-4">
-      <div className="flex justify-between uppercase">
+    <div className="col-span-full p-4 mx-10">
+      <div className="flex justify-between items-center uppercase">
         <div className="flex-none">
-          <span className="text-accent">{marketPairs}</span> Market Pairs
-          <span className="text-accent">{xrdVolume}</span> XRD Volume
-          <span className="text-accent">{volumeChange}</span> 24HR Volume
+          <MarketsInfo />
         </div>
         <div className="flex-last">
-          <button className="btn uppercase">Trade Now</button>
+          <button className="btn btn-lg uppercase bg-neutral text-accent border-x-4 border-y-0 border-accent">
+            Trade Now
+          </button>
         </div>
       </div>
       <div className="col-span-full uppercase">
