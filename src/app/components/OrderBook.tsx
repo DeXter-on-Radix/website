@@ -5,6 +5,8 @@ import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../redux/orderBookSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
+const N_DIGITS = 8;
+
 function OrderBookRow(props: OrderBookRowProps) {
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
@@ -70,10 +72,12 @@ function CurrentPriceRow() {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
       const spread = utils.displayPositiveNumber(
         orderBook.spread,
+        N_DIGITS,
         priceMaxDecimals
       );
       const spreadPercent = utils.displayPositiveNumber(
         orderBook.spreadPercent,
+        N_DIGITS,
         2
       );
 
