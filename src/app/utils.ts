@@ -51,7 +51,7 @@ export function displayAmount(
       return roundedNumber.toString();
     }
   }
-  let numberStr = x.toString(); // FIXME: toString() is platform dependent it may return , for decimal separator
+  let numberStr = x.toString();
   let wholeNumber = Math.trunc(x);
   let wholeNumberStr = wholeNumber.toString();
   let numberOfSeparators = Math.trunc((wholeNumberStr.length - 1) / 3);
@@ -78,8 +78,7 @@ export function displayAmount(
     if (wholeNumberStr.length < noDigits) {
       const noDecimals = noDigits - wholeNumberStr.length;
 
-      // FIXME: see fixme above
-      let decimalsStr = numberStr.split(".")[1];
+      let decimalsStr = numberStr.split(decimalSeparator)[1];
       decimalsStr = decimalsStr
         ? decimalsStr.substring(0, noDecimals - 1).replace(/0+$/, "")
         : "";
