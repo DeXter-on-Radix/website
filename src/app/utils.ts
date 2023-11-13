@@ -23,9 +23,15 @@ export function getLocaleSeparators(): {
   let decimalSeparator = Number(1.1).toString().substring(1, 2);
   let thousandsSeparator = Number(10000).toString().substring(2, 3);
 
+  // we always have a thousands separator
+  // if the platform doesn't have one we add space
   if (thousandsSeparator == "0") {
     thousandsSeparator = " ";
   }
+  if (thousandsSeparator == "") {
+    thousandsSeparator = " ";
+  }
+
   return {
     decimalSeparator,
     thousandsSeparator,
@@ -99,15 +105,9 @@ export function displayAmount(
       return wholeNumberStr + decimalsStr;
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
-      let excessRemainder =
-        thousandsSeparator != "" ? excessLength % 4 : excessLength % 3;
-      // console.log("Excess Remainder: " + excessRemainder);
-      let excessMultiple =
-        thousandsSeparator != ""
-          ? Math.trunc(excessLength / 4)
-          : Math.trunc(excessLength / 3);
+      let excessRemainder = excessLength % 4;
+      let excessMultiple = Math.trunc(excessLength / 4);
       let displayStr = wholeNumberStr.slice(0, noDigits - 1);
-      // console.log("DisplayStr: " + displayStr);
       switch (excessRemainder) {
         case 0:
           if (excessMultiple > 0) {
@@ -115,23 +115,12 @@ export function displayAmount(
           }
           break;
         case 1:
-          if (thousandsSeparator != "") {
-            displayStr =
-              displayStr.slice(0, -3) + decimalSeparator + displayStr.slice(-2);
-          } else {
-            displayStr =
-              displayStr.slice(0, -2) +
-              decimalSeparator +
-              displayStr.slice(-2, -1);
-          }
+          displayStr =
+            displayStr.slice(0, -3) + decimalSeparator + displayStr.slice(-2);
           break;
         case 2:
-          if (thousandsSeparator != "") {
-            displayStr =
-              displayStr.slice(0, -2) + decimalSeparator + displayStr.slice(-1);
-          } else {
-            displayStr = displayStr.slice(0, -1);
-          }
+          displayStr =
+            displayStr.slice(0, -2) + decimalSeparator + displayStr.slice(-1);
           break;
         case 3:
           displayStr = displayStr.slice(0, -1);

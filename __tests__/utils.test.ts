@@ -26,7 +26,7 @@ describe("displayAmount", () => {
     });
   });
 
-  it("displays amounts in 4 digits with thousands_separator", () => {
+  it("displays amounts in 4 digits", () => {
     const digits = 4;
     const inputs: [number, string][] = [
       [0, "0"],
@@ -60,43 +60,7 @@ describe("displayAmount", () => {
     });
   });
 
-  it("displays amounts in 4 digits without thousands_separator", () => {
-    const digits = 4;
-    const inputs: [number, string][] = [
-      [0, "0"],
-      [0.1, "0.1"],
-      [0.101, "0.1"],
-      [0.12, "0.12"],
-      [0.123, "0.12"],
-      [0.1234, "0.12"],
-      [0.123456, "0.12"],
-      [0.1234567, "0.12"],
-      [0.12345678, "0.12"],
-      [0.123456789, "0.12"],
-      [1.101, "1.1"],
-      [1.1234567, "1.12"],
-      [12.1234567, "12.1"],
-      [123.1234567, "123"],
-      [1234.1234567, "1234"],
-      [1, "1"],
-      [12, "12"],
-      [123, "123"],
-      [1234, "1234"],
-      [1356, "1356"],
-      [34567, "34K"],
-      [123456, "123K"],
-      [1234567, "1.2M"],
-      [12345678, "12M"],
-      [123456789, "123M"],
-      [1234567890, "1.2B"],
-    ];
-
-    inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, -1)).toBe(expected);
-    });
-  });
-
-  it("displays amounts in 6 digits with thousands_separator", () => {
+  it("displays amounts in 6 digits", () => {
     const digits = 6;
     const inputs: [number, string][] = [
       [0, "0"],
@@ -133,7 +97,7 @@ describe("displayAmount", () => {
     });
   });
 
-  it("displays amounts in 10 digits with thousands_separator", () => {
+  it("displays amounts in 10 digits", () => {
     const digits = 10;
     const inputs: [number, string][] = [
       [0, "0"],
@@ -171,7 +135,7 @@ describe("displayAmount", () => {
     });
   });
 
-  it("displays amounts in 6 digits with thousands_separator and fixed decimals = 3", () => {
+  it("displays amounts in 6 digits with fixed decimals = 3", () => {
     const digits = 6;
     const inputs: [number, string][] = [
       [0, "0.000"],
@@ -209,7 +173,7 @@ describe("displayAmount", () => {
     });
   });
 
-  it("displays amounts in 10 digits with thousands_separator and fixed decimals = 3", () => {
+  it("displays amounts in 10 digits with fixed decimals = 3", () => {
     const digits = 10;
     const inputs: [number, string][] = [
       [0, "0.000"],
