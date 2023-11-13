@@ -7,7 +7,7 @@ export function displayPositiveNumber(
   if (x < 0) {
     return "";
   } else {
-    return displayAmount(x, noDigits, fixedDecimals);
+    return displayNumber(x, noDigits, fixedDecimals);
   }
 }
 
@@ -38,7 +38,7 @@ export function getLocaleSeparators(): {
   };
 }
 
-export function displayAmount(
+export function displayNumber(
   x: number,
   noDigits: number = 6,
   fixedDecimals: number = -1

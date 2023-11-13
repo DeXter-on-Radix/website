@@ -1,4 +1,4 @@
-import { displayAmount } from "../src/app/utils";
+import { displayNumber } from "../src/app/utils";
 
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
@@ -10,19 +10,19 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayNumber(input, digits)).toBe(expected);
     });
     digits = 0;
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayNumber(input, digits)).toBe(expected);
     });
     digits = -3;
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayNumber(input, digits)).toBe(expected);
     });
     digits = -10;
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayNumber(input, digits)).toBe(expected);
     });
   });
 
@@ -56,7 +56,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits)).toBe(expected);
+      expect(displayNumber(input, digits)).toBe(expected);
     });
   });
 
@@ -93,7 +93,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, -1)).toBe(expected);
+      expect(displayNumber(input, digits, -1)).toBe(expected);
     });
   });
 
@@ -131,7 +131,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, -1)).toBe(expected);
+      expect(displayNumber(input, digits, -1)).toBe(expected);
     });
   });
 
@@ -169,7 +169,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, 3)).toBe(expected);
+      expect(displayNumber(input, digits, 3)).toBe(expected);
     });
   });
 
@@ -207,7 +207,7 @@ describe("displayAmount", () => {
     ];
 
     inputs.forEach(([input, expected]) => {
-      expect(displayAmount(input, digits, 3)).toBe(expected);
+      expect(displayNumber(input, digits, 3)).toBe(expected);
     });
   });
 });

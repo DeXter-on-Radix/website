@@ -1,16 +1,16 @@
 import React from "react";
 import { useAppSelector } from "../hooks";
-import { displayAmount } from "../utils";
+import { displayNumber } from "../utils";
 
 export function PriceInfo() {
   const priceInfo = useAppSelector((state) => state.priceInfo);
   const noDigits = 4;
   const fixedDecimals = 3;
-  const lastPrice = displayAmount(priceInfo.lastPrice, noDigits, fixedDecimals);
-  const change = displayAmount(priceInfo.change24h, noDigits, fixedDecimals);
-  const high = displayAmount(priceInfo.high24h, noDigits, fixedDecimals);
-  const low = displayAmount(priceInfo.low24h, noDigits, fixedDecimals);
-  const volume = displayAmount(priceInfo.value24h, noDigits, fixedDecimals);
+  const lastPrice = displayNumber(priceInfo.lastPrice, noDigits, fixedDecimals);
+  const change = displayNumber(priceInfo.change24h, noDigits, fixedDecimals);
+  const high = displayNumber(priceInfo.high24h, noDigits, fixedDecimals);
+  const low = displayNumber(priceInfo.low24h, noDigits, fixedDecimals);
+  const volume = displayNumber(priceInfo.value24h, noDigits, fixedDecimals);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
   const basePair = "XRD";
 

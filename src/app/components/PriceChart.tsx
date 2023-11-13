@@ -9,7 +9,7 @@ import {
   initializeLegend,
 } from "../redux/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { displayAmount } from "../utils";
+import { displayNumber } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
@@ -37,29 +37,29 @@ function PriceChartCanvas(props: PriceChartProps) {
   const noDigits = 8;
   const fixedDecimals = 6;
 
-  const volume = displayAmount(props.volume || 0, noDigits, 2);
-  const percChange = displayAmount(props.percChange || 0, noDigits, 2);
-  const change = displayAmount(props.change || 0, noDigits, 2);
+  const volume = displayNumber(props.volume || 0, noDigits, 2);
+  const percChange = displayNumber(props.percChange || 0, noDigits, 2);
+  const change = displayNumber(props.change || 0, noDigits, 2);
 
-  const candleOpen = displayAmount(
+  const candleOpen = displayNumber(
     candlePrice?.open || 0,
     noDigits,
     fixedDecimals
   );
 
-  const candleHigh = displayAmount(
+  const candleHigh = displayNumber(
     candlePrice?.high || 0,
     noDigits,
     fixedDecimals
   );
 
-  const candleLow = displayAmount(
+  const candleLow = displayNumber(
     candlePrice?.low || 0,
     noDigits,
     fixedDecimals
   );
 
-  const candleClose = displayAmount(
+  const candleClose = displayNumber(
     candlePrice?.close || 0,
     noDigits,
     fixedDecimals
