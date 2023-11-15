@@ -19,7 +19,7 @@ export default function Markets() {
 
   return (
     <div className="col-span-full p-4 mx-10">
-      <div className="flex justify-between items-center uppercase">
+      <div className="flex mx-5 p-8 justify-between items-center uppercase border-b-2 border-b-secondary-content">
         <div className="flex-none">
           <MarketsInfo />
         </div>

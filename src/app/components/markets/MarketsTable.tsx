@@ -3,6 +3,7 @@ import { useAppSelector } from "../../hooks";
 import { displayAmount } from "../../utils";
 
 import "../../styles/table.css";
+import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
 
 const headers = [
   { id: "id", label: "#" },
@@ -37,12 +38,11 @@ export function DisplayMarketTable() {
   );
 }
 
-const formatPairs = (pairs) => {
+const formatPairs = (pairs: PairInfo[]) => {
   const noDigits = 4;
   const fixedDecimals = 3;
   return pairs.map((pair) => {
     return {
-      id: pair.id,
       name: pair.name,
       lastPrice: displayAmount(pair.lastPrice, noDigits, fixedDecimals),
       quantity24h: displayAmount(pair.quantity24h, noDigits, fixedDecimals),
@@ -58,7 +58,7 @@ const formatPairs = (pairs) => {
 const MarketRows = ({ data }) => {
   return data?.length ? (
     data.map((market, index) => (
-      <tr key={market.id}>
+      <tr className="!border-b-2 !border-b-secondary-content" key={market.id}>
         {headers.map((header, i) => (
           <td key={header.id}>
             {" "}
