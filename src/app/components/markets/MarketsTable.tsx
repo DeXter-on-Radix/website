@@ -55,9 +55,9 @@ const formatPairs = (pairs: PairInfo[]) => {
   });
 };
 
-const MarketRows = ({ data }) => {
+const MarketRows = ({ data }: any) => {
   return data?.length ? (
-    data.map((market, index) => (
+    data.map((market: any, index: any) => (
       <tr className="!border-b-2 !border-b-secondary-content" key={market.id}>
         {headers.map((header, i) => (
           <td key={header.id}>
