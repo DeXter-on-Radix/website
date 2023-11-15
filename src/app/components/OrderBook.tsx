@@ -5,6 +5,8 @@ import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../redux/orderBookSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
+const N_DIGITS = 8;
+
 function OrderBookRow(props: OrderBookRowProps) {
   const { barColor, orderCount, price, size, total, maxTotal } = props;
   if (
@@ -16,9 +18,9 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof maxTotal !== "undefined"
   ) {
     const charactersToDisplay = 6;
-    const priceString = utils.displayAmount(price, charactersToDisplay);
-    const sizeString = utils.displayAmount(size, charactersToDisplay);
-    const totalString = utils.displayAmount(total, charactersToDisplay);
+    const priceString = utils.displayNumber(price, charactersToDisplay);
+    const sizeString = utils.displayNumber(size, charactersToDisplay);
+    const totalString = utils.displayNumber(total, charactersToDisplay);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
@@ -70,10 +72,12 @@ function CurrentPriceRow() {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
       const spread = utils.displayPositiveNumber(
         orderBook.spread,
+        N_DIGITS,
         priceMaxDecimals
       );
       const spreadPercent = utils.displayPositiveNumber(
         orderBook.spreadPercent,
+        N_DIGITS,
         2
       );
 

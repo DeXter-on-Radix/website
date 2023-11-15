@@ -10,6 +10,7 @@ import {
   selectValidationByAddress,
 } from "redux/orderInputSlice";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
+import { getLocaleSeparators } from "utils";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -43,14 +44,8 @@ export function AmountInput(props: TokenInputFiledProps) {
     onChange,
   } = props;
 
-  // TODO: after https://github.com/DeXter-on-Radix/website/pull/159
-  // read this from the state instead
-  const getDecimalSeparator = () => {
-    const numberWithDecimal = 1.1;
-    return numberWithDecimal.toLocaleString().substring(1, 2);
-  };
-
-  const placeholder = `0${getDecimalSeparator()}0`;
+  const { decimalSeparator } = getLocaleSeparators();
+  const placeholder = `0${decimalSeparator}0`;
 
   return (
     <div className="form-control my-2">

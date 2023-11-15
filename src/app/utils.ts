@@ -1,46 +1,53 @@
-export function displayPositiveNumber(x: number, decimals: number): string {
+export function displayPositiveNumber(
+  x: number,
+  noDigits: number = 6,
+  fixedDecimals: number = -1
+): string {
   // the same as with displayNumber, but if the number is negative, it will return empty string
   if (x < 0) {
     return "";
   } else {
-    return displayNumber(x, decimals);
+    return displayNumber(x, noDigits, fixedDecimals);
   }
 }
 
 export function getLocaleSeparators(): {
-  localeDecimalSeparator: string;
-  localeThousandsSeparator: string;
+  decimalSeparator: string;
+  thousandsSeparator: string;
 } {
-  let localeDecimalSeparator = Number(1.1).toLocaleString().substring(1, 2);
-  let localeThousandsSeparator = Number(10000).toLocaleString().substring(2, 3);
-  if (localeThousandsSeparator == "0") {
-    localeThousandsSeparator = "";
+  // we don't want users locale settings but
+  // the actual settings for number formatting
+  // (which may be different from the default than their locale default
+  // and can be edited manually by users in OS settings) =>
+  // not toLocaleString but toString
+  let decimalSeparator = Number(1.1).toString().substring(1, 2);
+  let thousandsSeparator = Number(10000).toString().substring(2, 3);
+
+  // we always have a thousands separator
+  // if the platform doesn't have one we add space
+  if (thousandsSeparator == "0") {
+    thousandsSeparator = " ";
   }
+  if (thousandsSeparator == "") {
+    thousandsSeparator = " ";
+  }
+
   return {
-    localeDecimalSeparator,
-    localeThousandsSeparator,
+    decimalSeparator,
+    thousandsSeparator,
   };
 }
 
-export function displayAmount(
+export function displayNumber(
   x: number,
   noDigits: number = 6,
-  fixedDecimals: number = -1,
-  decimalSeparator: string | undefined = undefined,
-  thousandsSeparator: string | undefined = undefined
+  fixedDecimals: number = -1
 ): string {
   if (noDigits < 4) {
     return "ERROR: displayAmount cannot work with noDigits less than 4";
   }
 
-  const { localeDecimalSeparator, localeThousandsSeparator } =
-    getLocaleSeparators();
-  if (decimalSeparator == undefined) {
-    decimalSeparator = localeDecimalSeparator;
-  }
-  if (thousandsSeparator == undefined) {
-    thousandsSeparator = localeThousandsSeparator;
-  }
+  const { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
 
   if (x < 1) {
     let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
@@ -77,7 +84,7 @@ export function displayAmount(
     if (wholeNumberStr.length < noDigits) {
       const noDecimals = noDigits - wholeNumberStr.length;
 
-      let decimalsStr = numberStr.split(".")[1];
+      let decimalsStr = numberStr.split(decimalSeparator)[1];
       decimalsStr = decimalsStr
         ? decimalsStr.substring(0, noDecimals - 1).replace(/0+$/, "")
         : "";
@@ -98,15 +105,9 @@ export function displayAmount(
       return wholeNumberStr + decimalsStr;
     } else {
       let excessLength = wholeNumberStr.length - noDigits + 1;
-      let excessRemainder =
-        thousandsSeparator != "" ? excessLength % 4 : excessLength % 3;
-      // console.log("Excess Remainder: " + excessRemainder);
-      let excessMultiple =
-        thousandsSeparator != ""
-          ? Math.trunc(excessLength / 4)
-          : Math.trunc(excessLength / 3);
+      let excessRemainder = excessLength % 4;
+      let excessMultiple = Math.trunc(excessLength / 4);
       let displayStr = wholeNumberStr.slice(0, noDigits - 1);
-      // console.log("DisplayStr: " + displayStr);
       switch (excessRemainder) {
         case 0:
           if (excessMultiple > 0) {
@@ -114,23 +115,12 @@ export function displayAmount(
           }
           break;
         case 1:
-          if (thousandsSeparator != "") {
-            displayStr =
-              displayStr.slice(0, -3) + decimalSeparator + displayStr.slice(-2);
-          } else {
-            displayStr =
-              displayStr.slice(0, -2) +
-              decimalSeparator +
-              displayStr.slice(-2, -1);
-          }
+          displayStr =
+            displayStr.slice(0, -3) + decimalSeparator + displayStr.slice(-2);
           break;
         case 2:
-          if (thousandsSeparator != "") {
-            displayStr =
-              displayStr.slice(0, -2) + decimalSeparator + displayStr.slice(-1);
-          } else {
-            displayStr = displayStr.slice(0, -1);
-          }
+          displayStr =
+            displayStr.slice(0, -2) + decimalSeparator + displayStr.slice(-1);
           break;
         case 3:
           displayStr = displayStr.slice(0, -1);
@@ -156,28 +146,6 @@ export function displayAmount(
       return displayStr;
     }
   }
-}
-
-export function displayNumber(
-  x: number, // the number to display
-  decimals: number // the number of decimal places to display, mu
-): string {
-  let result = "";
-  if (x >= 1000000) {
-    result = roundTo(x / 1000000, 2).toString() + "M";
-  } else if (x >= 1000) {
-    result = roundTo(x / 1000, 2).toString() + "K";
-  } else {
-    // toFixed() digits argument must be between 0 and 100
-    if (decimals > 100) {
-      decimals = 100;
-    }
-    if (decimals < 0) {
-      decimals = 0;
-    }
-    result = roundTo(x, decimals).toFixed(decimals);
-  }
-  return result;
 }
 
 export enum RoundType {

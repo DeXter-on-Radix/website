@@ -7,7 +7,7 @@ import {
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { RDT, getRdt } from "../subscriptions";
-import { RoundType, displayAmount, roundTo } from "../utils";
+import { RoundType, displayNumber, roundTo } from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
@@ -438,10 +438,10 @@ function toDescription(quote: Quote): string {
 
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
     description +=
-      `Sending ${displayAmount(quote.fromAmount, 8)} ${
+      `Sending ${displayNumber(quote.fromAmount, 8)} ${
         quote.fromToken.symbol
       } ` +
-      `to receive ${displayAmount(quote.toAmount, 8)} ${
+      `to receive ${displayNumber(quote.toAmount, 8)} ${
         quote.toToken.symbol
       }.\n`;
   }
