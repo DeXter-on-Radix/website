@@ -232,6 +232,14 @@ export const orderInputSlice = createSlice({
       state.tab = action.payload;
     },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
+      //This clears up any validation when switching pairs
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+
+      //Clear up any previous inputs
+      state.token1 = initialTokenInput;
+      state.token2 = initialTokenInput;
+
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(action.payload)
       );
