@@ -41,6 +41,10 @@ interface QuoteWithPriceTokenAddress extends Quote {
   priceTokenAddress: string;
 }
 
+export interface TokenInfo extends adex.TokenInfo {
+  decimals?: number;
+}
+
 export interface ValidationResult {
   valid: boolean;
   message: string;
@@ -51,6 +55,7 @@ export interface TokenInput {
   symbol: string;
   iconUrl: string;
   amount: number | "";
+  decimals: number;
 }
 
 export interface OrderInputState {
@@ -89,11 +94,13 @@ export const initialTokenInput = {
   symbol: "",
   iconUrl: "",
   amount: 0,
+  decimals: 0,
 };
 
 const initialValidationResult = {
   valid: true,
   message: "",
+  decimals: 0,
 };
 
 export const initialState: OrderInputState = {
@@ -123,8 +130,11 @@ export const selectTargetToken = (state: RootState) => {
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSide = (state: RootState) => state.orderInput.side;
-const selectPriceMaxDecimals = (state: RootState) => {
-  return state.pairSelector.priceMaxDecimals;
+const selectToken1MaxDecimals = (state: RootState) => {
+  return state.pairSelector.token1.decimals;
+};
+const selectToken2MaxDecimals = (state: RootState) => {
+  return state.pairSelector.token2.decimals;
 };
 
 // TODO: find out if it's possible to do the same with less boilerplate
@@ -258,12 +268,14 @@ export const orderInputSlice = createSlice({
       );
       const adexToken1 = serializedState.currentPairInfo.token1;
       const adexToken2 = serializedState.currentPairInfo.token2;
+      console.log(serializedState.currentPairInfo);
       if (state.token1.address !== adexToken1.address) {
         state.token1 = {
           address: adexToken1.address,
           symbol: adexToken1.symbol,
           iconUrl: adexToken1.iconUrl,
           amount: "",
+          decimals: serializedState.currentPairInfo.token1MaxDecimals,
         };
       }
       if (state.token2.address !== adexToken2.address) {
@@ -272,6 +284,7 @@ export const orderInputSlice = createSlice({
           symbol: adexToken2.symbol,
           iconUrl: adexToken2.iconUrl,
           amount: "",
+          decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
       }
 
@@ -313,9 +326,9 @@ export const orderInputSlice = createSlice({
     ) {
       const { amount, address: tokenAddress } = action.payload;
       if (tokenAddress === state.token1.address) {
-        state.validationToken1 = _validateAmount(amount);
+        state.validationToken1 = _validateAmount(amount, state.token1.decimals);
       } else if (tokenAddress === state.token2.address) {
-        state.validationToken2 = _validateAmount(amount);
+        state.validationToken2 = _validateAmount(amount, state.token2.decimals);
       }
     },
     validateAmountWithBalance(
@@ -330,6 +343,7 @@ export const orderInputSlice = createSlice({
       const validation = _validateAmountWithBalance({
         amount,
         balance,
+        decimals: state.token1.decimals,
       });
       if (tokenAddress === state.token1.address) {
         state.validationToken1 = validation;
@@ -539,12 +553,20 @@ export const validateSlippageInput = createSelector(
 export const validatePriceInput = createSelector(
   [
     selectPrice,
-    selectPriceMaxDecimals,
+    selectToken1MaxDecimals,
+    selectToken2MaxDecimals,
     selectBestBuy,
     selectBestSell,
     selectSide,
   ],
-  (price, priceMaxDecimals, bestBuy, bestSell, side) => {
+  (
+    price,
+    selectToken1MaxDecimals,
+    selectToken2MaxDecimals,
+    bestBuy,
+    bestSell,
+    side
+  ) => {
     if (price === "") {
       return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
     }
@@ -553,9 +575,14 @@ export const validatePriceInput = createSelector(
       return { valid: false, message: ErrorMessage.NONZERO_PRICE };
     }
 
-    if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
-      return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
-    }
+    if (selectToken1MaxDecimals !== undefined)
+      if (price.toString().split(".")[1]?.length > selectToken1MaxDecimals) {
+        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+      }
+    if (selectToken2MaxDecimals !== undefined)
+      if (price.toString().split(".")[1]?.length > selectToken2MaxDecimals) {
+        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+      }
 
     if (bestSell) {
       if (side === OrderSide.BUY && price > bestSell * 1.05) {
@@ -578,15 +605,18 @@ export const validatePriceInput = createSelector(
   }
 );
 
-function _validateAmount(amount: number | ""): ValidationResult {
+function _validateAmount(
+  amount: number | "",
+  decimals: number | 0
+): ValidationResult {
   let valid = true;
   let message = "";
-
+  console.log("decimals", decimals);
   if (amount === "" || amount === undefined) {
     return { valid, message };
   }
 
-  if (amount.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
+  if (amount.toString().split(".")[1]?.length > decimals) {
     valid = false;
     message = ErrorMessage.EXCESSIVE_DECIMALS;
   }
@@ -602,14 +632,16 @@ function _validateAmount(amount: number | ""): ValidationResult {
 function _validateAmountWithBalance({
   amount,
   balance,
+  decimals,
 }: {
   amount: number | "";
   balance: number;
+  decimals: number | 0;
 }): ValidationResult {
   if ((balance || 0) < (amount || 0)) {
     return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
   } else {
-    return _validateAmount(amount);
+    return _validateAmount(amount, decimals);
   }
 }
 
