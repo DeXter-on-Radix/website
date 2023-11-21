@@ -18,6 +18,19 @@ export enum OrderTab {
   LIMIT = "LIMIT",
 }
 
+export enum ErrorMessage {
+  UNSPECIFIED_PRICE = "Price must be specified",
+  NONZERO_PRICE = "Price must be greater than 0",
+  HIGH_PRICE = "Price is significantly higher than best sell",
+  LOW_PRICE = "Price is significantly lower than best buy",
+  EXCESSIVE_DECIMALS = "Too many decimal places",
+  INSUFFICIENT_FUNDS = "Insufficient funds",
+  //Slippage
+  UNSPECIFIED_SLIPPAGE = "Slippage must be specified",
+  NEGATIVE_SLIPPAGE = "Slippage must be positive",
+  HIGH_SLIPPAGE = "High slippage entered",
+}
+
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
 export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 
@@ -508,15 +521,15 @@ export const validateSlippageInput = createSelector(
   [selectSlippage],
   (slippage) => {
     if (slippage === "") {
-      return { valid: false, message: "Slippage must be specified" };
+      return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
     }
 
     if (slippage < 0) {
-      return { valid: false, message: "Slippage must be positive" };
+      return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
     }
 
     if (slippage >= 0.05) {
-      return { valid: true, message: "High slippage entered" };
+      return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
     }
 
     return { valid: true, message: "" };
@@ -533,22 +546,22 @@ export const validatePriceInput = createSelector(
   ],
   (price, priceMaxDecimals, bestBuy, bestSell, side) => {
     if (price === "") {
-      return { valid: false, message: "Price must be specified" };
+      return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
     }
 
     if (price <= 0) {
-      return { valid: false, message: "Price must be greater than 0" };
+      return { valid: false, message: ErrorMessage.NONZERO_PRICE };
     }
 
     if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
-      return { valid: false, message: "Too many decimal places" };
+      return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
     }
 
     if (bestSell) {
       if (side === OrderSide.BUY && price > bestSell * 1.05) {
         return {
           valid: true,
-          message: "Price is significantly higher than best sell",
+          message: ErrorMessage.HIGH_PRICE,
         };
       }
     }
@@ -557,7 +570,7 @@ export const validatePriceInput = createSelector(
       if (side === OrderSide.SELL && price < bestBuy * 0.95) {
         return {
           valid: true,
-          message: "Price is significantly lower than best buy",
+          message: ErrorMessage.LOW_PRICE,
         };
       }
     }
@@ -575,12 +588,12 @@ function _validateAmount(amount: number | ""): ValidationResult {
 
   if (amount.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
     valid = false;
-    message = "Too many decimal places";
+    message = ErrorMessage.EXCESSIVE_DECIMALS;
   }
 
   if (amount <= 0) {
     valid = false;
-    message = "Amount must be greater than 0";
+    message = ErrorMessage.NONZERO_PRICE;
   }
 
   return { valid, message };
@@ -594,7 +607,7 @@ function _validateAmountWithBalance({
   balance: number;
 }): ValidationResult {
   if ((balance || 0) < (amount || 0)) {
-    return { valid: false, message: "Insufficient funds" };
+    return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
   } else {
     return _validateAmount(amount);
   }
