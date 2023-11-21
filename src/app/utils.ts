@@ -301,6 +301,8 @@ export const formatPercentageChange = (percChange: number | null): string => {
 
 export function numberOrEmptyInput(event: React.ChangeEvent<HTMLInputElement>) {
   let amount: number | "";
+  if (event == undefined) return "";
+  if (event.target == undefined) return "";
   if (event.target.value === "") {
     amount = "";
   } else {

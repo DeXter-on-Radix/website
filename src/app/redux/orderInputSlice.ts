@@ -268,7 +268,6 @@ export const orderInputSlice = createSlice({
       );
       const adexToken1 = serializedState.currentPairInfo.token1;
       const adexToken2 = serializedState.currentPairInfo.token2;
-      console.log(serializedState.currentPairInfo);
       if (state.token1.address !== adexToken1.address) {
         state.token1 = {
           address: adexToken1.address,
@@ -611,7 +610,6 @@ function _validateAmount(
 ): ValidationResult {
   let valid = true;
   let message = "";
-  console.log("decimals", decimals);
   if (amount === "" || amount === undefined) {
     return { valid, message };
   }

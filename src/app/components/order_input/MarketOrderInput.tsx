@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import { useEffect } from "react";
+import useDebounce from "../../debounce";
+import { useState, useEffect } from "react";
 
 import {
   OrderSide,
@@ -50,6 +51,37 @@ export function MarketOrderInput() {
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
 
+  const [inputToken1, setInputToken1] = useState("");
+  const [inputToken2, setInputToken2] = useState("");
+  /*
+(event: React.ChangeEvent<HTMLInputElement>) => {
+      console.log(event);
+      dispatch(
+        orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
+      );
+    }
+*/
+  const debouncedInputToken1 = useDebounce(inputToken1, 250);
+
+  useEffect(() => {
+    if (debouncedInputToken1) {
+      console.log(debouncedInputToken1);
+      dispatch(
+        orderInputSlice.actions.setAmountToken1(
+          numberOrEmptyInput(debouncedInputToken1)
+        )
+      );
+    }
+  }, [debouncedInputToken1]);
+
+  const debouncedInputToken2 = useDebounce(inputToken2, 250);
+
+  useEffect(() => {
+    if (debouncedInputToken2) {
+      console.log(debouncedInputToken2);
+    }
+  }, [debouncedInputToken2]);
+
   useEffect(() => {
     if (
       tartgetToken.amount !== "" &&
@@ -99,11 +131,7 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
-          onChange={(event) => {
-            dispatch(
-              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
-            );
-          }}
+          onChange={(e) => setInputToken1(e.target.value)}
         />
 
         <SwitchTokenPlacesButton />
