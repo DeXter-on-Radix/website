@@ -11,6 +11,8 @@ import {
 } from "redux/orderInputSlice";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 import { getLocaleSeparators } from "utils";
+import { IMaskInput } from "react-imask";
+import useDebounce from "../../debounce";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -33,6 +35,7 @@ export function AmountInput(props: TokenInputFiledProps) {
   const { valid, message } = useAppSelector((state) =>
     selectValidationByAddress(state, props.address)
   );
+  const dispatch = useAppDispatch();
   const {
     address,
     symbol,
@@ -46,6 +49,19 @@ export function AmountInput(props: TokenInputFiledProps) {
 
   const { decimalSeparator } = getLocaleSeparators();
   const placeholder = `0${decimalSeparator}0`;
+
+  const valuetoken = React.useRef(null);
+  const [inputToken, setInputToken] = React.useState("");
+
+  const debouncedValue = useDebounce(inputToken, 250);
+
+  React.useEffect(() => {
+    if (debouncedValue) {
+      console.log(debouncedValue);
+      console.log(inputToken);
+      dispatch(orderInputSlice.actions.setAmountToken1(inputToken));
+    }
+  }, [debouncedValue]);
 
   return (
     <div className="form-control my-2">
@@ -78,18 +94,25 @@ export function AmountInput(props: TokenInputFiledProps) {
           <span>{symbol}</span>
         </div>
 
-        <input
+        <IMaskInput
           disabled={disabled || false}
-          type="number"
+          mask={Number}
+          scale={targetToken.decimals}
+          radix="."
           placeholder={placeholder}
-          value={amount}
+          value={amount.toString()}
+          ref={valuetoken}
           className={
             "flex-1 text-end mr-1 min-w-0" +
             (disabled ? " !bg-neutral" : " !bg-base-200")
           }
-          onChange={onChange}
           onFocus={onFocus}
-        ></input>
+          onAccept={(event) => {
+            //(value, mask) => console.log("Accepted: ", value);
+            onChange(event);
+            //console.log(event);
+          }}
+        ></IMaskInput>
       </div>
 
       <BottomRightErrorLabel message={message} />

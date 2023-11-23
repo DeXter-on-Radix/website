@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "hooks";
 import useDebounce from "../../debounce";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import {
   OrderSide,
@@ -62,15 +62,13 @@ export function MarketOrderInput() {
     }
 */
   const debouncedInputToken1 = useDebounce(inputToken1, 250);
+  //To do make it so that I can have a mask
 
   useEffect(() => {
     if (debouncedInputToken1) {
       console.log(debouncedInputToken1);
-      dispatch(
-        orderInputSlice.actions.setAmountToken1(
-          numberOrEmptyInput(debouncedInputToken1)
-        )
-      );
+      console.log(inputToken1);
+      dispatch(orderInputSlice.actions.setAmountToken1(inputToken1));
     }
   }, [debouncedInputToken1]);
 
@@ -129,11 +127,18 @@ export function MarketOrderInput() {
           {...token1}
           payReceive={PayReceive.PAY}
           onFocus={() => {
+            console.log("focus");
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
-          onChange={(e) => setInputToken1(e.target.value)}
+          onChange={(event) => {
+            console.log(Number(event));
+            dispatch(
+              orderInputSlice.actions.setAmountToken1(
+                Number(event) ? Number(event) : ""
+              )
+            );
+          }}
         />
-
         <SwitchTokenPlacesButton />
         <AmountInput
           {...token2}
@@ -142,9 +147,10 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
           onChange={(event) => {
+            /*
             dispatch(
               orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(event))
-            );
+            );*/
           }}
         />
       </div>
