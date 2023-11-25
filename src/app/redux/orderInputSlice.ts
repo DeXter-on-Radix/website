@@ -614,12 +614,13 @@ function _validateAmount(
   if (amount === "" || amount === undefined) {
     return { valid, message };
   }
-
+  /*
   if (amount.toString().split(".")[1]?.length > decimals) {
+    console.log(amount.toString().split(".")[1]?.length, " vs ", decimals);
     valid = false;
     message = ErrorMessage.EXCESSIVE_DECIMALS;
   }
-
+*/
   if (amount <= 0) {
     valid = false;
     message = ErrorMessage.NONZERO_PRICE;

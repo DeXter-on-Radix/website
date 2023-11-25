@@ -131,7 +131,7 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
           onChange={(event) => {
-            console.log(Number(event));
+            console.log(Number(event) ? Number(event) : "");
             dispatch(
               orderInputSlice.actions.setAmountToken1(
                 Number(event) ? Number(event) : ""
@@ -147,10 +147,10 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
           onChange={(event) => {
-            /*
+            
             dispatch(
               orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(event))
-            );*/
+            );
           }}
         />
       </div>

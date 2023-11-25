@@ -59,7 +59,7 @@ export function AmountInput(props: TokenInputFiledProps) {
     if (debouncedValue) {
       console.log(debouncedValue);
       console.log(inputToken);
-      dispatch(orderInputSlice.actions.setAmountToken1(inputToken));
+      //dispatch(orderInputSlice.actions.setAmountToken1(inputToken));
     }
   }, [debouncedValue]);
 
