@@ -118,7 +118,9 @@ function PriceInput() {
             value={price}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               dispatch(
-                orderInputSlice.actions.setPrice(numberOrEmptyInput(event))
+                orderInputSlice.actions.setPrice(
+                  numberOrEmptyInput(event.target.value)
+                )
               );
             }}
           />
@@ -195,7 +197,7 @@ export function LimitOrderInput() {
           payReceive={
             side === OrderSide.BUY ? PayReceive.RECEIVE : PayReceive.PAY
           }
-          onChange={(event) => {
+          onAccept={(event) => {
             dispatch(
               orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
             );

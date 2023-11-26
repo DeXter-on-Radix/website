@@ -299,14 +299,13 @@ export const formatPercentageChange = (percChange: number | null): string => {
   return "(0.00%)";
 };
 
-export function numberOrEmptyInput(event: React.ChangeEvent<HTMLInputElement>) {
+export function numberOrEmptyInput(event: string) {
   let amount: number | "";
-  if (event == undefined) return "";
-  if (event.target == undefined) return "";
-  if (event.target.value === "") {
+
+  if (event === "") {
     amount = "";
   } else {
-    amount = Number(event.target.value);
+    amount = Number(event);
   }
   return amount;
 }

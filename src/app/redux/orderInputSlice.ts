@@ -326,9 +326,9 @@ export const orderInputSlice = createSlice({
     ) {
       const { amount, address: tokenAddress } = action.payload;
       if (tokenAddress === state.token1.address) {
-        state.validationToken1 = _validateAmount(amount, state.token1.decimals);
+        state.validationToken1 = _validateAmount(amount);
       } else if (tokenAddress === state.token2.address) {
-        state.validationToken2 = _validateAmount(amount, state.token2.decimals);
+        state.validationToken2 = _validateAmount(amount);
       }
     },
     validateAmountWithBalance(
@@ -352,6 +352,7 @@ export const orderInputSlice = createSlice({
       }
     },
     swapTokens(state) {
+      console.log(state);
       const temp = state.token1;
       state.token1 = state.token2;
       state.token2 = temp;
@@ -605,10 +606,7 @@ export const validatePriceInput = createSelector(
   }
 );
 
-function _validateAmount(
-  amount: number | "",
-  decimals: number | 0
-): ValidationResult {
+function _validateAmount(amount: number | ""): ValidationResult {
   let valid = true;
   let message = "";
   if (amount === "" || amount === undefined) {
@@ -632,7 +630,6 @@ function _validateAmount(
 function _validateAmountWithBalance({
   amount,
   balance,
-  decimals,
 }: {
   amount: number | "";
   balance: number;
@@ -641,7 +638,7 @@ function _validateAmountWithBalance({
   if ((balance || 0) < (amount || 0)) {
     return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
   } else {
-    return _validateAmount(amount, decimals);
+    return _validateAmount(amount);
   }
 }
 

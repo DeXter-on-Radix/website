@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import useDebounce from "../../debounce";
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import {
   OrderSide,
@@ -51,34 +50,8 @@ export function MarketOrderInput() {
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
 
-  const [inputToken1, setInputToken1] = useState("");
-  const [inputToken2, setInputToken2] = useState("");
-  /*
-(event: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(event);
-      dispatch(
-        orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
-      );
-    }
-*/
-  const debouncedInputToken1 = useDebounce(inputToken1, 250);
-  //To do make it so that I can have a mask
-
-  useEffect(() => {
-    if (debouncedInputToken1) {
-      console.log(debouncedInputToken1);
-      console.log(inputToken1);
-      dispatch(orderInputSlice.actions.setAmountToken1(inputToken1));
-    }
-  }, [debouncedInputToken1]);
-
-  const debouncedInputToken2 = useDebounce(inputToken2, 250);
-
-  useEffect(() => {
-    if (debouncedInputToken2) {
-      console.log(debouncedInputToken2);
-    }
-  }, [debouncedInputToken2]);
+  // create a regex to match a trailing decimal
+  var regex = /^\d+\.$/;
 
   useEffect(() => {
     if (
@@ -127,16 +100,17 @@ export function MarketOrderInput() {
           {...token1}
           payReceive={PayReceive.PAY}
           onFocus={() => {
-            console.log("focus");
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
-          onChange={(event) => {
-            console.log(Number(event) ? Number(event) : "");
-            dispatch(
-              orderInputSlice.actions.setAmountToken1(
-                Number(event) ? Number(event) : ""
-              )
-            );
+          onAccept={(event) => {
+            console.log("Toke1", event);
+            if (!regex.test(event)) {
+              dispatch(
+                orderInputSlice.actions.setAmountToken1(
+                  numberOrEmptyInput(event)
+                )
+              );
+            }
           }}
         />
         <SwitchTokenPlacesButton />
@@ -146,11 +120,14 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
-          onChange={(event) => {
-            
-            dispatch(
-              orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(event))
-            );
+          onAccept={(event) => {
+            console.log("Toke2", event);
+            if (!regex.test(event))
+              dispatch(
+                orderInputSlice.actions.setAmountToken2(
+                  numberOrEmptyInput(event)
+                )
+              );
           }}
         />
       </div>
@@ -180,9 +157,10 @@ export function MarketOrderInput() {
               formNoValidate
               value={slippageToUiSlippage(slippage)}
               onChange={(event) => {
+                console.log(event.target.value);
                 dispatch(
                   orderInputSlice.actions.setSlippage(
-                    uiSlippageToSlippage(numberOrEmptyInput(event))
+                    uiSlippageToSlippage(numberOrEmptyInput(event.target.value))
                   )
                 );
               }}
