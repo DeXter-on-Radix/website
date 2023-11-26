@@ -352,7 +352,6 @@ export const orderInputSlice = createSlice({
       }
     },
     swapTokens(state) {
-      console.log(state);
       const temp = state.token1;
       state.token1 = state.token2;
       state.token2 = temp;

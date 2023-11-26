@@ -103,7 +103,6 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
           onAccept={(event) => {
-            console.log("Toke1", event);
             if (!regex.test(event)) {
               dispatch(
                 orderInputSlice.actions.setAmountToken1(
@@ -121,7 +120,6 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
           onAccept={(event) => {
-            console.log("Toke2", event);
             if (!regex.test(event))
               dispatch(
                 orderInputSlice.actions.setAmountToken2(
@@ -157,7 +155,6 @@ export function MarketOrderInput() {
               formNoValidate
               value={slippageToUiSlippage(slippage)}
               onChange={(event) => {
-                console.log(event.target.value);
                 dispatch(
                   orderInputSlice.actions.setSlippage(
                     uiSlippageToSlippage(numberOrEmptyInput(event.target.value))
