@@ -12,6 +12,7 @@ import {
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";
+import * as utils from "../../utils";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -83,7 +84,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           disabled={disabled || false}
           mask={Number}
           scale={targetToken.decimals}
-          radix="."
+          radix={utils.getLocaleSeparators().decimalSeparator}
           placeholder={placeholder}
           value={amount.toString()}
           className={
