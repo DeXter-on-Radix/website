@@ -52,7 +52,7 @@ export function MarketOrderInput() {
 
   // create a regex to match a trailing decimal
   var regex = /^\d+\.$/;
-  
+
   useEffect(() => {
     if (
       tartgetToken.amount !== "" &&

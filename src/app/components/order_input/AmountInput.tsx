@@ -12,7 +12,6 @@ import {
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";
-import * as utils from "../../utils";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
