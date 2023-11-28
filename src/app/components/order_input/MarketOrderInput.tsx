@@ -51,7 +51,7 @@ export function MarketOrderInput() {
   const dispatch = useAppDispatch();
 
   // create a regex to match a trailing decimal
-  var regex = /^\d+\.$/;
+  var regex = /^\d+\.?\d*$/;
 
   useEffect(() => {
     if (
