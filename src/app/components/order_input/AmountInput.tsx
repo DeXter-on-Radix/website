@@ -84,7 +84,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           disabled={disabled || false}
           mask={Number}
           scale={targetToken.decimals}
-          radix={utils.getLocaleSeparators().decimalSeparator}
+          radix={"."}
           placeholder={placeholder}
           value={amount.toString()}
           className={

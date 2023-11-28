@@ -9,7 +9,7 @@ import {
   selectTargetToken,
   validateSlippageInput,
 } from "redux/orderInputSlice";
-import { numberOrEmptyInput, getLocaleSeparators } from "utils";
+import { numberOrEmptyInput } from "utils";
 import {
   AmountInput,
   PayReceive,
@@ -51,10 +51,8 @@ export function MarketOrderInput() {
   const dispatch = useAppDispatch();
 
   // create a regex to match a trailing decimal
-  var regex = new RegExp(
-    "^\\d+\\" + getLocaleSeparators().decimalSeparator + "$"
-  );
-
+  var regex = /^\d+\.$/;
+  
   useEffect(() => {
     if (
       tartgetToken.amount !== "" &&
