@@ -22,7 +22,7 @@ interface TokenInputFiledProps extends TokenInput {
   payReceive: string;
   disabled?: boolean;
   onFocus?: () => void;
-  onAccept: (event: string) => void;
+  onAccept: (value: any) => void;
 }
 
 export function AmountInput(props: TokenInputFiledProps) {
@@ -81,11 +81,12 @@ export function AmountInput(props: TokenInputFiledProps) {
 
         <IMaskInput
           disabled={disabled || false}
+          min={0}
           mask={Number}
           scale={targetToken.decimals}
-          radix={"."}
           placeholder={placeholder}
-          value={amount.toString()}
+          radix={decimalSeparator}
+          value={String(amount)}
           className={
             "flex-1 text-end mr-1 min-w-0" +
             (disabled ? " !bg-neutral" : " !bg-base-200")

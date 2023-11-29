@@ -9,7 +9,7 @@ import {
   selectTargetToken,
   validateSlippageInput,
 } from "redux/orderInputSlice";
-import { numberOrEmptyInput } from "utils";
+import { numberOrEmptyInput, getLocaleSeparators } from "utils";
 import {
   AmountInput,
   PayReceive,
@@ -46,13 +46,10 @@ export function MarketOrderInput() {
   );
   const tartgetToken = useAppSelector(selectTargetToken);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const { decimalSeparator } = getLocaleSeparators();
 
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
-
-  // create a regex to match a trailing decimal
-  var regex = /^\d+\.?\d*$/;
-
   useEffect(() => {
     if (
       tartgetToken.amount !== "" &&
@@ -92,7 +89,6 @@ export function MarketOrderInput() {
       })
     );
   }, [token2, dispatch]);
-
   return (
     <div className="form-control w-full">
       <div className="mt-4">
@@ -102,11 +98,11 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
-          onAccept={(event) => {
-            if (!regex.test(event)) {
+          onAccept={(value) => {
+            if (!value.endsWith(decimalSeparator)) {
               dispatch(
                 orderInputSlice.actions.setAmountToken1(
-                  numberOrEmptyInput(event)
+                  numberOrEmptyInput(value)
                 )
               );
             }
@@ -119,13 +115,14 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
-          onAccept={(event) => {
-            if (!regex.test(event))
+          onAccept={(value) => {
+            if (!value.endsWith(decimalSeparator)) {
               dispatch(
                 orderInputSlice.actions.setAmountToken2(
-                  numberOrEmptyInput(event)
+                  numberOrEmptyInput(value)
                 )
               );
+            }
           }}
         />
       </div>
