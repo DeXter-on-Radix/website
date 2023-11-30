@@ -51,8 +51,8 @@ function OrderBookRow(props: OrderBookRowProps) {
 function CurrentPriceRow() {
   const trades = useAppSelector((state) => state.accountHistory.trades);
   const orderBook = useAppSelector((state) => state.orderBook);
-  const priceMaxDecimals = useAppSelector(
-    (state) => state.pairSelector.priceMaxDecimals
+  const token2MaxDecimals = useAppSelector(
+    (state) => state.pairSelector.token2.decimals
   );
 
   let spreadString = "";
@@ -73,7 +73,7 @@ function CurrentPriceRow() {
       const spread = utils.displayPositiveNumber(
         orderBook.spread,
         N_DIGITS,
-        priceMaxDecimals
+        token2MaxDecimals
       );
       const spreadPercent = utils.displayPositiveNumber(
         orderBook.spreadPercent,

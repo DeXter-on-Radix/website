@@ -11,6 +11,7 @@ import {
 } from "redux/orderInputSlice";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 import { getLocaleSeparators } from "utils";
+import { IMaskInput } from "react-imask";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -21,7 +22,7 @@ interface TokenInputFiledProps extends TokenInput {
   payReceive: string;
   disabled?: boolean;
   onFocus?: () => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onAccept: (value: any) => void;
 }
 
 export function AmountInput(props: TokenInputFiledProps) {
@@ -41,7 +42,7 @@ export function AmountInput(props: TokenInputFiledProps) {
     disabled,
     payReceive,
     onFocus,
-    onChange,
+    onAccept,
   } = props;
 
   const { decimalSeparator } = getLocaleSeparators();
@@ -78,18 +79,22 @@ export function AmountInput(props: TokenInputFiledProps) {
           <span>{symbol}</span>
         </div>
 
-        <input
+        <IMaskInput
           disabled={disabled || false}
-          type="number"
+          min={0}
+          mask={Number}
+          unmask={"typed"}
+          scale={targetToken.decimals}
           placeholder={placeholder}
-          value={amount}
+          radix={decimalSeparator}
+          value={String(amount)}
           className={
             "flex-1 text-end mr-1 min-w-0" +
             (disabled ? " !bg-neutral" : " !bg-base-200")
           }
-          onChange={onChange}
           onFocus={onFocus}
-        ></input>
+          onAccept={onAccept}
+        ></IMaskInput>
       </div>
 
       <BottomRightErrorLabel message={message} />

@@ -15,26 +15,9 @@ export function getLocaleSeparators(): {
   decimalSeparator: string;
   thousandsSeparator: string;
 } {
-  // we don't want users locale settings but
-  // the actual settings for number formatting
-  // (which may be different from the default than their locale default
-  // and can be edited manually by users in OS settings) =>
-  // not toLocaleString but toString
-  let decimalSeparator = Number(1.1).toString().substring(1, 2);
-  let thousandsSeparator = Number(10000).toString().substring(2, 3);
-
-  // we always have a thousands separator
-  // if the platform doesn't have one we add space
-  if (thousandsSeparator == "0") {
-    thousandsSeparator = " ";
-  }
-  if (thousandsSeparator == "") {
-    thousandsSeparator = " ";
-  }
-
   return {
-    decimalSeparator,
-    thousandsSeparator,
+    decimalSeparator: ".",
+    thousandsSeparator: " ",
   };
 }
 
@@ -299,12 +282,13 @@ export const formatPercentageChange = (percChange: number | null): string => {
   return "(0.00%)";
 };
 
-export function numberOrEmptyInput(event: React.ChangeEvent<HTMLInputElement>) {
+export function numberOrEmptyInput(event: string) {
   let amount: number | "";
-  if (event.target.value === "") {
+
+  if (event === "") {
     amount = "";
   } else {
-    amount = Number(event.target.value);
+    amount = Number(event);
   }
   return amount;
 }
