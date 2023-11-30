@@ -83,6 +83,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           disabled={disabled || false}
           min={0}
           mask={Number}
+          unmask={"typed"}
           scale={targetToken.decimals}
           placeholder={placeholder}
           radix={decimalSeparator}

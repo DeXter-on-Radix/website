@@ -368,6 +368,10 @@ export const orderInputSlice = createSlice({
     togglePostOnly(state) {
       state.postOnly = !state.postOnly;
     },
+    resetValidation(state) {
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+    },
   },
 
   // asynchronous reducers

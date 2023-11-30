@@ -9,7 +9,7 @@ import {
   selectTargetToken,
   validateSlippageInput,
 } from "redux/orderInputSlice";
-import { numberOrEmptyInput, getLocaleSeparators } from "utils";
+import { numberOrEmptyInput } from "utils";
 import {
   AmountInput,
   PayReceive,
@@ -46,7 +46,6 @@ export function MarketOrderInput() {
   );
   const tartgetToken = useAppSelector(selectTargetToken);
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { decimalSeparator } = getLocaleSeparators();
 
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
@@ -99,13 +98,10 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
           onAccept={(value) => {
-            if (!value.endsWith(decimalSeparator) && !value.endsWith("0")) {
-              dispatch(
-                orderInputSlice.actions.setAmountToken1(
-                  numberOrEmptyInput(value)
-                )
-              );
-            }
+            dispatch(orderInputSlice.actions.resetValidation());
+            dispatch(
+              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(value))
+            );
           }}
         />
         <SwitchTokenPlacesButton />
@@ -116,13 +112,10 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
           onAccept={(value) => {
-            if (!value.endsWith(decimalSeparator)) {
-              dispatch(
-                orderInputSlice.actions.setAmountToken2(
-                  numberOrEmptyInput(value)
-                )
-              );
-            }
+            dispatch(orderInputSlice.actions.resetValidation());
+            dispatch(
+              orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(value))
+            );
           }}
         />
       </div>
