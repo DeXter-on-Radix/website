@@ -13,7 +13,7 @@ import {
   PayReceive,
   SwitchTokenPlacesButton,
 } from "./AmountInput";
-import { numberOrEmptyInput } from "utils";
+import { numberOrEmptyInput, getLocaleSeparators } from "utils";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
@@ -154,6 +154,7 @@ export function LimitOrderInput() {
   const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy);
   const bestSellPrice = useAppSelector((state) => state.orderBook.bestSell);
   const priceValidationResult = useAppSelector(validatePriceInput);
+  const { decimalSeparator } = getLocaleSeparators();
 
   useEffect(() => {
     if (
@@ -197,10 +198,14 @@ export function LimitOrderInput() {
           payReceive={
             side === OrderSide.BUY ? PayReceive.RECEIVE : PayReceive.PAY
           }
-          onAccept={(event) => {
-            dispatch(
-              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
-            );
+          onAccept={(value) => {
+            if (!value.endsWith(decimalSeparator) && !value.endsWith("0")) {
+              dispatch(
+                orderInputSlice.actions.setAmountToken1(
+                  numberOrEmptyInput(value)
+                )
+              );
+            }
           }}
         />
 

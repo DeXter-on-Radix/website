@@ -99,7 +99,7 @@ export function MarketOrderInput() {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
           onAccept={(value) => {
-            if (!value.endsWith(decimalSeparator)) {
+            if (!value.endsWith(decimalSeparator) && !value.endsWith("0")) {
               dispatch(
                 orderInputSlice.actions.setAmountToken1(
                   numberOrEmptyInput(value)
