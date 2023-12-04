@@ -43,6 +43,7 @@ export const fetchBalances = createAsyncThunk<
 >("pairSelector/fetchBalances", async (_arg, thunkAPI) => {
   const dispatch = thunkAPI.dispatch;
   const state = thunkAPI.getState();
+  console.log("fetchBalances", state.pairSelector.address);
 
   if (state.pairSelector.address === "") {
     return undefined;
@@ -52,8 +53,11 @@ export const fetchBalances = createAsyncThunk<
   if (rdt && state.radix.walletData.accounts.length > 0) {
     const tokens = [state.pairSelector.token1, state.pairSelector.token2];
 
+    console.log("tokens", tokens);
+
     for (let token of tokens) {
       // separate balance fetching try/catch for each token
+      console.log("token", token);
       try {
         const response =
           await rdt.gatewayApi.state.innerClient.entityFungibleResourceVaultPage(
@@ -65,6 +69,7 @@ export const fetchBalances = createAsyncThunk<
               },
             }
           );
+        console.log("response", response);
         // if there are no items in response, set the balance to 0
         const balance = parseFloat(response?.items[0]?.amount || "0");
         dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));

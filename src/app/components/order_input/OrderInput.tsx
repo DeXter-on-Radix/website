@@ -7,8 +7,8 @@ import {
   submitOrder,
   validatePriceInput,
   validateSlippageInput,
-} from "redux/orderInputSlice";
-import { fetchBalances } from "redux/pairSelectorSlice";
+} from "state/orderInputSlice";
+import { fetchBalances } from "state/pairSelectorSlice";
 import { LimitOrderInput } from "./LimitOrderInput";
 import { MarketOrderInput } from "./MarketOrderInput";
 import { OrderSideTabs } from "./OrderSideTabs";

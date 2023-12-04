@@ -4,7 +4,7 @@ import "./styles/globals.css";
 
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
-import { store } from "./redux/store";
+import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 

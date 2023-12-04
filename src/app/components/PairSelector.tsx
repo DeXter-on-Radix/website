@@ -1,5 +1,5 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
-import { selectPairAddress } from "../redux/pairSelectorSlice";
+import { selectPairAddress } from "../state/pairSelectorSlice";
 import { useRef, useState } from "react";
 
 interface PairInfo {

@@ -3,17 +3,18 @@ import {
   DataRequestBuilder,
   RadixDappToolkit,
   RadixNetwork,
+  createLogger,
 } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
-import { radixSlice, WalletData } from "./redux/radixSlice";
-import { fetchBalances } from "./redux/pairSelectorSlice";
-import { pairSelectorSlice } from "./redux/pairSelectorSlice";
-import { orderBookSlice } from "./redux/orderBookSlice";
-import { updateCandles } from "./redux/priceChartSlice";
-import { updatePriceInfo } from "./redux/priceInfoSlice";
-import { accountHistorySlice } from "./redux/accountHistorySlice";
-import { orderInputSlice } from "redux/orderInputSlice";
-import { AppStore } from "./redux/store";
+import { radixSlice, WalletData } from "./state/radixSlice";
+import { fetchBalances } from "./state/pairSelectorSlice";
+import { pairSelectorSlice } from "./state/pairSelectorSlice";
+import { orderBookSlice } from "./state/orderBookSlice";
+import { updateCandles } from "./state/priceChartSlice";
+import { updatePriceInfo } from "./state/priceInfoSlice";
+import { accountHistorySlice } from "./state/accountHistorySlice";
+import { orderInputSlice } from "state/orderInputSlice";
+import { AppStore } from "./state/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
@@ -32,6 +33,7 @@ export function initializeSubscriptions(store: AppStore) {
     dAppDefinitionAddress:
       "account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y",
     networkId: RadixNetwork.Stokenet,
+    logger: createLogger(1),
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
@@ -39,6 +41,7 @@ export function initializeSubscriptions(store: AppStore) {
   subs.push(
     rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
+      console.log("subscriptions walletData", data);
       store.dispatch(radixSlice.actions.setWalletData(data));
 
       // TODO: can we subscribe to balances from somewhere?

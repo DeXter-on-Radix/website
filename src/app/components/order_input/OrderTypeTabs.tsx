@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import { OrderTab, orderInputSlice } from "redux/orderInputSlice";
+import { OrderTab, orderInputSlice } from "state/orderInputSlice";
 
 export function OrderTypeTabs() {
   const activeTab = useAppSelector((state) => state.orderInput.tab);
