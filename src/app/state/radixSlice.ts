@@ -27,7 +27,6 @@ export const radixSlice = createSlice({
   // synchronous reducers
   reducers: {
     setWalletData: (state: RadixState, action: PayloadAction<WalletData>) => {
-      console.log("setWalletData", action.payload);
       state.walletData = action.payload;
     },
   },
