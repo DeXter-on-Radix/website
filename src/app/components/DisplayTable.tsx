@@ -10,7 +10,6 @@ import {
   cancelOrder,
   selectOpenOrders,
   selectTradeHistory,
-  selectOrderHistory,
 } from "../state/accountHistorySlice";
 import { AccountHistoryState, Tables } from "../state/accountHistorySlice";
 interface TableProps {
@@ -85,7 +84,9 @@ export function DisplayTable() {
     (state) => state.accountHistory.selectedTable
   );
   const openOrders = useAppSelector(selectOpenOrders);
-  const orderHistory = useAppSelector(selectOrderHistory);
+  const orderHistory = useAppSelector(
+    (state) => state.accountHistory.orderHistory
+  );
   const tradeHistory = useAppSelector(selectTradeHistory);
 
   const tableToShow = useMemo(() => {

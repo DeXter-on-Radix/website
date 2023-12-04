@@ -150,11 +150,6 @@ export const selectOpenOrders = createSelector(
   (orderHistory) => orderHistory.filter((order) => order.status === "PENDING")
 );
 
-export const selectOrderHistory = createSelector(
-  (state: RootState) => state.accountHistory.orderHistory,
-  (orderHistory) => orderHistory
-);
-
 export const selectTradeHistory = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
   (orderHistory) => orderHistory.filter((order) => order.status === "COMPLETED")
