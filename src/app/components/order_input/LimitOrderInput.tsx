@@ -7,7 +7,7 @@ import {
   orderInputSlice,
   selectBalanceByAddress,
   validatePriceInput,
-} from "redux/orderInputSlice";
+} from "state/orderInputSlice";
 import {
   AmountInput,
   PayReceive,

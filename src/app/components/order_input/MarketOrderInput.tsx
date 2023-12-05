@@ -8,7 +8,7 @@ import {
   selectBalanceByAddress,
   selectTargetToken,
   validateSlippageInput,
-} from "redux/orderInputSlice";
+} from "state/orderInputSlice";
 import { numberOrEmptyInput } from "utils";
 import {
   AmountInput,

@@ -5,15 +5,15 @@ import {
   RadixNetwork,
 } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
-import { radixSlice, WalletData } from "./redux/radixSlice";
-import { fetchBalances } from "./redux/pairSelectorSlice";
-import { pairSelectorSlice } from "./redux/pairSelectorSlice";
-import { orderBookSlice } from "./redux/orderBookSlice";
-import { updateCandles } from "./redux/priceChartSlice";
-import { updatePriceInfo } from "./redux/priceInfoSlice";
-import { accountHistorySlice } from "./redux/accountHistorySlice";
-import { orderInputSlice } from "redux/orderInputSlice";
-import { AppStore } from "./redux/store";
+import { radixSlice, WalletData } from "./state/radixSlice";
+import { fetchBalances } from "./state/pairSelectorSlice";
+import { pairSelectorSlice } from "./state/pairSelectorSlice";
+import { orderBookSlice } from "./state/orderBookSlice";
+import { updateCandles } from "./state/priceChartSlice";
+import { updatePriceInfo } from "./state/priceInfoSlice";
+import { accountHistorySlice } from "./state/accountHistorySlice";
+import { orderInputSlice } from "state/orderInputSlice";
+import { AppStore } from "./state/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 

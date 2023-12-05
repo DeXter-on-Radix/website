@@ -8,7 +8,7 @@ import {
   selectBalanceByAddress,
   selectTargetToken,
   selectValidationByAddress,
-} from "redux/orderInputSlice";
+} from "state/orderInputSlice";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";

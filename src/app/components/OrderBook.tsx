@@ -2,7 +2,7 @@ import { CSSProperties } from "react";
 
 import "../styles/orderbook.css";
 import * as utils from "../utils";
-import { OrderBookRowProps, orderBookSlice } from "../redux/orderBookSlice";
+import { OrderBookRowProps, orderBookSlice } from "../state/orderBookSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
 const N_DIGITS = 8;

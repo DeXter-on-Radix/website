@@ -8,11 +8,11 @@ import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
-import { fetchBalances } from "redux/pairSelectorSlice";
+import { fetchBalances } from "state/pairSelectorSlice";
 import { useAppDispatch } from "hooks";
-import { fetchAccountHistory } from "redux/accountHistorySlice";
+import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
-import { store } from "./redux/store";
+import { store } from "./state/store";
 
 export default function Home() {
   const dispatch = useAppDispatch();

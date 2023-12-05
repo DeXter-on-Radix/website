@@ -7,7 +7,7 @@ import {
   handleCrosshairMove,
   // fetchCandlesForInitialPeriod,
   initializeLegend,
-} from "../redux/priceChartSlice";
+} from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayNumber } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
