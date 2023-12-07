@@ -1,37 +1,63 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
-import { Subscription } from "rxjs";
-import { AdexStateContext, RadixContext } from "./contexts";
-import { State } from "@radixdlt/radix-dapp-toolkit";
-import * as adex from "alphadex-sdk-js";
-import { PairsList } from "./PairsList";
-import { PairInfo } from "./PairInfo";
+import { useEffect } from "react";
+
+import { OrderBook } from "components/OrderBook";
+import { OrderInput } from "components/order_input/OrderInput";
+import { PairSelector } from "components/PairSelector";
+import { PriceChart } from "components/PriceChart";
+import { AccountHistory } from "components/AccountHistory";
+import { PriceInfo } from "components/PriceInfo";
+import { fetchBalances } from "state/pairSelectorSlice";
+import { useAppDispatch } from "hooks";
+import { fetchAccountHistory } from "state/accountHistorySlice";
+import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
+import { store } from "./state/store";
 
 export default function Home() {
-  const adexState = useContext(AdexStateContext);
+  const dispatch = useAppDispatch();
 
-  function getAdexConnectionStatus() {
-    return adexState.status != "LOADING" ? adexState.status : null;
-  }
+  useEffect(() => {
+    initializeSubscriptions(store);
+    return () => {
+      unsubscribeAll();
+    };
+  }, []);
 
-  function getPairs() {
-    //Gets list of pairs from adex
-    return adexState.status != "LOADING" ? <PairsList /> : null;
-  }
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      dispatch(fetchBalances());
+      dispatch(fetchAccountHistory());
+    }, 5000); // Dispatch every 5000 milliseconds (5 second)
 
-  function getPairInfo() {
-    //gets info of currently selected pair from adex
-    return adexState.status != "LOADING" && adexState.currentPairInfo ? (
-      <PairInfo />
-    ) : null;
-  }
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [dispatch]);
 
   return (
-    <main className="mx-6">
-      <dd>AlphaDEX: {getAdexConnectionStatus()}</dd>
-      {getPairs()}
-      {getPairInfo()}
-    </main>
+    <>
+      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-base-300">
+        <PairSelector />
+      </div>
+      <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
+        <PriceInfo />
+      </div>
+      <div className="col-span-12 xl:col-span-3 hidden xl:block  row-span-2 text-center border-l-4 border-base-300">
+        <OrderBook />
+      </div>
+      <div className="grid grid-cols-12 xl:grid-cols-9 col-span-12 xl:col-span-9">
+        <div className="col-span-12 lg:col-span-5 xl:col-span-3 order-2 lg:order-1 text-center lg:border-r-4 border-base-300">
+          <OrderInput />
+        </div>
+        <div className="col-span-12 p-2 lg:col-span-7 xl:col-span-6 order-1 lg:order-2 text-center xs:border-b-4 lg:border-b-0 border-base-300">
+          <PriceChart />
+        </div>
+      </div>
+      <div className="col-span-12 xl:hidden lg:col-span-5 lg:border-r-4 border-base-300">
+        <OrderBook />
+      </div>
+      <div className="col-span-12 lg:col-span-7 xl:col-span-12 text-center">
+        <AccountHistory />
+      </div>
+    </>
   );
 }

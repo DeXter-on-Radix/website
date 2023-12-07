@@ -4,7 +4,7 @@
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
-    "no-console": 1, // Means warning
+    "no-console": ["warn", { "allow": ["error", "debug"] }],
     "prettier/prettier": [
       "error",
       {
@@ -19,6 +19,27 @@
     // https://eslint.org/docs/rules/new-cap
     // The new-cap rule requires a constructor name to be capitalized.
     // The capIsNew: false option allows capitalized functions to be used without the new keyword.
-    "new-cap": ["error", { "capIsNew": false }]
-  }
+    "new-cap": ["error", { "capIsNew": false }],
+
+    // throw an error for unused variables
+    "@typescript-eslint/no-unused-vars": ["error"],
+
+    // TODO: fix related https://github.com/DeXter-on-Radix/website/issues/75
+    "@next/next/no-img-element": "off"
+  },
+  "overrides": [
+    {
+      "files": ["src/app/components/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            // restrict data fetching in components
+            // all data related logic should be in redux
+            "paths": ["@radixdlt/radix-dapp-toolkit", "alphadex-sdk-js"]
+          }
+        ]
+      }
+    }
+  ]
 }
