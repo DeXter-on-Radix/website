@@ -34,8 +34,8 @@ export default function Home() {
   }, [dispatch]);
 
   return (
-    <>
-      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-base-300">
+    <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
+      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
         <PairSelector />
       </div>
       <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
@@ -58,6 +58,6 @@ export default function Home() {
       <div className="col-span-12 lg:col-span-7 xl:col-span-12 text-center">
         <AccountHistory />
       </div>
-    </>
+    </div>
   );
 }
