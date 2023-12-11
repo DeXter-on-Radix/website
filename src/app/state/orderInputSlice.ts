@@ -415,17 +415,21 @@ export const orderInputSlice = createSlice({
 
         if (state.tab === OrderTab.MARKET) {
           // MARKET
-          if (state.side === OrderSide.SELL) {
-            state.token2.amount = quote.toAmount;
-          } else {
-            state.token1.amount = quote.fromAmount;
-          }
 
+          // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
           if (quote.resultCode === 5 || quote.resultCode === 6) {
             if (state.side === OrderSide.SELL) {
-              state.token1.amount = quote.fromAmount;
+              state.validationToken1.valid = false;
+              state.validationToken1.message = quote.resultMessageLong;
             } else {
+              state.validationToken2.valid = false;
+              state.validationToken2.message = quote.resultMessageLong;
+            }
+          } else {
+            if (state.side === OrderSide.SELL) {
               state.token2.amount = quote.toAmount;
+            } else {
+              state.token1.amount = quote.fromAmount;
             }
           }
         } else {
