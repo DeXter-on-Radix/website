@@ -21,6 +21,7 @@ export enum OrderTab {
 export enum ErrorMessage {
   UNSPECIFIED_PRICE = "Price must be specified",
   NONZERO_PRICE = "Price must be greater than 0",
+  NONZERO_AMOUNT = "Amount must be greater than 0",
   HIGH_PRICE = "Price is significantly higher than best sell",
   LOW_PRICE = "Price is significantly lower than best buy",
   EXCESSIVE_DECIMALS = "Too many decimal places",
@@ -628,7 +629,7 @@ function _validateAmount(amount: number | ""): ValidationResult {
 */
   if (amount <= 0) {
     valid = false;
-    message = ErrorMessage.NONZERO_PRICE;
+    message = ErrorMessage.NONZERO_AMOUNT;
   }
 
   return { valid, message };

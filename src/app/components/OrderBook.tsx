@@ -5,7 +5,13 @@ import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../state/orderBookSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 
-const N_DIGITS = 8;
+// For all intents, we can round all numbers to 8 decimals for Dexter.
+// Alphadex will not accept any numbers with more than 8 decimals
+// and it is doubtful whether people are that interested in numbers with more decimals.
+// https://discord.com/channels/1125689933735145503/1125689934251032584/1181882491464843314
+
+// 10 = for possible 8 decimals in smaller than 1 numbers + 1 for the decimal point + 1 for the leading 0
+const CHARACTERS_TO_DISPLAY = 10;
 
 function OrderBookRow(props: OrderBookRowProps) {
   const { barColor, orderCount, price, size, total, maxTotal } = props;
@@ -17,10 +23,9 @@ function OrderBookRow(props: OrderBookRowProps) {
     typeof total !== "undefined" &&
     typeof maxTotal !== "undefined"
   ) {
-    const charactersToDisplay = 6;
-    const priceString = utils.displayNumber(price, charactersToDisplay);
-    const sizeString = utils.displayNumber(size, charactersToDisplay);
-    const totalString = utils.displayNumber(total, charactersToDisplay);
+    const priceString = utils.displayNumber(price, CHARACTERS_TO_DISPLAY);
+    const sizeString = utils.displayNumber(size, CHARACTERS_TO_DISPLAY);
+    const totalString = utils.displayNumber(total, CHARACTERS_TO_DISPLAY);
     const barWidth = `${(total / maxTotal) * 100}%`;
 
     const barStyle = {
@@ -72,12 +77,12 @@ function CurrentPriceRow() {
     if (orderBook.spreadPercent !== null && orderBook.spread !== null) {
       const spread = utils.displayPositiveNumber(
         orderBook.spread,
-        N_DIGITS,
+        CHARACTERS_TO_DISPLAY,
         token2MaxDecimals
       );
       const spreadPercent = utils.displayPositiveNumber(
         orderBook.spreadPercent,
-        N_DIGITS,
+        CHARACTERS_TO_DISPLAY,
         2
       );
 
