@@ -373,6 +373,18 @@ export const orderInputSlice = createSlice({
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
     },
+    resetNumbersInput(state) {
+      state.token1 = initialTokenInput;
+      state.token2 = initialTokenInput;
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+      state.price = 0;
+      state.slippage = 0.01;
+      state.transactionInProgress = false;
+      state.transactionResult = undefined;
+      state.quote = undefined;
+      state.description = undefined;
+    },
   },
 
   // asynchronous reducers
