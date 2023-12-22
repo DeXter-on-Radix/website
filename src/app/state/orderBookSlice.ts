@@ -54,22 +54,24 @@ export function toOrderBookRowProps(
     if (adexRows.length > 0) {
       groupedArray = adexRows.reduce((result: adex.OrderbookLine[], item) => {
         const key = roundToGroup(item.price);
-        const foundItem = result.find(
-          (x: adex.OrderbookLine) => x.price === key
-        ); // note that we don't specify the type here
-        let existingItem: adex.OrderbookLine; // declare the variable without assigning it
-        if (foundItem !== undefined) {
-          // if the foundItem is not undefined, we can assign it safely
-          existingItem = foundItem;
-          existingItem.token1Remaining += item.token1Remaining;
-          existingItem.token2Remaining += item.token2Remaining;
-          existingItem.noOrders += item.noOrders;
-          existingItem.orders = existingItem.orders.concat(item.orders);
-          existingItem.total += item.total;
-        } else {
-          // If it's a new price, add it to the result
-          item.price = key;
-          result.push({ ...item });
+        if (key > 0) {
+          const foundItem = result.find(
+            (x: adex.OrderbookLine) => x.price === key
+          ); // note that we don't specify the type here
+          let existingItem: adex.OrderbookLine; // declare the variable without assigning it
+          if (foundItem !== undefined) {
+            // if the foundItem is not undefined, we can assign it safely
+            existingItem = foundItem;
+            existingItem.token1Remaining += item.token1Remaining;
+            existingItem.token2Remaining += item.token2Remaining;
+            existingItem.noOrders += item.noOrders;
+            existingItem.orders = existingItem.orders.concat(item.orders);
+            existingItem.total += item.total;
+          } else {
+            // If it's a new price, add it to the result
+            item.price = key;
+            result.push({ ...item });
+          }
         }
         return result;
       }, []);
