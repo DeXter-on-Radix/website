@@ -41,3 +41,4 @@ next-env.d.ts
 /playwright/.cache/
 
 localhost:3000/
+.env
