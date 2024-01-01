@@ -29,9 +29,12 @@ let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress:
-      "account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y",
-    networkId: RadixNetwork.Stokenet,
+    dAppDefinitionAddress: process.env.DAPP_DEFINITION_ADDRESS
+      ? process.env.DAPP_DEFINITION_ADDRESS
+      : "",
+    networkId: process.env.NETWORK_ID
+      ? parseInt(process.env.NETWORK_ID)
+      : RadixNetwork.Stokenet,
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
@@ -48,7 +51,7 @@ export function initializeSubscriptions(store: AppStore) {
   setRdt(rdtInstance);
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
-  adex.init("stokenet");
+  adex.init(process.env.NETWORK ? process.env.NETWORK : "stokenet");
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
