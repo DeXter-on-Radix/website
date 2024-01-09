@@ -10,6 +10,10 @@ const nextConfig = {
   reactStrictMode: false,
 
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+  env: {
+    NETWORK: process.env.NETWORK,
+    DAPP_DEFINITION_ADDRESS: process.env.DAPP_DEFINITION_ADDRESS,
+  },
 };
 
 module.exports = withMDX(nextConfig);

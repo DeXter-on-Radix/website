@@ -39,7 +39,6 @@ export function initializeSubscriptions(store: AppStore) {
     default:
       networkId = RadixNetwork.Stokenet;
   }
-
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress: process.env.DAPP_DEFINITION_ADDRESS
       ? process.env.DAPP_DEFINITION_ADDRESS
@@ -61,9 +60,19 @@ export function initializeSubscriptions(store: AppStore) {
   setRdt(rdtInstance);
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
-  const network: string = process.env.NETWORK || "stokenet";
+  let network;
+  switch (process.env.NETWORK) {
+    case "mainnet":
+      network = adex.ApiNetworkOptions.indexOf("mainnet");
+      break;
+    case "stokenet":
+      network = adex.ApiNetworkOptions.indexOf("stokenet");
+      break;
+    default:
+      network = adex.ApiNetworkOptions.indexOf("stokenet");
+  }
 
-  adex.init(adex.ApiNetworkOptions[network as any]);
+  adex.init(adex.ApiNetworkOptions[network]);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
