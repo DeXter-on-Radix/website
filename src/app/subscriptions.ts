@@ -28,13 +28,23 @@ function setRdt(rdt: RDT) {
 let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
+  let networkId;
+  switch (process.env.NETWORK) {
+    case "mainnet":
+      networkId = RadixNetwork.Mainnet;
+      break;
+    case "stokenet":
+      networkId = RadixNetwork.Stokenet;
+      break;
+    default:
+      networkId = RadixNetwork.Stokenet;
+  }
+
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress: process.env.DAPP_DEFINITION_ADDRESS
       ? process.env.DAPP_DEFINITION_ADDRESS
       : "",
-    networkId: process.env.NETWORK_ID
-      ? parseInt(process.env.NETWORK_ID)
-      : RadixNetwork.Stokenet,
+    networkId,
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
@@ -51,7 +61,9 @@ export function initializeSubscriptions(store: AppStore) {
   setRdt(rdtInstance);
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
-  adex.init(process.env.NETWORK ? process.env.NETWORK : "stokenet");
+  const network: string = process.env.NETWORK || "stokenet";
+
+  adex.init(adex.ApiNetworkOptions[network as any]);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
