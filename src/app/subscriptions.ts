@@ -29,7 +29,7 @@ let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
   let networkId;
-  switch (process.env.NETWORK) {
+  switch (process.env.NEXT_PUBLIC_NETWORK) {
     case "mainnet":
       networkId = RadixNetwork.Mainnet;
       break;
@@ -40,8 +40,8 @@ export function initializeSubscriptions(store: AppStore) {
       networkId = RadixNetwork.Stokenet;
   }
   rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.DAPP_DEFINITION_ADDRESS
-      ? process.env.DAPP_DEFINITION_ADDRESS
+    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+      ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
       : "",
     networkId,
   });
@@ -61,7 +61,7 @@ export function initializeSubscriptions(store: AppStore) {
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
   let network;
-  switch (process.env.NETWORK) {
+  switch (process.env.NEXT_PUBLIC_NETWORK) {
     case "mainnet":
       network = adex.ApiNetworkOptions.indexOf("mainnet");
       break;
