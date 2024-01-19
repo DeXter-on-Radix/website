@@ -92,7 +92,7 @@ export function PairSelector() {
           tabIndex={0}
           className={
             `options ${isOpen ? "" : "hidden"}` +
-            " dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
+            " dropdown-content z-10 menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
           }
         >
           {filter(options).map((option, index) => {
