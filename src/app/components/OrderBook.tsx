@@ -90,7 +90,7 @@ function CurrentPriceRow() {
         2
       );
 
-      spreadString = `(${spreadPercent}%)`;
+      spreadString = `${spreadPercent}%`;
       spreadValue = `Spread ${spread}`;
     }
 
