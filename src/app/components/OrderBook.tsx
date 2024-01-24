@@ -61,19 +61,16 @@ function CurrentPriceRow() {
   );
 
   let spreadString = "";
+  let spreadValue = "";
 
   // checking for past trades here because adexState.currentPairInfo.lastPrice
   // is never null, and is = -1 if there were no trades
   let lastPrice = "";
   if (trades.length > 0) {
-    lastPrice = orderBook.lastPrice?.toString() || "";
-    //The full solution causes display issues as it will always display min digits
-    /*
-    lastPrice =
-      orderBook.lastPrice?.toLocaleString(undefined, {
-        minimumFractionDigits: token2MaxDecimals,
-      }) || "";
-      */
+    lastPrice = utils.displayNumber(
+      orderBook.lastPrice || 0,
+      CHARACTERS_TO_DISPLAY
+    );
   } else {
     lastPrice = "No trades have occurred yet";
   }
@@ -93,20 +90,22 @@ function CurrentPriceRow() {
         2
       );
 
-      spreadString = `${spread} (${spreadPercent}%)`;
+      spreadString = `(${spreadPercent}%)`;
+      spreadValue = `Spread ${spread}`;
     }
 
     return (
       <>
-        <div className="text-2xl text-accent text-left col-span-2 my-1 py-1 ml-2">
+        <div className="text-xl text-accent text-left col-span-2 my-1 py-1 ml-2">
           {lastPrice}
         </div>
 
-        <div className="flex text-accent justify-end col-span-2 text-sm my-1 py-1 whitespace-nowrap">
-          <span className="my-auto">Spread</span>{" "}
-          <span className="my-auto px-1 border-r-2 border-accent">
-            {spreadString}
-          </span>
+        <div className="flex text-accent justify-end items-center col-span-2 text-sm my-1 py-1 whitespace-nowrap">
+          <div className="tooltip tooltip-left" data-tip={spreadValue}>
+            <span className="my-auto px-1 border-r-2 border-accent">
+              {spreadString}
+            </span>
+          </div>
         </div>
       </>
     );
