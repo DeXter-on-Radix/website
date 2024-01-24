@@ -8,7 +8,7 @@ import {
   selectBalanceByAddress,
   selectTargetToken,
   validateSlippageInput,
-} from "redux/orderInputSlice";
+} from "state/orderInputSlice";
 import { numberOrEmptyInput } from "utils";
 import {
   AmountInput,
@@ -49,7 +49,6 @@ export function MarketOrderInput() {
 
   const slippageValidationResult = useAppSelector(validateSlippageInput);
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (
       tartgetToken.amount !== "" &&
@@ -89,7 +88,6 @@ export function MarketOrderInput() {
       })
     );
   }, [token2, dispatch]);
-
   return (
     <div className="form-control w-full">
       <div className="mt-4">
@@ -99,13 +97,13 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
           }}
-          onChange={(event) => {
+          onAccept={(value) => {
+            dispatch(orderInputSlice.actions.resetValidation());
             dispatch(
-              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(event))
+              orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(value))
             );
           }}
         />
-
         <SwitchTokenPlacesButton />
         <AmountInput
           {...token2}
@@ -113,9 +111,10 @@ export function MarketOrderInput() {
           onFocus={() => {
             dispatch(orderInputSlice.actions.setSide(OrderSide.BUY));
           }}
-          onChange={(event) => {
+          onAccept={(value) => {
+            dispatch(orderInputSlice.actions.resetValidation());
             dispatch(
-              orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(event))
+              orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(value))
             );
           }}
         />
@@ -148,7 +147,7 @@ export function MarketOrderInput() {
               onChange={(event) => {
                 dispatch(
                   orderInputSlice.actions.setSlippage(
-                    uiSlippageToSlippage(numberOrEmptyInput(event))
+                    uiSlippageToSlippage(numberOrEmptyInput(event.target.value))
                   )
                 );
               }}

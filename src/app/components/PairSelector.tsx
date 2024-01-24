@@ -1,5 +1,6 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
-import { selectPairAddress } from "../redux/pairSelectorSlice";
+import { selectPairAddress } from "../state/pairSelectorSlice";
+import { orderInputSlice } from "../state/orderInputSlice";
 import { useRef, useState } from "react";
 
 interface PairInfo {
@@ -13,14 +14,17 @@ function displayName(name?: string) {
 export function PairSelector() {
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
-  const selectPair = (pairAddress: string) => {
-    dispatch(selectPairAddress(pairAddress));
-  };
+
   const options = pairSelector.pairsList;
   const id = "pairOption";
+
   const handleChange = (val: PairInfo | null) => {
     if (val == null) return;
-    selectPair(val["address"]);
+
+    dispatch(orderInputSlice.actions.resetNumbersInput());
+
+    const pairAddress = val["address"];
+    dispatch(selectPairAddress(pairAddress));
   };
 
   const [query, setQuery] = useState("");
@@ -88,7 +92,7 @@ export function PairSelector() {
           tabIndex={0}
           className={
             `options ${isOpen ? "" : "hidden"}` +
-            " dropdown-content z-[1] menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
+            " dropdown-content z-10 menu bg-base-200 shadow rounded-box w-full !my-0 !p-0"
           }
         >
           {filter(options).map((option, index) => {

@@ -7,7 +7,7 @@ import {
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { RDT, getRdt } from "../subscriptions";
-import { RoundType, displayAmount, roundTo } from "../utils";
+import { RoundType, displayNumber, roundTo } from "../utils";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
@@ -16,6 +16,20 @@ import { RootState } from "./store";
 export enum OrderTab {
   MARKET = "MARKET",
   LIMIT = "LIMIT",
+}
+
+export enum ErrorMessage {
+  UNSPECIFIED_PRICE = "Price must be specified",
+  NONZERO_PRICE = "Price must be greater than 0",
+  NONZERO_AMOUNT = "Amount must be greater than 0",
+  HIGH_PRICE = "Price is significantly higher than best sell",
+  LOW_PRICE = "Price is significantly lower than best buy",
+  EXCESSIVE_DECIMALS = "Too many decimal places",
+  INSUFFICIENT_FUNDS = "Insufficient funds",
+  //Slippage
+  UNSPECIFIED_SLIPPAGE = "Slippage must be specified",
+  NEGATIVE_SLIPPAGE = "Slippage must be positive",
+  HIGH_SLIPPAGE = "High slippage entered",
 }
 
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
@@ -28,6 +42,10 @@ interface QuoteWithPriceTokenAddress extends Quote {
   priceTokenAddress: string;
 }
 
+export interface TokenInfo extends adex.TokenInfo {
+  decimals?: number;
+}
+
 export interface ValidationResult {
   valid: boolean;
   message: string;
@@ -38,6 +56,7 @@ export interface TokenInput {
   symbol: string;
   iconUrl: string;
   amount: number | "";
+  decimals: number;
 }
 
 export interface OrderInputState {
@@ -76,11 +95,13 @@ export const initialTokenInput = {
   symbol: "",
   iconUrl: "",
   amount: 0,
+  decimals: 0,
 };
 
 const initialValidationResult = {
   valid: true,
   message: "",
+  decimals: 0,
 };
 
 export const initialState: OrderInputState = {
@@ -110,8 +131,11 @@ export const selectTargetToken = (state: RootState) => {
 const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSide = (state: RootState) => state.orderInput.side;
-const selectPriceMaxDecimals = (state: RootState) => {
-  return state.pairSelector.priceMaxDecimals;
+const selectToken1MaxDecimals = (state: RootState) => {
+  return state.pairSelector.token1.decimals;
+};
+const selectToken2MaxDecimals = (state: RootState) => {
+  return state.pairSelector.token2.decimals;
 };
 
 // TODO: find out if it's possible to do the same with less boilerplate
@@ -232,6 +256,15 @@ export const orderInputSlice = createSlice({
       state.tab = action.payload;
     },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
+      //This clears up any validation when switching pairs
+      /*
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+
+      //Clear up any previous inputs
+      state.token1 = initialTokenInput;
+      state.token2 = initialTokenInput;
+      */
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(action.payload)
       );
@@ -243,6 +276,7 @@ export const orderInputSlice = createSlice({
           symbol: adexToken1.symbol,
           iconUrl: adexToken1.iconUrl,
           amount: "",
+          decimals: serializedState.currentPairInfo.token1MaxDecimals,
         };
       }
       if (state.token2.address !== adexToken2.address) {
@@ -251,6 +285,7 @@ export const orderInputSlice = createSlice({
           symbol: adexToken2.symbol,
           iconUrl: adexToken2.iconUrl,
           amount: "",
+          decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
       }
 
@@ -309,6 +344,7 @@ export const orderInputSlice = createSlice({
       const validation = _validateAmountWithBalance({
         amount,
         balance,
+        decimals: state.token1.decimals,
       });
       if (tokenAddress === state.token1.address) {
         state.validationToken1 = validation;
@@ -332,6 +368,22 @@ export const orderInputSlice = createSlice({
     },
     togglePostOnly(state) {
       state.postOnly = !state.postOnly;
+    },
+    resetValidation(state) {
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+    },
+    resetNumbersInput(state) {
+      state.token1 = initialTokenInput;
+      state.token2 = initialTokenInput;
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+      state.price = 0;
+      state.slippage = 0.01;
+      state.transactionInProgress = false;
+      state.transactionResult = undefined;
+      state.quote = undefined;
+      state.description = undefined;
     },
   },
 
@@ -376,17 +428,21 @@ export const orderInputSlice = createSlice({
 
         if (state.tab === OrderTab.MARKET) {
           // MARKET
-          if (state.side === OrderSide.SELL) {
-            state.token2.amount = quote.toAmount;
-          } else {
-            state.token1.amount = quote.fromAmount;
-          }
 
+          // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
           if (quote.resultCode === 5 || quote.resultCode === 6) {
             if (state.side === OrderSide.SELL) {
-              state.token1.amount = quote.fromAmount;
+              state.validationToken1.valid = false;
+              state.validationToken1.message = quote.resultMessageLong;
             } else {
+              state.validationToken2.valid = false;
+              state.validationToken2.message = quote.resultMessageLong;
+            }
+          } else {
+            if (state.side === OrderSide.SELL) {
               state.token2.amount = quote.toAmount;
+            } else {
+              state.token1.amount = quote.fromAmount;
             }
           }
         } else {
@@ -438,10 +494,10 @@ function toDescription(quote: Quote): string {
 
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
     description +=
-      `Sending ${displayAmount(quote.fromAmount, 8)} ${
+      `Sending ${displayNumber(quote.fromAmount, 8)} ${
         quote.fromToken.symbol
       } ` +
-      `to receive ${displayAmount(quote.toAmount, 8)} ${
+      `to receive ${displayNumber(quote.toAmount, 8)} ${
         quote.toToken.symbol
       }.\n`;
   }
@@ -500,15 +556,15 @@ export const validateSlippageInput = createSelector(
   [selectSlippage],
   (slippage) => {
     if (slippage === "") {
-      return { valid: false, message: "Slippage must be specified" };
+      return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
     }
 
     if (slippage < 0) {
-      return { valid: false, message: "Slippage must be positive" };
+      return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
     }
 
     if (slippage >= 0.05) {
-      return { valid: true, message: "High slippage entered" };
+      return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
     }
 
     return { valid: true, message: "" };
@@ -518,29 +574,42 @@ export const validateSlippageInput = createSelector(
 export const validatePriceInput = createSelector(
   [
     selectPrice,
-    selectPriceMaxDecimals,
+    selectToken1MaxDecimals,
+    selectToken2MaxDecimals,
     selectBestBuy,
     selectBestSell,
     selectSide,
   ],
-  (price, priceMaxDecimals, bestBuy, bestSell, side) => {
+  (
+    price,
+    selectToken1MaxDecimals,
+    selectToken2MaxDecimals,
+    bestBuy,
+    bestSell,
+    side
+  ) => {
     if (price === "") {
-      return { valid: false, message: "Price must be specified" };
+      return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
     }
 
     if (price <= 0) {
-      return { valid: false, message: "Price must be greater than 0" };
+      return { valid: false, message: ErrorMessage.NONZERO_PRICE };
     }
 
-    if (price.toString().split(".")[1]?.length > priceMaxDecimals) {
-      return { valid: false, message: "Too many decimal places" };
-    }
+    if (selectToken1MaxDecimals !== undefined)
+      if (price.toString().split(".")[1]?.length > selectToken1MaxDecimals) {
+        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+      }
+    if (selectToken2MaxDecimals !== undefined)
+      if (price.toString().split(".")[1]?.length > selectToken2MaxDecimals) {
+        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+      }
 
     if (bestSell) {
       if (side === OrderSide.BUY && price > bestSell * 1.05) {
         return {
           valid: true,
-          message: "Price is significantly higher than best sell",
+          message: ErrorMessage.HIGH_PRICE,
         };
       }
     }
@@ -549,7 +618,7 @@ export const validatePriceInput = createSelector(
       if (side === OrderSide.SELL && price < bestBuy * 0.95) {
         return {
           valid: true,
-          message: "Price is significantly lower than best buy",
+          message: ErrorMessage.LOW_PRICE,
         };
       }
     }
@@ -560,19 +629,19 @@ export const validatePriceInput = createSelector(
 function _validateAmount(amount: number | ""): ValidationResult {
   let valid = true;
   let message = "";
-
   if (amount === "" || amount === undefined) {
     return { valid, message };
   }
-
-  if (amount.toString().split(".")[1]?.length > adex.AMOUNT_MAX_DECIMALS) {
+  /*
+  if (amount.toString().split(".")[1]?.length > decimals) {
+    console.log(amount.toString().split(".")[1]?.length, " vs ", decimals);
     valid = false;
-    message = "Too many decimal places";
+    message = ErrorMessage.EXCESSIVE_DECIMALS;
   }
-
+*/
   if (amount <= 0) {
     valid = false;
-    message = "Amount must be greater than 0";
+    message = ErrorMessage.NONZERO_AMOUNT;
   }
 
   return { valid, message };
@@ -584,9 +653,10 @@ function _validateAmountWithBalance({
 }: {
   amount: number | "";
   balance: number;
+  decimals: number | 0;
 }): ValidationResult {
   if ((balance || 0) < (amount || 0)) {
-    return { valid: false, message: "Insufficient funds" };
+    return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
   } else {
     return _validateAmount(amount);
   }

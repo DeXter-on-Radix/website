@@ -8,11 +8,11 @@ import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
-import { fetchBalances } from "redux/pairSelectorSlice";
+import { fetchBalances } from "state/pairSelectorSlice";
 import { useAppDispatch } from "hooks";
-import { fetchAccountHistory } from "redux/accountHistorySlice";
+import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
-import { store } from "./redux/store";
+import { store } from "./state/store";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -34,8 +34,8 @@ export default function Home() {
   }, [dispatch]);
 
   return (
-    <>
-      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-base-300">
+    <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
+      <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
         <PairSelector />
       </div>
       <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
@@ -58,6 +58,6 @@ export default function Home() {
       <div className="col-span-12 lg:col-span-7 xl:col-span-12 text-center">
         <AccountHistory />
       </div>
-    </>
+    </div>
   );
 }

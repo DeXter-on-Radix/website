@@ -8,8 +8,10 @@ import {
   selectBalanceByAddress,
   selectTargetToken,
   selectValidationByAddress,
-} from "redux/orderInputSlice";
+} from "state/orderInputSlice";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
+import { getLocaleSeparators } from "utils";
+import { IMaskInput } from "react-imask";
 
 export const enum PayReceive {
   PAY = "YOU PAY:",
@@ -20,7 +22,7 @@ interface TokenInputFiledProps extends TokenInput {
   payReceive: string;
   disabled?: boolean;
   onFocus?: () => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onAccept: (value: any) => void;
 }
 
 export function AmountInput(props: TokenInputFiledProps) {
@@ -40,17 +42,11 @@ export function AmountInput(props: TokenInputFiledProps) {
     disabled,
     payReceive,
     onFocus,
-    onChange,
+    onAccept,
   } = props;
 
-  // TODO: after https://github.com/DeXter-on-Radix/website/pull/159
-  // read this from the state instead
-  const getDecimalSeparator = () => {
-    const numberWithDecimal = 1.1;
-    return numberWithDecimal.toLocaleString().substring(1, 2);
-  };
-
-  const placeholder = `0${getDecimalSeparator()}0`;
+  const { decimalSeparator } = getLocaleSeparators();
+  const placeholder = `0${decimalSeparator}0`;
 
   return (
     <div className="form-control my-2">
@@ -83,18 +79,22 @@ export function AmountInput(props: TokenInputFiledProps) {
           <span>{symbol}</span>
         </div>
 
-        <input
+        <IMaskInput
           disabled={disabled || false}
-          type="number"
+          min={0}
+          mask={Number}
+          unmask={"typed"}
+          scale={targetToken.decimals}
           placeholder={placeholder}
-          value={amount}
+          radix={decimalSeparator}
+          value={String(amount)}
           className={
             "flex-1 text-end mr-1 min-w-0" +
             (disabled ? " !bg-neutral" : " !bg-base-200")
           }
-          onChange={onChange}
           onFocus={onFocus}
-        ></input>
+          onAccept={onAccept}
+        ></IMaskInput>
       </div>
 
       <BottomRightErrorLabel message={message} />

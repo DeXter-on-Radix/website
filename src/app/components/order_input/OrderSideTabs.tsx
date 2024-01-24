@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "hooks";
-import { OrderSide, orderInputSlice } from "redux/orderInputSlice";
+import { OrderSide, orderInputSlice } from "state/orderInputSlice";
 
 export function OrderSideTabs() {
   const dispatch = useAppDispatch();

@@ -4,7 +4,7 @@ import "./styles/globals.css";
 
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
-import { store } from "./redux/store";
+import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 
@@ -28,7 +28,7 @@ export default function RootLayout({
         <body>
           <div
             data-path={path}
-            className="grid grid-cols-12 custom-auto-row-grid h-screen prose md:prose-lg lg:prose-xl max-w-none divide-y-4 divide-base-300"
+            className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
           >
             <Navbar />
             {children}

@@ -7,12 +7,12 @@ export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
 export interface TokenInfo extends adex.TokenInfo {
   balance?: number;
+  decimals?: number;
 }
 
 export interface PairSelectorState {
   name: string;
   address: string;
-  priceMaxDecimals: number;
   token1: TokenInfo;
   token2: TokenInfo;
   pairsList: adex.PairInfo[];
@@ -23,12 +23,12 @@ export const initalTokenInfo: TokenInfo = {
   symbol: "",
   name: "",
   iconUrl: "",
+  decimals: 8,
 };
 
 const initialState: PairSelectorState = {
   name: "",
   address: "",
-  priceMaxDecimals: 0,
   token1: { ...initalTokenInfo },
   token2: { ...initalTokenInfo },
   pairsList: [],
@@ -90,7 +90,8 @@ export const pairSelectorSlice = createSlice({
     ) => {
       const adexState = action.payload;
 
-      state.priceMaxDecimals = adexState.currentPairInfo.priceMaxDecimals;
+      state.token1.decimals = adexState.currentPairInfo.token1MaxDecimals;
+      state.token2.decimals = adexState.currentPairInfo.token2MaxDecimals;
 
       // unpacking to avoid loosing balances info
       state.token1 = {

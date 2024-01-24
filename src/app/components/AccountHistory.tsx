@@ -5,7 +5,7 @@ import {
   fetchAccountHistory,
   selectOpenOrders,
   setSelectedTable,
-} from "redux/accountHistorySlice";
+} from "state/accountHistorySlice";
 import { DisplayTable } from "./DisplayTable";
 
 function OrdersTabs() {

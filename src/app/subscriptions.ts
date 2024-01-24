@@ -5,16 +5,16 @@ import {
   RadixNetwork,
 } from "@radixdlt/radix-dapp-toolkit";
 import * as adex from "alphadex-sdk-js";
-import { radixSlice, WalletData } from "./redux/radixSlice";
-import { fetchBalances } from "./redux/pairSelectorSlice";
-import { pairSelectorSlice } from "./redux/pairSelectorSlice";
-import { orderBookSlice } from "./redux/orderBookSlice";
-import { updateCandles } from "./redux/priceChartSlice";
-import { updatePriceInfo } from "./redux/priceInfoSlice";
-import { accountHistorySlice } from "./redux/accountHistorySlice";
-import { marketSlice } from "./redux/marketSlice";
-import { orderInputSlice } from "redux/orderInputSlice";
-import { AppStore } from "./redux/store";
+import { radixSlice, WalletData } from "./state/radixSlice";
+import { fetchBalances } from "./state/pairSelectorSlice";
+import { pairSelectorSlice } from "./state/pairSelectorSlice";
+import { orderBookSlice } from "./state/orderBookSlice";
+import { updateCandles } from "./state/priceChartSlice";
+import { updatePriceInfo } from "./state/priceInfoSlice";
+import { accountHistorySlice } from "./state/accountHistorySlice";
+import { orderInputSlice } from "state/orderInputSlice";
+import { marketSlice } from "state/marketSlice";
+import { AppStore } from "./state/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
@@ -29,10 +29,22 @@ function setRdt(rdt: RDT) {
 let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
+  let networkId;
+  switch (process.env.NEXT_PUBLIC_NETWORK) {
+    case "mainnet":
+      networkId = RadixNetwork.Mainnet;
+      break;
+    case "stokenet":
+      networkId = RadixNetwork.Stokenet;
+      break;
+    default:
+      networkId = RadixNetwork.Stokenet;
+  }
   rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress:
-      "account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y",
-    networkId: RadixNetwork.Stokenet,
+    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+      ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+      : "",
+    networkId,
   });
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
@@ -49,8 +61,19 @@ export function initializeSubscriptions(store: AppStore) {
   setRdt(rdtInstance);
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
-  adex.init("stokenet");
-  adex.clientState.getAllPairsMarketData = true;
+  let network;
+  switch (process.env.NEXT_PUBLIC_NETWORK) {
+    case "mainnet":
+      network = adex.ApiNetworkOptions.indexOf("mainnet");
+      break;
+    case "stokenet":
+      network = adex.ApiNetworkOptions.indexOf("stokenet");
+      break;
+    default:
+      network = adex.ApiNetworkOptions.indexOf("stokenet");
+  }
+
+  adex.init(adex.ApiNetworkOptions[network]);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
