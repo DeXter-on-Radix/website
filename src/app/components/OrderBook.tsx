@@ -66,7 +66,14 @@ function CurrentPriceRow() {
   // is never null, and is = -1 if there were no trades
   let lastPrice = "";
   if (trades.length > 0) {
-    lastPrice = orderBook.lastPrice?.toLocaleString() || "";
+    lastPrice = orderBook.lastPrice?.toString() || "";
+    //The full solution causes display issues as it will always display min digits
+    /*
+    lastPrice =
+      orderBook.lastPrice?.toLocaleString(undefined, {
+        minimumFractionDigits: token2MaxDecimals,
+      }) || "";
+      */
   } else {
     lastPrice = "No trades have occurred yet";
   }
@@ -105,7 +112,7 @@ function CurrentPriceRow() {
     );
   } else {
     return (
-      <div className="text-2xl text-left col-span-4  border-r-2 border-accent ml-2">
+      <div className="text-xl text-left col-span-4  border-r-2 border-accent ml-2">
         {lastPrice}
       </div>
     );
