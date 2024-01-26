@@ -1,14 +1,14 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { selectPairAddress } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface PairInfo {
   name: string;
   address: string;
 }
 function displayName(name?: string) {
-  return name?.replace("/", " - ");
+  return name?.replace("/", " - ").toUpperCase();
 }
 
 export function PairSelector() {
@@ -17,6 +17,14 @@ export function PairSelector() {
 
   const options = pairSelector.pairsList;
   const id = "pairOption";
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS != "") {
+      dispatch(
+        selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS || "")
+      );
+    }
+  }, [dispatch]);
 
   const handleChange = (val: PairInfo | null) => {
     if (val == null) return;
