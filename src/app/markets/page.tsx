@@ -7,7 +7,7 @@ import { MarketsInfo } from "components/markets/MarketsInfo";
 
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 
-import { store } from "../redux/store";
+import { store } from "../state/store";
 
 export default function Markets() {
   useEffect(() => {

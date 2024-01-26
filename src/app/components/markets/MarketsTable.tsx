@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppSelector } from "../../hooks";
-import { displayAmount } from "../../utils";
+import { displayNumber } from "../../utils";
 
 import "../../styles/table.css";
 import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
@@ -44,13 +44,13 @@ const formatPairs = (pairs: PairInfo[]) => {
   return pairs.map((pair) => {
     return {
       name: pair.name,
-      lastPrice: displayAmount(pair.lastPrice, noDigits, fixedDecimals),
-      quantity24h: displayAmount(pair.quantity24h, noDigits, fixedDecimals),
-      change24h: displayAmount(pair.change24h, noDigits, fixedDecimals),
-      //high24h: displayAmount(pair.high24h, noDigits, fixedDecimals),
-      //low24h: displayAmount(pair.low24h, noDigits, fixedDecimals),
+      lastPrice: displayNumber(pair.lastPrice, noDigits, fixedDecimals),
+      quantity24h: displayNumber(pair.quantity24h, noDigits, fixedDecimals),
+      change24h: displayNumber(pair.change24h, noDigits, fixedDecimals),
+      //high24h: displayNumber (pair.high24h, noDigits, fixedDecimals),
+      //low24h: displayNumber (pair.low24h, noDigits, fixedDecimals),
       trades24h: pair.trades24h,
-      value24h: displayAmount(pair.value24h, noDigits, fixedDecimals),
+      value24h: displayNumber(pair.value24h, noDigits, fixedDecimals),
     };
   });
 };
