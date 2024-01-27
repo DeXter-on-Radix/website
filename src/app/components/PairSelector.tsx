@@ -137,7 +137,7 @@ export function PairSelector() {
         />
         <div className="flex space-x-2 text-secondary-content">
           <FaSearch className="my-auto" />
-          <span className="px-2 bg-neutral !rounded-sm text-neutral-content">
+          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
             /
           </span>
         </div>
