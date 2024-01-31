@@ -133,9 +133,9 @@ export function OrderBook() {
   return (
     <div className="p-2 text-sx text-primary-content">
       <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
-        <div className="justify-self-start">Order book</div>
+        <div className="justify-self-start uppercase">Order book</div>
         <div className="flex justify-end join">
-          <span className="join-item mr-2">Grouping </span>
+          <span className="join-item mr-2 uppercase">Grouping </span>
           <input
             className="input-xs w-16 join-item"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +146,7 @@ export function OrderBook() {
         </div>
       </div>
       <div className="sized-columns">
-        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
+        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content uppercase">
           <div className="text-start">
             Order
             <br />
