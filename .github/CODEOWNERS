@@ -1,0 +1,5 @@
+# Assign the 'developers' team to review changes to any file
+* @DeXter-on-Radix/developers
+
+# End-to-end test directory can be reviewed by the 'testers' team
+/e2e/ @DeXter-on-Radix/testers
