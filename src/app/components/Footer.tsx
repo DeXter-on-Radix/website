@@ -49,11 +49,12 @@ export function Footer() {
         </div>
 
         <div className="col-span-11 col-start-2">
-          <a
-            href="https://www.radixdlt.com/"
-            target="_blank"
-          >
-            <img width="150" src="runs-on-radix.png" alt="Runs on Radix Button"></img>
+          <a href="https://www.radixdlt.com/" target="_blank">
+            <img
+              width="150"
+              src="runs-on-radix.png"
+              alt="Runs on Radix Button"
+            ></img>
           </a>
         </div>
       </div>
