@@ -114,3 +114,10 @@ input[type="number"]::-ms-clear {
 .custom-auto-row-grid {
   grid-auto-rows: 0fr auto 0fr;
 }
+
+/* Fix ugly border on candle period buttons */
+.btn-candle-period:focus-visible {
+  outline-style: auto;
+  outline-width: initial;
+  outline-offset: initial;
+}
