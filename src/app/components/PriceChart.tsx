@@ -172,7 +172,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         <div
           ref={legendRef}
           className={
-            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-50 uppercase " +
+            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
             (props.isNegativeOrZero ? "!text-error" : "!text-success")
           }
         >
