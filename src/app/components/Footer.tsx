@@ -53,7 +53,7 @@ export function Footer() {
             href="https://www.radixdlt.com/"
             target="_blank"
           >
-            <img width="150" src="runs-on-radix.png" ></img>
+            <img width="150" src="runs-on-radix.png" alt="Runs on Radix Button"></img>
           </a>
         </div>
       </div>
