@@ -240,7 +240,7 @@ export function PriceChart() {
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`btn btn-sm text-secondary-content ${
+              className={`btn btn-sm text-secondary-content focus-within:-outline-offset-2 ${
                 candlePeriod === period
                   ? "!text-primary-content underline underline-offset-8 decoration-accent"
                   : ""
