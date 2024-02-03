@@ -6,7 +6,7 @@ export function MarketsInfo() {
   const volumeChange = 0;
 
   return (
-    <div className="flex justify-between items-start">
+    <div className="flex-grow justify-between items-start">
       <div className="flex-none mx-9">
         <span className="text-accent">{marketPairs}</span> Market Pairs
       </div>
