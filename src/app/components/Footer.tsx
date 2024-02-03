@@ -47,6 +47,16 @@ export function Footer() {
         <div className="col-span-11 col-start-2">
           Built with passion by a global community.
         </div>
+
+        <div className="col-span-11 col-start-2">
+          <a href="https://www.radixdlt.com/" target="_blank">
+            <img
+              width="150"
+              src="runs-on-radix.png"
+              alt="Runs on Radix Button"
+            ></img>
+          </a>
+        </div>
       </div>
 
       <div className="flex flex-col space-y-4 px-16 lg:row-span-2">
