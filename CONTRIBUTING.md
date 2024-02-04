@@ -18,7 +18,7 @@ In order to contribute, you need to set up the development envirment.
 Use the following set up section for instructions.
 
 
-<h2> Set Up </h2>
+## Set Up
 
 - Fork the Dexter repository to your github account.
 - Clone from your forked repo.
