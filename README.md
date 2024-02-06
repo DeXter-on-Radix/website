@@ -4,16 +4,6 @@ This is the website for DeXter On Radix, a decentralized exchange on the [Radix 
 
 ## Getting Started
 
-Set Up:
-
-- Fork the Dexter repository to your github account.
-- Clone from your forked repo.
-- Make a new branch with feature name(can see example in some [closed PRs](https://github.com/DeXter-on-Radix/website/pulls?q=is%3Apr+is%3Aclosed)).
-- Make some changes.
-- Commit and push local branch changes to your own repo.
-- Make a pull request into the [original Dexter repo](https://github.com/DeXter-on-Radix/website).
-
-Now you ready to run locally the project(this will show in your default browser as a LOCALHOST)
 To run the website locally:
 
 ```bash
