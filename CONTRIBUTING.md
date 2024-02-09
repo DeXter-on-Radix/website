@@ -13,3 +13,13 @@ Here are a few guidelines to follow:
 - **Write tests** to prevent regressions, unit tests with [Jest](https://jestjs.io/) in `__tests__` folder, end to end tests with [Playwright](https://playwright.dev/) in `e2e` folder
 
 If you happen to use VS Code, install the recommended extensions to get automatic formatting and linting on save, they are listed in `.vscode/extensions.json` and VS Code will prompt you to install them.
+
+## Set Up
+
+- Fork the Dexter repository to your github account.
+- Clone from your forked repo.
+- Make a new branch with a feature name (you can see some examples in [closed PRs](https://github.com/DeXter-on-Radix/website
+  /pulls?q=is%3Apr+is%3Aclosed)).
+- Make some changes.
+- Commit and push local branch changes to your own repo.
+- Make a pull request into the [original Dexter repo](https://github.com/DeXter-on-Radix/website).
