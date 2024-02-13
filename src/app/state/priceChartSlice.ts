@@ -37,6 +37,7 @@ const initialState: PriceChartState = {
   legendCurrentVolume: 0,
   isNegativeOrZero: false,
 };
+export const initialPriceChartState = initialState;
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
   // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
