@@ -13,6 +13,8 @@ export interface OHLCVData extends CandlestickData {
   value: number;
 }
 
+// Candle periods from alphadex:
+// -> ['5m', '15m', '30m', '1h', '4h', '6h', '12h', '1D', '1W', '1M']
 export const CANDLE_PERIODS = adex.CandlePeriods;
 
 export interface PriceChartState {
@@ -26,7 +28,7 @@ export interface PriceChartState {
 }
 
 const initialState: PriceChartState = {
-  candlePeriod: adex.CandlePeriods[2],
+  candlePeriod: adex.CandlePeriods[7],  // default to 1D candle period
   ohlcv: [],
   legendCandlePrice: null,
   legendPercChange: null,
