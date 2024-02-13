@@ -29,7 +29,7 @@ export interface PriceChartState {
 }
 
 const initialState: PriceChartState = {
-  candlePeriod: adex.CandlePeriods[7], // defaults to 1D candle period
+  candlePeriod: adex.CandlePeriods[4], // defaults to 1D candle period
   ohlcv: [],
   legendCandlePrice: null,
   legendPercChange: null,
