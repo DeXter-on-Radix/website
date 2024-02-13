@@ -7,7 +7,7 @@ import {
   handleCrosshairMove,
   // fetchCandlesForInitialPeriod,
   initializeLegend,
-  priceChartSlice
+  priceChartSlice,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayNumber } from "../utils";
@@ -232,7 +232,7 @@ export function PriceChart() {
   // Set default candlePeriod state as defined in initialState of priceChartSlice
   useEffect(() => {
     dispatch(setCandlePeriod(priceChartSlice.getInitialState().candlePeriod));
-  }, [])
+  }, [dispatch]);
 
   return (
     <div>
