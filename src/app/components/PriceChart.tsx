@@ -231,7 +231,7 @@ export function PriceChart() {
   );
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between sm:pr-8">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
             Trading Chart
