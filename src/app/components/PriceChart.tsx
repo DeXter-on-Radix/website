@@ -18,7 +18,6 @@ interface PriceChartProps {
   change: number | null;
   percChange: number | null;
   volume: number | null;
-  isNegativeOrZero: boolean;
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
@@ -132,11 +131,10 @@ function PriceChartCanvas(props: PriceChartProps) {
         data.map((datum) => ({
           ...datum,
           color:
-            datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
+            datum.close - datum.open < 0 ? theme["error"] : theme["success"],
         }))
       );
 
-      // volumeSeries.setData(clonedData);
       chart.priceScale("volume").applyOptions({
         scaleMargins: {
           top: 0.8,
@@ -169,7 +167,7 @@ function PriceChartCanvas(props: PriceChartProps) {
           ref={legendRef}
           className={
             "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
-            (props.isNegativeOrZero ? "!text-error" : "!text-success")
+            (props.change && props.change < 0 ? "!text-error" : "!text-success")
           }
         >
           <div className="flex justify-start gap-x-6">
@@ -221,9 +219,6 @@ export function PriceChart() {
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   );
-  const isNegativeOrZero = useAppSelector(
-    (state) => state.priceChart.isNegativeOrZero
-  );
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -254,7 +249,6 @@ export function PriceChart() {
         change={change}
         percChange={percChange}
         volume={currentVolume}
-        isNegativeOrZero={isNegativeOrZero}
       />
     </div>
   );

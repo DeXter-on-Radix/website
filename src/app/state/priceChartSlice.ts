@@ -22,7 +22,6 @@ export interface PriceChartState {
   legendChange: number | null;
   legendPercChange: number | null;
   legendCurrentVolume: number;
-  isNegativeOrZero: boolean;
 }
 
 const initialState: PriceChartState = {
@@ -32,7 +31,6 @@ const initialState: PriceChartState = {
   legendPercChange: null,
   legendChange: null,
   legendCurrentVolume: 0,
-  isNegativeOrZero: false,
 };
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
@@ -116,10 +114,6 @@ export const priceChartSlice = createSlice({
     },
     setLegendCandlePrice: (state, action: PayloadAction<OHLCVData | null>) => {
       state.legendCandlePrice = action.payload;
-      if (action.payload) {
-        state.isNegativeOrZero =
-          action.payload.close - action.payload.open <= 0;
-      }
     },
     setLegendChange: (state, action: PayloadAction<OHLCVData>) => {
       if (action.payload) {
@@ -160,8 +154,6 @@ export const priceChartSlice = createSlice({
           ).toFixed(2)
         );
         state.legendCurrentVolume = latestOHLCVData.value;
-        state.isNegativeOrZero =
-          latestOHLCVData.close - latestOHLCVData.open <= 0;
       }
     },
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
