@@ -81,20 +81,17 @@ function PriceChartCanvas(props: PriceChartProps) {
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
         height: 500,
-        //MODIFY THEME COLOR HERE
         layout: {
           background: {
             color: theme["base-200"],
           },
           textColor: theme["primary-content"],
         },
-        //MODIFY THEME COLOR HERE
         grid: {
           vertLines: { color: theme["base-100"] },
           horzLines: { color: theme["base-100"] },
         },
         timeScale: {
-          //MODIFY THEME COLOR HERE
           borderColor: theme["base-100"],
           timeVisible: true,
         },
@@ -107,14 +104,15 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
+        borderUpColor: theme["success"],
         wickUpColor: theme["success"],
         upColor: theme["success"],
+        borderDownColor: theme["error"],
         wickDownColor: theme["error"],
         downColor: theme["error"],
       });
 
       chart.priceScale("right").applyOptions({
-        //MODIFY THEME COLOR HERE
         borderColor: theme["base-100"],
         scaleMargins: {
           top: 0.1,
@@ -130,8 +128,6 @@ function PriceChartCanvas(props: PriceChartProps) {
         priceScaleId: "volume",
       });
 
-      // VOLUME BARS
-      // MODIFY THEME COLOR HERE
       volumeSeries.setData(
         data.map((datum) => ({
           ...datum,
