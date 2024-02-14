@@ -84,7 +84,7 @@ function PriceChartCanvas(props: PriceChartProps) {
           background: {
             color: theme["base-200"],
           },
-          textColor: theme["primary-content"],
+          textColor: theme["secondary-content"],
         },
         grid: {
           vertLines: { color: theme["base-100"] },
@@ -93,6 +93,16 @@ function PriceChartCanvas(props: PriceChartProps) {
         timeScale: {
           borderColor: theme["base-100"],
           timeVisible: true,
+        },
+        crosshair: {
+          vertLine: {
+            color: theme["accent"],
+            labelBackgroundColor: theme["accent"],
+          },
+          horzLine: {
+            color: theme["accent"],
+            labelBackgroundColor: theme["accent"],
+          },
         },
       });
 
