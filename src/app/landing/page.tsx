@@ -1,52 +1,58 @@
+//Figma
+//https://www.figma.com/file/Zjff03BX35fREatqzcWDS7/DexTer-pages?type=design&node-id=0-1&mode=design&t=dCWa65gdycsJnFZw-0
 export default function Landing() {
   return (
-    <div className="flex flex-col container mx-auto">
+    <div className="flex flex-col mx-auto">
       <div className="flex flex-row px-24 justify-center bg-gradient-to-r from-neutral to-accent uppercase">
-        <div className="flex flex-1 flex-col justify-center items-center">
-          <h1 className="flex flex-none !text-md">DeXter - The Orderbook Dex</h1>
-          <h2 className="flex flex-none !text-sm">
+        <div className="flex flex-1 flex-col  gap-y-8 justify-center items-center text-center">
+          <h1 className="flex flex-none !text-md !mb-0 h3">
+            DeXter - The Orderbook Dex
+          </h1>
+          <h2 className="flex flex-none !text-sm !my-0">
             Trade SAFELY on RADIX with a Community built DEX
           </h2>
-          <div className="flex flex-none flex-row gap-x-3">
-            <div className="flex flex-1 bg-primary text-center">
-              <div className="p-4">
-                <p className="text-accent">28</p>
-                <p>MARKET PAIRS</p>
+          <div className="flex flex-row gap-x-3">
+            <div className="flex flex-auto bg-primary text-center">
+              <div className="p-4 px-8">
+                <p className="text-sm text-accent">28</p>
+                <p className="text-sm">MARKET PAIRS</p>
               </div>
             </div>
-            <div className="flex flex-1 bg-primary">
-              <div className="p-4">
-                <p className="text-accent">157 Mil</p>
-                <p>XRD Liquidity</p>
+            <div className="flex flex-auto bg-primary text-center">
+              <div className="p-4 px-8">
+                <p className="text-sm text-accent">157 Mil</p>
+                <p className="text-sm">XRD Liquidity</p>
               </div>
             </div>
-            <div className="flex flex-1 bg-primary">
-              <div className="p-4">
-                <p className="text-accent">1.4 BiL</p>
-                <p>XRD Volume</p>
+            <div className="flex flex-auto bg-primary text-center">
+              <div className="p-4 px-8">
+                <p className="text-sm text-accent">1.4 BiL</p>
+                <p className="text-sm">XRD Volume</p>
               </div>
             </div>
           </div>
+          <button className="btn btn-lg">Trade Now!</button>
         </div>
         <div className="flex justify-center items-center">
-          <img className="flex" src="https://placehold.co/400x600" alt="Shoes" />
+          <img
+            className="flex"
+            src="https://placehold.co/400x600"
+            alt="Shoes"
+          />
         </div>
       </div>
-      <div className="flex px-24">
-
+      <div className="flex px-24 py-12">
         <div className="flex justify-center uppercase">
-          <div className="card w-96">
+          <div className="card">
             <div className="card-body">
               <div className="w-20 h-20 rounded-full bg-blue-600 "></div>
-              <h2 className="card-title !text-sm">
-                DECENTRALISED order book!
-              </h2>
+              <h2 className="card-title !text-sm">DECENTRALISED order book!</h2>
               <p className="text-xs">
                 instant transactions without 3rd parties powered by AlphaDex
               </p>
             </div>
           </div>
-          <div className="card w-96">
+          <div className="card">
             <div className="card-body">
               <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
               <h2 className="card-title !text-sm">SAFE, fast, easy</h2>
@@ -55,7 +61,7 @@ export default function Landing() {
               </p>
             </div>
           </div>
-          <div className="card w-96">
+          <div className="card">
             <div className="card-body">
               <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
               <h2 className="card-title !text-sm">
@@ -67,7 +73,7 @@ export default function Landing() {
               </p>
             </div>
           </div>
-          <div className="card w-96">
+          <div className="card">
             <div className="card-body">
               <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
               <h2 className="card-title !text-sm">
@@ -80,30 +86,62 @@ export default function Landing() {
             </div>
           </div>
         </div>
-
       </div>
-      <div className="flex bg-primary-content px-24">
-        <div className="flex-auto w-96 justify-center items-center ">
-          <div className="flex uppercase items-center">
-            <div className="flex-auto text-right">
-              <p className="text-lg text-primary">Liquidity providers earns</p>
-              <p className="text-8xl text-primary">0.35%</p>
-              <p className="text-lg text-primary">per executed order</p>
+      <div className="flex bg-primary px-24 py-12">
+        <div className="flex-auto justify-center items-center ">
+          <div className="flex-auto text-center">
+            <h1 className="text-lg text-accent">OUR GROWING MARKET</h1>
+          </div>
+        </div>
+      </div>
+      <div className="flex bg-neutral px-24 py-12">
+        <div className="flex-auto justify-center items-center">
+          <div className="flex uppercase items-center gap-x-8">
+            <div className="flex-1 text-right">
+              <h3 className="text-lg">Liquidity providers earns</h3>
+              <p className="text-8xl">0.35%</p>
+              <p className="text-lg">per executed order</p>
             </div>
-            <div className="flex-auto items-center">
-              <img src="https://placehold.co/400x400" alt="Shoes" />
+            <div className="flex-1 mx-auto">
+              <img
+                className="mx-auto"
+                src="https://placehold.co/400x400"
+                alt="Coins"
+              />
             </div>
-            <div className="flex-auto items-center">
+            <div className="flex-1 items-center">
               <div className="flex-auto">
-                <p className="text-lg text-primary">With no risks of Impermanent loss.</p>
-                <p className="text-lg  text-primary">Put any order on DeXter to become a liquidity provider.</p>
-                <button className="btn text-lg  text-accent">PROVIDE LIQUIDITY</button>
+                <h3 className="text-lg">
+                  With no risks of Impermanent loss.
+                </h3>
+                <p className="text-lg">
+                  Put any order on DeXter to become a liquidity provider.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex uppercase justify-center items-center gap-x-8">
+            <div className="flex-none mx-auto">
+              <img
+                className="mx-auto"
+                src="https://placehold.co/400x400"
+                alt="Coins"
+              />
+            </div>
+            <div className="flex-1 items-center">
+              <div className="flex-none w-21">
+                <p className="text-lg">
+                  Plus: liquidity incentives are distributed every two weeks based on provided liquidity.
+                </p>
+                <button className="btn text-lg  text-accent">
+                  PROVIDE LIQUIDITY
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex bg-primary-content px-24">
+      <div className="flex bg-primary px-24 py-12">
         <div className="flex-auto w-96 justify-center items-center ">
           <div className="flex uppercase items-center">
             <div className="flex-auto items-center">
@@ -140,15 +178,15 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            
           </div>
-          <button className="btn text-lg  text-accent uppercase">Learn More</button>
+          <button className="btn text-lg  text-accent uppercase">
+            Learn More
+          </button>
         </div>
       </div>
-      <div className="flex bg-primary-content px-24">
+      <div className="flex bg-primary-content px-24 py-12">
         <div className="flex-auto w-96 justify-center items-center ">
           <div className="flex uppercase items-center">
-            
             <div className="flex-col items-center">
               <div className="flex-auto">
                 <div className="card">
@@ -171,11 +209,10 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            
           </div>
           <div className="flex-auto items-center">
-              <img src="https://placehold.co/400x400" alt="Shoes" />
-            </div>
+            <img src="https://placehold.co/400x400" alt="Shoes" />
+          </div>
         </div>
       </div>
     </div>
