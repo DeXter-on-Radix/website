@@ -7,6 +7,7 @@ import {
   handleCrosshairMove,
   // fetchCandlesForInitialPeriod,
   initializeLegend,
+  initialPriceChartState,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { displayNumber } from "../utils";
@@ -229,6 +230,12 @@ export function PriceChart() {
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   );
+
+  // Set default candlePeriod state as defined in initialState of priceChartSlice
+  useEffect(() => {
+    dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
+  }, [dispatch]);
+
   return (
     <div>
       <div className="flex items-center justify-between sm:pr-8">
