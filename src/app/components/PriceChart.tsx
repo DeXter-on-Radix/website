@@ -110,7 +110,10 @@ function PriceChartCanvas(props: PriceChartProps) {
       const clonedData = JSON.parse(JSON.stringify(data));
 
       // OHLC
-      const ohlcSeries = chart.addCandlestickSeries({});
+      const ohlcSeries = chart.addCandlestickSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+      });
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
@@ -132,6 +135,8 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       // Volume Initialization
       const volumeSeries = chart.addHistogramSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
         priceFormat: {
           type: "volume",
         },
