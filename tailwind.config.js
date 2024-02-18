@@ -46,13 +46,10 @@ module.exports = {
           "primary-content": "#FFFFFF",
           neutral: "#383C3E",
 
-          error: "#FF5C5C",
+          error: "#DE4040",
           "error-content": "#4D2929",
 
-          // TODO: check up with designers on the success color
-          // used in tables for buy/sell indicators
-          // and in charts for the green line and candles
-          success: "#73D2BD",
+          success: "#2B9548",
           "success-content": "#243E17",
 
           "base-100": "#232629",
