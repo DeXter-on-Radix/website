@@ -111,9 +111,7 @@ export default function Landing() {
             </div>
             <div className="flex-1 items-center">
               <div className="flex-auto">
-                <h3 className="text-lg">
-                  With no risks of Impermanent loss.
-                </h3>
+                <h3 className="text-lg">With no risks of Impermanent loss.</h3>
                 <p className="text-lg">
                   Put any order on DeXter to become a liquidity provider.
                 </p>
@@ -131,7 +129,8 @@ export default function Landing() {
             <div className="flex-1 items-center">
               <div className="flex-none w-21">
                 <p className="text-lg">
-                  Plus: liquidity incentives are distributed every two weeks based on provided liquidity.
+                  Plus: liquidity incentives are distributed every two weeks
+                  based on provided liquidity.
                 </p>
                 <button className="btn text-lg  text-accent">
                   PROVIDE LIQUIDITY
@@ -141,7 +140,7 @@ export default function Landing() {
           </div>
         </div>
       </div>
-      <div className="flex bg-primary px-24 py-12">
+      <div className="flex bg-neutral px-24 py-12">
         <div className="flex-auto w-96 justify-center items-center ">
           <div className="flex uppercase items-center">
             <div className="flex-auto items-center">
@@ -182,6 +181,52 @@ export default function Landing() {
           <button className="btn text-lg  text-accent uppercase">
             Learn More
           </button>
+        </div>
+      </div>
+      <div className="flex flex-row bg-primary px-24 py-12 justify-center items-center gap-x-8">
+        <div className="flex-none items-center">
+          <img src="https://placehold.co/400x400" alt="Shoes" />
+        </div>
+        <div className="flex-none uppercase items-center">
+          <div className="flex-col items-center text-sm">
+            <h2 className="flex-none uppercase">$dextr</h2>
+            <div className="flex flex-row  items-center">
+              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+              <div className="flex flex-col text-primary-content">
+                <p className="text-primary-content">tokenomics</p>
+                <ul>
+                  <li>
+                      $DEXTR is minted every 2 weeks and distributed through a
+                      community vote.
+                  </li>
+                  <li>5% goes to the treasury for development.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex flex-row  items-center">
+              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+              <div className="flex flex-col text-primary-content">
+                <p className="text-primary-content">supply</p>
+                <ul>
+                  <li>Started with 0, now 1,700,000 in circulation.</li>
+                  <li>No max supply, but ~26M in 10 years at current rate.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex flex-row items-center">
+              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+              <div className="flex flex-col text-primary-content">
+                <p>token distribution</p>
+                <p>
+                  Contributors receive their share at the end of every
+                  nomination cycle, promoting active community involvement.
+                </p>
+              </div>
+            </div>
+           
+          </div>
         </div>
       </div>
       <div className="flex bg-primary-content px-24 py-12">
