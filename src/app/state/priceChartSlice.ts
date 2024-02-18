@@ -13,6 +13,9 @@ export interface OHLCVData extends CandlestickData {
   value: number;
 }
 
+// Candle periods from alphadex:
+// -> reference: https://www.npmjs.com/package/alphadex-sdk-js?activeTab=readme#candleperiods-array
+// -> ['5m', '15m', '30m', '1h', '4h', '6h', '12h', '1D', '1W', '1M']
 export const CANDLE_PERIODS = adex.CandlePeriods;
 
 export interface PriceChartState {
@@ -22,18 +25,17 @@ export interface PriceChartState {
   legendChange: number | null;
   legendPercChange: number | null;
   legendCurrentVolume: number;
-  isNegativeOrZero: boolean;
 }
 
 const initialState: PriceChartState = {
-  candlePeriod: adex.CandlePeriods[2],
+  candlePeriod: adex.CandlePeriods[7], // defaults to 1D candle period
   ohlcv: [],
   legendCandlePrice: null,
   legendPercChange: null,
   legendChange: null,
   legendCurrentVolume: 0,
-  isNegativeOrZero: false,
 };
+export const initialPriceChartState = initialState;
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
   // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
@@ -116,10 +118,6 @@ export const priceChartSlice = createSlice({
     },
     setLegendCandlePrice: (state, action: PayloadAction<OHLCVData | null>) => {
       state.legendCandlePrice = action.payload;
-      if (action.payload) {
-        state.isNegativeOrZero =
-          action.payload.close - action.payload.open <= 0;
-      }
     },
     setLegendChange: (state, action: PayloadAction<OHLCVData>) => {
       if (action.payload) {
@@ -160,8 +158,6 @@ export const priceChartSlice = createSlice({
           ).toFixed(2)
         );
         state.legendCurrentVolume = latestOHLCVData.value;
-        state.isNegativeOrZero =
-          latestOHLCVData.close - latestOHLCVData.open <= 0;
       }
     },
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
