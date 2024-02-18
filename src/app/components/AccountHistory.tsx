@@ -17,7 +17,7 @@ function OrdersTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "tab w-max no-underline h-full py-3 tab-border-1 uppercase" +
+      "tab w-max no-underline h-full py-3 tab-border-1 uppercase leading-4" +
       (isActive
         ? " tab-active tab-bordered text-accent-focus !border-accent"
         : "")
@@ -26,7 +26,7 @@ function OrdersTabs() {
 
   return (
     <div className="m-4">
-      <div className="tabs min-w-fit flex flex-nowrap space-x-4">
+      <div className="flex space-x-4">
         {tables.map((tableName) => (
           <div
             key={tableName}
