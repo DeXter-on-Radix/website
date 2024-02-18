@@ -66,10 +66,10 @@ export function OrderInput() {
   }, [dispatch, pairAddress]);
 
   return (
-    <div className="text-base">
+    <div className="h-full flex flex-col text-base">
       <OrderTypeTabs />
       {tab === OrderTab.LIMIT && <OrderSideTabs />}
-      <div className="form-control justify-between items-start bg-neutral p-4 w-full">
+      <div className="form-control justify-start flex-grow items-start bg-neutral p-4 w-full">
         {tab === OrderTab.MARKET ? <MarketOrderInput /> : <LimitOrderInput />}
         <SubmitButton />
         <div className="collapse collapse-arrow text-left">
