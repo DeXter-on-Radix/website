@@ -66,7 +66,7 @@ export function OrderInput() {
   }, [dispatch, pairAddress]);
 
   return (
-    <div className="h-full flex flex-col text-base">
+    <div className="h-full w-full flex flex-col text-base">
       <OrderTypeTabs />
       {tab === OrderTab.LIMIT && <OrderSideTabs />}
       <div className="form-control justify-start flex-grow items-start bg-neutral p-4 w-full">
