@@ -19,7 +19,6 @@ interface PriceChartProps {
   change: number | null;
   percChange: number | null;
   volume: number | null;
-  isNegativeOrZero: boolean;
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
@@ -82,40 +81,51 @@ function PriceChartCanvas(props: PriceChartProps) {
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
         height: 500,
-        //MODIFY THEME COLOR HERE
         layout: {
           background: {
             color: theme["base-200"],
           },
-          textColor: theme["primary-content"],
+          textColor: theme["secondary-content"],
         },
-        //MODIFY THEME COLOR HERE
         grid: {
           vertLines: { color: theme["base-100"] },
           horzLines: { color: theme["base-100"] },
         },
         timeScale: {
-          //MODIFY THEME COLOR HERE
           borderColor: theme["base-100"],
           timeVisible: true,
+        },
+        crosshair: {
+          vertLine: {
+            color: theme["accent"],
+            labelBackgroundColor: theme["accent"],
+          },
+          horzLine: {
+            color: theme["accent"],
+            labelBackgroundColor: theme["accent"],
+          },
         },
       });
 
       const clonedData = JSON.parse(JSON.stringify(data));
 
       // OHLC
-      const ohlcSeries = chart.addCandlestickSeries({});
+      const ohlcSeries = chart.addCandlestickSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+      });
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
+        borderUpColor: theme["success"],
         wickUpColor: theme["success"],
         upColor: theme["success"],
+        borderDownColor: theme["error"],
         wickDownColor: theme["error"],
         downColor: theme["error"],
       });
 
       chart.priceScale("right").applyOptions({
-        //MODIFY THEME COLOR HERE
         borderColor: theme["base-100"],
         scaleMargins: {
           top: 0.1,
@@ -125,23 +135,22 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       // Volume Initialization
       const volumeSeries = chart.addHistogramSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
         priceFormat: {
           type: "volume",
         },
         priceScaleId: "volume",
       });
 
-      // VOLUME BARS
-      // MODIFY THEME COLOR HERE
       volumeSeries.setData(
         data.map((datum) => ({
           ...datum,
           color:
-            datum.close - datum.open <= 0 ? theme["error"] : theme["success"], //error : success
+            datum.close - datum.open < 0 ? theme["error"] : theme["success"],
         }))
       );
 
-      // volumeSeries.setData(clonedData);
       chart.priceScale("volume").applyOptions({
         scaleMargins: {
           top: 0.8,
@@ -174,7 +183,7 @@ function PriceChartCanvas(props: PriceChartProps) {
           ref={legendRef}
           className={
             "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
-            (props.isNegativeOrZero ? "!text-error" : "!text-success")
+            (props.change && props.change < 0 ? "!text-error" : "!text-success")
           }
         >
           <div className="flex justify-start gap-x-6">
@@ -226,9 +235,7 @@ export function PriceChart() {
   const currentVolume = useAppSelector(
     (state) => state.priceChart.legendCurrentVolume
   );
-  const isNegativeOrZero = useAppSelector(
-    (state) => state.priceChart.isNegativeOrZero
-  );
+
   // Set default candlePeriod state as defined in initialState of priceChartSlice
   useEffect(() => {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
@@ -236,7 +243,7 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between sm:pr-8">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
             Trading Chart
@@ -264,7 +271,6 @@ export function PriceChart() {
         change={change}
         percChange={percChange}
         volume={currentVolume}
-        isNegativeOrZero={isNegativeOrZero}
       />
     </div>
   );
