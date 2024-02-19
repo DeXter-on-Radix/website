@@ -1,8 +1,10 @@
 //Figma
 //https://www.figma.com/file/Zjff03BX35fREatqzcWDS7/DexTer-pages?type=design&node-id=0-1&mode=design&t=dCWa65gdycsJnFZw-0
+import Image from "next/image";
+
 export default function Landing() {
   return (
-    <div className="flex flex-col mx-auto">
+    <div className="flex flex-col">
       <div className="flex flex-row px-24 justify-center bg-gradient-to-r from-neutral to-accent uppercase">
         <div className="flex flex-1 flex-col  gap-y-8 justify-center items-center text-center">
           <h1 className="flex flex-none !text-md !mb-0 h3">
@@ -34,178 +36,122 @@ export default function Landing() {
           <button className="btn btn-lg">Trade Now!</button>
         </div>
         <div className="flex justify-center items-center">
-          <img
-            className="flex"
-            src="https://placehold.co/400x600"
-            alt="Shoes"
-          />
+          <img className="flex" src="/landing/mascot.png" alt="Mascot" />
         </div>
       </div>
       <div className="flex px-24 py-12">
-        <div className="flex justify-center uppercase">
-          <div className="card">
-            <div className="card-body">
-              <div className="w-20 h-20 rounded-full bg-blue-600 "></div>
-              <h2 className="card-title !text-sm">DECENTRALISED order book!</h2>
-              <p className="text-xs">
-                instant transactions without 3rd parties powered by AlphaDex
-              </p>
+        <div className="flex justify-center text-center uppercase">
+          <div className="flex flex-col items-center">
+            <div className="flex w-24 bg-primary-content rounded-full p-2">
+              <img
+                className="flex"
+                src="/landing/icons/decentralised.gif"
+                alt="Global community"
+              />
             </div>
+            <h2 className="card-title !text-sm text-accent">DECENTRALISED order book!</h2>
+            <p className="text-xs">
+              instant transactions without 3rd parties powered by AlphaDex
+            </p>
           </div>
-          <div className="card">
-            <div className="card-body">
-              <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-              <h2 className="card-title !text-sm">SAFE, fast, easy</h2>
-              <p className="text-xs">
-                Keep your assets while trade them fast and easily!
-              </p>
+          <div className="flex flex-col items-center">
+            <div className="flex w-24 bg-primary-content rounded-full p-2">
+              <img
+                className="flex w-24 bg-primary-content rounded-full"
+                src="/landing/icons/safe-fast-free.gif"
+                alt="Global community"
+              />
             </div>
+            <h2 className="!text-sm text-accent">SAFE, fast, easy</h2>
+            <p className="text-xs">
+              Keep your assets while trade them fast and easily!
+            </p>
           </div>
-          <div className="card">
-            <div className="card-body">
-              <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-              <h2 className="card-title !text-sm">
-                pay low fees, earn rewards
-              </h2>
-              <p className="text-xs">
-                Trade with low fees and provide liquidity to earn fees from
-                trades.
-              </p>
+          <div className="flex flex-col items-center">
+            <div className="flex w-24 bg-primary-content rounded-full p-2">
+              <img
+                className="flex w-24 bg-primary-content rounded-full"
+                src="/landing/icons/pay-low-fees.gif"
+                alt="Global community"
+              />
             </div>
+            <h2 className="!text-sm text-accent">pay low fees, earn rewards</h2>
+            <p className="text-xs">
+              Trade with low fees and provide liquidity to earn fees from
+              trades.
+            </p>
           </div>
-          <div className="card">
-            <div className="card-body">
-              <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-              <h2 className="card-title !text-sm">
-                BUILT BY A GLOBAL COMMUNITY
-              </h2>
-              <p className="text-xs">
-                DEXTER doesn't have any headquarters or one central point of
-                failure.
-              </p>
+          <div className="flex flex-col items-center">
+            <div className="flex w-24 bg-primary-content rounded-full p-2">
+              <img
+                className="flex w-24 bg-primary-content rounded-full"
+                src="/landing/icons/global-community.gif"
+                alt="Global community"
+              />
             </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex bg-primary px-24 py-12">
-        <div className="flex-auto justify-center items-center ">
-          <div className="flex-auto text-center">
-            <h1 className="text-lg text-accent">OUR GROWING MARKET</h1>
+            <h2 className="!text-sm text-accent">BUILT BY A GLOBAL COMMUNITY</h2>
+            <p className="text-xs">
+              DEXTER doesn't have any headquarters or one central point of
+              failure.
+            </p>
           </div>
         </div>
       </div>
       <div className="flex bg-neutral px-24 py-12">
         <div className="flex-auto justify-center items-center">
           <div className="flex uppercase items-center gap-x-8">
-            <div className="flex-1 text-right">
-              <h3 className="text-lg">Liquidity providers earns</h3>
-              <p className="text-8xl">0.35%</p>
-              <p className="text-lg">per executed order</p>
+            <div className="flex flex-1 flex-col uppercase gap-y-8">
+              <h3 className="flex text-lg">Earn rewards by trading</h3>
+              <p className="flex text-xl">
+                Maximize your earnings by receiving rewards for every order you
+                execute, plus enjoy additional liquidity incentives for orders
+                placed near the market price.
+              </p>
+              <a className="flex btn btn-lg btn-accent text-primary" href="/">
+                START TRADING NOW!
+              </a>
             </div>
             <div className="flex-1 mx-auto">
-              <img
-                className="mx-auto"
-                src="https://placehold.co/400x400"
-                alt="Coins"
-              />
-            </div>
-            <div className="flex-1 items-center">
-              <div className="flex-auto">
-                <h3 className="text-lg">With no risks of Impermanent loss.</h3>
-                <p className="text-lg">
-                  Put any order on DeXter to become a liquidity provider.
-                </p>
-              </div>
+              <img className="mx-auto" src="/landing/earn.png" alt="Coins" />
             </div>
           </div>
-          <div className="flex uppercase justify-center items-center gap-x-8">
-            <div className="flex-none mx-auto">
-              <img
-                className="mx-auto"
-                src="https://placehold.co/400x400"
-                alt="Coins"
-              />
-            </div>
-            <div className="flex-1 items-center">
-              <div className="flex-none w-21">
-                <p className="text-lg">
-                  Plus: liquidity incentives are distributed every two weeks
-                  based on provided liquidity.
-                </p>
-                <button className="btn text-lg  text-accent">
-                  PROVIDE LIQUIDITY
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex bg-neutral px-24 py-12">
-        <div className="flex-auto w-96 justify-center items-center ">
-          <div className="flex uppercase items-center">
-            <div className="flex-auto items-center">
-              <img src="https://placehold.co/400x400" alt="Shoes" />
-            </div>
-            <div className="flex-col items-center">
-              <div className="flex-auto">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <h2 className="card-title text-lg text-primary">
-                      Liquidity providers earn
-                    </h2>
-                    <p className="card-text">0.35%</p>
-                  </div>
-                </div>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <h2 className="card-title text-lg text-primary">
-                      Liquidity providers earn
-                    </h2>
-                    <p className="card-text">0.35%</p>
-                  </div>
-                </div>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <h2 className="card-title text-lg text-primary">
-                      Liquidity providers earn
-                    </h2>
-                    <p className="card-text">0.35%</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <button className="btn text-lg  text-accent uppercase">
-            Learn More
-          </button>
         </div>
       </div>
       <div className="flex flex-row bg-primary px-24 py-12 justify-center items-center gap-x-8">
-        <div className="flex-none items-center">
-          <img src="https://placehold.co/400x400" alt="Shoes" />
+        <div className="flex items-center">
+          <img src="/landing/mascot.png" alt="Mascot" />
         </div>
-        <div className="flex-none uppercase items-center">
-          <div className="flex-col items-center text-sm">
+        <div className="flex uppercase items-center">
+          <div className="flex-col items-center text-sm gap-x-8">
             <h2 className="flex-none uppercase">$dextr</h2>
-            <div className="flex flex-row  items-center">
-              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+            <div className="flex flex-row items-center gap-x-8">
+              <Image
+                src="/landing/icons/tokenomics.svg"
+                alt="Tokenomics icon"
+                width={80}
+                height={80}
+                className="!my-0"
+              />
               <div className="flex flex-col text-primary-content">
                 <p className="text-primary-content">tokenomics</p>
                 <ul>
                   <li>
-                      $DEXTR is minted every 2 weeks and distributed through a
-                      community vote.
+                    $DEXTR is minted every 2 weeks and distributed through a
+                    community vote.
                   </li>
                   <li>5% goes to the treasury for development.</li>
                 </ul>
               </div>
             </div>
 
-            <div className="flex flex-row  items-center">
-              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+            <div className="flex flex-row items-center gap-x-8">
+              <Image
+                src="/landing/icons/supply.svg"
+                alt="Supply Icon"
+                width={80}
+                height={80}
+                className="!my-0"
+              />
               <div className="flex flex-col text-primary-content">
                 <p className="text-primary-content">supply</p>
                 <ul>
@@ -215,8 +161,14 @@ export default function Landing() {
               </div>
             </div>
 
-            <div className="flex flex-row items-center">
-              <div className="w-20 h-20 rounded-full bg-blue-600"></div>
+            <div className="flex flex-row items-center gap-x-8">
+              <Image
+                src="/landing/icons/distribution.svg"
+                alt="Distribution icon"
+                width={80}
+                height={80}
+                className="!my-0"
+              />
               <div className="flex flex-col text-primary-content">
                 <p>token distribution</p>
                 <p>
@@ -225,38 +177,59 @@ export default function Landing() {
                 </p>
               </div>
             </div>
-           
           </div>
         </div>
       </div>
-      <div className="flex bg-primary-content px-24 py-12">
-        <div className="flex-auto w-96 justify-center items-center ">
+      <div className="flex flex-row bg-neutral px-24 py-12 justify-center items-center gap-x-8">
+        <div className="flex flex-1 flex-col uppercase gap-y-8">
+          <h3 className="flex text-lg">Earn $DEXTR by contributing</h3>
+          <p className="flex text-xl">
+            Whether you're a developer, designer, community manager or marketing
+            enthusiast, your contributions are vital and give you the
+            possibility to get rewarded in $DEXTR tokens. We are 100% community
+            build with no formal team.
+          </p>
+          <a
+            className="flex btn btn-lg btn-accent text-primary uppercase"
+            href="/"
+          >
+            Learn More
+          </a>
+        </div>
+        <div className="flex-none items-center">
+          <img src="/landing/hands.png" alt="Hands" />
+        </div>
+      </div>
+      <div className="flex bg-neutral px-24 py-12">
+        <div className="flex flex-auto flex-row justify-center items-center ">
           <div className="flex uppercase items-center">
-            <div className="flex-col items-center">
-              <div className="flex-auto">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <p className="text-primary">Twitter</p>
-                  </div>
-                </div>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <p className="text-primary">Twitter</p>
-                  </div>
-                </div>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="w-20 h-20 rounded-full bg-blue-600 flex justify-center items-center"></div>
-                    <p className="text-primary">Twitter</p>
-                  </div>
-                </div>
-              </div>
+            <div className="flex flex-row items-center gap-x-8">
+              <p className="flex text-3xl">Join DeXter community:</p>
+
+              <Image
+                src="/landing/icons/twitter.svg"
+                alt="Dexter Logo"
+                width={40}
+                height={40}
+                className="!my-0"
+              />
+
+              <Image
+                src="/landing/icons/tg.svg"
+                alt="Dexter Logo"
+                width={40}
+                height={40}
+                className="!my-0"
+              />
+
+              <Image
+                src="/landing/icons/discord.svg"
+                alt="Dexter Logo"
+                width={40}
+                height={40}
+                className="!my-0"
+              />
             </div>
-          </div>
-          <div className="flex-auto items-center">
-            <img src="https://placehold.co/400x400" alt="Shoes" />
           </div>
         </div>
       </div>
