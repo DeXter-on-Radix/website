@@ -124,8 +124,6 @@ export function PairSelector() {
   }, [isOpen]);
 
   useEffect(() => {
-    // const newOptions = [];
-    // if (options.find(option => option["name"] === "xrd/"))
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
