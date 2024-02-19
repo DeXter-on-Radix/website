@@ -1,15 +1,34 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
-import { selectPairAddress } from "../state/pairSelectorSlice";
+import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import Image from "next/image";
 
 interface PairInfo {
+  token1: TokenInfo;
   name: string;
   address: string;
 }
 function displayName(name?: string) {
-  return name?.replace("/", " - ").toUpperCase();
+  return name?.toUpperCase();
+}
+function getPairs(name?: string): string[] {
+  return name ? name.split("/") : [];
+}
+// Sort pairs as follows: 1) XRD/xUSDT (if present), 2) DEXTR/XRD (if present), then the rest alphabetically.
+function sortOptions(options: PairInfo[]): PairInfo[] {
+  const sortedOptions = options.sort((a: PairInfo, b: PairInfo) =>
+    a.name.localeCompare(b.name)
+  );
+  // Define first and second pair
+  const priorityPairs = ["XRD/xUSDC", "DEXTR/XRD"];
+  const priorityOptions: PairInfo[] = priorityPairs
+    .map((pair) => options.find((option) => option.name === pair))
+    .filter((val): val is PairInfo => val !== undefined);
+  const otherOptions = sortedOptions.filter(
+    (option) => !priorityPairs.includes(option.name)
+  );
+  return [...priorityOptions, ...otherOptions];
 }
 
 export function PairSelector() {
@@ -105,10 +124,12 @@ export function PairSelector() {
   }, [isOpen]);
 
   useEffect(() => {
+    // const newOptions = [];
+    // if (options.find(option => option["name"] === "xrd/"))
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
-    setFilteredOptions(newOptions);
+    setFilteredOptions(sortOptions(newOptions));
     setHighlightedIndex(0);
   }, [options, query]);
 
@@ -119,7 +140,7 @@ export function PairSelector() {
       }
     >
       <div
-        className="w-full h-full flex text-xl font-bold justify-between p-4"
+        className="w-full h-full flex text-xl font-bold justify-between p-4 px-5"
         onClick={() => {
           setIsOpen((isOpen) => !isOpen);
         }}
@@ -133,14 +154,16 @@ export function PairSelector() {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          className="flex-initial !bg-transparent uppercase"
+          className="!bg-transparent uppercase"
+          style={{ minWidth: 0, padding: 0, border: "none" }}
         />
-        <div className="flex space-x-2 text-secondary-content">
-          <FaSearch className="my-auto" />
-          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
-            /
-          </span>
-        </div>
+        <Image
+          src="/chevron-down.svg"
+          alt="chevron down"
+          width="40"
+          height="40"
+          className=""
+        />
       </div>
       <ul
         tabIndex={0}
@@ -150,19 +173,34 @@ export function PairSelector() {
         }
       >
         {filteredOptions.map((option, index) => {
+          const [pair1, pair2] = getPairs(option["name"]);
+
           return (
             <li
               onMouseEnter={() => setHighlightedIndex(index)}
               onClick={() => selectOption()}
               className={
-                "font-bold !px-4 py-0 cursor-pointer" +
+                "!px-4 py-3 cursor-pointer opacity-70 hover:opacity-100" +
                 (highlightedIndex === index ? " bg-base-300" : "")
               }
+              style={{ marginTop: 0, marginBottom: 0 }}
               key={`${id}-${index}`}
             >
-              <div className="flex justify-between  ">
-                <span className="">{displayName(option["name"])}</span>
-                <span className="">+</span>
+              <div className="flex justify-between ml-2 mr-2 ">
+                <div className="flex justify-center items-center">
+                  {pair1 && pair2 && (
+                    <>
+                      <img
+                        src={option.token1.iconUrl}
+                        alt="Token Icon"
+                        className="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span className="font-bold">{pair1}</span>
+                      <span className="opacity-50">/{pair2}</span>
+                    </>
+                  )}
+                </div>
+                <span>+</span>
               </div>
             </li>
           );
