@@ -5,9 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
 interface PairInfo {
-  token1: TokenInfo;
   name: string;
   address: string;
+  token1: TokenInfo;
 }
 function displayName(name?: string) {
   return name?.toUpperCase();
