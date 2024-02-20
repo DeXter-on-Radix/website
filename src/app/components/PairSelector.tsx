@@ -20,8 +20,8 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
   const sortedOptions = options.sort((a: PairInfo, b: PairInfo) =>
     a.name.localeCompare(b.name)
   );
-  // Define first and second pair
-  const priorityPairs = ["XRD/xUSDC", "DEXTR/XRD"];
+  // Define first pair to be DEXTR/XRD
+  const priorityPairs = ["DEXTR/XRD"];
   const priorityOptions: PairInfo[] = priorityPairs
     .map((pair) => options.find((option) => option.name === pair))
     .filter((val): val is PairInfo => val !== undefined);
