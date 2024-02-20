@@ -198,7 +198,7 @@ export function PairSelector() {
                     </>
                   )}
                 </div>
-                <span>+</span>
+                <span>{/* TODO: add total liquidity of pair here */}</span>
               </div>
             </li>
           );
