@@ -35,6 +35,14 @@ export function Navbar() {
         </div>
       </div>
       <div className="navbar-end">
+        <Image
+          src="/slash-to-search-hint.svg"
+          alt="Search shortcut hint"
+          width={190}
+          height={190}
+          draggable="false"
+          className="!my-0 mr-4 select-none hidden lg:block"
+        />
         <radix-connect-button></radix-connect-button>
       </div>
     </div>
