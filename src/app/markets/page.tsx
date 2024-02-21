@@ -18,19 +18,19 @@ export default function Markets() {
   }, []);
 
   return (
-    <div className="col-span-full p-4 mx-10">
-      <div className="flex mx-5 p-8 justify-between items-center uppercase border-b-2 border-b-secondary-content">
-        <div className="flex-none">
+    <div className="flex flex-grow flex-col items-center gap-y-8 py-8 border-t-4 border-t-primary">
+      <div className="flex flex-grow uppercase border-b-2 border-b-secondary-content">
+        <div className="flex flex-grow">
           <MarketsInfo />
         </div>
-        <div className="flex-last">
-          <button className="btn btn-lg uppercase bg-neutral text-accent border-x-4 border-y-0 border-accent">
-            Trade Now
-          </button>
-        </div>
       </div>
-      <div className="col-span-full uppercase">
+      <div className="flex !my-0 uppercase">
         <DisplayMarketTable />
+      </div>
+      <div className="flex uppercase">
+        <a className="btn btn-lg btn-accent text-primary uppercase" href="/">
+          Trade Now
+        </a>
       </div>
     </div>
   );

@@ -11,8 +11,6 @@ const headers = [
   { id: "lastPrice", label: "PRICE" },
   { id: "quantity24h", label: "VOLUME 24H" },
   { id: "change24h", label: "24H" },
-  //{ id: "high24h", label: "HIGH 24H" },
-  //{ id: "low24h", label: "LOW 24H" },
   { id: "trades24h", label: "TRADES 24H" },
   { id: "value24h", label: "VALUE 24H" },
 ];
@@ -23,12 +21,14 @@ export function DisplayMarketTable() {
   );
 
   return (
-    <div className="overflow-x-auto">
+    <div className="flex flex-grow overflow-x-auto">
       <table className="table table-sm">
         <thead>
           <tr>
             {headers.map((header) => (
-              <th key={header.id}>{header.label}</th>
+              <th className="text-secondary-content" key={header.id}>
+                {header.label}
+              </th>
             ))}
           </tr>
         </thead>
@@ -47,8 +47,6 @@ const formatPairs = (pairs: PairInfo[]) => {
       lastPrice: displayNumber(pair.lastPrice, noDigits, fixedDecimals),
       quantity24h: displayNumber(pair.quantity24h, noDigits, fixedDecimals),
       change24h: displayNumber(pair.change24h, noDigits, fixedDecimals),
-      //high24h: displayNumber (pair.high24h, noDigits, fixedDecimals),
-      //low24h: displayNumber (pair.low24h, noDigits, fixedDecimals),
       trades24h: pair.trades24h,
       value24h: displayNumber(pair.value24h, noDigits, fixedDecimals),
     };
