@@ -78,8 +78,10 @@ export function PairSelector() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "/") {
-        e.preventDefault();
-        setIsOpen(true);
+        if (!isOpen) {
+          e.preventDefault();
+          setIsOpen(true);
+        }
       } else if (e.key === "Escape") {
         setQuery("");
         setIsOpen(false);
