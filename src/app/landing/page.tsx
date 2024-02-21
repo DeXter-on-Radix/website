@@ -95,7 +95,7 @@ export default function Landing() {
               BUILT BY A GLOBAL COMMUNITY
             </h2>
             <p className="text-xs">
-              DEXTER doesn't have any headquarters or one central point of
+              DEXTER doesn&apos;t have any headquarters or one central point of
               failure.
             </p>
           </div>
@@ -188,8 +188,8 @@ export default function Landing() {
         <div className="flex flex-1 flex-col uppercase gap-y-8">
           <h3 className="flex text-lg">Earn $DEXTR by contributing</h3>
           <p className="flex text-xl">
-            Whether you're a developer, designer, community manager or marketing
-            enthusiast, your contributions are vital and give you the
+            Whether you&apos;re a developer, designer, community manager or
+            marketing enthusiast, your contributions are vital and give you the
             possibility to get rewarded in $DEXTR tokens. We are 100% community
             build with no formal team.
           </p>
