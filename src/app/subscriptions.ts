@@ -13,6 +13,7 @@ import { updateCandles } from "./state/priceChartSlice";
 import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "state/orderInputSlice";
+import { marketSlice } from "state/marketSlice";
 import { AppStore } from "./state/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
@@ -84,6 +85,8 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
+      store.dispatch(marketSlice.actions.updateAdex(serializedState));
+
       store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
     })
   );
