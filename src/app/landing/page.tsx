@@ -49,7 +49,9 @@ export default function Landing() {
                 alt="Global community"
               />
             </div>
-            <h2 className="card-title !text-sm text-accent">DECENTRALISED order book!</h2>
+            <h2 className="card-title !text-sm text-accent">
+              DECENTRALISED order book!
+            </h2>
             <p className="text-xs">
               instant transactions without 3rd parties powered by AlphaDex
             </p>
@@ -89,7 +91,9 @@ export default function Landing() {
                 alt="Global community"
               />
             </div>
-            <h2 className="!text-sm text-accent">BUILT BY A GLOBAL COMMUNITY</h2>
+            <h2 className="!text-sm text-accent">
+              BUILT BY A GLOBAL COMMUNITY
+            </h2>
             <p className="text-xs">
               DEXTER doesn't have any headquarters or one central point of
               failure.
