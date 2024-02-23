@@ -169,6 +169,11 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       window.addEventListener("resize", handleResize);
 
+      // Configure chart for full-canvas candle display. For reference: https://github.com/DeXter-on-Radix/website/issues/269
+      chart
+        .timeScale()
+        .setVisibleLogicalRange({ from: 0, to: clonedData.length });
+
       return () => {
         window.removeEventListener("resize", handleResize);
         chart.remove();
