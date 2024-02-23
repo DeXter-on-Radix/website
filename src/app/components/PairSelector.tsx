@@ -157,8 +157,7 @@ export function PairSelector() {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          placeholder="search token..."
-          className="!bg-transparent uppercase placeholder:lowercase placeholder:font-normal"
+          className="!bg-transparent uppercase"
           style={{ minWidth: 0, padding: 0, border: "none" }}
         />
         <div className="flex space-x-2 text-secondary-content">
@@ -217,7 +216,7 @@ export function PairSelector() {
                       </>
                     )}
                   </div>
-                  <div className="flex flex-col text-base text-right text-sans">
+                  <div className="flex flex-col text-sm text-right font-sans">
                     <span className="">{option.lastPrice}</span>
                   </div>
                 </div>
