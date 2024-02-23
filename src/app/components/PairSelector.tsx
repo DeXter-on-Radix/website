@@ -143,7 +143,7 @@ export function PairSelector() {
       }
     >
       <div
-        className="w-full h-full flex text-xl font-bold justify-between p-4 px-5"
+        className="w-full h-full flex text-xl font-bold justify-between p-4 px-5 cursor-pointer"
         onClick={() => {
           setIsOpen((isOpen) => !isOpen);
         }}
