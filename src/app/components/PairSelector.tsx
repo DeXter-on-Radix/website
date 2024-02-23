@@ -2,7 +2,7 @@ import { useAppSelector, useAppDispatch } from "../hooks";
 import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import { FaSearch } from "react-icons/fa";
 
 interface PairInfo {
   name: string;
@@ -161,13 +161,12 @@ export function PairSelector() {
           className="!bg-transparent uppercase placeholder:lowercase placeholder:font-normal"
           style={{ minWidth: 0, padding: 0, border: "none" }}
         />
-        <Image
-          src="/chevron-down.svg"
-          alt="chevron down"
-          width="40"
-          height="40"
-          className=""
-        />
+        <div className="flex space-x-2 text-secondary-content">
+          <FaSearch className="my-auto" />
+          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
+            /
+          </span>
+        </div>
       </div>
       <ul
         tabIndex={0}
