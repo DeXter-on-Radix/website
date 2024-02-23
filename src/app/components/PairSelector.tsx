@@ -19,7 +19,7 @@ function displayName(name?: string) {
 function getPairs(name?: string): string[] {
   return name ? name.split("/") : [];
 }
-// Sort pairs as follows: 1) XRD/xUSDT (if present), 2) DEXTR/XRD (if present), then the rest alphabetically.
+// Sort pairs as follows: 1) DEXTR/XRD (if present), then the rest alphabetically.
 function sortOptions(options: PairInfo[]): PairInfo[] {
   const sortedOptions = options.sort((a: PairInfo, b: PairInfo) =>
     a.name.localeCompare(b.name)
