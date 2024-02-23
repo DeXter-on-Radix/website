@@ -8,6 +8,9 @@ interface PairInfo {
   name: string;
   address: string;
   token1: TokenInfo;
+  token2: TokenInfo;
+  lastPrice: number;
+  change24h: number;
 }
 function displayName(name?: string) {
   return name?.toUpperCase();
@@ -126,6 +129,7 @@ export function PairSelector() {
   }, [isOpen]);
 
   useEffect(() => {
+    console.log(options);
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
@@ -154,7 +158,8 @@ export function PairSelector() {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          className="!bg-transparent uppercase"
+          placeholder="search token..."
+          className="!bg-transparent uppercase placeholder:lowercase placeholder:font-normal"
           style={{ minWidth: 0, padding: 0, border: "none" }}
         />
         <Image
@@ -169,40 +174,57 @@ export function PairSelector() {
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-auto max-h-screen"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 max-h-screen"
         }
       >
         {filteredOptions.map((option, index) => {
           const [pair1, pair2] = getPairs(option["name"]);
 
           return (
-            <li
-              onMouseEnter={() => setHighlightedIndex(index)}
-              onClick={() => selectOption()}
-              className={
-                "!px-4 py-3 cursor-pointer opacity-70 hover:opacity-100" +
-                (highlightedIndex === index ? " bg-base-300" : "")
-              }
-              style={{ marginTop: 0, marginBottom: 0 }}
-              key={`${id}-${index}`}
-            >
-              <div className="flex justify-between ml-2 mr-2 ">
-                <div className="flex justify-center items-center">
-                  {pair1 && pair2 && (
-                    <>
-                      <img
-                        src={option.token1.iconUrl}
-                        alt="Token Icon"
-                        className="w-8 h-8 rounded-full mr-2"
-                      />
-                      <span className="font-bold">{pair1}</span>
-                      <span className="opacity-50">/{pair2}</span>
-                    </>
-                  )}
+            <>
+              {index === 0 && (
+                <div className="flex justify-between text-sm opacity-40 ml-3 mr-3">
+                  <span className="uppercase">Pairs</span>
+                  <span className="uppercase">Price</span>
                 </div>
-                <span>{/* TODO: add total liquidity of pair here */}</span>
-              </div>
-            </li>
+              )}
+              <li
+                onMouseEnter={() => setHighlightedIndex(index)}
+                onClick={() => selectOption()}
+                className={
+                  "!px-3 py-2 cursor-pointer " +
+                  (highlightedIndex === index ? " bg-base-300" : "")
+                }
+                style={{ marginTop: 0, marginBottom: 0 }}
+                key={`${id}-${index}`}
+              >
+                <div className="flex justify-between ">
+                  <div className="flex justify-center items-center">
+                    {pair1 && pair2 && (
+                      <>
+                        <div className="relative mr-8">
+                          <img
+                            src={option.token1.iconUrl}
+                            alt="Token Icon"
+                            className="w-6 h-6 rounded-full z-20"
+                          />
+                          <img
+                            src={option.token2.iconUrl}
+                            alt="Token Icon"
+                            className="absolute top-0 left-6 w-6 h-6 rounded-full z-10"
+                          />
+                        </div>
+                        <span className="font-bold text-base">{pair1}</span>
+                        <span className="opacity-50 text-base">/{pair2}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-col text-base text-right text-sans">
+                    <span className="">{option.lastPrice}</span>
+                  </div>
+                </div>
+              </li>
+            </>
           );
         })}
         <li
