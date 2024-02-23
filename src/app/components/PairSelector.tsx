@@ -129,7 +129,6 @@ export function PairSelector() {
   }, [isOpen]);
 
   useEffect(() => {
-    console.log(options);
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
