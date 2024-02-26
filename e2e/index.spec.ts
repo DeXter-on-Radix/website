@@ -36,7 +36,7 @@ test("connects to AlphaDEX", async ({ page }) => {
   );
 
   // A pair should appear in the pair selector
-  await expect(page.locator("#pair-selector-text")).toHaveValue(/^.* - .*$/);
+  await expect(page.locator("#pair-selector-text")).toHaveValue(/^.*\/.*$/);
 });
 
 // TODO: after MVP
