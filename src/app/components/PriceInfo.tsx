@@ -15,8 +15,8 @@ export function PriceInfo() {
   const basePair = "XRD";
 
   return (
-    <div className="flex justify-between py-2">
-      <div className="flex flex-col items-start pl-8">
+    <div className="flex justify-between py-2 h-full max-w-[650px] lg:max-w-none ">
+      <div className="flex flex-col items-start justify-center pl-5 lg:pl-8">
         <span className="text-sm font-bold text-secondary-content uppercase">
           Price
         </span>
@@ -28,7 +28,7 @@ export function PriceInfo() {
           </span>
         </span>
       </div>
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start justify-center">
         <span className="text-xs font-bold text-secondary-content uppercase pb-1">
           24h Change
         </span>
@@ -43,7 +43,7 @@ export function PriceInfo() {
           <span className="text-sm font-bold text-secondary-content"> %</span>
         </span>
       </div>
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start justify-center">
         <span className="text-xs font-bold text-secondary-content uppercase pb-1">
           24h Volume
         </span>
@@ -55,7 +55,7 @@ export function PriceInfo() {
           </span>
         </span>
       </div>
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start justify-center">
         <span className="text-xs font-bold text-secondary-content uppercase pb-1">
           24h High
         </span>
@@ -67,7 +67,7 @@ export function PriceInfo() {
           </span>
         </span>
       </div>
-      <div className="flex flex-col items-start pr-8">
+      <div className="flex flex-col items-start justify-center pr-5 lg:pr-8">
         <span className="text-xs font-bold text-secondary-content uppercase pb-1">
           24h Low
         </span>
