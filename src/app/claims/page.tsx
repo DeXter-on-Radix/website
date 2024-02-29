@@ -30,9 +30,9 @@ export default function Markets() {
             </p>
             <p className="text-sm">
               Rewards are earned for placing orders close to market price, even
-              if they're unlikely to be filled. Higher rewards are given for
-              "active liquidity" closer to the mid price to encourage trading
-              and reduce price slippage.
+              if they&apos;re unlikely to be filled. Higher rewards are given
+              for &quot;active liquidity&quot; closer to the mid price to
+              encourage trading and reduce price slippage.
             </p>
             <div className="flex flex-row justify-between items-center">
               <p className="text-xl">Want to earn more?</p>
