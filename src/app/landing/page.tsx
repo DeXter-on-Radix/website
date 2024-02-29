@@ -7,33 +7,33 @@ export default function Landing() {
     <div className="flex flex-col">
       <div className="flex flex-row px-24 justify-center bg-gradient-to-r from-neutral to-accent uppercase">
         <div className="flex flex-1 flex-col  gap-y-8 justify-center items-center text-center">
-          <h1 className="flex flex-none !text-md !mb-0 h3">
+          <h1 className="flex flex-none !text-md !mb-0 h3 text-nowrap">
             DeXter - The Orderbook Dex
           </h1>
-          <h2 className="flex flex-none !text-sm !my-0">
+          <h2 className="flex flex-none !text-sm !my-0 text-nowrap">
             Trade SAFELY on RADIX with a Community built DEX
           </h2>
           <div className="flex flex-row gap-x-3">
             <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8">
+              <div className="p-4 px-8 text-nowrap">
                 <p className="text-sm text-accent">28</p>
                 <p className="text-sm">MARKET PAIRS</p>
               </div>
             </div>
             <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8">
+              <div className="p-4 px-8 text-nowrap">
                 <p className="text-sm text-accent">157 Mil</p>
                 <p className="text-sm">XRD Liquidity</p>
               </div>
             </div>
             <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8">
+              <div className="p-4 px-8 text-nowrap">
                 <p className="text-sm text-accent">1.4 BiL</p>
                 <p className="text-sm">XRD Volume</p>
               </div>
             </div>
           </div>
-          <button className="btn btn-lg">Trade Now!</button>
+          <button className="btn btn-accent text-primary btn-lg">Trade Now!</button>
         </div>
         <div className="flex justify-center items-center">
           <img className="flex" src="/landing/mascot.png" alt="Mascot" />
@@ -56,7 +56,7 @@ export default function Landing() {
               instant transactions without 3rd parties powered by AlphaDex
             </p>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-wrap flex-col items-center">
             <div className="flex w-24 bg-primary-content rounded-full p-2">
               <img
                 className="flex w-24 bg-primary-content rounded-full"
