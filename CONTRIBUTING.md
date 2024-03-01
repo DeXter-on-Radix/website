@@ -27,7 +27,7 @@ If you happen to use VS Code, install the recommended extensions to get automati
 
 By default `npm run dev` uses the testnet (stokenet), but it can be set to mainnet by creating a `.env` file in the root project dir with the following content:
 
-### mainnet
+### Mainnet
 
 ```
 NEXT_PUBLIC_NETWORK=mainnet # Options: mainnet or stokenet
@@ -35,7 +35,7 @@ NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3
 NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_rdx1czgjmu4ed5hp0vn97ngsf6mevq9tl0v8rrh2yq0f4dnpndggk7j9pu
 ```
 
-### testnet (default)
+### Testnet (default)
 
 ```
 NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
