@@ -43,7 +43,7 @@ NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlz
 NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
 ```
 
-### Setup Testnet Wallet
+## Testnet Wallet Setup
 
 Follow these steps to configure your wallet for testnet use, enabling developer mode, switching networks, and acquiring test tokens.
 
