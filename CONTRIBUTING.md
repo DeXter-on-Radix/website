@@ -25,20 +25,20 @@ If you happen to use VS Code, install the recommended extensions to get automati
 
 ## Env setup
 
-By default `npm run dev` uses the testnet, but it can be set to mainnet by using a .env file in the root project dir with the following content:
+By default `npm run dev` uses the testnet (stokenet), but it can be set to mainnet by creating a `.env` file in the root project dir with the following content:
 
-### .env for testnet
-
-```
-NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
-NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y
-NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
-```
-
-### .env for mainnet
+### mainnet
 
 ```
 NEXT_PUBLIC_NETWORK=mainnet # Options: mainnet or stokenet
 NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5
 NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_rdx1czgjmu4ed5hp0vn97ngsf6mevq9tl0v8rrh2yq0f4dnpndggk7j9pu
+```
+
+### testnet (default)
+
+```
+NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
+NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y
+NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
 ```
