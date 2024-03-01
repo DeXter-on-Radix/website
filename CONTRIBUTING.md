@@ -42,3 +42,28 @@ NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
 NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y
 NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
 ```
+
+### Setup Testnet Wallet
+
+Follow these steps to configure your wallet for testnet use, enabling developer mode, switching networks, and acquiring test tokens.
+
+**Enable Developer Mode**
+
+1. **Access Settings**: Navigate to `App settings` from the main menu.
+2. **Activate Developer Mode**: Within `App settings`, locate and toggle on the `Developer Mode` option.
+
+**Switch to Testnet**
+
+1. **Open Gateways**: Within `App settings`, proceed to `Gateways`.
+2. **Select Testnet**: From the list of gateways, choose `babylon-stokenet-...` option.
+
+Your wallet is now in developer mode and connected to the testnet.
+
+**Acquire Test XRD Tokens**
+
+1. Follow the standard procedure to `Create a wallet` and set up a `Persona` within the app.
+2. **Access Test Account**: Open your test account profile.
+3. **Navigate to Dev Preferences**: Tap the three dots in the top right corner to access more options, then select `Dev preferences`.
+4. **Get Test Tokens**: Click on `Get XRD Test Tokens` to receive your test currency.
+
+By following these steps, you'll have your wallet set up for testing Dexter on localhost and creating orders using test XRD tokens.
