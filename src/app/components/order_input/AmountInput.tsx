@@ -71,8 +71,13 @@ export function AmountInput(props: TokenInputFiledProps) {
         }
       >
         <div className="flex flex-nowrap items-center">
+          {/* hardcode dextr icon url */}
           <img
-            src={iconUrl}
+            src={`${
+              symbol === "DEXTR"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                : iconUrl
+            }`}
             alt={symbol}
             className="w-6 h-6 rounded-full mx-2"
           />

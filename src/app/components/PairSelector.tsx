@@ -210,8 +210,13 @@ export function PairSelector() {
                     {pair1 && pair2 && (
                       <>
                         <div className="relative mr-8">
+                          {/* hardcode dextr icon url */}
                           <img
-                            src={option.token1.iconUrl}
+                            src={`${
+                              option.token1.symbol === "DEXTR"
+                                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                                : option.token1.iconUrl
+                            }`}
                             alt="Token Icon"
                             className="w-6 h-6 rounded-full z-20"
                           />

@@ -68,8 +68,13 @@ function NonTargetToken() {
         }
       >
         <div className="flex flex-nowrap items-center bg-base-100 p-2 w-28">
+          {/* hardcode dextr icon url */}
           <img
-            src={iconUrl}
+            src={`${
+              symbol === "DEXTR"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                : iconUrl
+            }`}
             alt={symbol}
             className="w-6 h-6 rounded-full mr-2"
           />
@@ -104,8 +109,13 @@ function PriceInput() {
       >
         <div className="flex ml-1">
           <span>1</span>
+          {/* hardcode dextr icon url */}
           <img
-            src={pairToken1.iconUrl}
+            src={`${
+              pairToken1.symbol === "DEXTR"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                : pairToken1.iconUrl
+            }`}
             alt={pairToken1.symbol}
             className="w-6 h-6 rounded-full mx-1"
           />
