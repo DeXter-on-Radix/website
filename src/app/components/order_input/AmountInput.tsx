@@ -75,7 +75,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           <img
             src={`${
               symbol === "DEXTR"
-                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
                 : iconUrl
             }`}
             alt={symbol}

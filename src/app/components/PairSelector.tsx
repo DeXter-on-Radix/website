@@ -214,7 +214,7 @@ export function PairSelector() {
                           <img
                             src={`${
                               option.token1.symbol === "DEXTR"
-                                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
                                 : option.token1.iconUrl
                             }`}
                             alt="Token Icon"

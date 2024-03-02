@@ -72,7 +72,7 @@ function NonTargetToken() {
           <img
             src={`${
               symbol === "DEXTR"
-                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
                 : iconUrl
             }`}
             alt={symbol}
@@ -113,7 +113,7 @@ function PriceInput() {
           <img
             src={`${
               pairToken1.symbol === "DEXTR"
-                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg?1706758430"
+                ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
                 : pairToken1.iconUrl
             }`}
             alt={pairToken1.symbol}
