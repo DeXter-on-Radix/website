@@ -96,7 +96,7 @@ function CurrentPriceRow() {
 
     return (
       <>
-        <div className="text-xl text-accent text-left col-span-2 my-1 py-1 ml-2">
+        <div className="text-sm text-accent font-bold text-left col-span-2 my-1 py-1 ml-2">
           {lastPrice}
         </div>
 

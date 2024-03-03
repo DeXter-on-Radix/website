@@ -158,7 +158,7 @@ export function PairSelector() {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          className="!bg-transparent uppercase text-primary-content"
+          className="!bg-transparent uppercase text-primary-content text-lg"
           style={{ minWidth: 0, padding: 0, border: "none" }}
         />
         {!isOpen && (
