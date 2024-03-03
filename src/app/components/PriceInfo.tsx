@@ -20,7 +20,7 @@ export function PriceInfo() {
         <span className="text-sm font-bold text-secondary-content uppercase">
           Price
         </span>
-        <span className={"text-sm font-bold"}>
+        <span className={"text-sm font-bold text-primary-content"}>
           {lastPrice}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -29,7 +29,7 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
           24h Change
         </span>
         <span
@@ -44,10 +44,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
           24h Volume
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {volume}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -56,10 +56,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
           24h High
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {high}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -68,10 +68,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center pr-5 lg:pr-8">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
           24h Low
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {low}
           <span className="text-sm font-bold text-secondary-content">
             {" "}

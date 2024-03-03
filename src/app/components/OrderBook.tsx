@@ -147,20 +147,20 @@ export function OrderBook() {
       </div>
       <div className="sized-columns">
         <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
-          <div className="text-start">
+          <div className="text-start uppercase text-xs font-medium">
             Order
             <br />
             Count
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Price
             <br />({token2Symbol})
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Size
             <br />({token1Symbol})
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Total
             <br />({token1Symbol})
           </div>
