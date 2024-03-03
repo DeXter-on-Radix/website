@@ -292,3 +292,12 @@ export function numberOrEmptyInput(event: string) {
   }
   return amount;
 }
+
+// Given an order, determine token symbol in which the price is expressed
+// Note: Price is always expressed in terms of the second currency in the trading pair.
+export function getPriceSymbol(order: any): string {
+  if (!order.pairName.includes("/")) {
+    return "";
+  }
+  return order.pairName.split("/")[1];
+}
