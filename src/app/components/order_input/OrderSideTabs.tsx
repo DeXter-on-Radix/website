@@ -6,7 +6,7 @@ export function OrderSideTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "flex-1 font-semibold py-2" +
+      "flex-1 font-semibold py-3" +
       (isActive ? " text-primary-content bg-neutral" : "")
     );
   }

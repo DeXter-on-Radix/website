@@ -76,7 +76,9 @@ export function AmountInput(props: TokenInputFiledProps) {
             alt={symbol}
             className="w-6 h-6 rounded-full mx-2"
           />
-          <span>{symbol}</span>
+          <span className="font-bold text-primary-content text-sm">
+            {symbol}
+          </span>
         </div>
 
         <IMaskInput
@@ -89,7 +91,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           radix={decimalSeparator}
           value={String(amount)}
           className={
-            "flex-1 text-end mr-1 min-w-0" +
+            "flex-1 text-end mr-1 min-w-0 font-bold text-primary-content" +
             (disabled ? " !bg-neutral" : " !bg-base-200")
           }
           onFocus={onFocus}
