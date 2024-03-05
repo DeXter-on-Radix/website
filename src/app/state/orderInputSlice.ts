@@ -12,6 +12,7 @@ import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
+import { dextrCoingeckoIconUrl } from "../constants";
 
 export enum OrderTab {
   MARKET = "MARKET",
@@ -291,12 +292,10 @@ export const orderInputSlice = createSlice({
 
       // Replace DEXTR iconUrl with coingecko hosted url
       if (state.token1.symbol === "DEXTR") {
-        state.token1.iconUrl =
-          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        state.token1.iconUrl = dextrCoingeckoIconUrl;
       }
       if (state.token2.symbol === "DEXTR") {
-        state.token2.iconUrl =
-          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        state.token2.iconUrl = dextrCoingeckoIconUrl;
       }
 
       // set up a valid default price

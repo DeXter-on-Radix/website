@@ -2,6 +2,7 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
+import { dextrCoingeckoIconUrl } from "../constants";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
@@ -106,12 +107,10 @@ export const pairSelectorSlice = createSlice({
       // Replace DEXTR iconUrl with coingecko hosted url
       // (currently irrelevant, but adding for completeness)
       if (state.token1.symbol === "DEXTR") {
-        state.token1.iconUrl =
-          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        state.token1.iconUrl = dextrCoingeckoIconUrl;
       }
       if (state.token2.symbol === "DEXTR") {
-        state.token2.iconUrl =
-          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        state.token2.iconUrl = dextrCoingeckoIconUrl;
       }
 
       state.address = adexState.currentPairAddress;
@@ -121,12 +120,10 @@ export const pairSelectorSlice = createSlice({
       // Replace DEXTR iconUrl with coingecko hosted url
       for (let i = 0; i < state.pairsList.length; i++) {
         if (state.pairsList[i].token1.symbol === "DEXTR") {
-          state.pairsList[i].token1.iconUrl =
-            "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+          state.pairsList[i].token1.iconUrl = dextrCoingeckoIconUrl;
         }
         if (state.pairsList[i].token2.symbol === "DEXTR") {
-          state.pairsList[i].token2.iconUrl =
-            "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+          state.pairsList[i].token2.iconUrl = dextrCoingeckoIconUrl;
         }
       }
     },
