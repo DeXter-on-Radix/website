@@ -102,7 +102,9 @@ export const pairSelectorSlice = createSlice({
         ...state.token2,
         ...adexState.currentPairInfo.token2,
       };
+
       // Replace DEXTR iconUrl with coingecko hosted url
+      // (currently irrelevant, but adding for completeness)
       if (state.token1.symbol === "DEXTR") {
         state.token1.iconUrl =
           "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
