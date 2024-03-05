@@ -289,6 +289,16 @@ export const orderInputSlice = createSlice({
         };
       }
 
+      // Replace DEXTR iconUrl with coingecko hosted url.
+      if (state.token1.symbol === "DEXTR") {
+        state.token1.iconUrl =
+          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+      }
+      if (state.token2.symbol === "DEXTR") {
+        state.token2.iconUrl =
+          "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+      }
+
       // set up a valid default price
       if (state.price === 0) {
         state.price =
