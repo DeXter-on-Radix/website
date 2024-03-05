@@ -96,7 +96,7 @@ function CurrentPriceRow() {
 
     return (
       <>
-        <div className="text-xl text-accent text-left col-span-2 my-1 py-1 ml-2">
+        <div className="text-sm text-accent font-bold text-left col-span-2 my-1 py-1 ml-2">
           {lastPrice}
         </div>
 
@@ -147,20 +147,20 @@ export function OrderBook() {
       </div>
       <div className="sized-columns">
         <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
-          <div className="text-start">
+          <div className="text-start uppercase text-xs font-medium">
             Order
             <br />
             Count
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Price
             <br />({token2Symbol})
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Size
             <br />({token1Symbol})
           </div>
-          <div className="text-end">
+          <div className="text-end uppercase text-xs font-medium">
             Total
             <br />({token1Symbol})
           </div>
