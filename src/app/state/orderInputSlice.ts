@@ -289,7 +289,7 @@ export const orderInputSlice = createSlice({
         };
       }
 
-      // Replace DEXTR iconUrl with coingecko hosted url.
+      // Replace DEXTR iconUrl with coingecko hosted url
       if (state.token1.symbol === "DEXTR") {
         state.token1.iconUrl =
           "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";

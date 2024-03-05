@@ -102,24 +102,31 @@ export const pairSelectorSlice = createSlice({
         ...state.token2,
         ...adexState.currentPairInfo.token2,
       };
-
-      // Replace DEXTR iconUrl with coingecko hosted url.
+      // Replace DEXTR iconUrl with coingecko hosted url
       if (state.token1.symbol === "DEXTR") {
-        console.log("INSIDE state.token1.symbol = DEXTR = TRUE");
         state.token1.iconUrl =
           "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
-        console.log(state.token1);
       }
       if (state.token2.symbol === "DEXTR") {
-        console.log("INSIDE state.token2.symbol = DEXTR = TRUE");
         state.token2.iconUrl =
           "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
-        console.log(state.token2);
       }
 
       state.address = adexState.currentPairAddress;
       state.name = adexState.currentPairInfo.name;
       state.pairsList = adexState.pairsList;
+
+      // Replace DEXTR iconUrl with coingecko hosted url
+      for (let i = 0; i < state.pairsList.length; i++) {
+        if (state.pairsList[i].token1.symbol === "DEXTR") {
+          state.pairsList[i].token1.iconUrl =
+            "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        }
+        if (state.pairsList[i].token2.symbol === "DEXTR") {
+          state.pairsList[i].token2.iconUrl =
+            "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+        }
+      }
     },
 
     selectPairAddress: (
