@@ -8,7 +8,7 @@ export function OrderTypeTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "flex-1 tab no-underline h-full py-3 mx-8" +
+      "flex-1 tab no-underline h-full py-3 mx-8 text-sm font-medium" +
       (isActive ? " tab-active tab-bordered !border-accent text-accent" : "")
     );
   }
