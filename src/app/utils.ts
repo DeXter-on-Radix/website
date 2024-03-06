@@ -1,3 +1,5 @@
+import type { OrderReceipt } from "alphadex-sdk-js";
+
 export function displayPositiveNumber(
   x: number,
   noDigits: number = 6,
@@ -295,7 +297,7 @@ export function numberOrEmptyInput(event: string) {
 
 // Given an order, determine token symbol in which the price is expressed
 // Note: Price is always expressed in terms of the second currency in the trading pair.
-export function getPriceSymbol(order: any): string {
+export function getPriceSymbol(order: OrderReceipt): string {
   if (!order.pairName.includes("/")) {
     return "";
   }
