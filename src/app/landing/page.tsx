@@ -5,42 +5,46 @@ import Image from "next/image";
 export default function Landing() {
   return (
     <div className="flex flex-col">
-      <div className="flex flex-row px-24 justify-center bg-gradient-to-r from-neutral to-accent uppercase">
-        <div className="flex flex-1 flex-col  gap-y-8 justify-center items-center text-center">
-          <h1 className="flex flex-none !text-md !mb-0 h3 text-nowrap">
-            DeXter - The Orderbook Dex
-          </h1>
-          <h2 className="flex flex-none !text-sm !my-0 text-nowrap">
-            Trade SAFELY on RADIX with a Community built DEX
-          </h2>
-          <div className="flex flex-row gap-x-3">
-            <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8 text-nowrap">
-                <p className="text-sm text-accent">28</p>
-                <p className="text-sm">MARKET PAIRS</p>
+      <div className="justify-center bg-gradient-to-r from-neutral to-accent uppercase">
+        <div className="flex flex-row container mx-auto md:px-1 lg:px-4 text-nowrap">
+          <div className="flex flex-1 flex-col  gap-y-8 justify-center items-center text-center">
+            <h1 className="flex flex-initial !text-md !mb-0 h3 text-nowrap">
+              DeXter - The Orderbook Dex
+            </h1>
+            <h2 className="flex flex-initial !text-sm !my-0 text-nowrap">
+              Trade SAFELY on RADIX with a Community built DEX
+            </h2>
+            <div className="flex flex-row gap-x-3">
+              <div className="flex flex-auto bg-primary text-center">
+                <div className="p-4 px-8 text-nowrap">
+                  <p className="text-sm text-accent">28</p>
+                  <p className="text-sm">MARKET PAIRS</p>
+                </div>
+              </div>
+              <div className="flex flex-auto bg-primary text-center">
+                <div className="p-4 px-8 text-nowrap">
+                  <p className="text-sm text-accent">157 Mil</p>
+                  <p className="text-sm">XRD Liquidity</p>
+                </div>
+              </div>
+              <div className="flex flex-auto bg-primary text-center">
+                <div className="p-4 px-8 text-nowrap">
+                  <p className="text-sm text-accent">1.4 BiL</p>
+                  <p className="text-sm">XRD Volume</p>
+                </div>
               </div>
             </div>
-            <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8 text-nowrap">
-                <p className="text-sm text-accent">157 Mil</p>
-                <p className="text-sm">XRD Liquidity</p>
-              </div>
-            </div>
-            <div className="flex flex-auto bg-primary text-center">
-              <div className="p-4 px-8 text-nowrap">
-                <p className="text-sm text-accent">1.4 BiL</p>
-                <p className="text-sm">XRD Volume</p>
-              </div>
-            </div>
+            <button className="btn btn-accent text-primary btn-lg">
+              Trade Now!
+            </button>
           </div>
-          <button className="btn btn-accent text-primary btn-lg">Trade Now!</button>
-        </div>
-        <div className="flex justify-center items-center">
-          <img className="flex" src="/landing/mascot.png" alt="Mascot" />
+          <div className="flex justify-center items-center hidden md:block">
+            <img className="flex" src="/landing/mascot.png" alt="Mascot" />
+          </div>
         </div>
       </div>
       <div className="flex px-24 py-12">
-        <div className="flex justify-center text-center uppercase">
+        <div className="flex container mx-auto px-4 justify-center text-center uppercase">
           <div className="flex flex-col items-center">
             <div className="flex w-24 bg-primary-content rounded-full p-2">
               <img
@@ -102,7 +106,7 @@ export default function Landing() {
         </div>
       </div>
       <div className="flex bg-neutral px-24 py-12">
-        <div className="flex-auto justify-center items-center">
+        <div className="flex-auto container mx-auto px-4 justify-center items-center">
           <div className="flex uppercase items-center gap-x-8">
             <div className="flex flex-1 flex-col uppercase gap-y-8">
               <h3 className="flex text-lg">Earn rewards by trading</h3>
@@ -121,93 +125,99 @@ export default function Landing() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row bg-primary px-24 py-12 justify-center items-center gap-x-8">
-        <div className="flex items-center">
-          <img src="/landing/mascot.png" alt="Mascot" />
-        </div>
-        <div className="flex uppercase items-center">
-          <div className="flex-col items-center text-sm gap-x-8">
-            <h2 className="flex-none uppercase">$dextr</h2>
-            <div className="flex flex-row items-center gap-x-8">
-              <Image
-                src="/landing/icons/tokenomics.svg"
-                alt="Tokenomics icon"
-                width={80}
-                height={80}
-                className="!my-0"
-              />
-              <div className="flex flex-col text-primary-content">
-                <p className="text-primary-content">tokenomics</p>
-                <ul>
-                  <li>
-                    $DEXTR is minted every 2 weeks and distributed through a
-                    community vote.
-                  </li>
-                  <li>5% goes to the treasury for development.</li>
-                </ul>
+      <div className="flex flex-row bg-primary">
+        <div className="flex container mx-auto px-4  justify-center items-center gap-x-8">
+          <div className="flex items-center hidden md:block">
+            <img src="/landing/mascot.png" alt="Mascot" />
+          </div>
+          <div className="flex uppercase items-center">
+            <div className="flex-col items-center text-sm gap-x-8">
+              <h2 className="flex-none uppercase">$dextr</h2>
+              <div className="flex flex-row items-center gap-x-8">
+                <Image
+                  src="/landing/icons/tokenomics.svg"
+                  alt="Tokenomics icon"
+                  width={80}
+                  height={80}
+                  className="!my-0"
+                />
+                <div className="flex flex-col text-primary-content">
+                  <p className="text-primary-content">tokenomics</p>
+                  <ul>
+                    <li>
+                      $DEXTR is minted every 2 weeks and distributed through a
+                      community vote.
+                    </li>
+                    <li>5% goes to the treasury for development.</li>
+                  </ul>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-row items-center gap-x-8">
-              <Image
-                src="/landing/icons/supply.svg"
-                alt="Supply Icon"
-                width={80}
-                height={80}
-                className="!my-0"
-              />
-              <div className="flex flex-col text-primary-content">
-                <p className="text-primary-content">supply</p>
-                <ul>
-                  <li>Started with 0, now 1,700,000 in circulation.</li>
-                  <li>No max supply, but ~26M in 10 years at current rate.</li>
-                </ul>
+              <div className="flex flex-row items-center gap-x-8">
+                <Image
+                  src="/landing/icons/supply.svg"
+                  alt="Supply Icon"
+                  width={80}
+                  height={80}
+                  className="!my-0"
+                />
+                <div className="flex flex-col text-primary-content">
+                  <p className="text-primary-content">supply</p>
+                  <ul>
+                    <li>Started with 0, now 1,700,000 in circulation.</li>
+                    <li>
+                      No max supply, but ~26M in 10 years at current rate.
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-row items-center gap-x-8">
-              <Image
-                src="/landing/icons/distribution.svg"
-                alt="Distribution icon"
-                width={80}
-                height={80}
-                className="!my-0"
-              />
-              <div className="flex flex-col text-primary-content">
-                <p>token distribution</p>
-                <p>
-                  Contributors receive their share at the end of every
-                  nomination cycle, promoting active community involvement.
-                </p>
+              <div className="flex flex-row items-center gap-x-8">
+                <Image
+                  src="/landing/icons/distribution.svg"
+                  alt="Distribution icon"
+                  width={80}
+                  height={80}
+                  className="!my-0"
+                />
+                <div className="flex flex-col text-primary-content">
+                  <p>token distribution</p>
+                  <p>
+                    Contributors receive their share at the end of every
+                    nomination cycle, promoting active community involvement.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex flex-row bg-neutral px-24 py-12 justify-center items-center gap-x-8">
-        <div className="flex flex-1 flex-col uppercase gap-y-8">
-          <h3 className="flex text-lg">Earn $DEXTR by contributing</h3>
-          <p className="flex text-xl">
-            Whether you&apos;re a developer, designer, community manager or
-            marketing enthusiast, your contributions are vital and give you the
-            possibility to get rewarded in $DEXTR tokens. We are 100% community
-            build with no formal team.
-          </p>
-          <a
-            className="flex btn btn-lg btn-accent text-primary uppercase"
-            href="/"
-          >
-            Learn More
-          </a>
-        </div>
-        <div className="flex-none items-center">
-          <img src="/landing/hands.png" alt="Hands" />
+      <div className="flex bg-neutral px-24 justify-center items-center">
+        <div className="container flex flex-row mx-auto px-4">
+          <div className="flex flex-1 flex-col uppercase gap-y-8">
+            <h3 className="flex text-lg">Earn $DEXTR by contributing</h3>
+            <p className="flex text-xl">
+              Whether you&apos;re a developer, designer, community manager or
+              marketing enthusiast, your contributions are vital and give you the
+              possibility to get rewarded in $DEXTR tokens. We are 100% community
+              build with no formal team.
+            </p>
+            <a
+              className="flex btn btn-lg btn-accent text-primary uppercase"
+              href="/"
+            >
+              Learn More
+            </a>
+          </div>
+          <div className="flex-none items-center">
+            <img src="/landing/hands.png" alt="Hands" />
+          </div>
         </div>
       </div>
       <div className="flex bg-neutral px-24 py-12">
         <div className="flex flex-auto flex-row justify-center items-center ">
           <div className="flex uppercase items-center">
-            <div className="flex flex-row items-center gap-x-8">
+            <div className="flex flex-auto flex-row items-center gap-x-8">
               <p className="flex text-3xl">Join DeXter community:</p>
 
               <Image
