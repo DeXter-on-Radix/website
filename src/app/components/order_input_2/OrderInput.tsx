@@ -60,6 +60,9 @@ export function OrderInput() {
   return (
     <div className="h-full flex flex-col text-base">
       <OrderSideTabs />
+      <div className="bg-red-600 h-full flex justify-center">
+        <div className="bg-slate-600 h-full w-full p-6"></div>
+      </div>
     </div>
   );
 }
