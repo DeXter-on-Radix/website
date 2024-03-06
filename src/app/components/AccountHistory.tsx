@@ -17,7 +17,7 @@ function OrdersTabs() {
 
   function tabClass(isActive: boolean) {
     return (
-      "tab w-max no-underline h-full py-3 tab-border-1 uppercase leading-4" +
+      "tab w-max no-underline h-full py-3 tab-border-1 font-bold text-sm uppercase leading-4" +
       (isActive
         ? " tab-active tab-bordered text-accent-focus !border-accent"
         : "")

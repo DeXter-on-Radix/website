@@ -1,15 +1,38 @@
 import { useAppSelector, useAppDispatch } from "../hooks";
-import { selectPairAddress } from "../state/pairSelectorSlice";
+import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
+import Image from "next/image";
 
 interface PairInfo {
   name: string;
   address: string;
+  token1: TokenInfo;
+  token2: TokenInfo;
+  lastPrice: number;
+  change24h: number;
 }
 function displayName(name?: string) {
-  return name?.replace("/", " - ").toUpperCase();
+  return name?.toUpperCase();
+}
+function getPairs(name?: string): string[] {
+  return name ? name.split("/") : [];
+}
+// Sort pairs as follows: 1) DEXTR/XRD (if present), then the rest alphabetically.
+function sortOptions(options: PairInfo[]): PairInfo[] {
+  const sortedOptions = options.sort((a: PairInfo, b: PairInfo) =>
+    a.name.localeCompare(b.name)
+  );
+  // Define first pair to be DEXTR/XRD
+  const priorityPairs = ["DEXTR/XRD"];
+  const priorityOptions: PairInfo[] = priorityPairs
+    .map((pair) => options.find((option) => option.name === pair))
+    .filter((val): val is PairInfo => val !== undefined);
+  const otherOptions = sortedOptions.filter(
+    (option) => !priorityPairs.includes(option.name)
+  );
+  return [...priorityOptions, ...otherOptions];
 }
 
 export function PairSelector() {
@@ -59,8 +82,10 @@ export function PairSelector() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "/") {
-        e.preventDefault();
-        setIsOpen(true);
+        if (!isOpen) {
+          e.preventDefault();
+          setIsOpen(true);
+        }
       } else if (e.key === "Escape") {
         setQuery("");
         setIsOpen(false);
@@ -108,7 +133,7 @@ export function PairSelector() {
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
-    setFilteredOptions(newOptions);
+    setFilteredOptions(sortOptions(newOptions));
     setHighlightedIndex(0);
   }, [options, query]);
 
@@ -119,7 +144,7 @@ export function PairSelector() {
       }
     >
       <div
-        className="w-full h-full flex text-xl font-bold justify-between p-4"
+        className="w-full h-full flex text-xl font-bold justify-between p-4 px-5 cursor-pointer"
         onClick={() => {
           setIsOpen((isOpen) => !isOpen);
         }}
@@ -133,9 +158,19 @@ export function PairSelector() {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          className="flex-initial !bg-transparent uppercase"
+          className="!bg-transparent uppercase text-primary-content text-lg"
+          style={{ minWidth: 0, padding: 0, border: "none" }}
         />
-        <div className="flex space-x-2 text-secondary-content">
+        {!isOpen && (
+          <Image
+            src="/chevron-down.svg"
+            alt="chevron down"
+            width="40"
+            height="40"
+            className="lg:hidden"
+          />
+        )}
+        <div className="hidden lg:flex space-x-2 text-secondary-content">
           <FaSearch className="my-auto" />
           <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
             /
@@ -146,25 +181,57 @@ export function PairSelector() {
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-auto max-h-screen"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 max-h-screen"
         }
       >
         {filteredOptions.map((option, index) => {
+          const [pair1, pair2] = getPairs(option["name"]);
+
           return (
-            <li
-              onMouseEnter={() => setHighlightedIndex(index)}
-              onClick={() => selectOption()}
-              className={
-                "font-bold !px-4 py-0 cursor-pointer" +
-                (highlightedIndex === index ? " bg-base-300" : "")
-              }
-              key={`${id}-${index}`}
-            >
-              <div className="flex justify-between  ">
-                <span className="">{displayName(option["name"])}</span>
-                <span className="">+</span>
-              </div>
-            </li>
+            <>
+              {index === 0 && (
+                <div className="flex justify-between text-sm opacity-40 ml-3 mr-3">
+                  <span className="uppercase">Pairs</span>
+                  <span className="uppercase">Price</span>
+                </div>
+              )}
+              <li
+                onMouseEnter={() => setHighlightedIndex(index)}
+                onClick={() => selectOption()}
+                className={
+                  "!px-3 py-2 cursor-pointer " +
+                  (highlightedIndex === index ? " bg-base-300" : "")
+                }
+                style={{ marginTop: 0, marginBottom: 0 }}
+                key={`${id}-${index}`}
+              >
+                <div className="flex justify-between ">
+                  <div className="flex justify-center items-center">
+                    {pair1 && pair2 && (
+                      <>
+                        <div className="relative mr-8">
+                          <img
+                            src={option.token1.iconUrl}
+                            alt="Token Icon"
+                            className="w-6 h-6 rounded-full z-20"
+                          />
+                          <img
+                            src={option.token2.iconUrl}
+                            alt="Token Icon"
+                            className="absolute top-0 left-6 w-6 h-6 rounded-full z-10"
+                          />
+                        </div>
+                        <span className="font-bold text-base">{pair1}</span>
+                        <span className="opacity-50 text-base">/{pair2}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-col text-sm text-right font-sans">
+                    <span className="">{option.lastPrice}</span>
+                  </div>
+                </div>
+              </li>
+            </>
           );
         })}
         <li

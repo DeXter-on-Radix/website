@@ -22,3 +22,48 @@ If you happen to use VS Code, install the recommended extensions to get automati
 - Make some changes.
 - Commit and push local branch changes to your own repo.
 - Make a pull request into the [original Dexter repo](https://github.com/DeXter-on-Radix/website).
+
+## Env setup
+
+By default `npm run dev` uses the testnet (stokenet), but it can be set to mainnet by creating a `.env` file in the root project dir with the following content:
+
+### Mainnet
+
+```
+NEXT_PUBLIC_NETWORK=mainnet # Options: mainnet or stokenet
+NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5
+NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_rdx1czgjmu4ed5hp0vn97ngsf6mevq9tl0v8rrh2yq0f4dnpndggk7j9pu
+```
+
+### Testnet (default)
+
+```
+NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
+NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y
+NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
+```
+
+## Testnet Wallet Setup
+
+Follow these steps to configure your wallet for testnet use, enabling developer mode, switching networks, and acquiring test tokens.
+
+**Enable Developer Mode**
+
+1. **Access Settings**: Navigate to `App settings` from the main menu.
+2. **Activate Developer Mode**: Within `App settings`, locate and toggle on the `Developer Mode` option.
+
+**Switch to Testnet**
+
+1. **Open Gateways**: Within `App settings`, proceed to `Gateways`.
+2. **Select Testnet**: From the list of gateways, choose `babylon-stokenet-...` option.
+
+Your wallet is now in developer mode and connected to the testnet.
+
+**Acquire Test XRD Tokens**
+
+1. Follow the standard procedure to `Create a wallet` and set up a `Persona` within the app.
+2. **Access Test Account**: Open your test account profile.
+3. **Navigate to Dev Preferences**: Tap the three dots in the top right corner to access more options, then select `Dev preferences`.
+4. **Get Test Tokens**: Click on `Get XRD Test Tokens` to receive your test currency.
+
+By following these steps, you'll have your wallet set up for testing Dexter on localhost and creating orders using test XRD tokens.
