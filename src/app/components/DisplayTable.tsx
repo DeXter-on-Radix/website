@@ -5,6 +5,7 @@ import {
   displayOrderSide,
   calculateTotalFees,
   calculateAvgFilled,
+  getPriceSymbol,
 } from "../utils";
 import {
   cancelOrder,
@@ -149,7 +150,7 @@ const OpenOrdersRows = ({ data }: TableProps) => {
           {order.amount} {order.specifiedToken.symbol}
         </td>
         <td>
-          {order.price} {order.specifiedToken.symbol}
+          {order.price} {getPriceSymbol(order)}
         </td>
         <td>
           {order.amountFilled} {order.specifiedToken.symbol}
@@ -185,10 +186,10 @@ const OrderHistoryRows = ({ data }: TableProps) => {
         </td>
         <td>
           {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
-          {order.specifiedToken.symbol}
+          {getPriceSymbol(order)}
         </td>
         <td>
-          {order.price} {order.specifiedToken.symbol}
+          {order.price} {getPriceSymbol(order)}
         </td>
         <td>
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
@@ -215,11 +216,11 @@ const TradeHistoryTable = ({ data }: TableProps) => {
           {displayOrderSide(order.side).text}
         </td>
         <td>
-          {order.price} {order.specifiedToken.symbol}
+          {order.price} {getPriceSymbol(order)}
         </td>
         <td>
           {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
-          {order.specifiedToken.symbol}
+          {getPriceSymbol(order)}
         </td>
         <td>
           {order.amountFilled} {order.specifiedToken.symbol}
