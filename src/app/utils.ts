@@ -308,6 +308,7 @@ export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
     ...token,
     iconUrl,
   };
+}
 
 // Given an order, determine token symbol in which the price is expressed
 // Note: Price is always expressed in terms of the second currency in the trading pair.
