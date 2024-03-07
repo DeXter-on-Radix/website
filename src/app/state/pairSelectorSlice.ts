@@ -2,7 +2,7 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
-import { dextrCoingeckoIconUrl } from "../constants";
+import { updateIconIfNeeded } from "../utils";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
@@ -95,37 +95,22 @@ export const pairSelectorSlice = createSlice({
       state.token2.decimals = adexState.currentPairInfo.token2MaxDecimals;
 
       // unpacking to avoid loosing balances info
-      state.token1 = {
+      state.token1 = updateIconIfNeeded({
         ...state.token1,
         ...adexState.currentPairInfo.token1,
-      };
-      state.token2 = {
+      });
+      state.token2 = updateIconIfNeeded({
         ...state.token2,
         ...adexState.currentPairInfo.token2,
-      };
-
-      // Replace DEXTR iconUrl with coingecko hosted url
-      // (currently irrelevant, but adding for completeness)
-      if (state.token1.symbol === "DEXTR") {
-        state.token1.iconUrl = dextrCoingeckoIconUrl;
-      }
-      if (state.token2.symbol === "DEXTR") {
-        state.token2.iconUrl = dextrCoingeckoIconUrl;
-      }
+      });
 
       state.address = adexState.currentPairAddress;
       state.name = adexState.currentPairInfo.name;
-      state.pairsList = adexState.pairsList;
-
-      // Replace DEXTR iconUrl with coingecko hosted url
-      for (let i = 0; i < state.pairsList.length; i++) {
-        if (state.pairsList[i].token1.symbol === "DEXTR") {
-          state.pairsList[i].token1.iconUrl = dextrCoingeckoIconUrl;
-        }
-        if (state.pairsList[i].token2.symbol === "DEXTR") {
-          state.pairsList[i].token2.iconUrl = dextrCoingeckoIconUrl;
-        }
-      }
+      state.pairsList = adexState.pairsList.map((pair) => {
+        pair.token1 = updateIconIfNeeded(pair.token1);
+        pair.token2 = updateIconIfNeeded(pair.token2);
+        return pair;
+      });
     },
 
     selectPairAddress: (

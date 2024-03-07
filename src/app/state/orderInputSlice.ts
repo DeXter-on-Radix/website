@@ -12,7 +12,7 @@ import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
-import { dextrCoingeckoIconUrl } from "../constants";
+import { updateIconIfNeeded } from "../utils";
 
 export enum OrderTab {
   MARKET = "MARKET",
@@ -269,8 +269,12 @@ export const orderInputSlice = createSlice({
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(action.payload)
       );
-      const adexToken1 = serializedState.currentPairInfo.token1;
-      const adexToken2 = serializedState.currentPairInfo.token2;
+      const adexToken1 = updateIconIfNeeded(
+        serializedState.currentPairInfo.token1
+      );
+      const adexToken2 = updateIconIfNeeded(
+        serializedState.currentPairInfo.token2
+      );
       if (state.token1.address !== adexToken1.address) {
         state.token1 = {
           address: adexToken1.address,
@@ -288,14 +292,6 @@ export const orderInputSlice = createSlice({
           amount: "",
           decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
-      }
-
-      // Replace DEXTR iconUrl with coingecko hosted url
-      if (state.token1.symbol === "DEXTR") {
-        state.token1.iconUrl = dextrCoingeckoIconUrl;
-      }
-      if (state.token2.symbol === "DEXTR") {
-        state.token2.iconUrl = dextrCoingeckoIconUrl;
       }
 
       // set up a valid default price
