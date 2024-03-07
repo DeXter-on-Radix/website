@@ -60,8 +60,17 @@ export function OrderInput() {
   return (
     <div className="h-full flex flex-col text-base">
       <OrderSideTabs />
-      <div className="bg-red-600 h-full flex justify-center">
-        <div className="bg-slate-600 h-full w-full p-6"></div>
+      <div className="h-full flex justify-center">
+        <div className="h-full w-full p-6">
+          <div className="flex">
+            <div className="w-[50%]">
+              <p className="uppercase p-3 font-bold tracking-[.1px]">Market</p>
+            </div>
+            <div className="w-[50%] background-base-100">
+              <p className="uppercase p-3 font-bold tracking-[.1px]">Limit</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
