@@ -71,7 +71,7 @@ export function OrderInput() {
   return (
     <div className="h-full flex flex-col text-base max-w-[500px] m-auto">
       <OrderSideTabs />
-      <div className="m-[24px]">
+      <div className="p-[24px]">
         <div>
           <OrderTypeTabs />
           <UserInputContainer />
@@ -166,14 +166,16 @@ function OrderInputElement({
         ) : (
           <p className="text-xs font-medium text-left opacity-50">{label}</p>
         )}
-        <div className="w-full min-h-[48px] bg-neutral-500 relative">
+        <div className="min-h-[48px] w-full content-between bg-neutral-500 flex">
+          <input className="grow" />
+          <div className="shrink-0"> {currency}</div>
           {/* <input
             className="text-right grow"
             disabled={disabled}
             type="number"
             placeholder={disabled ? undefined : 0}
           /> */}
-          <input
+          {/* <input
             className="text-right absolute left-0 h-12 opacity-50"
             disabled={disabled}
             type="number"
@@ -183,7 +185,7 @@ function OrderInputElement({
             <div className="shrink-0 absolute right-8 top-3 h-12 ">
               {currency}
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </>
