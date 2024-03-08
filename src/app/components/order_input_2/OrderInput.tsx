@@ -9,6 +9,8 @@ import { useAppDispatch, useAppSelector } from "hooks";
 // } from "state/orderInputSlice";
 import { fetchBalances } from "state/pairSelectorSlice";
 
+import { OrderSide, OrderTab, orderInputSlice } from "state/orderInputSlice";
+
 // function SubmitButton() {
 //   const symbol = useAppSelector(selectTargetToken).symbol;
 //   const tartgetToken = useAppSelector(selectTargetToken);
@@ -48,9 +50,13 @@ import { fetchBalances } from "state/pairSelectorSlice";
 //   );
 // }
 
-interface SubmitButtonProps {
-  orderSide: string;
-  orderType: string;
+interface OrderInputProps {
+  label: string;
+  currency?: string;
+  secondaryLabel?: string;
+  secondaryLabelValue?: number | string;
+  available?: number;
+  disabled?: boolean;
 }
 
 export function OrderInput() {
@@ -65,35 +71,134 @@ export function OrderInput() {
   return (
     <div className="h-full flex flex-col text-base max-w-[500px] m-auto">
       <OrderSideTabs />
-      <div className="p-[24px]">
-        <OrderTypeTabs />
-        <UserInputContainer />
-        <p>Total: ~ 1'000'000 XRD</p>
-        <SubmitButton orderSide={"BUY"} orderType={"MARKET"} />
+      <div className="m-[24px]">
+        <div>
+          <OrderTypeTabs />
+          <UserInputContainer />
+          <p>Total: ~ 1'000'000 XRD</p>
+          <SubmitButton />
+        </div>
       </div>
     </div>
   );
 }
 
-function SubmitButton({ orderSide, orderType }: SubmitButtonProps) {
+function SubmitButton() {
+  const side = useAppSelector((state) => state.orderInput.side);
+  const type = useAppSelector((state) => state.orderInput.tab);
+
   return (
     <button
-      className={`w-full font-bold text-base tracking-[.1px] p-3${
-        orderSide === "BUY"
-          ? " bg-dexter-green  text-black"
-          : " bg-dexter-red text-white "
+      className={`w-full font-bold text-base tracking-[.1px] p-3 ${
+        side === "BUY"
+          ? "bg-dexter-green  text-black "
+          : "bg-dexter-red text-white "
       }`}
-    >{`${orderType} ${orderSide} DEXTR`}</button>
+    >{`${type} ${side} DEXTR`}</button>
   );
 }
 
 function UserInputContainer() {
+  const side = useAppSelector((state) => state.orderInput.side);
+  const type = useAppSelector((state) => state.orderInput.tab);
+
+  if (type === "MARKET") {
+    return (
+      <div className="bg-base-100">
+        <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
+        <OrderInputElement
+          label={side === "BUY" ? "Total" : "Quantity"}
+          secondaryLabel={"Available"}
+          secondaryLabelValue={side === "BUY" ? 2000 : 0}
+          currency={side === "BUY" ? "XRD" : "DEXTR"}
+        />
+        <PercentageSlider />
+      </div>
+    );
+  }
+  if (type === "LIMIT") {
+    return (
+      <div className="bg-base-100">
+        <OrderInputElement
+          label={"Price"}
+          currency={"XRD"}
+          secondaryLabel={`Best ${side.toLowerCase()}`}
+          secondaryLabelValue={side === "BUY" ? 2.35 : 2.24}
+        />
+        <OrderInputElement
+          label={"Quantity"}
+          currency={"DEXTR"}
+          secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
+          secondaryLabelValue={`${side === "BUY" ? undefined : 100000}`}
+        />
+        <PercentageSlider />
+        <OrderInputElement
+          label={"Total"}
+          currency={"XRD"}
+          secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
+          secondaryLabelValue={`${side === "SELL" ? undefined : 100000}`}
+        />
+      </div>
+    );
+  }
+  return <></>;
+}
+
+function OrderInputElement({
+  label,
+  currency,
+  secondaryLabel,
+  secondaryLabelValue,
+  disabled = false,
+}: OrderInputProps): JSX.Element | null {
+  return (
+    <>
+      <div className="pt-3">
+        {secondaryLabel ? (
+          <div className="w-full flex content-between">
+            <p className="text-xs font-medium text-left opacity-50 grow">
+              {label}
+            </p>
+            <p className="text-xs font-medium text-white underline">
+              {secondaryLabel}: {secondaryLabelValue} {currency}
+            </p>
+          </div>
+        ) : (
+          <p className="text-xs font-medium text-left opacity-50">{label}</p>
+        )}
+        <div className="w-full min-h-[48px] bg-red-300 relative">
+          {/* <input
+            className="text-right grow"
+            disabled={disabled}
+            type="number"
+            placeholder={disabled ? undefined : 0}
+          /> */}
+          <input
+            className="text-right absolute left-0 h-12 opacity-50"
+            disabled={disabled}
+            type="number"
+            placeholder={disabled ? undefined : 0}
+          />
+          {currency && (
+            <div className="shrink-0 absolute right-8 top-3 h-12 ">
+              {currency}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function PercentageSlider() {
   return <></>;
 }
 
 function OrderTypeTabs() {
-  const [orderType, setOrderType] = useState("MARKET");
+  const type = useAppSelector((state) => state.orderInput.tab);
+  const dispatch = useAppDispatch();
 
+  // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
     <>
       <div className="min-h-[48px] flex justify-center">
@@ -101,25 +206,33 @@ function OrderTypeTabs() {
           <div className="flex min-h-[48px]">
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                orderType === "MARKET"
+                type === "MARKET"
                   ? " bg-base-100 text-dexter-green"
                   : " bg-base-200 opacity-50"
               }`}
-              onClick={() => setOrderType("MARKET")}
+              onClick={() => {
+                dispatch(
+                  orderInputSlice.actions.setActiveTab(OrderTab["MARKET"])
+                );
+              }}
             >
-              <p className="uppercase font-bold text-base tracking-[.1px]">
+              <p className="uppercase font-bold text-base tracking-[.1px] select-none">
                 Market
               </p>
             </div>
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                orderType === "LIMIT"
+                type === "LIMIT"
                   ? " bg-base-100 text-dexter-green"
                   : " bg-base-200 opacity-50"
               }`}
-              onClick={() => setOrderType("LIMIT")}
+              onClick={() => {
+                dispatch(
+                  orderInputSlice.actions.setActiveTab(OrderTab["LIMIT"])
+                );
+              }}
             >
-              <p className="uppercase font-bold text-base tracking-[.1px]">
+              <p className="uppercase font-bold text-base tracking-[.1px] select-none">
                 Limit
               </p>
             </div>
@@ -131,9 +244,10 @@ function OrderTypeTabs() {
 }
 
 function OrderSideTabs() {
-  // Temporary states
-  const [side, setSide] = useState("BUY");
+  const side = useAppSelector((state) => state.orderInput.side);
+  const dispatch = useAppDispatch();
 
+  // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
     <>
       <div className="min-h-[48px] flex">
@@ -141,17 +255,23 @@ function OrderSideTabs() {
           className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
             side === "BUY" ? "bg-dexter-green text-content-dark" : "opacity-50"
           }`}
-          onClick={() => setSide("BUY")}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setSide(OrderSide["BUY"]));
+          }}
         >
-          <p className="font-bold text-base tracking-[.1px]">BUY</p>
+          <p className="font-bold text-base tracking-[.1px] select-none">BUY</p>
         </div>
         <div
           className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
             side === "SELL" ? "bg-flashy-red-2 text-white" : "opacity-50"
           }`}
-          onClick={() => setSide("SELL")}
+          onClick={() => {
+            dispatch(orderInputSlice.actions.setSide(OrderSide["SELL"]));
+          }}
         >
-          <p className="font-bold text-base tracking-[.1px]">SELL</p>
+          <p className="font-bold text-base tracking-[.1px] select-none">
+            SELL
+          </p>
         </div>
       </div>
     </>
