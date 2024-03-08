@@ -166,7 +166,7 @@ function OrderInputElement({
         ) : (
           <p className="text-xs font-medium text-left opacity-50">{label}</p>
         )}
-        <div className="w-full min-h-[48px] bg-red-300 relative">
+        <div className="w-full min-h-[48px] bg-neutral-500 relative">
           {/* <input
             className="text-right grow"
             disabled={disabled}
