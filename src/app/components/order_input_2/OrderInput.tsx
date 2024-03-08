@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "hooks";
 // import {
@@ -8,8 +8,14 @@ import { useAppDispatch, useAppSelector } from "hooks";
 //   validateSlippageInput,
 // } from "state/orderInputSlice";
 import { fetchBalances } from "state/pairSelectorSlice";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import { OrderSide, OrderTab, orderInputSlice } from "state/orderInputSlice";
+
+const POST_ONLY_TOOLTIP =
+  "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
+  "If the order can be matched immediately, it will not be created. " +
+  "This option helps ensure you receive the maker rebate.";
 
 // function SubmitButton() {
 //   const symbol = useAppSelector(selectTargetToken).symbol;
@@ -61,8 +67,8 @@ interface OrderInputProps {
 
 export function OrderInput() {
   const dispatch = useAppDispatch();
-
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const type = useAppSelector((state) => state.orderInput.tab);
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -75,12 +81,52 @@ export function OrderInput() {
         <div>
           <OrderTypeTabs />
           <UserInputContainer />
-          <div className="flex content-between my-6 w-full text-white">
-            <p className="grow text-left">Total:</p>
-            <p className="">~ 1'000'000 XRD</p>
-          </div>
+          {type === "MARKET" && <EstimatedTotalOrQuantity />}
           <SubmitButton />
+          {type === "MARKET" && <MarketOrderDisclaimer />}
+          {type === "LIMIT" && <PostOnlyCheckbox />}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EstimatedTotalOrQuantity() {
+  return (
+    <div className="flex content-between w-full text-white">
+      <p className="grow text-left">Total:</p>
+      <p className="">~ 1'000'000 XRD</p>
+    </div>
+  );
+}
+
+function MarketOrderDisclaimer() {
+  return (
+    <p className="text-xs tracking-[0.5px] opacity-70 py-6">
+      Displayed value is exact at quote time, may change on button press due
+      market changes.
+    </p>
+  );
+}
+
+function PostOnlyCheckbox() {
+  const dispatch = useAppDispatch();
+  const { postOnly } = useAppSelector((state) => state.orderInput);
+
+  return (
+    <div className="flex justify-center ">
+      <input
+        checked={postOnly}
+        type="checkbox"
+        className="checkbox checkbox-xs my-auto mr-2 text-white"
+        onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
+      />
+      <span className="my-auto text-white text-sm ">POST ONLY</span>
+      <div
+        className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
+        data-tip={POST_ONLY_TOOLTIP}
+      >
+        <AiOutlineInfoCircle className="text-white text-sm" />
       </div>
     </div>
   );
@@ -92,7 +138,7 @@ function SubmitButton() {
 
   return (
     <button
-      className={`w-full font-bold text-base tracking-[.1px] p-3 ${
+      className={`w-full font-bold text-base tracking-[.1px] p-3 my-6 ${
         side === "BUY"
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
@@ -111,7 +157,7 @@ function UserInputContainer() {
     const xrdBalance = 2000;
 
     return (
-      <div className="bg-base-100 px-4 pb-9">
+      <div className="bg-base-100 px-4 pb-4 mb-6">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
@@ -129,7 +175,7 @@ function UserInputContainer() {
     const bestSell = 2.25;
 
     return (
-      <div className="bg-base-100 px-4 pb-9">
+      <div className="bg-base-100 px-4 pb-4 ">
         <OrderInputElement
           label={"Price"}
           currency={"XRD"}
