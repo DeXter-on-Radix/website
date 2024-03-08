@@ -104,7 +104,7 @@ function UserInputContainer() {
 
   if (type === "MARKET") {
     return (
-      <div className="bg-base-100">
+      <div className="bg-base-100 px-3 rounded-md">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
@@ -118,7 +118,7 @@ function UserInputContainer() {
   }
   if (type === "LIMIT") {
     return (
-      <div className="bg-base-100">
+      <div className="bg-base-100 px-3 rounded-md">
         <OrderInputElement
           label={"Price"}
           currency={"XRD"}
@@ -157,18 +157,25 @@ function OrderInputElement({
         {secondaryLabel ? (
           <div className="w-full flex content-between">
             <p className="text-xs font-medium text-left opacity-50 grow">
-              {label}
+              {label}:
             </p>
             <p className="text-xs font-medium text-white underline">
               {secondaryLabel}: {secondaryLabelValue} {currency}
             </p>
           </div>
         ) : (
-          <p className="text-xs font-medium text-left opacity-50">{label}</p>
+          <p className="text-xs font-medium text-left opacity-50">{label}:</p>
         )}
-        <div className="min-h-[48px] w-full content-between bg-neutral-500 flex">
-          <input className="grow" />
-          <div className="shrink-0"> {currency}</div>
+        <div className="min-h-[48px] w-full content-between bg-base-200 flex">
+          <input
+            className="grow text-right pr-2 bg-base-200 "
+            disabled={disabled}
+            type="number"
+            placeholder={disabled ? undefined : 0}
+          />
+          <div className="shrink-0 bg-base-200 content-center items-center flex px-2">
+            {currency}
+          </div>
           {/* <input
             className="text-right grow"
             disabled={disabled}
