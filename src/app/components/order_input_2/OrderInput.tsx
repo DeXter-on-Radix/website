@@ -78,20 +78,21 @@ export function OrderInput() {
     <div className="h-full flex flex-col text-base max-w-[400px] m-auto">
       <OrderSideTabs />
       <div className="p-[24px]">
-        <div>
-          <OrderTypeTabs />
-          <UserInputContainer />
-          {type === "MARKET" && <EstimatedTotalOrQuantity />}
-          <SubmitButton />
-          {type === "MARKET" && <MarketOrderDisclaimer />}
-          {type === "LIMIT" && <PostOnlyCheckbox />}
-        </div>
+        <OrderTypeTabs />
+        <UserInputContainer />
+        {type === "MARKET" && <EstimatedTotalOrQuantity />}
+        <SubmitButton />
+        {type === "MARKET" && <MarketOrderDisclaimer />}
+        {type === "LIMIT" && <PostOnlyCheckbox />}
+        <FeesTable />
+        <FeesDisclaimer />
       </div>
     </div>
   );
 }
 
 function EstimatedTotalOrQuantity() {
+  // TODO(dcts): calculate estimate
   return (
     <div className="flex content-between w-full text-white">
       <p className="grow text-left">Total:</p>
@@ -102,10 +103,61 @@ function EstimatedTotalOrQuantity() {
 
 function MarketOrderDisclaimer() {
   return (
-    <p className="text-xs tracking-[0.5px] opacity-70 py-6">
-      Displayed value is exact at quote time, may change on button press due
-      market changes.
-    </p>
+    <div className="">
+      <p className="text-xs tracking-[0.5px] opacity-70 pb-6 border-b-[1px] border-b-[rgba(255,255,255,0.2)]">
+        Displayed value is exact at quote time, may change on button press due
+        market changes.
+      </p>
+    </div>
+  );
+}
+
+function FeesDisclaimer() {
+  return (
+    <div className="">
+      <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
+        Fees are paid in received currency. Total received amount already
+        discounts fees.
+      </p>
+    </div>
+  );
+}
+
+function FeesTable() {
+  // TODO(dcts): Get calculated fees from state
+  const total = 0.5589;
+  const currency = "DEXTR";
+  const exchange = 0.0589;
+  const platform = 0.2;
+  const liquidity = 0.3;
+
+  return (
+    <div className="my-4">
+      <div className="flex content-between w-full my-1 text-white">
+        <p className="grow text-left text-xs">Total fees:</p>
+        <p className="text-xs">
+          {total} {currency}
+        </p>
+      </div>
+      <div className="flex content-between w-full my-1 text-secondary-content">
+        <p className="grow text-left text-xs">Exchange fee:</p>
+        <p className="text-xs">
+          {exchange} {currency}
+        </p>
+      </div>
+      <div className="flex content-between w-full my-1 text-secondary-content">
+        <p className="grow text-left text-xs">Platform fee:</p>
+        <p className="text-xs">
+          {platform} {currency}
+        </p>
+      </div>
+      <div className="flex content-between w-full my-1 text-secondary-content">
+        <p className="grow text-left text-xs">Liquidity fee:</p>
+        <p className="text-xs">
+          {liquidity} {currency}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -211,20 +263,16 @@ function OrderInputElement({
   return (
     <>
       <div className="pt-4">
-        {secondaryLabel ? (
-          <div className="w-full flex content-between">
-            <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow">
-              {label}:
-            </p>
+        <div className="w-full flex content-between">
+          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow">
+            {label}:
+          </p>
+          {secondaryLabel && (
             <p className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]">
               {secondaryLabel}: {secondaryLabelValue} {currency}
             </p>
-          </div>
-        ) : (
-          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px]">
-            {label}:
-          </p>
-        )}
+          )}
+        </div>
         <div
           className={`min-h-[48px] w-full content-between bg-base-200 flex ${
             disabled ? "relative" : "rounded-lg"
