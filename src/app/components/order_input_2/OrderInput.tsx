@@ -69,13 +69,16 @@ export function OrderInput() {
   }, [dispatch, pairAddress]);
 
   return (
-    <div className="h-full flex flex-col text-base max-w-[500px] m-auto">
+    <div className="h-full flex flex-col text-base max-w-[400px] m-auto">
       <OrderSideTabs />
       <div className="p-[24px]">
         <div>
           <OrderTypeTabs />
           <UserInputContainer />
-          <p>Total: ~ 1'000'000 XRD</p>
+          <div className="flex content-between my-6 w-full text-white">
+            <p className="grow text-left">Total:</p>
+            <p className="">~ 1'000'000 XRD</p>
+          </div>
           <SubmitButton />
         </div>
       </div>
@@ -108,7 +111,7 @@ function UserInputContainer() {
     const xrdBalance = 2000;
 
     return (
-      <div className="bg-base-100 px-3 rounded-md">
+      <div className="bg-base-100 px-4 pb-9">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
@@ -126,7 +129,7 @@ function UserInputContainer() {
     const bestSell = 2.25;
 
     return (
-      <div className="bg-base-100 px-3 rounded-md">
+      <div className="bg-base-100 px-4 pb-9">
         <OrderInputElement
           label={"Price"}
           currency={"XRD"}
@@ -161,28 +164,46 @@ function OrderInputElement({
 }: OrderInputProps): JSX.Element | null {
   return (
     <>
-      <div className="pt-3">
+      <div className="pt-4">
         {secondaryLabel ? (
           <div className="w-full flex content-between">
-            <p className="text-xs font-medium text-left opacity-50 grow">
+            <p className="text-xs font-medium text-left opacity-50 pb-1 grow tracking-[0.5px]">
               {label}:
             </p>
-            <p className="text-xs font-medium text-white underline">
+            <p className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]">
               {secondaryLabel}: {secondaryLabelValue} {currency}
             </p>
           </div>
         ) : (
-          <p className="text-xs font-medium text-left opacity-50">{label}:</p>
+          <p className="text-xs font-medium text-left opacity-50 pb-1">
+            {label}:
+          </p>
         )}
-        <div className="min-h-[48px] w-full content-between bg-base-200 flex">
+        <div
+          className={`min-h-[48px] w-full content-between bg-base-200 flex ${
+            disabled ? "relative" : "rounded-lg"
+          }`}
+        >
           <input
-            className="grow text-right pr-2 bg-base-200 "
+            className={`grow w-full text-right pr-2 bg-base-200 ${
+              disabled
+                ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
+                : "rounded-l-md"
+            }`}
             disabled={disabled}
             type="number"
           />
-          <div className="shrink-0 bg-base-200 content-center items-center flex px-2">
-            {currency}
-          </div>
+          {disabled ? (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089]">
+              MARKET
+            </div>
+          ) : (
+            <>
+              <div className="shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
+                {currency}
+              </div>
+            </>
+          )}
           {/* <input
             className="text-right grow"
             disabled={disabled}
