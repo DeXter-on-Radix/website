@@ -103,13 +103,17 @@ function UserInputContainer() {
   const type = useAppSelector((state) => state.orderInput.tab);
 
   if (type === "MARKET") {
+    // TODO(dcts): replace with actual data from alphadex
+    const dextrBalance = 0;
+    const xrdBalance = 2000;
+
     return (
       <div className="bg-base-100 px-3 rounded-md">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
           secondaryLabel={"Available"}
-          secondaryLabelValue={side === "BUY" ? 2000 : 0}
+          secondaryLabelValue={side === "BUY" ? xrdBalance : dextrBalance}
           currency={side === "BUY" ? "XRD" : "DEXTR"}
         />
         <PercentageSlider />
@@ -117,13 +121,17 @@ function UserInputContainer() {
     );
   }
   if (type === "LIMIT") {
+    // TODO(dcts): replace with actual data from alphadex
+    const bestBuy = 2.35;
+    const bestSell = 2.25;
+
     return (
       <div className="bg-base-100 px-3 rounded-md">
         <OrderInputElement
           label={"Price"}
           currency={"XRD"}
           secondaryLabel={`Best ${side.toLowerCase()}`}
-          secondaryLabelValue={side === "BUY" ? 2.35 : 2.24}
+          secondaryLabelValue={side === "BUY" ? bestBuy : bestSell}
         />
         <OrderInputElement
           label={"Quantity"}
@@ -171,7 +179,6 @@ function OrderInputElement({
             className="grow text-right pr-2 bg-base-200 "
             disabled={disabled}
             type="number"
-            placeholder={disabled ? undefined : 0}
           />
           <div className="shrink-0 bg-base-200 content-center items-center flex px-2">
             {currency}
