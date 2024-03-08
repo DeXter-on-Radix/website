@@ -213,7 +213,7 @@ function OrderInputElement({
       <div className="pt-4">
         {secondaryLabel ? (
           <div className="w-full flex content-between">
-            <p className="text-xs font-medium text-left opacity-50 pb-1 grow tracking-[0.5px]">
+            <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow">
               {label}:
             </p>
             <p className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]">
@@ -221,7 +221,7 @@ function OrderInputElement({
             </p>
           </div>
         ) : (
-          <p className="text-xs font-medium text-left opacity-50 pb-1">
+          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px]">
             {label}:
           </p>
         )}
