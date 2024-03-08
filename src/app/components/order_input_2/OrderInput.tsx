@@ -95,7 +95,7 @@ function EstimatedTotalOrQuantity() {
   return (
     <div className="flex content-between w-full text-white">
       <p className="grow text-left">Total:</p>
-      <p className="">~ 1'000'000 XRD</p>
+      <p className="">~ 1&apos;000&apos;000 XRD</p>
     </div>
   );
 }
