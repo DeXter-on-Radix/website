@@ -173,7 +173,7 @@ function PostOnlyCheckbox() {
         className="checkbox checkbox-xs my-auto mr-2 text-white"
         onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
       />
-      <span className="my-auto text-white text-sm ">POST ONLY</span>
+      <span className="my-auto text-white text-xs ">POST ONLY</span>
       <div
         className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
         data-tip={POST_ONLY_TOOLTIP}
@@ -274,12 +274,12 @@ function OrderInputElement({
           )}
         </div>
         <div
-          className={`min-h-[48px] w-full content-between bg-base-200 flex ${
+          className={`min-h-[44px] w-full content-between bg-base-200 flex ${
             disabled ? "relative" : "rounded-lg"
           }`}
         >
           <input
-            className={`grow w-full text-right pr-2 bg-base-200 ${
+            className={`grow w-full text-right text-sm pr-2 bg-base-200 ${
               disabled
                 ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
                 : "rounded-l-md"
