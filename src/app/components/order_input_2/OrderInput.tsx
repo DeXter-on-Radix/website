@@ -190,7 +190,7 @@ function SubmitButton() {
 
   return (
     <button
-      className={`w-full font-bold text-sm tracking-[.1px] min-h-[48px] p-3 my-6 ${
+      className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 ${
         side === "BUY"
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
@@ -315,9 +315,9 @@ function OrderTypeTabs() {
   // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
     <>
-      <div className="min-h-[48px] flex justify-center">
+      <div className="min-h-[44px] flex justify-center">
         <div className="w-full">
-          <div className="flex min-h-[48px]">
+          <div className="flex min-h-[44px]">
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
                 type === "MARKET"
@@ -364,7 +364,7 @@ function OrderSideTabs() {
   // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
     <>
-      <div className="min-h-[48px] flex">
+      <div className="min-h-[44px] flex">
         <div
           className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
             side === "BUY" ? "bg-dexter-green text-content-dark" : "opacity-50"
