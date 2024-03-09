@@ -80,7 +80,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 600,
+        height: 540,
         layout: {
           background: {
             color: theme["base-200"],
