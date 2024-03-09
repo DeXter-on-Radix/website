@@ -277,7 +277,9 @@ function OrderInputElement({
         </div>
         <div
           className={`min-h-[44px] w-full content-between bg-base-200 flex ${
-            disabled ? "relative" : "rounded-lg"
+            disabled
+              ? "relative"
+              : "rounded-lg hover:outline hover:outline-1 hover:outline-white/50 "
           }`}
         >
           <input
