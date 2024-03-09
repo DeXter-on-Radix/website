@@ -190,7 +190,7 @@ function SubmitButton() {
 
   return (
     <button
-      className={`w-full font-bold text-base tracking-[.1px] p-3 my-6 ${
+      className={`w-full font-bold text-sm tracking-[.1px] p-3 my-6 ${
         side === "BUY"
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
@@ -200,13 +200,13 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const side = useAppSelector((state) => state.orderInput.side);
   const type = useAppSelector((state) => state.orderInput.tab);
+  const { token1, token2, side } = useAppSelector((state) => state.orderInput);
 
   if (type === "MARKET") {
     // TODO(dcts): replace with actual data from alphadex
-    const dextrBalance = 0;
-    const xrdBalance = 2000;
+    const coin1Balance = 0;
+    const coin2Balance = 2000;
 
     return (
       <div className="bg-base-100 px-4 pb-4 mb-6">
@@ -214,8 +214,8 @@ function UserInputContainer() {
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
           secondaryLabel={"Available"}
-          secondaryLabelValue={side === "BUY" ? xrdBalance : dextrBalance}
-          currency={side === "BUY" ? "XRD" : "DEXTR"}
+          secondaryLabelValue={side === "BUY" ? coin2Balance : coin1Balance}
+          currency={side === "BUY" ? token2.symbol : token1.symbol}
         />
         <PercentageSlider />
       </div>
@@ -230,7 +230,7 @@ function UserInputContainer() {
       <div className="bg-base-100 px-4 pb-4 ">
         <OrderInputElement
           label={"Price"}
-          currency={"XRD"}
+          currency={token2.symbol}
           secondaryLabel={`Best ${side.toLowerCase()}`}
           secondaryLabelValue={side === "BUY" ? bestBuy : bestSell}
         />
@@ -298,23 +298,6 @@ function OrderInputElement({
               </div>
             </>
           )}
-          {/* <input
-            className="text-right grow"
-            disabled={disabled}
-            type="number"
-            placeholder={disabled ? undefined : 0}
-          /> */}
-          {/* <input
-            className="text-right absolute left-0 h-12 opacity-50"
-            disabled={disabled}
-            type="number"
-            placeholder={disabled ? undefined : 0}
-          />
-          {currency && (
-            <div className="shrink-0 absolute right-8 top-3 h-12 ">
-              {currency}
-            </div>
-          )} */}
         </div>
       </div>
     </>
@@ -347,7 +330,7 @@ function OrderTypeTabs() {
                 );
               }}
             >
-              <p className="uppercase font-bold text-base tracking-[.1px] select-none">
+              <p className="uppercase font-bold text-sm tracking-[.1px] select-none">
                 Market
               </p>
             </div>
@@ -363,7 +346,7 @@ function OrderTypeTabs() {
                 );
               }}
             >
-              <p className="uppercase font-bold text-base tracking-[.1px] select-none">
+              <p className="uppercase font-bold text-sm tracking-[.1px] select-none">
                 Limit
               </p>
             </div>
@@ -390,7 +373,7 @@ function OrderSideTabs() {
             dispatch(orderInputSlice.actions.setSide(OrderSide["BUY"]));
           }}
         >
-          <p className="font-bold text-base tracking-[.1px] select-none">BUY</p>
+          <p className="font-bold text-sm tracking-[.1px] select-none">BUY</p>
         </div>
         <div
           className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
@@ -400,9 +383,7 @@ function OrderSideTabs() {
             dispatch(orderInputSlice.actions.setSide(OrderSide["SELL"]));
           }}
         >
-          <p className="font-bold text-base tracking-[.1px] select-none">
-            SELL
-          </p>
+          <p className="font-bold text-sm tracking-[.1px] select-none">SELL</p>
         </div>
       </div>
     </>
