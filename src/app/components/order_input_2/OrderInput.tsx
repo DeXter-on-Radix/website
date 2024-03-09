@@ -190,7 +190,7 @@ function SubmitButton() {
 
   return (
     <button
-      className={`w-full font-bold text-sm tracking-[.1px] p-3 my-6 ${
+      className={`w-full font-bold text-sm tracking-[.1px] min-h-[48px] p-3 my-6 ${
         side === "BUY"
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
