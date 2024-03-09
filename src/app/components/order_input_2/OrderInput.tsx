@@ -3,6 +3,9 @@ import { useEffect } from "react";
 import { capitalizeFirstLetter } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
+
+import { selectBalanceByAddress } from "state/orderInputSlice";
+
 // import {
 //   selectTargetToken,
 //   submitOrder,
@@ -199,19 +202,25 @@ function UserInputContainer() {
   const { side, tab, token1, token2 } = useAppSelector(
     (state) => state.orderInput
   );
+  const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
+  const [token1Balance, token2Balance] = useAppSelector((state) => {
+    return [
+      selectBalanceByAddress(state, token1.address),
+      selectBalanceByAddress(state, token2.address),
+    ];
+  });
 
   if (tab === "MARKET") {
-    // TODO(dcts): replace with actual data from alphadex
-    const coin1Balance = 0;
-    const coin2Balance = 2000;
-
+    // TODO(dcts): replace with actual data from wallet
     return (
       <div className="bg-base-100 px-5 pb-5 mb-6">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
           secondaryLabel={"Available"}
-          secondaryLabelValue={side === "BUY" ? coin2Balance : coin1Balance}
+          secondaryLabelValue={
+            side === "BUY" ? token2Balance || 0 : token1Balance || 0
+          }
           currency={side === "BUY" ? token2.symbol : token1.symbol}
         />
         <PercentageSlider />
@@ -219,30 +228,26 @@ function UserInputContainer() {
     );
   }
   if (tab === "LIMIT") {
-    // TODO(dcts): replace with actual data from alphadex
-    const bestBuy = 2.35;
-    const bestSell = 2.25;
-
     return (
       <div className="bg-base-100 px-5 pb-5 ">
         <OrderInputElement
           label={"Price"}
           currency={token2.symbol}
           secondaryLabel={`Best ${side.toLowerCase()}`}
-          secondaryLabelValue={side === "BUY" ? bestBuy : bestSell}
+          secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
         />
         <OrderInputElement
           label={"Quantity"}
           currency={token1.symbol}
           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
-          secondaryLabelValue={`${side === "BUY" ? undefined : 100000}`}
+          secondaryLabelValue={token1Balance || 0}
         />
         <PercentageSlider />
         <OrderInputElement
           label={"Total"}
           currency={token2.symbol}
           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
-          secondaryLabelValue={`${side === "SELL" ? undefined : 100000}`}
+          secondaryLabelValue={token2Balance || 0}
         />
       </div>
     );
@@ -318,7 +323,7 @@ function OrderTypeTabs() {
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
                 type === "MARKET"
-                  ? " bg-base-100 text-dexter-green"
+                  ? " bg-base-100 text-white"
                   : " bg-base-200 opacity-50"
               }`}
               onClick={() => {
@@ -327,14 +332,14 @@ function OrderTypeTabs() {
                 );
               }}
             >
-              <p className="uppercase font-bold text-sm tracking-[.1px] select-none">
+              <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
                 Market
               </p>
             </div>
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
                 type === "LIMIT"
-                  ? " bg-base-100 text-dexter-green"
+                  ? " bg-base-100 text-white"
                   : " bg-base-200 opacity-50"
               }`}
               onClick={() => {
@@ -343,7 +348,7 @@ function OrderTypeTabs() {
                 );
               }}
             >
-              <p className="uppercase font-bold text-sm tracking-[.1px] select-none">
+              <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
                 Limit
               </p>
             </div>
