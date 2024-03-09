@@ -279,7 +279,7 @@ function OrderInputElement({
           }`}
         >
           <input
-            className={`grow w-full text-right text-sm pr-2 bg-base-200 ${
+            className={`text-sm grow w-full text-right text-sm pr-2 bg-base-200 ${
               disabled
                 ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
                 : "rounded-l-md"
@@ -288,12 +288,12 @@ function OrderInputElement({
             type="number"
           />
           {disabled ? (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089]">
+            <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089]">
               MARKET
             </div>
           ) : (
             <>
-              <div className="shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
+              <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
                 {currency}
               </div>
             </>
