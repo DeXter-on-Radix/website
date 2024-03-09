@@ -303,3 +303,7 @@ export function getPriceSymbol(order: OrderReceipt): string {
   }
   return order.pairName.split("/")[1];
 }
+
+export function capitalizeFirstLetter(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1);
+}

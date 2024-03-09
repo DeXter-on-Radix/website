@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 
+import { capitalizeFirstLetter } from "../../utils";
+
 import { useAppDispatch, useAppSelector } from "hooks";
 // import {
 //   selectTargetToken,
@@ -124,39 +126,34 @@ function FeesDisclaimer() {
 }
 
 function FeesTable() {
+  const { side, token1, token2 } = useAppSelector((state) => state.orderInput);
+  const currency = side === "BUY" ? token1.symbol : token2.symbol;
+
   // TODO(dcts): Get calculated fees from state
-  const total = 0.5589;
-  const currency = "DEXTR";
-  const exchange = 0.0589;
-  const platform = 0.2;
-  const liquidity = 0.3;
+  const fees = {
+    total: 0.0589 + 0.2 + 0.3,
+    exchange: 0.0589,
+    platform: 0.2,
+    liquidity: 0.3,
+  };
 
   return (
     <div className="my-4">
-      <div className="flex content-between w-full my-1 text-white">
-        <p className="grow text-left text-xs">Total fees:</p>
-        <p className="text-xs">
-          {total} {currency}
-        </p>
-      </div>
-      <div className="flex content-between w-full my-1 text-secondary-content">
-        <p className="grow text-left text-xs">Exchange fee:</p>
-        <p className="text-xs">
-          {exchange} {currency}
-        </p>
-      </div>
-      <div className="flex content-between w-full my-1 text-secondary-content">
-        <p className="grow text-left text-xs">Platform fee:</p>
-        <p className="text-xs">
-          {platform} {currency}
-        </p>
-      </div>
-      <div className="flex content-between w-full my-1 text-secondary-content">
-        <p className="grow text-left text-xs">Liquidity fee:</p>
-        <p className="text-xs">
-          {liquidity} {currency}
-        </p>
-      </div>
+      {Object.entries(fees).map(([key, value], indx) => (
+        <div
+          className={`flex content-between w-full my-1 ${
+            indx === 0 ? "text-white" : "text-secondary-content"
+          }`}
+          key={indx}
+        >
+          <p className="text-xs text-left grow">
+            {capitalizeFirstLetter(key)} fee:
+          </p>
+          <p className="text-xs">
+            {value.toFixed(4)} {currency}{" "}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -185,8 +182,7 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const side = useAppSelector((state) => state.orderInput.side);
-  const type = useAppSelector((state) => state.orderInput.tab);
+  const { side, tab, token2 } = useAppSelector((state) => state.orderInput);
 
   return (
     <button
@@ -195,21 +191,22 @@ function SubmitButton() {
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
       }`}
-    >{`${type} ${side} DEXTR`}</button>
+    >{`${tab} ${side} ${token2.symbol}`}</button>
   );
 }
 
 function UserInputContainer() {
-  const type = useAppSelector((state) => state.orderInput.tab);
-  const { token1, token2, side } = useAppSelector((state) => state.orderInput);
+  const { side, tab, token1, token2 } = useAppSelector(
+    (state) => state.orderInput
+  );
 
-  if (type === "MARKET") {
+  if (tab === "MARKET") {
     // TODO(dcts): replace with actual data from alphadex
     const coin1Balance = 0;
     const coin2Balance = 2000;
 
     return (
-      <div className="bg-base-100 px-4 pb-4 mb-6">
+      <div className="bg-base-100 px-5 pb-5 mb-6">
         <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
@@ -221,13 +218,13 @@ function UserInputContainer() {
       </div>
     );
   }
-  if (type === "LIMIT") {
+  if (tab === "LIMIT") {
     // TODO(dcts): replace with actual data from alphadex
     const bestBuy = 2.35;
     const bestSell = 2.25;
 
     return (
-      <div className="bg-base-100 px-4 pb-4 ">
+      <div className="bg-base-100 px-5 pb-5 ">
         <OrderInputElement
           label={"Price"}
           currency={token2.symbol}
@@ -236,14 +233,14 @@ function UserInputContainer() {
         />
         <OrderInputElement
           label={"Quantity"}
-          currency={"DEXTR"}
+          currency={token1.symbol}
           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
           secondaryLabelValue={`${side === "BUY" ? undefined : 100000}`}
         />
         <PercentageSlider />
         <OrderInputElement
           label={"Total"}
-          currency={"XRD"}
+          currency={token2.symbol}
           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
           secondaryLabelValue={`${side === "SELL" ? undefined : 100000}`}
         />
@@ -262,7 +259,7 @@ function OrderInputElement({
 }: OrderInputProps): JSX.Element | null {
   return (
     <>
-      <div className="pt-4">
+      <div className="pt-5">
         <div className="w-full flex content-between">
           <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow">
             {label}:
@@ -279,7 +276,7 @@ function OrderInputElement({
           }`}
         >
           <input
-            className={`text-sm grow w-full text-right text-sm pr-2 bg-base-200 ${
+            className={`text-sm grow w-full text-right pr-2 bg-base-200 ${
               disabled
                 ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
                 : "rounded-l-md"
