@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { capitalizeFirstLetter } from "../../utils";
+import { capitalizeFirstLetter, getLocaleSeparators } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
 
@@ -12,10 +12,13 @@ import { selectBalanceByAddress } from "state/orderInputSlice";
 //   validatePriceInput,
 //   validateSlippageInput,
 // } from "state/orderInputSlice";
+
 import { fetchBalances } from "state/pairSelectorSlice";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import { OrderSide, OrderTab, orderInputSlice } from "state/orderInputSlice";
+
+import { IMaskInput } from "react-imask";
 
 const POST_ONLY_TOOLTIP =
   "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
@@ -173,7 +176,12 @@ function PostOnlyCheckbox() {
         className="checkbox checkbox-xs my-auto mr-2 text-white"
         onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
       />
-      <span className="my-auto text-white text-xs ">POST ONLY</span>
+      <span
+        className="my-auto text-white text-xs cursor-pointer"
+        onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
+      >
+        POST ONLY
+      </span>
       <div
         className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
         data-tip={POST_ONLY_TOOLTIP}
@@ -262,11 +270,12 @@ function OrderInputElement({
   secondaryLabelValue,
   disabled = false,
 }: OrderInputProps): JSX.Element | null {
+  const decimalSeparator = getLocaleSeparators().decimalSeparator;
   return (
     <>
       <div className="pt-5">
         <div className="w-full flex content-between">
-          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow">
+          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
             {label}:
           </p>
           {secondaryLabel && (
@@ -282,17 +291,25 @@ function OrderInputElement({
               : "rounded-lg hover:outline hover:outline-1 hover:outline-white/50 "
           }`}
         >
-          <input
+          <IMaskInput
+            disabled={disabled || false}
+            min={0}
+            mask={Number}
+            unmask={"typed"}
+            // scale={targetToken.decimals}
+            // placeholder={"0.0"}
+            radix={decimalSeparator}
+            // value={String(amount)}
             className={`text-sm grow w-full text-right pr-2 bg-base-200 ${
               disabled
                 ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
                 : "rounded-l-md"
             }`}
-            disabled={disabled}
-            type="number"
-          />
+            // onFocus={onFocus}
+            // onAccept={onAccept}
+          ></IMaskInput>
           {disabled ? (
-            <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089]">
+            <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
               MARKET
             </div>
           ) : (
