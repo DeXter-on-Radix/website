@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 
-import { capitalizeFirstLetter, getLocaleSeparators } from "../../utils";
+import {
+  capitalizeFirstLetter,
+  getLocaleSeparators,
+  numberOrEmptyInput,
+} from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
 
@@ -71,16 +75,23 @@ interface OrderInputProps {
   secondaryLabelValue?: number | string;
   available?: number;
   disabled?: boolean;
+  // onFocus?: () => void;
+  onAccept?: (value: any) => void;
 }
 
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const type = useAppSelector((state) => state.orderInput.tab);
+  const { tab, side } = useAppSelector((state) => state.orderInput);
 
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
+
+  useEffect(() => {
+    // dispatch(orderInputSlice.actions.resetNumbersInput());
+    // TODO(dcts): create reset logic
+  }, [tab, side]);
 
   return (
     <div className="h-full flex flex-col text-base max-w-[400px] m-auto">
@@ -88,10 +99,10 @@ export function OrderInput() {
       <div className="p-[24px]">
         <OrderTypeTabs />
         <UserInputContainer />
-        {type === "MARKET" && <EstimatedTotalOrQuantity />}
+        {tab === "MARKET" && <EstimatedTotalOrQuantity />}
         <SubmitButton />
-        {type === "MARKET" && <MarketOrderDisclaimer />}
-        {type === "LIMIT" && <PostOnlyCheckbox />}
+        {tab === "MARKET" && <MarketOrderDisclaimer />}
+        {tab === "LIMIT" && <PostOnlyCheckbox />}
         <FeesTable />
         <FeesDisclaimer />
       </div>
@@ -217,6 +228,13 @@ function UserInputContainer() {
       selectBalanceByAddress(state, token2.address),
     ];
   });
+  const dispatch = useAppDispatch();
+  const state = useAppSelector((state) => state);
+
+  // Log the orderInputSlice state whenever it changes
+  useEffect(() => {
+    console.log("OrderInputSlice State:", state);
+  }, [state]);
 
   if (tab === "MARKET") {
     // TODO(dcts): replace with actual data from wallet
@@ -230,6 +248,14 @@ function UserInputContainer() {
             side === "BUY" ? token2Balance || 0 : token1Balance || 0
           }
           currency={side === "BUY" ? token2.symbol : token1.symbol}
+          onAccept={(value) => {
+            dispatch(orderInputSlice.actions.resetValidation());
+            dispatch(
+              orderInputSlice.actions[
+                side === "BUY" ? "setAmountToken2" : "setAmountToken1"
+              ](numberOrEmptyInput(value))
+            );
+          }}
         />
         <PercentageSlider />
       </div>
@@ -269,7 +295,9 @@ function OrderInputElement({
   secondaryLabel,
   secondaryLabelValue,
   disabled = false,
-}: OrderInputProps): JSX.Element | null {
+  onAccept,
+}: // onFocus,
+OrderInputProps): JSX.Element | null {
   const decimalSeparator = getLocaleSeparators().decimalSeparator;
   return (
     <>
@@ -306,7 +334,7 @@ function OrderInputElement({
                 : "rounded-l-md"
             }`}
             // onFocus={onFocus}
-            // onAccept={onAccept}
+            onAccept={onAccept || (() => {})}
           ></IMaskInput>
           {disabled ? (
             <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
@@ -330,7 +358,7 @@ function PercentageSlider() {
 }
 
 function OrderTypeTabs() {
-  const type = useAppSelector((state) => state.orderInput.tab);
+  const tab = useAppSelector((state) => state.orderInput.tab);
   const dispatch = useAppDispatch();
 
   // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
@@ -341,7 +369,7 @@ function OrderTypeTabs() {
           <div className="flex min-h-[44px]">
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                type === "MARKET"
+                tab === "MARKET"
                   ? " bg-base-100 text-white"
                   : " bg-base-200 opacity-50"
               }`}
@@ -357,7 +385,7 @@ function OrderTypeTabs() {
             </div>
             <div
               className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                type === "LIMIT"
+                tab === "LIMIT"
                   ? " bg-base-100 text-white"
                   : " bg-base-200 opacity-50"
               }`}
