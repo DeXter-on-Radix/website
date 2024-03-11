@@ -7,20 +7,22 @@ import {
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
-
-import { selectBalanceByAddress } from "state/orderInputSlice";
-
-// import {
-//   selectTargetToken,
-//   submitOrder,
-//   validatePriceInput,
-//   validateSlippageInput,
-// } from "state/orderInputSlice";
+import {
+  OrderSide,
+  OrderTab,
+  fetchQuote,
+  selectBalanceByAddress,
+  orderInputSlice,
+  selectTargetToken,
+  // submitOrder,
+  // selectTargetToken,
+  // validatePriceInput,
+} from "state/orderInputSlice";
 
 import { fetchBalances } from "state/pairSelectorSlice";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
-import { OrderSide, OrderTab, orderInputSlice } from "state/orderInputSlice";
+import {} from "state/orderInputSlice";
 
 import { IMaskInput } from "react-imask";
 
@@ -28,45 +30,6 @@ const POST_ONLY_TOOLTIP =
   "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
   "If the order can be matched immediately, it will not be created. " +
   "This option helps ensure you receive the maker rebate.";
-
-// function SubmitButton() {
-//   const symbol = useAppSelector(selectTargetToken).symbol;
-//   const tartgetToken = useAppSelector(selectTargetToken);
-
-//   const {
-//     tab,
-//     side,
-//     validationToken1,
-//     validationToken2,
-//     transactionInProgress,
-//     transactionResult,
-//   } = useAppSelector((state) => state.orderInput);
-
-//   const dispatch = useAppDispatch();
-//   const submitString = tab.toString() + " " + side.toString() + " " + symbol;
-
-//   const isPriceValid = useAppSelector(validatePriceInput).valid;
-//   const isSlippageValid = useAppSelector(validateSlippageInput).valid;
-//   const isValidTransaction =
-//     tartgetToken.amount !== "" &&
-//     validationToken1.valid &&
-//     validationToken2.valid &&
-//     isPriceValid &&
-//     isSlippageValid;
-
-//   return (
-//     <div className="flex flex-col w-full">
-//       <button
-//         className="flex-1 btn btn-accent"
-//         disabled={!isValidTransaction || transactionInProgress}
-//         onClick={() => dispatch(submitOrder())}
-//       >
-//         {transactionInProgress ? "Transaction in progress..." : submitString}
-//       </button>
-//       <div className="text-sm">{transactionResult}</div>
-//     </div>
-//   );
-// }
 
 interface OrderInputProps {
   label: string;
@@ -79,19 +42,58 @@ interface OrderInputProps {
   onAccept?: (value: any) => void;
 }
 
+interface OrderTypeTabProps {
+  orderType: OrderTab;
+}
+
+interface OrderSideTabProps {
+  orderSide: OrderSide;
+}
+
+interface CurrencyLabelProps {
+  currency?: string;
+}
+
+interface OrderInputPrimaryLabelProps {
+  label: string;
+}
+
+interface OrderInputSecondaryLabelProps {
+  label?: string;
+  currency?: string;
+  labelValue?: number | string;
+}
+
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { tab, side } = useAppSelector((state) => state.orderInput);
+  const { tab, side, token1, token2, validationToken1, validationToken2 } =
+    useAppSelector((state) => state.orderInput);
+  const tartgetToken = useAppSelector(selectTargetToken);
 
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
 
   useEffect(() => {
-    // dispatch(orderInputSlice.actions.resetNumbersInput());
-    // TODO(dcts): create reset logic
-  }, [tab, side]);
+    if (
+      tartgetToken.amount !== "" &&
+      validationToken1.valid &&
+      validationToken2.valid
+    ) {
+      dispatch(fetchQuote());
+    }
+  }, [
+    dispatch,
+    pairAddress,
+    token1,
+    token2,
+    side,
+    tab,
+    tartgetToken,
+    validationToken1.valid,
+    validationToken2.valid,
+  ]);
 
   return (
     <div className="h-full flex flex-col text-base max-w-[400px] m-auto">
@@ -229,23 +231,18 @@ function UserInputContainer() {
     ];
   });
   const dispatch = useAppDispatch();
-  const state = useAppSelector((state) => state);
-
-  // Log the orderInputSlice state whenever it changes
-  useEffect(() => {
-    console.log("OrderInputSlice State:", state);
-  }, [state]);
 
   if (tab === "MARKET") {
-    // TODO(dcts): replace with actual data from wallet
     return (
-      <div className="bg-base-100 px-5 pb-5 mb-6">
-        <OrderInputElement label={"Price"} disabled={true} /> {/*market price*/}
+      <div className="bg-base-100 px-5 pb-5 mb-6" key="market">
+        <OrderInputElement label={"Price"} disabled={true} key="market-price" />
         <OrderInputElement
           label={side === "BUY" ? "Total" : "Quantity"}
           secondaryLabel={"Available"}
           secondaryLabelValue={
-            side === "BUY" ? token2Balance || 0 : token1Balance || 0
+            side === "BUY"
+              ? token2Balance?.toFixed(4) || 0
+              : token1Balance?.toFixed(4) || 0
           }
           currency={side === "BUY" ? token2.symbol : token1.symbol}
           onAccept={(value) => {
@@ -256,6 +253,7 @@ function UserInputContainer() {
               ](numberOrEmptyInput(value))
             );
           }}
+          key={"market-" + side === "BUY" ? "total" : "quantity"}
         />
         <PercentageSlider />
       </div>
@@ -263,25 +261,28 @@ function UserInputContainer() {
   }
   if (tab === "LIMIT") {
     return (
-      <div className="bg-base-100 px-5 pb-5 ">
+      <div className="bg-base-100 px-5 pb-5 " key="limit">
         <OrderInputElement
           label={"Price"}
           currency={token2.symbol}
           secondaryLabel={`Best ${side.toLowerCase()}`}
           secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
+          key="limit-price"
         />
         <OrderInputElement
           label={"Quantity"}
           currency={token1.symbol}
           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
-          secondaryLabelValue={token1Balance || 0}
+          secondaryLabelValue={token1Balance?.toFixed(4) || 0}
+          key="limit-quantity"
         />
         <PercentageSlider />
         <OrderInputElement
           label={"Total"}
           currency={token2.symbol}
           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
-          secondaryLabelValue={token2Balance || 0}
+          secondaryLabelValue={token2Balance?.toFixed(4) || 0}
+          key="limit-total"
         />
       </div>
     );
@@ -296,60 +297,93 @@ function OrderInputElement({
   secondaryLabelValue,
   disabled = false,
   onAccept,
-}: // onFocus,
-OrderInputProps): JSX.Element | null {
+}: OrderInputProps): JSX.Element | null {
   const decimalSeparator = getLocaleSeparators().decimalSeparator;
   return (
-    <>
-      <div className="pt-5">
-        <div className="w-full flex content-between">
-          <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
-            {label}:
-          </p>
-          {secondaryLabel && (
-            <p className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]">
-              {secondaryLabel}: {secondaryLabelValue} {currency}
-            </p>
-          )}
-        </div>
-        <div
-          className={`min-h-[44px] w-full content-between bg-base-200 flex ${
-            disabled
-              ? "relative"
-              : "rounded-lg hover:outline hover:outline-1 hover:outline-white/50 "
-          }`}
-        >
-          <IMaskInput
-            disabled={disabled || false}
-            min={0}
-            mask={Number}
-            unmask={"typed"}
-            // scale={targetToken.decimals}
-            // placeholder={"0.0"}
-            radix={decimalSeparator}
-            // value={String(amount)}
-            className={`text-sm grow w-full text-right pr-2 bg-base-200 ${
-              disabled
-                ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
-                : "rounded-l-md"
-            }`}
-            // onFocus={onFocus}
-            onAccept={onAccept || (() => {})}
-          ></IMaskInput>
-          {disabled ? (
-            <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
-              MARKET
-            </div>
-          ) : (
-            <>
-              <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
-                {currency}
-              </div>
-            </>
-          )}
-        </div>
+    // Container with labels (left + right) and input field
+    <div className="pt-5">
+      <div className="w-full flex content-between">
+        <OrderInputPrimaryLabel label={label} />{" "}
+        <OrderInputSecondaryLabel
+          label={secondaryLabel}
+          labelValue={secondaryLabelValue}
+        />
       </div>
+      {/* Input field (left) + currency label (right) */}
+      <div
+        className={`min-h-[44px] w-full content-between bg-base-200 flex ${
+          disabled
+            ? "relative"
+            : "rounded-lg hover:outline hover:outline-1 hover:outline-white/50 "
+        }`}
+      >
+        <IMaskInput
+          // scale={targetToken.decimals} // todo(dcts)
+          // placeholder={"0.0"} // todo(dcts)
+          // value={String(amount)} // todo(dcts)
+          // onFocus={onFocus} // todo(dcts)
+          disabled={disabled || false}
+          min={0}
+          mask={Number}
+          unmask={"typed"}
+          radix={decimalSeparator}
+          className={`text-sm grow w-full text-right pr-2 bg-base-200 ${
+            disabled
+              ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
+              : "rounded-l-md"
+          }`}
+          onAccept={onAccept || (() => {})}
+        ></IMaskInput>
+        {/* If disabled, add "MARKET" text and dashed border and skip currency label */}
+        {disabled && <FixedMarketPriceLabel />}
+        {/* If not disabled, add a currency label next to the input */}
+        {!disabled && <CurrencyLabel currency={currency} />}
+      </div>
+    </div>
+  );
+}
+
+// Left Label: e.g. "Price", "Quantity", "Total"
+function OrderInputPrimaryLabel({
+  label,
+}: OrderInputPrimaryLabelProps): JSX.Element | null {
+  return (
+    <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
+      {label}:
+    </p>
+  );
+}
+
+// Right Label: e.g. "Best Buy/Sell Price" or "Available Balance". Can be empty as well
+function OrderInputSecondaryLabel({
+  label,
+  labelValue,
+  currency,
+}: OrderInputSecondaryLabelProps): JSX.Element | null {
+  return (
+    <>
+      {label && (
+        <p className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]">
+          {label}: {labelValue} {currency}
+        </p>
+      )}
     </>
+  );
+}
+
+function FixedMarketPriceLabel() {
+  return (
+    <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
+      MARKET
+    </div>
+  );
+}
+
+function CurrencyLabel({ currency }: CurrencyLabelProps): JSX.Element | null {
+  return (
+    <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
+      {currency}
+    </div>
   );
 }
 
@@ -358,47 +392,14 @@ function PercentageSlider() {
 }
 
 function OrderTypeTabs() {
-  const tab = useAppSelector((state) => state.orderInput.tab);
-  const dispatch = useAppDispatch();
-
-  // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
     <>
       <div className="min-h-[44px] flex justify-center">
         <div className="w-full">
           <div className="flex min-h-[44px]">
-            <div
-              className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                tab === "MARKET"
-                  ? " bg-base-100 text-white"
-                  : " bg-base-200 opacity-50"
-              }`}
-              onClick={() => {
-                dispatch(
-                  orderInputSlice.actions.setActiveTab(OrderTab["MARKET"])
-                );
-              }}
-            >
-              <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
-                Market
-              </p>
-            </div>
-            <div
-              className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-                tab === "LIMIT"
-                  ? " bg-base-100 text-white"
-                  : " bg-base-200 opacity-50"
-              }`}
-              onClick={() => {
-                dispatch(
-                  orderInputSlice.actions.setActiveTab(OrderTab["LIMIT"])
-                );
-              }}
-            >
-              <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
-                Limit
-              </p>
-            </div>
+            {[OrderTab.MARKET, OrderTab.LIMIT].map((currentType, indx) => (
+              <OrderTypeTab orderType={currentType} key={indx} />
+            ))}
           </div>
         </div>
       </div>
@@ -406,35 +407,58 @@ function OrderTypeTabs() {
   );
 }
 
+function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
+  const tab = useAppSelector((state) => state.orderInput.tab);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div
+      className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
+        tab === orderType.toString()
+          ? " bg-base-100 text-white"
+          : " bg-base-200 opacity-50"
+      }`}
+      onClick={() => {
+        dispatch(orderInputSlice.actions.setActiveTab(orderType));
+      }}
+    >
+      <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
+        {orderType.toString()}
+      </p>
+    </div>
+  );
+}
+
 function OrderSideTabs() {
+  return (
+    <div className="min-h-[44px] flex">
+      {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
+        <OrderSideTab orderSide={currentSide} key={indx} />
+      ))}
+    </div>
+  );
+}
+
+function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
   const side = useAppSelector((state) => state.orderInput.side);
   const dispatch = useAppDispatch();
 
-  // TODO(dcts): make single component (DRYify code) and create 2 instances to reduce duplicate code
   return (
-    <>
-      <div className="min-h-[44px] flex">
-        <div
-          className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
-            side === "BUY" ? "bg-dexter-green text-content-dark" : "opacity-50"
-          }`}
-          onClick={() => {
-            dispatch(orderInputSlice.actions.setSide(OrderSide["BUY"]));
-          }}
-        >
-          <p className="font-bold text-sm tracking-[.1px] select-none">BUY</p>
-        </div>
-        <div
-          className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
-            side === "SELL" ? "bg-flashy-red-2 text-white" : "opacity-50"
-          }`}
-          onClick={() => {
-            dispatch(orderInputSlice.actions.setSide(OrderSide["SELL"]));
-          }}
-        >
-          <p className="font-bold text-sm tracking-[.1px] select-none">SELL</p>
-        </div>
-      </div>
-    </>
+    <div
+      className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
+        side === "BUY" && orderSide === "BUY"
+          ? "bg-dexter-green text-content-dark"
+          : side === "SELL" && orderSide === "SELL"
+          ? "bg-flashy-red-2 text-white"
+          : "opacity-50"
+      }`}
+      onClick={() => {
+        dispatch(orderInputSlice.actions.setSide(orderSide));
+      }}
+    >
+      <p className="font-bold text-sm tracking-[.1px] select-none">
+        {orderSide}
+      </p>
+    </div>
   );
 }
