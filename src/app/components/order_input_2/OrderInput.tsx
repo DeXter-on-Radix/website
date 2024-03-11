@@ -450,7 +450,7 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
         side === "BUY" && orderSide === "BUY"
           ? "bg-dexter-green text-content-dark"
           : side === "SELL" && orderSide === "SELL"
-          ? "bg-flashy-red-2 text-white"
+          ? "bg-dexter-red text-white"
           : "opacity-50"
       }`}
       onClick={() => {
