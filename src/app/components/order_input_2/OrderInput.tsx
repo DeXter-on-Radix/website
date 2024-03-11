@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-
+import { AiOutlineInfoCircle } from "react-icons/ai";
+import { IMaskInput } from "react-imask";
 import {
   capitalizeFirstLetter,
   getLocaleSeparators,
@@ -7,6 +8,7 @@ import {
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
+import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
   OrderTab,
@@ -19,17 +21,14 @@ import {
   // validatePriceInput,
 } from "state/orderInputSlice";
 
-import { fetchBalances } from "state/pairSelectorSlice";
-import { AiOutlineInfoCircle } from "react-icons/ai";
-
-import {} from "state/orderInputSlice";
-
-import { IMaskInput } from "react-imask";
-
 const POST_ONLY_TOOLTIP =
   "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
   "If the order can be matched immediately, it will not be created. " +
   "This option helps ensure you receive the maker rebate.";
+
+// Container settings. Ideally the panel should be fixed at max-width 400px
+const OUTSIDE_CONTAINER_MAX_WIDTH = "430px";
+const INNER_CONTAINER_MAX_WIDTH = "400px";
 
 interface OrderInputProps {
   label: string;
@@ -96,9 +95,9 @@ export function OrderInput() {
   ]);
 
   return (
-    <div className="h-full flex flex-col text-base max-w-[400px] m-auto">
+    <div className="h-full flex flex-col text-base justify-center items-center">
       <OrderSideTabs />
-      <div className="p-[24px]">
+      <div className={`p-[24px] max-w-[${INNER_CONTAINER_MAX_WIDTH}] m-auto`}>
         <OrderTypeTabs />
         <UserInputContainer />
         {tab === "MARKET" && <EstimatedTotalOrQuantity />}
@@ -148,7 +147,7 @@ function FeesTable() {
   const { side, token1, token2 } = useAppSelector((state) => state.orderInput);
   const currency = side === "BUY" ? token1.symbol : token2.symbol;
 
-  // TODO(dcts): Get calculated fees from state
+  // TODO(dcts): Get calculated fees from fetchQuote API
   const fees = {
     total: 0.0589 + 0.2 + 0.3,
     exchange: 0.0589,
@@ -431,7 +430,9 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
 
 function OrderSideTabs() {
   return (
-    <div className="min-h-[44px] flex">
+    <div
+      className={`min-h-[44px] flex max-w-[${OUTSIDE_CONTAINER_MAX_WIDTH}] w-full`}
+    >
       {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
         <OrderSideTab orderSide={currentSide} key={indx} />
       ))}
