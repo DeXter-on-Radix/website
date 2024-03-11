@@ -64,10 +64,19 @@ interface OrderInputSecondaryLabelProps {
 }
 
 export function OrderInput() {
+  const state = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { tab, side, token1, token2, validationToken1, validationToken2 } =
-    useAppSelector((state) => state.orderInput);
+  const {
+    tab,
+    side,
+    token1,
+    token2,
+    validationToken1,
+    validationToken2,
+    description,
+    quote,
+  } = useAppSelector((state) => state.orderInput);
   const tartgetToken = useAppSelector(selectTargetToken);
 
   useEffect(() => {
@@ -93,6 +102,17 @@ export function OrderInput() {
     validationToken1.valid,
     validationToken2.valid,
   ]);
+
+  useEffect(() => {
+    console.log("quote");
+    console.log(quote);
+    console.log("description");
+    console.log(description);
+  }, [quote, description]);
+
+  // useEffect(() => {
+  //   orderInputSlice.actions.swapTokens();
+  // }, []);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
@@ -386,6 +406,7 @@ function CurrencyLabel({ currency }: CurrencyLabelProps): JSX.Element | null {
   );
 }
 
+// TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
   return <></>;
 }
