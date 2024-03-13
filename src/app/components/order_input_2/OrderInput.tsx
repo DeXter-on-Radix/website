@@ -11,11 +11,11 @@ import { useAppDispatch, useAppSelector } from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
-  OrderTab,
-  fetchQuote,
+  OrderType,
+  // fetchQuote,
   selectBalanceByAddress,
   orderInputSlice,
-  selectTargetToken,
+  // selectTargetToken,
   // submitOrder,
   // selectTargetToken,
   // validatePriceInput,
@@ -42,7 +42,7 @@ interface OrderInputProps {
 }
 
 interface OrderTypeTabProps {
-  orderType: OrderTab;
+  orderType: OrderType;
 }
 
 interface OrderSideTabProps {
@@ -64,55 +64,60 @@ interface OrderInputSecondaryLabelProps {
 }
 
 export function OrderInput() {
-  const state = useAppSelector((state) => state);
+  // const state = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const {
-    tab,
-    side,
-    token1,
-    token2,
-    validationToken1,
-    validationToken2,
-    description,
-    quote,
+    type,
+    // side,
+    // token1,
+    // token2,
+    // validationToken1,
+    // validationToken2,
+    // description,
+    // quote,
   } = useAppSelector((state) => state.orderInput);
-  const tartgetToken = useAppSelector(selectTargetToken);
+  // const tartgetToken = useAppSelector(selectTargetToken);
 
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
 
-  useEffect(() => {
-    if (
-      tartgetToken.amount !== "" &&
-      validationToken1.valid &&
-      validationToken2.valid
-    ) {
-      dispatch(fetchQuote());
-    }
-  }, [
-    dispatch,
-    pairAddress,
-    token1,
-    token2,
-    side,
-    tab,
-    tartgetToken,
-    validationToken1.valid,
-    validationToken2.valid,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     tartgetToken.amount !== "" &&
+  //     validationToken1.valid &&
+  //     validationToken2.valid
+  //   ) {
+  //     dispatch(fetchQuote());
+  //   }
+  // }, [
+  //   dispatch,
+  //   pairAddress,
+  //   token1,
+  //   token2,
+  //   side,
+  //   type,
+  //   tartgetToken,
+  //   validationToken1.valid,
+  //   validationToken2.valid,
+  // ]);
 
-  useEffect(() => {
-    console.log("quote");
-    console.log(quote);
-    console.log("description");
-    console.log(description);
-  }, [quote, description]);
+  // useEffect(() => {
+  //   console.log("quote");
+  //   console.log(quote);
+  //   console.log("description");
+  //   console.log(description);
+  // }, [quote, description]);
 
   // useEffect(() => {
   //   orderInputSlice.actions.swapTokens();
   // }, []);
+
+  // useEffect(() => {
+  //   console.log("SIDE CHANGED");
+  //   dispatch(orderInputSlice.actions.resetUserInput());
+  // }, [dispatch, side]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
@@ -120,10 +125,14 @@ export function OrderInput() {
       <div className={`p-[24px] max-w-[${INNER_CONTAINER_MAX_WIDTH}] m-auto`}>
         <OrderTypeTabs />
         <UserInputContainer />
-        {tab === "MARKET" && <EstimatedTotalOrQuantity />}
         <SubmitButton />
-        {tab === "MARKET" && <MarketOrderDisclaimer />}
-        {tab === "LIMIT" && <PostOnlyCheckbox />}
+        {type === "MARKET" && (
+          <>
+            <EstimatedTotalOrQuantity />
+            <MarketOrderDisclaimer />
+          </>
+        )}
+        {type === "LIMIT" && <PostOnlyCheckbox />}
         <FeesTable />
         <FeesDisclaimer />
       </div>
@@ -132,11 +141,19 @@ export function OrderInput() {
 }
 
 function EstimatedTotalOrQuantity() {
-  // TODO(dcts): calculate estimate
+  const { quote } = useAppSelector((state) => state.orderInput);
+  const amount = quote?.toAmount;
+  const symbol = quote?.toToken.symbol;
   return (
     <div className="flex content-between w-full text-white">
-      <p className="grow text-left">Total:</p>
-      <p className="">~ 1&apos;000&apos;000 XRD</p>
+      {amount && (
+        <>
+          <p className="grow text-left">Total:</p>
+          <p className="">
+            ~ {amount} {symbol}
+          </p>
+        </>
+      )}
     </div>
   );
 }
@@ -164,15 +181,18 @@ function FeesDisclaimer() {
 }
 
 function FeesTable() {
-  const { side, token1, token2 } = useAppSelector((state) => state.orderInput);
+  const { side, token1, token2, quote } = useAppSelector(
+    (state) => state.orderInput
+  );
   const currency = side === "BUY" ? token1.symbol : token2.symbol;
-
-  // TODO(dcts): Get calculated fees from fetchQuote API
+  const exchange = quote?.exchangeFees || 0;
+  const platform = quote?.platformFees || 0;
+  const liquidity = quote?.liquidityFees || 0;
   const fees = {
-    total: 0.0589 + 0.2 + 0.3,
-    exchange: 0.0589,
-    platform: 0.2,
-    liquidity: 0.3,
+    total: (exchange + platform + liquidity).toFixed(4),
+    exchange: exchange.toFixed(4),
+    platform: platform.toFixed(4),
+    liquidity: liquidity.toFixed(4),
   };
 
   return (
@@ -188,7 +208,7 @@ function FeesTable() {
             {capitalizeFirstLetter(key)} fee:
           </p>
           <p className="text-xs">
-            {value.toFixed(4)} {currency}{" "}
+            {value} {currency}{" "}
           </p>
         </div>
       ))}
@@ -225,7 +245,7 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const { side, tab, token2 } = useAppSelector((state) => state.orderInput);
+  const { side, type, token2 } = useAppSelector((state) => state.orderInput);
 
   return (
     <button
@@ -234,12 +254,12 @@ function SubmitButton() {
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
       }`}
-    >{`${tab} ${side} ${token2.symbol}`}</button>
+    >{`${type} ${side} ${token2.symbol}`}</button>
   );
 }
 
 function UserInputContainer() {
-  const { side, tab, token1, token2 } = useAppSelector(
+  const { side, type, token1, token2 } = useAppSelector(
     (state) => state.orderInput
   );
   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
@@ -251,7 +271,7 @@ function UserInputContainer() {
   });
   const dispatch = useAppDispatch();
 
-  if (tab === "MARKET") {
+  if (type === "MARKET") {
     return (
       <div className="bg-base-100 px-5 pb-5 mb-6" key="market">
         <OrderInputElement label={"Price"} disabled={true} key="market-price" />
@@ -278,7 +298,7 @@ function UserInputContainer() {
       </div>
     );
   }
-  if (tab === "LIMIT") {
+  if (type === "LIMIT") {
     return (
       <div className="bg-base-100 px-5 pb-5 " key="limit">
         <OrderInputElement
@@ -337,6 +357,7 @@ function OrderInputElement({
         }`}
       >
         <IMaskInput
+          id={`${Math.random()}`}
           // scale={targetToken.decimals} // todo(dcts)
           // placeholder={"0.0"} // todo(dcts)
           // value={String(amount)} // todo(dcts)
@@ -417,7 +438,7 @@ function OrderTypeTabs() {
       <div className="min-h-[44px] flex justify-center">
         <div className="w-full">
           <div className="flex min-h-[44px]">
-            {[OrderTab.MARKET, OrderTab.LIMIT].map((currentType, indx) => (
+            {[OrderType.MARKET, OrderType.LIMIT].map((currentType, indx) => (
               <OrderTypeTab orderType={currentType} key={indx} />
             ))}
           </div>
@@ -428,18 +449,18 @@ function OrderTypeTabs() {
 }
 
 function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
-  const tab = useAppSelector((state) => state.orderInput.tab);
+  const type = useAppSelector((state) => state.orderInput.type);
   const dispatch = useAppDispatch();
 
   return (
     <div
       className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-        tab === orderType.toString()
+        type === orderType.toString()
           ? " bg-base-100 text-white"
           : " bg-base-200 opacity-50"
       }`}
       onClick={() => {
-        dispatch(orderInputSlice.actions.setActiveTab(orderType));
+        dispatch(orderInputSlice.actions.setOrderType(orderType));
       }}
     >
       <p className="uppercase font-medium text-sm tracking-[.1px] select-none">

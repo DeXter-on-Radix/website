@@ -19,9 +19,9 @@ export enum OrderType {
 }
 
 export enum SpecifiedToken {
-  UNSPECIFIED = "UNSPECIFIED",
   TOKEN_1 = "TOKEN_1", // Quantity
   TOKEN_2 = "TOKEN_2", // Total
+  UNSPECIFIED = "UNSPECIFIED",
 }
 
 export enum ErrorMessage {
@@ -32,14 +32,10 @@ export enum ErrorMessage {
   LOW_PRICE = "Price is significantly lower than best buy",
   EXCESSIVE_DECIMALS = "Too many decimal places",
   INSUFFICIENT_FUNDS = "Insufficient funds",
-  //Slippage
-  UNSPECIFIED_SLIPPAGE = "Slippage must be specified",
-  NEGATIVE_SLIPPAGE = "Slippage must be positive",
-  HIGH_SLIPPAGE = "High slippage entered",
 }
 
-export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
-export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
+export const PLATFORM_BADGE_ID = 4; // Dexter Platform Id on alphadex
+export const SLIPPAGE = -1;
 
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
@@ -70,12 +66,11 @@ export interface OrderInputState {
   validationToken1: ValidationResult;
   token2: TokenInput;
   validationToken2: ValidationResult;
-  specifiedToken: SpecifiedToken;
+  SpecifiedToken: SpecifiedToken; // "TOKEN_1" or "TOKEN_2"
   type: OrderType;
   postOnly: boolean;
   side: OrderSide;
   price: number | "";
-  slippage: number | "";
   quote?: Quote;
   description?: string;
   transactionInProgress: boolean;
@@ -116,12 +111,11 @@ export const initialState: OrderInputState = {
   validationToken1: initialValidationResult,
   token2: initialTokenInput,
   validationToken2: initialValidationResult,
-  specifiedToken: SpecifiedToken.UNSPECIFIED,
+  SpecifiedToken: SpecifiedToken.UNSPECIFIED,
   type: OrderType.MARKET,
   postOnly: false,
   side: adex.OrderSide.BUY,
   price: 0,
-  slippage: -1,
   transactionInProgress: false,
 };
 
@@ -136,7 +130,6 @@ export const selectTargetToken = (state: RootState) => {
     return state.orderInput.token1;
   }
 };
-const selectSlippage = (state: RootState) => state.orderInput.slippage;
 const selectPrice = (state: RootState) => state.orderInput.price;
 const selectSide = (state: RootState) => state.orderInput.side;
 const selectToken1MaxDecimals = (state: RootState) => {
@@ -191,6 +184,13 @@ export const selectBalanceByAddress = createSelector(
   }
 );
 
+const transformSide = (type: OrderType, side: OrderSide) => {
+  if (type !== OrderType.MARKET) {
+    return side;
+  }
+  return side === OrderSide.BUY ? OrderSide.SELL : OrderSide.BUY;
+};
+
 export const fetchQuote = createAsyncThunk<
   QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
   undefined, // set to undefined if the thunk doesn't expect any arguments
@@ -202,15 +202,12 @@ export const fetchQuote = createAsyncThunk<
   }
 
   let priceToSend = undefined;
-  let slippageToSend = undefined;
 
   if (
     state.orderInput.type === OrderType.LIMIT &&
     state.orderInput.price !== ""
   ) {
     priceToSend = state.orderInput.price;
-  } else if (state.orderInput.slippage !== "") {
-    slippageToSend = state.orderInput.slippage;
   }
   const targetToken = selectTargetToken(state);
 
@@ -221,12 +218,12 @@ export const fetchQuote = createAsyncThunk<
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     adexOrderType(state.orderInput),
-    state.orderInput.side,
+    transformSide(state.orderInput.type, state.orderInput.side),
     targetToken.address,
     targetToken.amount,
     PLATFORM_BADGE_ID,
     priceToSend,
-    slippageToSend
+    SLIPPAGE
   );
   const quote: Quote = JSON.parse(JSON.stringify(response.data));
 
@@ -260,7 +257,7 @@ export const orderInputSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    setOrderType(state, action: PayloadAction<OrderType>) {
+    setActiveType(state, action: PayloadAction<OrderType>) {
       state.type = action.payload;
     },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
@@ -360,19 +357,11 @@ export const orderInputSlice = createSlice({
         state.validationToken2 = validation;
       }
     },
-    swapTokens(state) {
-      const temp = state.token1;
-      state.token1 = state.token2;
-      state.token2 = temp;
-    },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
     },
     setPrice(state, action: PayloadAction<number | "">) {
       state.price = action.payload;
-    },
-    setSlippage(state, action: PayloadAction<number | "">) {
-      state.slippage = action.payload;
     },
     togglePostOnly(state) {
       state.postOnly = !state.postOnly;
@@ -387,12 +376,16 @@ export const orderInputSlice = createSlice({
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
       state.price = 0;
-      state.slippage = 0.01;
       state.transactionInProgress = false;
       state.transactionResult = undefined;
       state.quote = undefined;
       state.description = undefined;
     },
+    // resetUserInput(state) {
+    //   state.token1.amount = 0;
+    //   state.token2.amount = 0;
+    //   state.quote = undefined;
+    // },
   },
 
   // asynchronous reducers
@@ -521,12 +514,9 @@ async function createTx(state: RootState, rdt: RDT) {
   const type = state.orderInput.type;
   const targetToken = selectTargetToken(state);
 
-  let slippage = -1;
   let price = -1;
 
-  if (type === OrderType.MARKET && state.orderInput.slippage !== "") {
-    slippage = state.orderInput.slippage;
-  } else if (type === OrderType.LIMIT && state.orderInput.price !== "") {
+  if (type === OrderType.LIMIT && state.orderInput.price !== "") {
     price = state.orderInput.price;
   }
 
@@ -542,7 +532,7 @@ async function createTx(state: RootState, rdt: RDT) {
     targetToken.address,
     targetToken.amount,
     price,
-    slippage,
+    -1, // slippage
     PLATFORM_BADGE_ID,
     state.radix?.walletData.accounts[0]?.address || "",
     state.radix?.walletData.accounts[0]?.address || ""
@@ -560,24 +550,24 @@ async function createTx(state: RootState, rdt: RDT) {
   return submitTransactionResponse;
 }
 
-export const validateSlippageInput = createSelector(
-  [selectSlippage],
-  (slippage) => {
-    if (slippage === "") {
-      return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
-    }
+// export const validateSlippageInput = createSelector(
+//   [selectSlippage],
+//   (slippage) => {
+//     if (slippage === "") {
+//       return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
+//     }
 
-    if (slippage < 0) {
-      return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
-    }
+//     if (slippage < 0) {
+//       return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
+//     }
 
-    if (slippage >= 0.05) {
-      return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
-    }
+//     if (slippage >= 0.05) {
+//       return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
+//     }
 
-    return { valid: true, message: "" };
-  }
-);
+//     return { valid: true, message: "" };
+//   }
+// );
 
 export const validatePriceInput = createSelector(
   [
