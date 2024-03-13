@@ -12,6 +12,7 @@ import { fetchAccountHistory } from "./accountHistorySlice";
 import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
+import { updateIconIfNeeded } from "../utils";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -276,8 +277,12 @@ export const orderInputSlice = createSlice({
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(action.payload)
       );
-      const adexToken1 = serializedState.currentPairInfo.token1;
-      const adexToken2 = serializedState.currentPairInfo.token2;
+      const adexToken1 = updateIconIfNeeded(
+        serializedState.currentPairInfo.token1
+      );
+      const adexToken2 = updateIconIfNeeded(
+        serializedState.currentPairInfo.token2
+      );
       if (state.token1.address !== adexToken1.address) {
         state.token1 = {
           address: adexToken1.address,
