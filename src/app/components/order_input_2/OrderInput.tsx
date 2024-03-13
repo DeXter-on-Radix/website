@@ -69,15 +69,28 @@ export function OrderInput() {
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const {
     type,
-    // side,
-    // token1,
-    // token2,
+    side,
+    token1,
+    token2,
     // validationToken1,
     // validationToken2,
     // description,
-    // quote,
+    specifiedToken,
+    quote,
+    price,
   } = useAppSelector((state) => state.orderInput);
   // const tartgetToken = useAppSelector(selectTargetToken);
+
+  const showCurrentState = () => {
+    let msg = `type = ${type}\n`;
+    msg += `side = ${side}\n`;
+    msg += `token1 (amount) = ${token1.symbol} [${token1.amount}]\n`;
+    msg += `token2 (amount) = ${token2.symbol} [${token2.amount}]\n`;
+    msg += `specifiedToken = ${specifiedToken}\n`;
+    msg += `price = ${price}\n`;
+    msg += `quote = ${quote}\n`;
+    alert(msg);
+  };
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -135,6 +148,7 @@ export function OrderInput() {
         {type === "LIMIT" && <PostOnlyCheckbox />}
         <FeesTable />
         <FeesDisclaimer />
+        <button onClick={showCurrentState}>DEBUG: show state</button>
       </div>
     </div>
   );
