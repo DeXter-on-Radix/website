@@ -25,8 +25,8 @@ const headers = {
     "Order Type",
     "Direction",
     "Time Ordered",
-    "Amount",
     "Order Price",
+    "Amount",
     "Filled Qty",
     "Completed %",
     "Action",
@@ -147,13 +147,18 @@ const OpenOrdersRows = ({ data }: TableProps) => {
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
         <td>
-          {order.amount} {order.specifiedToken.symbol}
-        </td>
-        <td>
           {order.price} {getPriceSymbol(order)}
         </td>
         <td>
-          {order.amountFilled} {order.specifiedToken.symbol}
+          {/* Amount */}
+          {order.amount} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {/* Filled Qty (compute with completedPerc to avoid using amountFilled) */}
+          {order.status === "COMPLETED"
+            ? order.amount
+            : (order.amount * order.completedPerc) / 100}{" "}
+          {order.specifiedToken.symbol}
         </td>
         <td>{order.completedPerc}%</td>
         <td>
@@ -179,9 +184,14 @@ const OrderHistoryRows = ({ data }: TableProps) => {
         </td>
         <td>{order.status}</td>
         <td>
-          {order.amountFilled} {order.specifiedToken.symbol}
+          {/* Filled Qty (computed with completedPerc to avoid using amountFilled) */}
+          {order.status === "COMPLETED"
+            ? order.amount
+            : (order.amount * order.completedPerc) / 100}{" "}
+          {order.specifiedToken.symbol}
         </td>
         <td>
+          {/* Order Qty */}
           {order.amount} {order.specifiedToken.symbol}
         </td>
         <td>
@@ -223,7 +233,8 @@ const TradeHistoryTable = ({ data }: TableProps) => {
           {getPriceSymbol(order)}
         </td>
         <td>
-          {order.amountFilled} {order.specifiedToken.symbol}
+          {/* Filled Qty (since the order is filled, the full amount was filled) */}
+          {order.amount} {order.specifiedToken.symbol}
         </td>
         <td>
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
