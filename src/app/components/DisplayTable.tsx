@@ -25,8 +25,8 @@ const headers = {
     "Order Type",
     "Direction",
     "Time Ordered",
-    "Order Price",
     "Amount",
+    "Order Price",
     "Filled Qty",
     "Completed %",
     "Action",
@@ -147,11 +147,11 @@ const OpenOrdersRows = ({ data }: TableProps) => {
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
         <td>
-          {order.price} {getPriceSymbol(order)}
-        </td>
-        <td>
           {/* Amount */}
           {order.amount} {order.specifiedToken.symbol}
+        </td>
+        <td>
+          {order.price} {getPriceSymbol(order)}
         </td>
         <td>
           {/* Filled Qty (compute with completedPerc to avoid using amountFilled) */}
