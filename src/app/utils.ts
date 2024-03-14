@@ -1,3 +1,7 @@
+import * as adex from "alphadex-sdk-js";
+import { TokenInfo } from "./state/pairSelectorSlice";
+import type { OrderReceipt } from "alphadex-sdk-js";
+
 export function displayPositiveNumber(
   x: number,
   noDigits: number = 6,
@@ -291,4 +295,26 @@ export function numberOrEmptyInput(event: string) {
     amount = Number(event);
   }
   return amount;
+}
+
+// Replace DEXTR iconUrl with coingecko hosted url.
+export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
+  const iconUrl =
+    token.symbol === "DEXTR"
+      ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+      : token.iconUrl;
+
+  return {
+    ...token,
+    iconUrl,
+  };
+}
+
+// Given an order, determine token symbol in which the price is expressed
+// Note: Price is always expressed in terms of the second currency in the trading pair.
+export function getPriceSymbol(order: OrderReceipt): string {
+  if (!order.pairName.includes("/")) {
+    return "";
+  }
+  return order.pairName.split("/")[1];
 }
