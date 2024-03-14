@@ -147,7 +147,6 @@ const OpenOrdersRows = ({ data }: TableProps) => {
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
         <td>
-          {/* Amount */}
           {order.amount} {order.specifiedToken.symbol}
         </td>
         <td>
