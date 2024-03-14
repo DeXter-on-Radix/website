@@ -398,6 +398,14 @@ export const orderInputSlice = createSlice({
       state.quote = undefined;
       state.description = undefined;
     },
+    resetUserInput(state) {
+      state.token1.amount = "";
+      state.token2.amount = "";
+      state.price = -1;
+      state.quote = undefined;
+      state.description = undefined;
+      state.specifiedToken = SpecifiedToken.UNSPECIFIED;
+    },
     // toAdexInputs(state) {
     //   let msg = "";
     // },

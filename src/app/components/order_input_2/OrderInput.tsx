@@ -26,10 +26,6 @@ const POST_ONLY_TOOLTIP =
   "If the order can be matched immediately, it will not be created. " +
   "This option helps ensure you receive the maker rebate.";
 
-// Container settings. Ideally the panel should be fixed at max-width 400px
-const OUTSIDE_CONTAINER_MAX_WIDTH = "430px";
-const INNER_CONTAINER_MAX_WIDTH = "400px";
-
 interface OrderInputProps {
   label: string;
   currency?: string;
@@ -39,6 +35,7 @@ interface OrderInputProps {
   disabled?: boolean;
   // onFocus?: () => void;
   onAccept?: (value: any) => void;
+  value?: number | "";
 }
 
 interface OrderTypeTabProps {
@@ -82,8 +79,8 @@ export function OrderInput() {
   // const tartgetToken = useAppSelector(selectTargetToken);
 
   const showCurrentState = () => {
-    let msg = `type = ${type}\n`;
-    msg += `side = ${side}\n`;
+    let msg = `side = ${side}\n`;
+    msg += `type = ${type}\n`;
     msg += `token1 (amount) = ${token1.symbol} [${token1.amount}]\n`;
     msg += `token2 (amount) = ${token2.symbol} [${token2.amount}]\n`;
     msg += `specifiedToken = ${specifiedToken}\n`;
@@ -95,6 +92,10 @@ export function OrderInput() {
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
+
+  useEffect(() => {
+    dispatch(orderInputSlice.actions.resetUserInput());
+  }, [dispatch, side, type]);
 
   // useEffect(() => {
   //   if (
@@ -135,7 +136,8 @@ export function OrderInput() {
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
       <OrderSideTabs />
-      <div className={`p-[24px] max-w-[${INNER_CONTAINER_MAX_WIDTH}] m-auto`}>
+      {/* INNER_CONTAINER_MAX_WIDTH */}
+      <div className={`p-[24px] max-w-[380px] m-auto`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />
@@ -273,7 +275,7 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const { side, type, token1, token2 } = useAppSelector(
+  const { side, type, price, token1, token2 } = useAppSelector(
     (state) => state.orderInput
   );
   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
@@ -307,6 +309,7 @@ function UserInputContainer() {
             );
           }}
           key={"market-" + side === "BUY" ? "total" : "quantity"}
+          value={side === "BUY" ? token2.amount : token1.amount}
         />
         <PercentageSlider />
       </div>
@@ -321,6 +324,13 @@ function UserInputContainer() {
           secondaryLabel={`Best ${side.toLowerCase()}`}
           secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
           key="limit-price"
+          value={price}
+          onAccept={(value) => {
+            dispatch(orderInputSlice.actions.resetValidation());
+            dispatch(
+              orderInputSlice.actions.setPrice(numberOrEmptyInput(value))
+            );
+          }}
         />
         <OrderInputElement
           label={"Quantity"}
@@ -350,6 +360,7 @@ function OrderInputElement({
   secondaryLabelValue,
   disabled = false,
   onAccept,
+  value,
 }: OrderInputProps): JSX.Element | null {
   const decimalSeparator = getLocaleSeparators().decimalSeparator;
   return (
@@ -371,11 +382,10 @@ function OrderInputElement({
         }`}
       >
         <IMaskInput
-          id={`${Math.random()}`}
           // scale={targetToken.decimals} // todo(dcts)
           // placeholder={"0.0"} // todo(dcts)
-          // value={String(amount)} // todo(dcts)
           // onFocus={onFocus} // todo(dcts)
+          value={String(value)}
           disabled={disabled || false}
           min={0}
           mask={Number}
@@ -487,7 +497,8 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
 function OrderSideTabs() {
   return (
     <div
-      className={`min-h-[44px] flex max-w-[${OUTSIDE_CONTAINER_MAX_WIDTH}] w-full`}
+      // OUTSIDE_CONTAINER_MAX_WIDTH
+      className={`min-h-[44px] flex max-w-[450px] w-full`}
     >
       {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
         <OrderSideTab orderSide={currentSide} key={indx} />
