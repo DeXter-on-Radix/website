@@ -3,7 +3,7 @@ import { CSSProperties } from "react";
 import "../styles/orderbook.css";
 import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../state/orderBookSlice";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 
 // For all intents, we can round all numbers to 8 decimals for Dexter.
 // Alphadex will not accept any numbers with more than 8 decimals
@@ -119,6 +119,7 @@ function CurrentPriceRow() {
 }
 
 export function OrderBook() {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
   const token1Symbol = useAppSelector(
     (state) => state.pairSelector.token1.symbol
@@ -133,9 +134,9 @@ export function OrderBook() {
   return (
     <div className="p-2 text-sx text-primary-content">
       <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
-        <div className="justify-self-start">Order book</div>
+        <div className="justify-self-start">{t("order_book")}</div>
         <div className="flex justify-end join">
-          <span className="join-item mr-2">Grouping </span>
+          <span className="join-item mr-2">{t("grouping")} </span>
           <input
             className="input-xs w-16 join-item"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,22 +147,22 @@ export function OrderBook() {
         </div>
       </div>
       <div className="sized-columns">
-        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content">
+        <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content uppercase">
           <div className="text-start uppercase text-xs font-medium">
-            Order
+            {t("order")}
             <br />
-            Count
+            {t("count")}
           </div>
           <div className="text-end uppercase text-xs font-medium">
-            Price
+            {t("price")}
             <br />({token2Symbol})
           </div>
           <div className="text-end uppercase text-xs font-medium">
-            Size
+            {t("size")}
             <br />({token1Symbol})
           </div>
           <div className="text-end uppercase text-xs font-medium">
-            Total
+            {t("total")}
             <br />({token1Symbol})
           </div>
         </div>
