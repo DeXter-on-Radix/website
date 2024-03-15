@@ -13,6 +13,7 @@ import { LimitOrderInput } from "./LimitOrderInput";
 import { MarketOrderInput } from "./MarketOrderInput";
 import { OrderSideTabs } from "./OrderSideTabs";
 import { OrderTypeTabs } from "./OrderTypeTabs";
+import { useTranslations } from "../../hooks";
 
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
@@ -61,12 +62,15 @@ export function OrderInput() {
     (state) => state.orderInput
   );
 
+  const t = useTranslations();
+
   useEffect(() => {
     dispatch(fetchBalances());
   }, [dispatch, pairAddress]);
 
   return (
     <div className="h-full flex flex-col text-base">
+      {t("MARKET")} {t("footer_content")}
       <OrderTypeTabs />
       {tab === OrderTab.LIMIT && <OrderSideTabs />}
       <div className="form-control justify-start flex-grow items-start bg-neutral p-4 w-full">
