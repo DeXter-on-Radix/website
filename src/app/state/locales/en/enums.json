@@ -1,0 +1,11 @@
+{
+  "MARKET": "Market",
+  "LIMIT": "Partial",
+  "BUY": "Buy",
+  "SELL": "Sell",
+  "PENDING": "Pending",
+  "COMPLETED": "Completed",
+  "CANCELLED": "Cancelled",
+  "POSTONLY": "Post Only",
+  "MARKETPARTIAL": "Market (Partial)"
+}
