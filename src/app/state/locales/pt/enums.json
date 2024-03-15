@@ -1,11 +1,14 @@
 {
   "MARKET": "Mercado",
-  "LIMIT": "Parcial",
+  "LIMIT": "Limite",
   "BUY": "Comprar",
   "SELL": "Vender",
   "PENDING": "Pendente",
   "COMPLETED": "Concluído",
   "CANCELLED": "Cancelado",
   "POSTONLY": "Apenas Postagem",
-  "MARKETPARTIAL": "Mercado (Parcial)"
+  "MARKETPARTIAL": "Mercado (Parcial)",
+  "OPEN_ORDERS": "Pedidos em Aberto",
+  "ORDER_HISTORY": "Histórico de Pedidos",
+  "TRADE_HISTORY": "Histórico de Transações"
 }

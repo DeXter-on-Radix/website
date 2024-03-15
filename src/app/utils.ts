@@ -245,9 +245,9 @@ export function displayOrderSide(side: string): {
   className: string;
 } {
   if (side === "BUY") {
-    return { text: "Buy", className: "text-success" };
+    return { text: "buy", className: "text-success" };
   } else if (side === "SELL") {
-    return { text: "Sell", className: "text-error" };
+    return { text: "sell", className: "text-error" };
   } else {
     return { text: "-", className: "" };
   }

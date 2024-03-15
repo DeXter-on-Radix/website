@@ -40,9 +40,6 @@
   "order": "Order",
   "size": "Size",
   "total": "Total",
-  "open_orders": "Open Orders",
-  "order_history": "Order History",
-  "trade_history": "Trade History",
   "pair": "Pairs",
   "order_type": "Order Type",
   "post_only": "Post Only",
@@ -64,5 +61,8 @@
   "cancel": "Cancel",
   "transaction_in_progress": "Transaction in progress...",
   "best_buy": "Best Buy",
-  "best_sell": "Best Sell"
+  "best_sell": "Best Sell",
+  "no_order_history": "No Order History",
+  "no_active_orders": "No Active Orders",
+  "no_trade_history": "No Trade History"
 }
