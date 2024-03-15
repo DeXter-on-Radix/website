@@ -67,3 +67,35 @@ Your wallet is now in developer mode and connected to the testnet.
 4. **Get Test Tokens**: Click on `Get XRD Test Tokens` to receive your test currency.
 
 By following these steps, you'll have your wallet set up for testing Dexter on localhost and creating orders using test XRD tokens.
+
+## How to use Translations^
+
+Every piece of text content that is displayed on the page, needs to be translated into all supported languages. Currently we support:
+
+- en (english)
+- pt (portuguese)
+
+The translation files are located in `/src/app/states/locales/{{lng}}/{{namespace}}.json` where `lng` is the language code, and `namespace` is the namespace. This structure is chosen for a seamless transition into server side internationalization at a later stage (if required). Currently all content in all languages is fully loaded on initial pageload.
+
+### Using existing translations
+
+```jsx
+import React from "react";
+import { useTranslations } from "hooks";
+
+const MyComponent = () => {
+  const t = useTranslations();
+
+  return <div>{t("some_key")}</div>;
+};
+```
+
+### Adding translations
+
+To add translations, simply extend the JSON files by adding new KEY -> VALUE pairs. The KEY is then accessible via `t("your_key")` as shown above.
+
+**IMPORTANT**: It is the developers responsibility to add keys for all languages! If a key in a language is missing, the key iteself will be returned.
+
+### Adding a new namespace
+
+If you create a new subpage, it's recommended to create a new namespace. To do so, search the codebase for the keyword "INSTRUCTIONS_add_namespace", then follow each steps instructions. Once you have done all the steps, you can start using your new namespace as described in the previous sections.

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   OrderTab,
   selectTargetToken,
@@ -13,7 +13,6 @@ import { LimitOrderInput } from "./LimitOrderInput";
 import { MarketOrderInput } from "./MarketOrderInput";
 import { OrderSideTabs } from "./OrderSideTabs";
 import { OrderTypeTabs } from "./OrderTypeTabs";
-import { useTranslations } from "../../hooks";
 
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
