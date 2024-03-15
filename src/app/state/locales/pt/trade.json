@@ -61,5 +61,8 @@
   "avg_filled_price": "Preço Méd. Preenchido",
   "order_fee": "Taxa",
   "time_completed": "Hora Completada",
-  "cancel": "Canal"
+  "cancel": "Canal",
+  "transaction_in_progress": "Transação em andamento...",
+  "best_buy": "Melhor Compra",
+  "best_sell": "Mais Vendido"
 }

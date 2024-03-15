@@ -88,6 +88,10 @@ const MyComponent = () => {
 
   return <div>{t("some_key")}</div>;
 };
+
+// QUICK ACCESS:
+// import { useTranslations } from "hooks";
+// const t = useTranslations();
 ```
 
 ### Adding translations

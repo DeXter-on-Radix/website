@@ -61,5 +61,8 @@
   "avg_filled_price": "Avg Filled Price",
   "order_fee": "Order Fee",
   "time_completed": "Time Completed",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "transaction_in_progress": "Transaction in progress...",
+  "best_buy": "Best Buy",
+  "best_sell": "Best Sell"
 }

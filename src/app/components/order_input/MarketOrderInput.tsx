@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import { useEffect } from "react";
 
 import {
@@ -32,6 +32,7 @@ function slippageToUiSlippage(slippage: number | "") {
 }
 
 export function MarketOrderInput() {
+  const t = useTranslations();
   const {
     token1,
     token2,
@@ -125,8 +126,8 @@ export function MarketOrderInput() {
         <div className="flex-auto"></div>
         <div className="flex-none form-control">
           <label className="label justify-center">
-            <span className="label-text-alt text-secondary-content">
-              SLIPPAGE LIMIT
+            <span className="label-text-alt text-secondary-content uppercase">
+              {t("slippage_limit")}
             </span>
           </label>
           <div
@@ -157,7 +158,7 @@ export function MarketOrderInput() {
         </div>
       </div>
 
-      <BottomRightErrorLabel message={slippageValidationResult.message} />
+      <BottomRightErrorLabel message={t(slippageValidationResult.message)} />
     </div>
   );
 }

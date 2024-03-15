@@ -14,7 +14,7 @@ import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
-// import { detectBrowserLanguage } from "./utils";
+import { detectBrowserLanguage } from "./utils";
 import { i18nSlice } from "./state/i18nSlice";
 
 export default function Home() {
@@ -22,7 +22,7 @@ export default function Home() {
 
   // Detect browser langauge
   useEffect(() => {
-    // dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
+    dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
     dispatch(i18nSlice.actions.changeLanguage("pt"));
   }, [dispatch]);
 

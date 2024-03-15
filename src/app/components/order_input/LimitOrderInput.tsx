@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   OrderSide,
   fetchQuote,
@@ -23,6 +23,7 @@ const POST_ONLY_TOOLTIP =
   "This option helps ensure you receive the maker rebate.";
 
 function NonTargetToken() {
+  const t = useTranslations();
   const { token2, validationToken2, side } = useAppSelector(
     (state) => state.orderInput
   );
@@ -52,11 +53,11 @@ function NonTargetToken() {
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
         <div className="space-x-1">
-          <span>BALANCE:</span>
+          <span className="uppercase">{t("balance")}:</span>
           <span>{balance}</span>
         </div>
-        <span className="text-secondary-content">
-          {side === OrderSide.BUY ? PayReceive.PAY : PayReceive.RECEIVE}
+        <span className="text-secondary-content uppercase">
+          {side === OrderSide.BUY ? t(PayReceive.PAY) : t(PayReceive.RECEIVE)}
         </span>
       </div>
 
@@ -79,12 +80,13 @@ function NonTargetToken() {
         <span className="mr-1">{amount}</span>
       </div>
 
-      <BottomRightErrorLabel message={message} />
+      <BottomRightErrorLabel message={t(message)} />
     </div>
   );
 }
 
 function PriceInput() {
+  const t = useTranslations();
   const { token1: pairToken1, token2: pairToken2 } = useAppSelector(
     (state) => state.pairSelector
   );
@@ -132,12 +134,13 @@ function PriceInput() {
         </div>
       </div>
 
-      <BottomRightErrorLabel message={priceValidationResult.message} />
+      <BottomRightErrorLabel message={t(priceValidationResult.message)} />
     </>
   );
 }
 
 export function LimitOrderInput() {
+  const t = useTranslations();
   const { token1, validationToken1, price, side, tab, postOnly } =
     useAppSelector((state) => state.orderInput);
 
@@ -214,8 +217,8 @@ export function LimitOrderInput() {
 
       <div className="flex flex-row justify-between space-x-2">
         <div className="text-left my-2 text-sm">
-          <div>
-            BEST BUY&nbsp;&nbsp;={" "}
+          <div className="uppercase">
+            {t("best_buy")}&nbsp;&nbsp;={" "}
             <span
               className="cursor-pointer hover:text-accent"
               onClick={() =>
@@ -225,8 +228,8 @@ export function LimitOrderInput() {
               {bestBuyPrice}
             </span>
           </div>
-          <div>
-            BEST SELL ={" "}
+          <div className="uppercase">
+            {t("best_sell")} ={" "}
             <span
               className="cursor-pointer hover:text-accent"
               onClick={() =>
@@ -245,12 +248,12 @@ export function LimitOrderInput() {
             className="checkbox checkbox-sm my-auto mr-2"
             onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
           />
-          <span className="my-auto text-secondary-content text-sm">
-            POST ONLY
+          <span className="my-auto text-secondary-content text-sm uppercase">
+            {t("post_only")}
           </span>
           <div
             className="my-auto ml-2 tooltip before:bg-base-300 z-10"
-            data-tip={POST_ONLY_TOOLTIP}
+            data-tip={t("post_only_tooltip")}
           >
             <AiOutlineInfoCircle className="text-secondary-content text-sm" />
           </div>

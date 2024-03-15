@@ -6,6 +6,7 @@
   "LOW_PRICE": "Preço está significativamente menor que a melhor oferta de compra",
   "EXCESSIVE_DECIMALS": "Excesso de casas decimais",
   "INSUFFICIENT_FUNDS": "Fundos insuficientes",
+  "COULD_NOT_GET_QUOTE": "Não foi possível obter cotação",
   "UNSPECIFIED_SLIPPAGE": "Escorregamento deve ser especificado",
   "NEGATIVE_SLIPPAGE": "Escorregamento deve ser positivo",
   "HIGH_SLIPPAGE": "Alto escorregamento inserido"
