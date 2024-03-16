@@ -11,9 +11,9 @@ import { getRdt, RDT } from "../subscriptions";
 
 // TYPES AND INTERFACES
 export enum Tables {
-  OPEN_ORDERS = "Open Orders",
-  ORDER_HISTORY = "Order History",
-  TRADE_HISTORY = "Trade History",
+  OPEN_ORDERS = "OPEN_ORDERS",
+  ORDER_HISTORY = "ORDER_HISTORY",
+  TRADE_HISTORY = "TRADE_HISTORY",
 }
 export interface AccountHistoryState {
   trades: adex.Trade[];

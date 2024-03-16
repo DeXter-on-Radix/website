@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   Tables,
   fetchAccountHistory,
@@ -9,6 +9,7 @@ import {
 import { DisplayTable } from "./DisplayTable";
 
 function OrdersTabs() {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
   const { selectedTable, tables } = useAppSelector(
     (state) => state.accountHistory
@@ -33,7 +34,7 @@ function OrdersTabs() {
             className={tabClass(selectedTable === tableName)}
             onClick={() => dispatch(setSelectedTable(tableName))}
           >
-            {tableName}{" "}
+            {t(tableName)}{" "}
             {tableName === Tables.OPEN_ORDERS && openOrders.length ? (
               <span className="badge badge-xs font-bold badge-accent ml-2 p-0.5 rounded-none">
                 {openOrders.length}

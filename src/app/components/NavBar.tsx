@@ -2,6 +2,14 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "hooks";
+import { getSupportedLanguagesAsString } from "../state/i18nSlice";
+
+import { i18nSlice } from "../state/i18nSlice";
+
+import Cookies from "js-cookie";
+
 // TODO: theme switching
 
 export function Navbar() {
@@ -35,8 +43,37 @@ export function Navbar() {
         </div> */}
       </div>
       <div className="navbar-end">
+        <LanguageSelection />
         <radix-connect-button></radix-connect-button>
       </div>
+    </div>
+  );
+}
+
+function LanguageSelection() {
+  const dispatch = useAppDispatch();
+  const supportedLanguagesStr = useSelector(getSupportedLanguagesAsString);
+  const supportedLanguages = supportedLanguagesStr.split(",");
+  let { language } = useAppSelector((state) => state.i18n);
+
+  const handleLanguageChange = (lang: string) => {
+    dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
+    Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
+  };
+
+  return (
+    <div className="mr-4">
+      {supportedLanguages.map((lang) => (
+        <button
+          className={`uppercase text-sm px-1 ${
+            language === lang ? "font-extrabold" : "font-extralight"
+          }`}
+          key={lang}
+          onClick={() => handleLanguageChange(lang)}
+        >
+          {lang}
+        </button>
+      ))}
     </div>
   );
 }

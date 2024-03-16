@@ -67,3 +67,38 @@ Your wallet is now in developer mode and connected to the testnet.
 4. **Get Test Tokens**: Click on `Get XRD Test Tokens` to receive your test currency.
 
 By following these steps, you'll have your wallet set up for testing Dexter on localhost and creating orders using test XRD tokens.
+
+## How to use Translations
+
+To ensure our application supports multiple languages, all text displayed must be translated. We currently support **English** (**en**) and **Portuguese** (**pt**). Translations are stored in JSON files at `/src/app/states/locales/{{lng}}/{{namespace}}`.json, where `lng` is the language code and `namespace` is a specific category of content. This structure facilitates potential future integration with server-side internationalization. Upon initial page load, content in all languages is preloaded and instantly available.
+
+### Implementing Translations in Components
+
+To use a translation in a React component:
+
+```jsx
+import React from "react";
+import { useTranslations } from "hooks";
+
+const MyComponent = () => {
+  const t = useTranslations();
+
+  return <div>{t("some_key")}</div>;
+};
+```
+
+### Adding New Translations
+
+Extend the JSON files with new key-value pairs to add translations. Ensure to add keys for every supported language to avoid displaying the key as fallback text.
+
+### Creating a New Namespace
+
+For new subpages, create a corresponding namespace. Search for "INSTRUCTIONS_add_namespace" in the codebase and follow the outlined steps. After setup, utilize your namespace as mentioned above.
+
+### Naming Conventions
+
+- **Keys** in JSON files:
+  - Use the full text in lowercase, replacing spaces with underscores, e.g., "trade_now".
+  - Enums or errors should be in uppercase.
+- **Values** should:
+  - Use title capitalization, capitalizing all main words except for short filler words, e.g., "Trade Now", "History of Transactions".

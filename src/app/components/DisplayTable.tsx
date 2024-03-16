@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
-import { useAppSelector, useAppDispatch } from "../hooks";
+import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import {
   displayTime,
-  displayOrderSide,
   calculateTotalFees,
   calculateAvgFilled,
   getPriceSymbol,
+  displayOrderSide,
 } from "../utils";
 import {
   cancelOrder,
@@ -19,39 +19,41 @@ interface TableProps {
 
 import "../styles/table.css";
 
+// The headers refer to keys specified in
+// src/app/state/locales/{languagecode}/trade.json
 const headers = {
   [Tables.OPEN_ORDERS]: [
-    "Pair",
-    "Order Type",
-    "Direction",
-    "Time Ordered",
-    "Amount",
-    "Order Price",
-    "Filled Qty",
-    "Completed %",
-    "Action",
+    "pair",
+    "order_type",
+    "direction",
+    "time_ordered",
+    "amount",
+    "order_price",
+    "filled_qty",
+    "completed_perc",
+    "action",
   ],
   [Tables.ORDER_HISTORY]: [
-    "Pair",
-    "Order Type",
-    "Direction",
-    "Status",
-    "Filled Qty",
-    "Order Qty",
-    "Avg Filled Price",
-    "Order Price",
-    "Order Fee",
-    "Time Ordered",
-    "Action",
+    "pair",
+    "order_type",
+    "direction",
+    "status",
+    "filled_qty",
+    "order_qty",
+    "avg_filled_price",
+    "order_price",
+    "order_fee",
+    "time_ordered",
+    "action",
   ],
   [Tables.TRADE_HISTORY]: [
-    "Pair",
-    "Direction",
-    "Order Price",
-    "Avg Filled Price",
-    "Filled Qty",
-    "Order Fee",
-    "Time Completed",
+    "pair",
+    "direction",
+    "order_price",
+    "avg_filled_price",
+    "filled_qty",
+    "order_fee",
+    "time_completed",
   ],
 };
 
@@ -60,6 +62,7 @@ function ActionButton({
 }: {
   order: AccountHistoryState["orderHistory"][0];
 }) {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
 
   if (order.status === "PENDING") {
@@ -73,7 +76,7 @@ function ActionButton({
         }}
         className="text-error hover:underline transition"
       >
-        Cancel
+        {t("cancel")}
       </button>
     );
   }
@@ -81,6 +84,7 @@ function ActionButton({
 }
 
 export function DisplayTable() {
+  const t = useTranslations();
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   );
@@ -125,7 +129,7 @@ export function DisplayTable() {
           <tr>
             {tableToShow.headers.map((header, i) => (
               <th className="text-secondary-content uppercase" key={i}>
-                {header}
+                {t(header)}
               </th>
             ))}
           </tr>
@@ -137,13 +141,14 @@ export function DisplayTable() {
 }
 
 const OpenOrdersRows = ({ data }: TableProps) => {
+  const t = useTranslations();
   return data.length ? (
     data.map((order) => (
       <tr key={order.id} className="">
         <td>{order.pairName}</td>
-        <td>{order.orderType}</td>
+        <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
-          {displayOrderSide(order.side).text}
+          {t(displayOrderSide(order.side).text)}
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
         <td>
@@ -167,21 +172,22 @@ const OpenOrdersRows = ({ data }: TableProps) => {
     ))
   ) : (
     <tr>
-      <td colSpan={7}>No Active Orders</td>
+      <td colSpan={7}>{t("no_active_orders")}</td>
     </tr>
   );
 };
 
 const OrderHistoryRows = ({ data }: TableProps) => {
+  const t = useTranslations();
   return data.length ? (
     data.map((order) => (
       <tr key={order.id} className="">
         <td>{order.pairName}</td>
-        <td>{order.orderType}</td>
+        <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
-          {displayOrderSide(order.side).text}
+          {t(displayOrderSide(order.side).text)}
         </td>
-        <td>{order.status}</td>
+        <td className="uppercase">{t(order.status)}</td>
         <td>
           {/* Filled Qty (computed with completedPerc to avoid using amountFilled) */}
           {order.status === "COMPLETED"
@@ -211,18 +217,19 @@ const OrderHistoryRows = ({ data }: TableProps) => {
     ))
   ) : (
     <tr>
-      <td colSpan={7}>No Order History</td>
+      <td colSpan={7}>{t("no_order_history")}</td>
     </tr>
   );
 };
 
 const TradeHistoryTable = ({ data }: TableProps) => {
+  const t = useTranslations();
   return data.length ? (
     data.map((order) => (
       <tr key={order.id} className="">
         <td>{order.pairName}</td>
         <td className={displayOrderSide(order.side).className}>
-          {displayOrderSide(order.side).text}
+          {t(displayOrderSide(order.side).text)}
         </td>
         <td>
           {order.price} {getPriceSymbol(order)}
@@ -243,7 +250,7 @@ const TradeHistoryTable = ({ data }: TableProps) => {
     ))
   ) : (
     <tr>
-      <td colSpan={7}>No Trade History</td>
+      <td colSpan={7}>{t("no_trade_history")}</td>
     </tr>
   );
 };

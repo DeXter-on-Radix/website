@@ -9,7 +9,7 @@ import {
   initializeLegend,
   initialPriceChartState,
 } from "../state/priceChartSlice";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
@@ -226,6 +226,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 }
 
 export function PriceChart() {
+  const t = useTranslations();
   const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
@@ -251,7 +252,7 @@ export function PriceChart() {
       <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
-            Trading Chart
+            {t("trading_chart")}
           </span>
         </div>
         <div className="">
@@ -265,7 +266,7 @@ export function PriceChart() {
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
-              {period}
+              {t(period)}
             </button>
           ))}
         </div>

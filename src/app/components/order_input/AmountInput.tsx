@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   OrderTab,
   TokenInput,
@@ -14,8 +14,8 @@ import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";
 
 export const enum PayReceive {
-  PAY = "YOU PAY:",
-  RECEIVE = "YOU RECEIVE:",
+  PAY = "you_pay",
+  RECEIVE = "you_receive",
 }
 
 interface TokenInputFiledProps extends TokenInput {
@@ -26,6 +26,7 @@ interface TokenInputFiledProps extends TokenInput {
 }
 
 export function AmountInput(props: TokenInputFiledProps) {
+  const t = useTranslations();
   const tab = useAppSelector((state) => state.orderInput.tab);
   const targetToken = useAppSelector(selectTargetToken);
   const balance = useAppSelector((state) =>
@@ -53,10 +54,10 @@ export function AmountInput(props: TokenInputFiledProps) {
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
         <div className="space-x-1">
-          <span>BALANCE:</span>
+          <span className="uppercase">{t("balance")}:</span>
           <span>{balance}</span>
         </div>
-        <span className="text-primary-content">{payReceive}</span>
+        <span className="text-primary-content uppercase">{t(payReceive)}:</span>
       </div>
 
       {/* input */}
@@ -99,7 +100,7 @@ export function AmountInput(props: TokenInputFiledProps) {
         ></IMaskInput>
       </div>
 
-      <BottomRightErrorLabel message={message} />
+      <BottomRightErrorLabel message={t(message)} />
     </div>
   );
 }
