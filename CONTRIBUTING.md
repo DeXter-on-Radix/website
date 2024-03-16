@@ -68,16 +68,13 @@ Your wallet is now in developer mode and connected to the testnet.
 
 By following these steps, you'll have your wallet set up for testing Dexter on localhost and creating orders using test XRD tokens.
 
-## How to use Translations^
+## How to use Translations
 
-Every piece of text content that is displayed on the page, needs to be translated into all supported languages. Currently we support:
+To ensure our application supports multiple languages, all text displayed must be translated. We currently support **English** (**en**) and **Portuguese** (**pt**). Translations are stored in JSON files at `/src/app/states/locales/{{lng}}/{{namespace}}`.json, where `lng` is the language code and `namespace` is a specific category of content. This structure facilitates potential future integration with server-side internationalization. Upon initial page load, content in all languages is preloaded and instantly available.
 
-- en (english)
-- pt (portuguese)
+### Implementing Translations in Components
 
-The translation files are located in `/src/app/states/locales/{{lng}}/{{namespace}}.json` where `lng` is the language code, and `namespace` is the namespace. This structure is chosen for a seamless transition into server side internationalization at a later stage (if required). Currently all content in all languages is fully loaded on initial pageload.
-
-### Using existing translations
+To use a translation in a React component:
 
 ```jsx
 import React from "react";
@@ -88,29 +85,20 @@ const MyComponent = () => {
 
   return <div>{t("some_key")}</div>;
 };
-
-// QUICK ACCESS:
-// import { useTranslations } from "hooks";
-// const t = useTranslations();
 ```
 
-### Adding translations
+### Adding New Translations
 
-To add translations, simply extend the JSON files by adding new KEY -> VALUE pairs. The KEY is then accessible via `t("your_key")` as shown above.
+Extend the JSON files with new key-value pairs to add translations. Ensure to add keys for every supported language to avoid displaying the key as fallback text.
 
-**IMPORTANT**: It is the developers responsibility to add keys for all languages! If a key in a language is missing, the key iteself will be returned.
+### Creating a New Namespace
 
-### Adding a new namespace
+For new subpages, create a corresponding namespace. Search for "INSTRUCTIONS_add_namespace" in the codebase and follow the outlined steps. After setup, utilize your namespace as mentioned above.
 
-If you create a new subpage, it's recommended to create a new namespace. To do so, search the codebase for the keyword "INSTRUCTIONS_add_namespace", then follow each steps instructions. Once you have done all the steps, you can start using your new namespace as described in the previous sections.
+### Naming Conventions
 
-### Convention
-
-Please follow these conventions:
-
-- Keys inside the JSON files are:
-  - if possible represent the full text, e.g. "Trade Now" -> "trade_now"
-  - for regular text only lower case with underscores as space
-  - for enums or errors all upper case
-- Values inside the JSON files are:
-  - follow title capitalization, meaning all words are capitalized except fillerwords, e.g. "Trade Now", "History of Transactions" etc...
+- **Keys** in JSON files:
+  - Use the full text in lowercase, replacing spaces with underscores, e.g., "trade_now".
+  - Enums or errors should be in uppercase.
+- **Values** should:
+  - Use title capitalization, capitalizing all main words except for short filler words, e.g., "Trade Now", "History of Transactions".
