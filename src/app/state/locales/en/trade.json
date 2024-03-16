@@ -40,7 +40,7 @@
   "order": "Order",
   "size": "Size",
   "total": "Total",
-  "pair": "Pairs",
+  "pair": "Pair",
   "order_type": "Order Type",
   "order_count": "Order Count",
   "post_only": "Post Only",
@@ -67,5 +67,7 @@
   "no_active_orders": "No Active Orders",
   "no_trade_history": "No Trade History",
   "no_trades_have_occured_yet": "No trades have occurred yet",
-  "market_action_token": "<$ORDER_TYPE> <$SIDE> <$TOKEN_SYMBOL>"
+  "market_action_token": "<$ORDER_TYPE> <$SIDE> <$TOKEN_SYMBOL>",
+  "at_max_price": "At Max Price",
+  "at_min_price": "At Min Price"
 }

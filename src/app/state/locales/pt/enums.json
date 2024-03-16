@@ -8,7 +8,7 @@
   "CANCELLED": "Cancelado",
   "POSTONLY": "Apenas Postagem",
   "MARKETPARTIAL": "Mercado (Parcial)",
-  "OPEN_ORDERS": "Pedidos em Aberto",
-  "ORDER_HISTORY": "Histórico de Pedidos",
+  "OPEN_ORDERS": "Ordens Abertas",
+  "ORDER_HISTORY": "Histórico de Ordens",
   "TRADE_HISTORY": "Histórico de Transações"
 }
