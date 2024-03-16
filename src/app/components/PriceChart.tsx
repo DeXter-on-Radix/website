@@ -22,7 +22,6 @@ interface PriceChartProps {
 }
 
 function PriceChartCanvas(props: PriceChartProps) {
-  const t = useTranslations();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
 

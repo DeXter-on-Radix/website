@@ -17,11 +17,6 @@ import { numberOrEmptyInput } from "utils";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { BottomRightErrorLabel } from "components/BottomRightErrorLabel";
 
-const POST_ONLY_TOOLTIP =
-  "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
-  "If the order can be matched immediately, it will not be created. " +
-  "This option helps ensure you receive the maker rebate.";
-
 function NonTargetToken() {
   const t = useTranslations();
   const { token2, validationToken2, side } = useAppSelector(
