@@ -29,8 +29,10 @@ function SubmitButton() {
   } = useAppSelector((state) => state.orderInput);
 
   const dispatch = useAppDispatch();
-  const submitString =
-    t(tab.toString()) + " " + t(side.toString()) + " " + symbol;
+  const submitString = t("market_action_token")
+    .replace("<$ORDER_TYPE>", t(tab.toString()))
+    .replace("<$SIDE>", t(side.toString()))
+    .replace("<$TOKEN_SYMBOL>", symbol);
 
   const isPriceValid = useAppSelector(validatePriceInput).valid;
   const isSlippageValid = useAppSelector(validateSlippageInput).valid;
