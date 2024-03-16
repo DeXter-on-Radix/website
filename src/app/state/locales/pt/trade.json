@@ -42,6 +42,7 @@
   "total": "Total",
   "pair": "Pares",
   "order_type": "Tipo de Orden",
+  "order_count": "Cont. Pedidos",
   "post_only": "Somente Postar",
   "direction": "Direção",
   "time_ordered": "Hora Ordenada",

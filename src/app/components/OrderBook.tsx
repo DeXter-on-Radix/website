@@ -150,9 +150,7 @@ export function OrderBook() {
       <div className="sized-columns">
         <div className="sized-columns mx-2 col-span-4 text-sm font-bold text-secondary-content uppercase">
           <div className="text-start uppercase text-xs font-medium">
-            {t("order")}
-            <br />
-            {t("count")}
+            {t("order_count")}
           </div>
           <div className="text-end uppercase text-xs font-medium">
             {t("price")}

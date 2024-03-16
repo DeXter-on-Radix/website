@@ -42,6 +42,7 @@
   "total": "Total",
   "pair": "Pairs",
   "order_type": "Order Type",
+  "order_count": "Order Count",
   "post_only": "Post Only",
   "direction": "Direction",
   "time_ordered": "Time Ordered",
