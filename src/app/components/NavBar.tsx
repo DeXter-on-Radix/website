@@ -2,6 +2,12 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "hooks";
+import { getSupportedLanguagesAsString } from "../state/i18nSlice";
+
+import { i18nSlice } from "../state/i18nSlice";
+
 // TODO: theme switching
 
 export function Navbar() {
@@ -35,8 +41,33 @@ export function Navbar() {
         </div> */}
       </div>
       <div className="navbar-end">
+        <LanguageSelection />
         <radix-connect-button></radix-connect-button>
       </div>
+    </div>
+  );
+}
+
+function LanguageSelection() {
+  const dispatch = useAppDispatch();
+  const supportedLanguagesStr = useSelector(getSupportedLanguagesAsString);
+  const supportedLanguages = supportedLanguagesStr.split(",");
+  const { language } = useAppSelector((state) => state.i18n);
+  return (
+    <div className="mr-4">
+      {supportedLanguages.map((lang) => (
+        <button
+          className={`uppercase text-sm px-1 ${
+            language === lang ? "font-extrabold" : "font-extralight"
+          }`}
+          key={lang}
+          onClick={() => {
+            dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
+          }}
+        >
+          {lang}
+        </button>
+      ))}
     </div>
   );
 }

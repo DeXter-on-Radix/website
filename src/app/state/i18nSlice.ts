@@ -28,6 +28,7 @@ import ptFooter from "./locales/pt/footer.json";
 import ptLanding from "./locales/pt/landing.json";
 import ptRewards from "./locales/pt/rewards.json";
 import ptTrade from "./locales/pt/trade.json";
+import { RootState } from "./store";
 
 interface TextContent {
   [key: string]: string;
@@ -83,3 +84,7 @@ export const i18nSlice = createSlice({
     },
   },
 });
+
+export const getSupportedLanguagesAsString = (state: RootState): string => {
+  return Object.keys(state.i18n.textContent).join(",");
+};

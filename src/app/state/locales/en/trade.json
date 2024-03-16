@@ -64,5 +64,6 @@
   "best_sell": "Best Sell",
   "no_order_history": "No Order History",
   "no_active_orders": "No Active Orders",
-  "no_trade_history": "No Trade History"
+  "no_trade_history": "No Trade History",
+  "no_trades_have_occured_yet": "Nenhuma transação foi realizada ainda"
 }

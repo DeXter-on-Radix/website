@@ -54,6 +54,7 @@ function OrderBookRow(props: OrderBookRowProps) {
 }
 
 function CurrentPriceRow() {
+  const t = useTranslations();
   const trades = useAppSelector((state) => state.accountHistory.trades);
   const orderBook = useAppSelector((state) => state.orderBook);
   const token2MaxDecimals = useAppSelector(
@@ -72,7 +73,7 @@ function CurrentPriceRow() {
       CHARACTERS_TO_DISPLAY
     );
   } else {
-    lastPrice = "No trades have occurred yet";
+    lastPrice = t("no_trades_have_occured_yet");
   }
   const bestSell = orderBook.bestSell;
   const bestBuy = orderBook.bestBuy;
