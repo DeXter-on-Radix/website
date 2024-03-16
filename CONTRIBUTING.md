@@ -102,3 +102,12 @@ For new subpages, create a corresponding namespace. Search for "INSTRUCTIONS_add
   - Enums or errors should be in uppercase.
 - **Values** should:
   - Use title capitalization, capitalizing all main words except for short filler words, e.g., "Trade Now", "History of Transactions".
+
+### Placeholders
+
+Placeholders allow the dynamic insertion of content into sentences, accommodating language-specific syntax. For example, "market buy XRD" in English may translate to "comprar XRD a mercado" in Portuguese. To handle this, we use placeholders like <$IDENTIFIER>, for variable content such as token symbols. The translation files define the sentence structure for each language, e.g.:
+
+- en: "market buy <$TOKEN_SYMBOL>"
+- pt: "comprar <$TOKEN_SYMBOL> a mercado"
+
+Developers are responsible for replacing placeholders with actual values within the code.

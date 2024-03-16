@@ -90,8 +90,8 @@ function PriceInput() {
   const priceValidationResult = useAppSelector(validatePriceInput);
   return (
     <>
-      <div className="text-xs text-end">
-        {side === OrderSide.BUY ? "AT MAX PRICE:" : "AT MIN PRICE:"}
+      <div className="text-xs text-end uppercase">
+        {side === OrderSide.BUY ? t("at_max_price") : t("at_min_price")}:
       </div>
       <div
         className={
