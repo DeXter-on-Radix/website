@@ -8,6 +8,8 @@ import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
 
+import Cookies from "js-cookie";
+
 // TODO: theme switching
 
 export function Navbar() {
@@ -52,7 +54,13 @@ function LanguageSelection() {
   const dispatch = useAppDispatch();
   const supportedLanguagesStr = useSelector(getSupportedLanguagesAsString);
   const supportedLanguages = supportedLanguagesStr.split(",");
-  const { language } = useAppSelector((state) => state.i18n);
+  let { language } = useAppSelector((state) => state.i18n);
+
+  const handleLanguageChange = (lang: string) => {
+    dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
+    Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
+  };
+
   return (
     <div className="mr-4">
       {supportedLanguages.map((lang) => (
@@ -61,9 +69,7 @@ function LanguageSelection() {
             language === lang ? "font-extrabold" : "font-extralight"
           }`}
           key={lang}
-          onClick={() => {
-            dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
-          }}
+          onClick={() => handleLanguageChange(lang)}
         >
           {lang}
         </button>
