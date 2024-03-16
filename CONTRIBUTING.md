@@ -103,3 +103,14 @@ To add translations, simply extend the JSON files by adding new KEY -> VALUE pai
 ### Adding a new namespace
 
 If you create a new subpage, it's recommended to create a new namespace. To do so, search the codebase for the keyword "INSTRUCTIONS_add_namespace", then follow each steps instructions. Once you have done all the steps, you can start using your new namespace as described in the previous sections.
+
+### Convention
+
+Please follow these conventions:
+
+- Keys inside the JSON files are:
+  - if possible represent the full text, e.g. "Trade Now" -> "trade_now"
+  - for regular text only lower case with underscores as space
+  - for enums or errors all upper case
+- Values inside the JSON files are:
+  - follow title capitalization, meaning all words are capitalized except fillerwords, e.g. "Trade Now", "History of Transactions" etc...
