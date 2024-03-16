@@ -124,7 +124,7 @@ export function MarketOrderInput() {
       {/* slippage */}
       <div className="flex flex-row flex-nowrap">
         <div className="flex-auto"></div>
-        <div className="flex-none form-control">
+        <div className="flex-none form-control items-end">
           <label className="label justify-center">
             <span className="label-text-alt text-secondary-content uppercase">
               {t("slippage_limit")}
@@ -132,7 +132,7 @@ export function MarketOrderInput() {
           </label>
           <div
             className={
-              "bg-base-200 w-full space-x-2 py-1 px-2 border-2 border-base-200" +
+              "bg-base-200 w-full space-x-2 py-1 px-2 border-2 border-base-200 max-w-[100px]" +
               (!slippageValidationResult.valid ? " !border-error" : "")
             }
           >
