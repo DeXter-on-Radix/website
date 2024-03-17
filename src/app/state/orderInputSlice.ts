@@ -309,30 +309,31 @@ export const orderInputSlice = createSlice({
       }
     },
     setAmountToken1(state, action: PayloadAction<number | "">) {
-      const amount = action.payload;
-      let token = {
-        ...state.token1,
-        amount,
-      };
+      state.token1.amount = action.payload;
+      // const amount = action.payload;
+      // let token = {
+      //   ...state.token1,
+      //   amount,
+      // };
 
-      state.token1 = token;
+      // state.token1 = token;
 
-      // FIXME: when deleting the amount very quickly with backspace,
-      // state.token2.amount gets overritten with lagged quote data and stays filled in
-      if (amount === "") {
-        state.token2.amount = "";
-      }
+      // // FIXME: when deleting the amount very quickly with backspace,
+      // // state.token2.amount gets overritten with lagged quote data and stays filled in
+      // if (amount === "") {
+      //   state.token2.amount = "";
+      // }
     },
     setAmountToken2(state, action: PayloadAction<number | "">) {
-      const amount = action.payload;
-      state.token2 = {
-        ...state.token2,
-        amount,
-      };
-
-      if (amount === "") {
-        state.token1.amount = "";
-      }
+      state.token2.amount = action.payload;
+      // const amount = action.payload;
+      // state.token2 = {
+      //   ...state.token2,
+      //   amount,
+      // };
+      // if (amount === "") {
+      //   state.token1.amount = "";
+      // }
     },
     validateAmount(
       state,
