@@ -279,12 +279,12 @@ function UserInputContainer() {
     (state) => state.orderInput
   );
   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
-  const [token1Balance, token2Balance] = useAppSelector((state) => {
-    return [
-      selectBalanceByAddress(state, token1.address),
-      selectBalanceByAddress(state, token2.address),
-    ];
-  });
+  const token1Balance = useAppSelector((state) =>
+    selectBalanceByAddress(state, token1.address)
+  );
+  const token2Balance = useAppSelector((state) =>
+    selectBalanceByAddress(state, token2.address)
+  );
   const dispatch = useAppDispatch();
 
   if (type === "MARKET") {
