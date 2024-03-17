@@ -49,7 +49,7 @@
   "amount": "Amount",
   "order_price": "Order Price",
   "filled_qty": "Filled Qtd",
-  "completed_perc": "Completed %",
+  "completed_perc": "Completed (%)",
   "action": "Action",
   "status": "Status",
   "pending": "Pending",
