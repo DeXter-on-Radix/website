@@ -20,7 +20,7 @@
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
-    "alphadex-sdk-js": "^0.12.9",
+    "alphadex-sdk-js": "^0.12.13",
     "autoprefixer": "10.4.14",
     "eslint-config-next": "13.4.7",
     "js-cookie": "^3.0.5",
