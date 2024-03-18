@@ -14,8 +14,8 @@ import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";
 
 export const enum PayReceive {
-  PAY = "you_pay",
-  RECEIVE = "you_receive",
+  PAY = "PAY",
+  RECEIVE = "RECEIVE",
 }
 
 interface TokenInputFiledProps extends TokenInput {

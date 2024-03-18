@@ -10,5 +10,7 @@
   "MARKETPARTIAL": "Mercado (Parcial)",
   "OPEN_ORDERS": "Ordens Abertas",
   "ORDER_HISTORY": "Histórico de Ordens",
-  "TRADE_HISTORY": "Histórico de Transações"
+  "TRADE_HISTORY": "Histórico de Transações",
+  "PAY": "Você Paga",
+  "RECEIVE": "Você Recebe"
 }

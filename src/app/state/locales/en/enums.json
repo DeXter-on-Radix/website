@@ -10,5 +10,7 @@
   "MARKETPARTIAL": "Market (Partial)",
   "OPEN_ORDERS": "Open Orders",
   "ORDER_HISTORY": "Order History",
-  "TRADE_HISTORY": "Trade History"
+  "TRADE_HISTORY": "Trade History",
+  "PAY": "You Pay",
+  "RECEIVE": "You Receive"
 }
