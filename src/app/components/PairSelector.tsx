@@ -1,4 +1,4 @@
-import { useAppSelector, useAppDispatch } from "../hooks";
+import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +36,7 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
 }
 
 export function PairSelector() {
+  const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
   const [query, setQuery] = useState("");
@@ -191,8 +192,8 @@ export function PairSelector() {
             <>
               {index === 0 && (
                 <div className="flex justify-between text-sm opacity-40 ml-3 mr-3">
-                  <span className="uppercase">Pairs</span>
-                  <span className="uppercase">Price</span>
+                  <span className="uppercase">{t("pairs")}</span>
+                  <span className="uppercase">{t("price")}</span>
                 </div>
               )}
               <li

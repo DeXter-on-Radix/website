@@ -20,17 +20,18 @@ export enum OrderTab {
 }
 
 export enum ErrorMessage {
-  UNSPECIFIED_PRICE = "Price must be specified",
-  NONZERO_PRICE = "Price must be greater than 0",
-  NONZERO_AMOUNT = "Amount must be greater than 0",
-  HIGH_PRICE = "Price is significantly higher than best sell",
-  LOW_PRICE = "Price is significantly lower than best buy",
-  EXCESSIVE_DECIMALS = "Too many decimal places",
-  INSUFFICIENT_FUNDS = "Insufficient funds",
+  UNSPECIFIED_PRICE = "UNSPECIFIED_PRICE",
+  NONZERO_PRICE = "NONZERO_PRICE",
+  NONZERO_AMOUNT = "NONZERO_AMOUNT",
+  HIGH_PRICE = "HIGH_PRICE",
+  LOW_PRICE = "LOW_PRICE",
+  EXCESSIVE_DECIMALS = "EXCESSIVE_DECIMALS",
+  INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
+  COULD_NOT_GET_QUOTE = "COULD_NOT_GET_QUOTE",
   //Slippage
-  UNSPECIFIED_SLIPPAGE = "Slippage must be specified",
-  NEGATIVE_SLIPPAGE = "Slippage must be positive",
-  HIGH_SLIPPAGE = "High slippage entered",
+  UNSPECIFIED_SLIPPAGE = "UNSPECIFIED_SLIPPAGE",
+  NEGATIVE_SLIPPAGE = "NEGATIVE_SLIPPAGE",
+  HIGH_SLIPPAGE = "HIGH_SLIPPAGE",
 }
 
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
@@ -467,11 +468,11 @@ export const orderInputSlice = createSlice({
         if (state.side === OrderSide.SELL) {
           state.token2.amount = "";
           state.validationToken2.valid = false;
-          state.validationToken2.message = "Could not get quote";
+          state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
         } else {
           state.token1.amount = "";
           state.validationToken1.valid = false;
-          state.validationToken1.message = "Could not get quote";
+          state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
         }
       }
       state.quote = undefined;

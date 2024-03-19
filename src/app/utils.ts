@@ -245,9 +245,9 @@ export function displayOrderSide(side: string): {
   className: string;
 } {
   if (side === "BUY") {
-    return { text: "Buy", className: "text-success" };
+    return { text: "buy", className: "text-success" };
   } else if (side === "SELL") {
-    return { text: "Sell", className: "text-error" };
+    return { text: "sell", className: "text-error" };
   } else {
     return { text: "-", className: "" };
   }
@@ -317,4 +317,32 @@ export function getPriceSymbol(order: OrderReceipt): string {
     return "";
   }
   return order.pairName.split("/")[1];
+}
+
+export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
+  // Helper function to extract first 2 chars and ensure its lowercased.
+  const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
+
+  // navigator.languages: Returns an array of the user's preferred languages, ordered by preference
+  if (Array.isArray(navigator.languages) && navigator.languages.length) {
+    return toLngCode(navigator.languages[0]);
+  }
+  // navigator.language: Returns the browser's UI language
+  if (navigator.language) {
+    return toLngCode(navigator.language);
+  }
+  // navigator.userLanguage: Deprecated but included for compatibility with older versions of IE
+  if ((navigator as any).userLanguage) {
+    return toLngCode((navigator as any).userLanguage);
+  }
+  // navigator.browserLanguage: Another deprecated property for older IE versions
+  if ((navigator as any).browserLanguage) {
+    return toLngCode((navigator as any).browserLanguage);
+  }
+  // navigator.systemLanguage: Deprecated and for IE only, returns OS language
+  if ((navigator as any).systemLanguage) {
+    return toLngCode((navigator as any).systemLanguage);
+  }
+  // Fallback to a default language if none is detected
+  return defaultLanguage;
 }
