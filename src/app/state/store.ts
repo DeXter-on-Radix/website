@@ -5,6 +5,7 @@ import { orderBookSlice } from "./orderBookSlice";
 import { priceChartSlice } from "./priceChartSlice";
 import { accountHistorySlice } from "./accountHistorySlice";
 import { radixSlice } from "./radixSlice";
+import { claimSlice } from "./claimSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 
 export const store = configureStore({
@@ -16,6 +17,7 @@ export const store = configureStore({
     priceChart: priceChartSlice.reducer,
     accountHistory: accountHistorySlice.reducer,
     priceInfo: priceInfoSlice.reducer,
+    claim: claimSlice.reducer,
   },
 });
 

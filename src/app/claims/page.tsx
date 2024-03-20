@@ -1,6 +1,20 @@
+"use client";
+
 import { Claims } from "components/Claims";
+import { useAppDispatch } from "hooks";
+import { useEffect } from "react";
+import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
+import { store } from "../state/store";
+
 
 export default function Markets() {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    initializeSubscriptions(store);
+    return () => {
+      unsubscribeAll();
+    };
+  }, []);
   return (
     <div className="container mx-auto px-16">
       <div className="flex flex-col justify-center">
