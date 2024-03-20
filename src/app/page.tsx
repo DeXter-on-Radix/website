@@ -21,12 +21,12 @@ import Cookies from "js-cookie";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { token1, token2 } = useAppSelector((state) => state.pairSelector);
+  const pairSelector = useAppSelector((state) => state.pairSelector);
 
-  // Detect currently selected pair and adjust pagetitle
+  // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
-    updatePageTitle(token1.symbol, token2.symbol);
-  }, [token1, token2]);
+    updatePageTitle(pairSelector.name);
+  }, [pairSelector]);
 
   // Detect browser langauge
   useEffect(() => {
