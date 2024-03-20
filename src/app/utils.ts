@@ -346,3 +346,12 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Fallback to a default language if none is detected
   return defaultLanguage;
 }
+
+// If available, adds currently selected pair to the page title.
+export function updatePageTitle(token1: string, token2: string) {
+  if (token1 === "" || token2 === "") {
+    document.title = "DeXter";
+  } else {
+    document.title = `DeXter • ${token1.toUpperCase()}/${token2.toUpperCase()}`;
+  }
+}

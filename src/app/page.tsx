@@ -9,18 +9,24 @@ import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
 import { fetchBalances } from "state/pairSelectorSlice";
-import { useAppDispatch } from "hooks";
+import { useAppDispatch, useAppSelector } from "hooks";
 import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
-import { detectBrowserLanguage } from "./utils";
+import { detectBrowserLanguage, updatePageTitle } from "./utils";
 import { i18nSlice } from "./state/i18nSlice";
 
 import Cookies from "js-cookie";
 
 export default function Home() {
   const dispatch = useAppDispatch();
+  const { token1, token2 } = useAppSelector((state) => state.pairSelector);
+
+  // Detect currently selected pair and adjust pagetitle
+  useEffect(() => {
+    updatePageTitle(token1.symbol, token2.symbol);
+  }, [token1, token2]);
 
   // Detect browser langauge
   useEffect(() => {
