@@ -1,0 +1,13 @@
+{
+  "UNSPECIFIED_PRICE": "Price must be specified",
+  "NONZERO_PRICE": "Price must be greater than 0",
+  "NONZERO_AMOUNT": "Amount must be greater than 0",
+  "HIGH_PRICE": "Price is significantly higher than best sell",
+  "LOW_PRICE": "Price is significantly lower than best buy",
+  "EXCESSIVE_DECIMALS": "Too many decimal places",
+  "INSUFFICIENT_FUNDS": "Insufficient funds",
+  "COULD_NOT_GET_QUOTE": "Could not get quote",
+  "UNSPECIFIED_SLIPPAGE": "Slippage must be specified",
+  "NEGATIVE_SLIPPAGE": "Slippage must be positive",
+  "HIGH_SLIPPAGE": "High slippage entered"
+}

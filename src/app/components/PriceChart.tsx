@@ -9,7 +9,7 @@ import {
   initializeLegend,
   initialPriceChartState,
 } from "../state/priceChartSlice";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
@@ -191,30 +191,30 @@ function PriceChartCanvas(props: PriceChartProps) {
             (props.change && props.change < 0 ? "!text-error" : "!text-success")
           }
         >
-          <div className="flex justify-start gap-x-6">
+          <div className="flex justify-start gap-x-6 text-xs font-medium">
             <div className="text-secondary-content">{candleDate}</div>
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">Change</span> {change} (
               {percChange})%
             </div>
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">Volume</span> {volume}
             </div>
           </div>
           <div className="flex justify-start gap-x-6">
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">Open </span>
               {candleOpen}
             </div>
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">High </span>
               {candleHigh}
             </div>
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">Low </span>
               {candleLow}
             </div>
-            <div>
+            <div className="text-xs font-medium">
               <span className="text-secondary-content">Close </span>
               {candleClose}
             </div>
@@ -226,6 +226,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 }
 
 export function PriceChart() {
+  const t = useTranslations();
   const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
@@ -248,10 +249,10 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="flex items-center justify-between sm:pr-8">
+      <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
-            Trading Chart
+            {t("trading_chart")}
           </span>
         </div>
         <div className="">
@@ -265,7 +266,7 @@ export function PriceChart() {
               }`}
               onClick={() => dispatch(setCandlePeriod(period))}
             >
-              {period}
+              {t(period)}
             </button>
           ))}
         </div>

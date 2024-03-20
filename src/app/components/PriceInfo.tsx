@@ -1,8 +1,9 @@
 import React from "react";
-import { useAppSelector } from "../hooks";
+import { useAppSelector, useTranslations } from "../hooks";
 import { displayNumber } from "../utils";
 
 export function PriceInfo() {
+  const t = useTranslations();
   const priceInfo = useAppSelector((state) => state.priceInfo);
   const noDigits = 4;
   const fixedDecimals = 3;
@@ -18,9 +19,9 @@ export function PriceInfo() {
     <div className="flex justify-between py-2 h-full ">
       <div className="flex flex-col items-start justify-center pl-5 lg:pl-8">
         <span className="text-sm font-bold text-secondary-content uppercase">
-          Price
+          {t("price")}
         </span>
-        <span className={"text-sm font-bold"}>
+        <span className={"text-sm font-bold text-primary-content"}>
           {lastPrice}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -29,8 +30,8 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
-          24h Change
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
+          {t("24h_change")}
         </span>
         <span
           className={
@@ -44,10 +45,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
-          24h Volume
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
+          {t("24h_volume")}
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {volume}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -56,10 +57,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
-          24h High
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
+          {t("24h_high")}
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {high}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
@@ -68,10 +69,10 @@ export function PriceInfo() {
         </span>
       </div>
       <div className="flex flex-col items-start justify-center pr-5 lg:pr-8">
-        <span className="text-xs font-bold text-secondary-content uppercase pb-1">
-          24h Low
+        <span className="text-xs font-bold text-secondary-content uppercase pt-1">
+          {t("24h_low")}
         </span>
-        <span className="text-sm font-bold primary-content">
+        <span className="text-sm font-bold text-primary-content">
           {low}
           <span className="text-sm font-bold text-secondary-content">
             {" "}
