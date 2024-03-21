@@ -62,7 +62,7 @@ function LanguageSelection() {
   };
 
   return (
-    <div className="mr-4">
+    <div className="mr-4 flex">
       {supportedLanguages.map((lang) => (
         <button
           className={`uppercase text-sm px-1 ${
