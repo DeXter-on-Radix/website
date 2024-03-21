@@ -25,7 +25,7 @@ export default function Home() {
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
-    document.title = `DeXter${name ? ` • ${name.toUpperCase()}` : ""}`;
+    document.title = name ? `DeXter • ${name.toUpperCase()}` : "DeXter";
   }, [name]);
 
   // Detect browser langauge
