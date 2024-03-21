@@ -34,6 +34,8 @@ const initialState: OrderBookState = {
   grouping: 0,
 };
 
+export const MAX_ROWS = 11;
+
 export function toOrderBookRowProps(
   adexOrderbookLines: adex.OrderbookLine[],
   side: "sell" | "buy",
@@ -77,11 +79,14 @@ export function toOrderBookRowProps(
       }, []);
     }
   }
+
+  // Throw away any extra rows
   if (groupedArray != null) {
-    adexRows = groupedArray.slice(0, 11); //adexRows.slice(0, 11); // Limit to 11 rows
+    adexRows = groupedArray.slice(0, MAX_ROWS);
   } else {
-    adexRows = adexRows.slice(0, 11);
+    adexRows = adexRows.slice(0, MAX_ROWS);
   }
+
   let total = 0;
   let maxTotal = 0;
   for (let adexRow of adexRows) {
@@ -102,8 +107,8 @@ export function toOrderBookRowProps(
     props[i].maxTotal = maxTotal;
   }
 
-  // If there are fewer than 11 orders, fill the remaining rows with empty values
-  while (props.length < 11) {
+  // If there are fewer than MAX_ROWS orders, fill the remaining rows with empty values
+  while (props.length < MAX_ROWS) {
     props.push({ absentOrders: "\u00A0" });
   }
 

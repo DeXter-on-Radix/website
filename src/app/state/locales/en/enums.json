@@ -1,0 +1,16 @@
+{
+  "MARKET": "Market",
+  "LIMIT": "Limit",
+  "BUY": "Buy",
+  "SELL": "Sell",
+  "PENDING": "Pending",
+  "COMPLETED": "Completed",
+  "CANCELLED": "Cancelled",
+  "POSTONLY": "Post Only",
+  "MARKETPARTIAL": "Market (Partial)",
+  "OPEN_ORDERS": "Open Orders",
+  "ORDER_HISTORY": "Order History",
+  "TRADE_HISTORY": "Trade History",
+  "PAY": "You Pay",
+  "RECEIVE": "You Receive"
+}

@@ -14,8 +14,23 @@ import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
+import { detectBrowserLanguage } from "./utils";
+import { i18nSlice } from "./state/i18nSlice";
+
+import Cookies from "js-cookie";
+
 export default function Home() {
   const dispatch = useAppDispatch();
+
+  // Detect browser langauge
+  useEffect(() => {
+    const userLanguageCookieValue = Cookies.get("userLanguage");
+    if (userLanguageCookieValue) {
+      dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
+    } else {
+      dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     initializeSubscriptions(store);
