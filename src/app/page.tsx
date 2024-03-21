@@ -14,19 +14,19 @@ import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
-import { detectBrowserLanguage, updatePageTitle } from "./utils";
+import { detectBrowserLanguage } from "./utils";
 import { i18nSlice } from "./state/i18nSlice";
 
 import Cookies from "js-cookie";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const pairSelector = useAppSelector((state) => state.pairSelector);
+  const { name } = useAppSelector((state) => state.pairSelector);
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
-    updatePageTitle(pairSelector.name);
-  }, [pairSelector]);
+    document.title = `DeXter${name ? ` • ${name.toUpperCase()}` : ""}`;
+  }, [name]);
 
   // Detect browser langauge
   useEffect(() => {

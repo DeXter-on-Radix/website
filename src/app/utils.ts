@@ -346,12 +346,3 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Fallback to a default language if none is detected
   return defaultLanguage;
 }
-
-// If available, adds currently selected pair to the page title.
-export function updatePageTitle(pairName: string) {
-  if (pairName === "") {
-    document.title = "DeXter";
-  } else {
-    document.title = `DeXter • ${pairName}`;
-  }
-}
