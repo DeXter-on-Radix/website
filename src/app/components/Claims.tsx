@@ -1,14 +1,16 @@
 import React from "react";
-import { claimSlice } from "../state/claimSlice";
+import { claimSlice, fetchReciepts } from "../state/claimSlice";
 import { useAppSelector, useAppDispatch } from "../hooks";
 
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
-  const handleClaim = () => {
+  const handleClaim = async () => {
     console.log("claiming");
-    //dispatch(claimSlice.actions.getClaimNFT("156"));
-    dispatch(claimSlice.actions.getReciepts());
+    const reciepts = await dispatch(fetchReciepts());
+    dispatch(claimSlice.actions.claimRewards("156"));
+    //dispatch(claimSlice.actions.getReciepts());
+    //dispatch(fetchReciepts());
   };
 
   return (
@@ -18,7 +20,28 @@ function ClaimButton() {
         handleClaim();
       }}
     >
-      HEllo World
+      Claims
+    </button>
+  );
+}
+
+function FetchRecieptsButton() {
+  const dispatch = useAppDispatch();
+  const handleClaim = () => {
+    console.log("claiming");
+    //dispatch(claimSlice.actions.getClaimNFT("156"));
+    //dispatch(claimSlice.actions.getReciepts());
+    dispatch(fetchReciepts());
+  };
+
+  return (
+    <button
+      className="btn btn-primary-content"
+      onClick={() => {
+        handleClaim();
+      }}
+    >
+      Fetch REciepts
     </button>
   );
 }
@@ -33,6 +56,7 @@ export function Claims() {
               <b className="relative tracking-[0.1px] leading-[20px] uppercase">
                 CLAIM REWARDS
               </b>
+              <FetchRecieptsButton />
               <ClaimButton />
             </div>
             <div className=" top-[0px] left-[147px] text-13xl leading-[40px] text-colors-primary-50 inline-block w-[216px] h-[44.3px]">
