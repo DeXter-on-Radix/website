@@ -19,6 +19,7 @@ export const store = configureStore({
     accountHistory: accountHistorySlice.reducer,
     priceInfo: priceInfoSlice.reducer,
     i18n: i18nSlice.reducer,
+    claimSlice: claimSlice.reducer,
   },
 });
 
