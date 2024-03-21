@@ -1,4 +1,5 @@
 import "react";
+import { useTranslations } from "hooks";
 import "../styles/footer.css";
 import Image from "next/image";
 import { AccentLink } from "./AccentLink";
@@ -10,6 +11,7 @@ import { FaGithub } from "react-icons/fa6";
 import { SiGitbook } from "react-icons/si";
 
 export function Footer() {
+  const t = useTranslations();
   return (
     <footer className="col-span-12 p-4 grid grid-cols-1 grid-rows-5 gap-4 bg-base-300 text-xs text-secondary-content lg:grid-cols-3 lg:grid-rows-3 lg:p-12 lg:gap-8">
       <div className="row-start-2 row-span-3 grid grid-cols-6 gap-4 text-xs lg:row-start-1">
@@ -31,9 +33,8 @@ export function Footer() {
         />
 
         <div className="col-start-2 col-span-5">
-          Trade and leave the algorithms do the rest! <br /> Safe, Accurate,
-          Intuitive, Decentralised. <br />
-          Runs on{" "}
+          {t("footer_1")} <br /> {t("footer_2")} <br />
+          {t("runs_on")}{" "}
           <a href="https://www.radixdlt.com/" target="_blank">
             RADIX
           </a>{" "}
@@ -44,9 +45,7 @@ export function Footer() {
           .
         </div>
 
-        <div className="col-span-11 col-start-2">
-          Built with passion by a global community.
-        </div>
+        <div className="col-span-11 col-start-2">{t("footer_3")}</div>
 
         <div className="col-span-11 col-start-2">
           <a href="https://www.radixdlt.com/" target="_blank">
@@ -60,9 +59,7 @@ export function Footer() {
       </div>
 
       <div className="flex flex-col space-y-4 px-16 lg:row-span-2">
-        <div className="">
-          <AccentLink href="/">TRADE</AccentLink>
-        </div>
+        <div className="uppercase">{t("social_media")}</div>
 
         <div className="flex justify-between">
           <a
@@ -107,12 +104,12 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="flex justify-end items-center space-x-4 lg:row-start-3 lg:col-start-3 lg:pr-8">
+      <div className="flex justify-end items-center space-x-4 lg:row-start-3 lg:col-start-3 lg:pr-8 uppercase">
         <AccentLink
           href="/terms"
           originalClassName="whitespace-nowrap text-secondary-content"
         >
-          TERMS & CONDITIONS
+          {t("terms_and_conditions")}
         </AccentLink>
       </div>
     </footer>

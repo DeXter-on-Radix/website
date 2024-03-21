@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   OrderTab,
   selectTargetToken,
@@ -17,6 +17,7 @@ import { OrderTypeTabs } from "./OrderTypeTabs";
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
   const tartgetToken = useAppSelector(selectTargetToken);
+  const t = useTranslations();
 
   const {
     tab,
@@ -28,7 +29,10 @@ function SubmitButton() {
   } = useAppSelector((state) => state.orderInput);
 
   const dispatch = useAppDispatch();
-  const submitString = tab.toString() + " " + side.toString() + " " + symbol;
+  const submitString = t("market_action_token")
+    .replace("<$ORDER_TYPE>", t(tab.toString()))
+    .replace("<$SIDE>", t(side.toString()))
+    .replace("<$TOKEN_SYMBOL>", symbol);
 
   const isPriceValid = useAppSelector(validatePriceInput).valid;
   const isSlippageValid = useAppSelector(validateSlippageInput).valid;
@@ -42,11 +46,11 @@ function SubmitButton() {
   return (
     <div className="flex flex-col w-full">
       <button
-        className="flex-1 btn btn-accent"
+        className="flex-1 btn btn-accent uppercase"
         disabled={!isValidTransaction || transactionInProgress}
         onClick={() => dispatch(submitOrder())}
       >
-        {transactionInProgress ? "Transaction in progress..." : submitString}
+        {transactionInProgress ? t("transaction_in_progress") : submitString}
       </button>
       <div className="text-sm">{transactionResult}</div>
     </div>
@@ -55,6 +59,7 @@ function SubmitButton() {
 
 export function OrderInput() {
   const dispatch = useAppDispatch();
+  const t = useTranslations();
 
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const { tab, quote, description } = useAppSelector(
@@ -75,23 +80,23 @@ export function OrderInput() {
         <div className="collapse collapse-arrow text-left">
           <input type="checkbox" />
           <div className="collapse-title font-medium text-sm pl-0">
-            Total fee: {quote?.totalFees ?? 0} {quote?.toToken?.symbol}
+            {t("total_fee")}: {quote?.totalFees ?? 0} {quote?.toToken?.symbol}
           </div>
           <div className="collapse-content text-sm pl-0">
             <div className="flex items-center justify-between">
-              <div>Exchange Fee: </div>
+              <div>{t("exchange_fee")}: </div>
               <div>
                 {quote?.exchangeFees} {quote?.toToken?.symbol}
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div>Platform Fee: </div>
+              <div>{t("platform_fee")}: </div>
               <div>
                 {quote?.platformFees} {quote?.toToken?.symbol}
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div>Liquidity Fee: </div>
+              <div>{t("liquidity_fee")}: </div>
               <div>
                 {quote?.liquidityFees} {quote?.toToken?.symbol}
               </div>

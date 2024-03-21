@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   OrderTab,
   TokenInput,
@@ -14,8 +14,8 @@ import { getLocaleSeparators } from "utils";
 import { IMaskInput } from "react-imask";
 
 export const enum PayReceive {
-  PAY = "YOU PAY:",
-  RECEIVE = "YOU RECEIVE:",
+  PAY = "PAY",
+  RECEIVE = "RECEIVE",
 }
 
 interface TokenInputFiledProps extends TokenInput {
@@ -26,6 +26,7 @@ interface TokenInputFiledProps extends TokenInput {
 }
 
 export function AmountInput(props: TokenInputFiledProps) {
+  const t = useTranslations();
   const tab = useAppSelector((state) => state.orderInput.tab);
   const targetToken = useAppSelector(selectTargetToken);
   const balance = useAppSelector((state) =>
@@ -53,10 +54,10 @@ export function AmountInput(props: TokenInputFiledProps) {
       {/* balance */}
       <div className="flex justify-between text-secondary-content text-xs">
         <div className="space-x-1">
-          <span>BALANCE:</span>
+          <span className="uppercase">{t("balance")}:</span>
           <span>{balance}</span>
         </div>
-        <span className="text-primary-content">{payReceive}</span>
+        <span className="text-primary-content uppercase">{t(payReceive)}:</span>
       </div>
 
       {/* input */}
@@ -76,7 +77,9 @@ export function AmountInput(props: TokenInputFiledProps) {
             alt={symbol}
             className="w-6 h-6 rounded-full mx-2"
           />
-          <span>{symbol}</span>
+          <span className="font-bold text-primary-content text-sm">
+            {symbol}
+          </span>
         </div>
 
         <IMaskInput
@@ -89,7 +92,7 @@ export function AmountInput(props: TokenInputFiledProps) {
           radix={decimalSeparator}
           value={String(amount)}
           className={
-            "flex-1 text-end mr-1 min-w-0" +
+            "flex-1 text-end mr-1 min-w-0 font-bold text-primary-content" +
             (disabled ? " !bg-neutral" : " !bg-base-200")
           }
           onFocus={onFocus}
@@ -97,7 +100,7 @@ export function AmountInput(props: TokenInputFiledProps) {
         ></IMaskInput>
       </div>
 
-      <BottomRightErrorLabel message={message} />
+      <BottomRightErrorLabel message={t(message)} />
     </div>
   );
 }
