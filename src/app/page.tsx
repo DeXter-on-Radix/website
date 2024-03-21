@@ -21,12 +21,12 @@ import Cookies from "js-cookie";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { name } = useAppSelector((state) => state.pairSelector);
+  const pairName = useAppSelector((state) => state.pairSelector.name);
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
-    document.title = name ? `DeXter • ${name.toUpperCase()}` : "DeXter";
-  }, [name]);
+    document.title = pairName ? `DeXter • ${pairName.toUpperCase()}` : "DeXter";
+  }, [pairName]);
 
   // Detect browser langauge
   useEffect(() => {
