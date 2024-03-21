@@ -139,7 +139,7 @@ export function OrderBook() {
         <div className="flex justify-end join">
           <span className="join-item mr-2">{t("grouping")} </span>
           <input
-            className="input-xs w-16 join-item"
+            className="input-xs w-16 join-item truncate"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const grouping = Number(event.target.value);
               dispatch(orderBookSlice.actions.setGrouping(grouping));
