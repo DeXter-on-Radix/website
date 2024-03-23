@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
+import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 
 export interface ClaimState {
   lastPrice: number | null;
@@ -10,13 +11,24 @@ const initialState: ClaimState = {
   lastPrice: null,
 };
 
+type NonFungibleResource = NonFungibleResourcesCollectionItem & {
+  vaults: {
+    items: {
+      vault_address: string;
+      total_count: string;
+      items: string;
+    }[];
+  };
+};
+
 export const fetchReciepts = createAsyncThunk<
   undefined, // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
   }
->("claims/fetchReciepts", async (_arg, thunkAPI) => {
+>("claims/fetchReciepts", async (_, thunkAPI) => {
+  const dispatch = thunkAPI.dispatch;
   const rdt = getRdt();
   if (!rdt) return;
   const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
@@ -34,24 +46,26 @@ export const fetchReciepts = createAsyncThunk<
           // eslint-disable-next-line camelcase
           aggregation_level: "Vault",
           // eslint-disable-next-line camelcase
-          //resource_address: resourceAddress,
-          // eslint-disable-next-line camelcase
           opt_ins: { non_fungible_include_nfids: true },
         },
       });
-    console.log(response);
     const { items } = response;
+
     const accountReceiptVault =
-      items.find(
+      (items.find(
         // eslint-disable-next-line camelcase
         ({ resource_address }) => resource_address === resourceAddress
-      ) || null;
-    console.log(accountReceiptVault);
+      ) as NonFungibleResource) || null;
+
     if (accountReceiptVault && accountReceiptVault?.vaults.items.length > 0) {
-      return accountReceiptVault?.vaults.items[0].items;
+      dispatch(
+        claimSlice.actions.claimRewards(
+          accountReceiptVault?.vaults.items[0].items as String[]
+        )
+      );
     }
   } catch (error) {
-    console.error("Error fetching receipts:", error);
+    return undefined;
   }
 
   return undefined;
@@ -107,7 +121,6 @@ export const claimSlice = createSlice({
           "deposit_batch" 
           Expression("ENTIRE_WORKTOP");
         `;
-      console.log("claim reward slice");
 
       rdt.walletApi.sendTransaction({
         transactionManifest: claimManifest,
