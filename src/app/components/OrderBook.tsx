@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 
 import "../styles/orderbook.css";
 import * as utils from "../utils";
@@ -130,16 +130,31 @@ export function OrderBook() {
   );
   const sells = useAppSelector((state) => state.orderBook.sells);
   const buys = useAppSelector((state) => state.orderBook.buys);
-  //const grouping = useAppSelector((state) => state.orderBook.grouping);
+  const [showOrderBookLabel, setShowOrderBookLabel] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowOrderBookLabel(window.innerWidth > 1400);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const gridColumnClasses = showOrderBookLabel
+    ? "grid-cols-2"
+    : "grid-cols-1";
 
   return (
     <div className="p-2 text-sx text-primary-content">
-      <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
-        <div className="justify-self-start">{t("order_book")}</div>
+      <div className={`grid m-1 text-secondary-content font-bold text-sm uppercase ${gridColumnClasses}`}>
+        {showOrderBookLabel && (
+          <div className="justify-self-start">{t("order_book")}</div>
+        )}
         <div className="flex justify-end join">
-          <span className="join-item mr-2">{t("grouping")} </span>
+          <span className="join-item mr-2 truncate">{t("grouping")} </span>
           <input
-            className="input-xs w-16 join-item truncate"
+            className="input-xs w-16 join-item min-w-50"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const grouping = Number(event.target.value);
               dispatch(orderBookSlice.actions.setGrouping(grouping));
