@@ -33,14 +33,16 @@ export function Navbar() {
         </Link>
       </div>
       <div className="flex-1 px-2 mx-2">
-        {/* <div className="items-stretch hidden lg:flex">
-          <Link
-            className="btn btn-lg h-20 btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
-            href="/"
-          >
-            Trade
-          </Link>
-        </div> */}
+        {
+          <div className="items-stretch hidden lg:flex">
+            <Link
+              className="btn btn-lg h-20 btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
+              href="/claims"
+            >
+              Rewards
+            </Link>
+          </div>
+        }
       </div>
       <div className="navbar-end">
         <LanguageSelection />
