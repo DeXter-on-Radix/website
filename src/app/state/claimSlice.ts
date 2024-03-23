@@ -34,16 +34,19 @@ export const fetchReciepts = createAsyncThunk<
           // eslint-disable-next-line camelcase
           aggregation_level: "Vault",
           // eslint-disable-next-line camelcase
-          resource_address: resourceAddress,
+          //resource_address: resourceAddress,
           // eslint-disable-next-line camelcase
           opt_ins: { non_fungible_include_nfids: true },
         },
       });
+    console.log(response);
+    const { items } = response;
     const accountReceiptVault =
-      response.items.find(
-        (field) => field.resource_address === resourceAddress
+      items.find(
+        // eslint-disable-next-line camelcase
+        ({ resource_address }) => resource_address === resourceAddress
       ) || null;
-
+    console.log(accountReceiptVault);
     if (accountReceiptVault && accountReceiptVault?.vaults.items.length > 0) {
       return accountReceiptVault?.vaults.items[0].items;
     }
@@ -61,7 +64,6 @@ export const claimSlice = createSlice({
   // synchronous reducers
   reducers: {
     claimRewards: (state, action: PayloadAction<String[]>) => {
-      console.log(action.payload);
       const rdt = getRdt();
       if (!rdt) return;
       const walletData = rdt.walletApi.getWalletData();
@@ -79,7 +81,7 @@ export const claimSlice = createSlice({
       const nftArray = action.payload
         .map((id) => `NonFungibleLocalId("${id}")`)
         .join(",");
-      console.log(nftArray);
+
       const claimManifest = `
         CALL_METHOD 
           Address("${accountAddress}") 

@@ -1,14 +1,11 @@
 "use client";
 
 import { Claims } from "components/Claims";
-import { useAppDispatch } from "hooks";
 import { useEffect } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 import { store } from "../state/store";
 
-
 export default function Markets() {
-  const dispatch = useAppDispatch();
   useEffect(() => {
     initializeSubscriptions(store);
     return () => {
@@ -16,9 +13,9 @@ export default function Markets() {
     };
   }, []);
   return (
-    <div className="container mx-auto px-16">
+    <div className="container mx-auto md:px-16 sm:px-0">
       <div className="flex flex-col justify-center">
-        <div className="flex flex-1 justify-around items-center">
+        <div className="flex flex-1 xs:flex-col md:flex-row justify-around items-center">
           <h1 className="flex-initial w-1/2 uppercase">Rewards</h1>
           <div className="flex-initial justify-center w-1/2">
             <img
@@ -29,7 +26,7 @@ export default function Markets() {
             ></img>
           </div>
         </div>
-        <div className="flex flex-1 justify-around">
+        <div className="flex flex-1 xs:flex-col md:flex-row items-center justify-around">
           <div className="flex flex-inital flex-col flex-inital w-1/2">
             <p className="text-xl">
               Earn rewards by adding liquidity or trading on DeXter
@@ -48,14 +45,14 @@ export default function Markets() {
               for &quot;active liquidity&quot; closer to the mid price to
               encourage trading and reduce price slippage.
             </p>
-            <div className="flex flex-row justify-between items-center">
-              <p className="text-xl">Want to earn more?</p>
-              <a className="btn btn-accent text-primary" href="/">
+            <div className="flex xs:flex-col md:flex-row justify-between items-center">
+              <p className="flex flex-1 text-xl">Want to earn more?</p>
+              <a className="flex -1 btn btn-accent text-primary" href="/">
                 PROVIDE LIQUIDITY
               </a>
             </div>
           </div>
-          <div className="flex flex-inital flex-col items-center w-1/2">
+          <div className="flex flex-inital xs:order-first md:order-last flex-col items-center w-1/2">
             <Claims />
           </div>
         </div>
