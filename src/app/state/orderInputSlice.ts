@@ -84,22 +84,20 @@ export interface OrderInputState {
   transactionResult?: string;
 }
 
-function adexOrderType(state: OrderInputState): adex.OrderType {
-  if (state.type === OrderType.MARKET) {
-    return adex.OrderType.MARKET;
-  }
-  if (state.type === OrderType.LIMIT) {
-    if (state.postOnly) {
-      return adex.OrderType.POSTONLY;
-    } else {
-      return adex.OrderType.LIMIT;
-    }
-  }
+// function ToAdexOrderType(state: OrderInputState): adex.OrderType {
+//   if (state.postOnly) {
+//     return adex.OrderType.POSTONLY;
+//   }
+//   if (state.type === OrderType.MARKET) {
+//     return adex.OrderType.MARKET;
+//   }
+//   if (state.type === OrderType.LIMIT) {
+//     return adex.OrderType.LIMIT;
+//   }
+//   throw new Error("Invalid order type");
+// }
 
-  throw new Error("Invalid order type");
-}
-
-export const initialTokenInput = {
+export const initialTokenInput: TokenInput = {
   address: "",
   symbol: "",
   iconUrl: "",
@@ -107,17 +105,16 @@ export const initialTokenInput = {
   decimals: 0,
 };
 
-const initialValidationResult = {
+const initialValidationResult: ValidationResult = {
   valid: true,
   message: "",
-  decimals: 0,
 };
 
 export const initialState: OrderInputState = {
-  token1: initialTokenInput,
-  validationToken1: initialValidationResult,
-  token2: initialTokenInput,
-  validationToken2: initialValidationResult,
+  token1: { ...initialTokenInput },
+  token2: { ...initialTokenInput },
+  validationToken1: { ...initialValidationResult },
+  validationToken2: { ...initialValidationResult },
   specifiedToken: SpecifiedToken.UNSPECIFIED,
   type: OrderType.MARKET,
   postOnly: false,
@@ -127,50 +124,50 @@ export const initialState: OrderInputState = {
   transactionInProgress: false,
 };
 
-export const selectTargetToken = (state: RootState) => {
-  if (state.orderInput.type === OrderType.MARKET) {
-    if (state.orderInput.side === OrderSide.SELL) {
-      return state.orderInput.token1;
-    } else {
-      return state.orderInput.token2;
-    }
-  } else {
-    return state.orderInput.token1;
-  }
-};
-const selectSlippage = (state: RootState) => state.orderInput.slippage;
-const selectPrice = (state: RootState) => state.orderInput.price;
-const selectSide = (state: RootState) => state.orderInput.side;
-const selectToken1MaxDecimals = (state: RootState) => {
-  return state.pairSelector.token1.decimals;
-};
-const selectToken2MaxDecimals = (state: RootState) => {
-  return state.pairSelector.token2.decimals;
-};
+// export const selectTargetToken = (state: RootState) => {
+//   if (state.orderInput.type === OrderType.MARKET) {
+//     if (state.orderInput.side === OrderSide.SELL) {
+//       return state.orderInput.token1;
+//     } else {
+//       return state.orderInput.token2;
+//     }
+//   } else {
+//     return state.orderInput.token1;
+//   }
+// };
+// const selectSlippage = (state: RootState) => state.orderInput.slippage;
+// const selectPrice = (state: RootState) => state.orderInput.price;
+// const selectSide = (state: RootState) => state.orderInput.side;
+// const selectToken1MaxDecimals = (state: RootState) => {
+//   return state.pairSelector.token1.decimals;
+// };
+// const selectToken2MaxDecimals = (state: RootState) => {
+//   return state.pairSelector.token2.decimals;
+// };
 
-// TODO: find out if it's possible to do the same with less boilerplate
-const selectToken1 = (state: RootState) => state.orderInput.token1;
-const selectToken2 = (state: RootState) => state.orderInput.token2;
-export const selectValidationToken1 = (state: RootState) =>
-  state.orderInput.validationToken1;
-export const selectValidationToken2 = (state: RootState) =>
-  state.orderInput.validationToken2;
-export const selectValidationByAddress = createSelector(
-  [
-    selectToken1,
-    selectToken2,
-    selectValidationToken1,
-    selectValidationToken2,
-    (state: RootState, address: string) => address,
-  ],
-  (token1, token2, validationToken1, validationToken2, address) => {
-    if (token1.address === address) {
-      return validationToken1;
-    } else {
-      return validationToken2;
-    }
-  }
-);
+// // TODO: find out if it's possible to do the same with less boilerplate
+// const selectToken1 = (state: RootState) => state.orderInput.token1;
+// const selectToken2 = (state: RootState) => state.orderInput.token2;
+// export const selectValidationToken1 = (state: RootState) =>
+//   state.orderInput.validationToken1;
+// export const selectValidationToken2 = (state: RootState) =>
+//   state.orderInput.validationToken2;
+// export const selectValidationByAddress = createSelector(
+//   [
+//     selectToken1,
+//     selectToken2,
+//     selectValidationToken1,
+//     selectValidationToken2,
+//     (state: RootState, address: string) => address,
+//   ],
+//   (token1, token2, validationToken1, validationToken2, address) => {
+//     if (token1.address === address) {
+//       return validationToken1;
+//     } else {
+//       return validationToken2;
+//     }
+//   }
+// );
 
 // for getting balances out of pairSelector slice
 const selectInfoToken1 = (state: RootState) => state.pairSelector.token1;
@@ -181,7 +178,6 @@ export const selectBalanceByAddress = createSelector(
     selectInfoToken2,
     (state: RootState, address: string) => address,
   ],
-
   (infoToken1, infoToken2, address) => {
     if (infoToken1.address === address) {
       return infoToken1.balance;
@@ -193,68 +189,66 @@ export const selectBalanceByAddress = createSelector(
   }
 );
 
-export const fetchQuote = createAsyncThunk<
-  QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
-  undefined, // set to undefined if the thunk doesn't expect any arguments
-  { state: RootState }
->("orderInput/fetchQuote", async (_arg, thunkAPI) => {
-  const state = thunkAPI.getState();
-  if (state.pairSelector.address === "") {
-    throw new Error("Pair address is not initilized yet.");
-  }
+/*
+ * FETCH QUOTE
+ */
+// export const fetchQuote = createAsyncThunk<
+//   QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
+//   undefined, // set to undefined if the thunk doesn't expect any arguments
+//   { state: RootState }
+// >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
+//   const state = thunkAPI.getState();
+//   if (state.pairSelector.address === "") {
+//     throw new Error("Pair address is not initilized yet.");
+//   }
+//   let priceToSend = undefined;
+//   let slippageToSend = undefined;
+//   if (
+//     state.orderInput.type === OrderType.LIMIT &&
+//     state.orderInput.price !== ""
+//   ) {
+//     priceToSend = state.orderInput.price;
+//   } else if (state.orderInput.slippage !== "") {
+//     slippageToSend = state.orderInput.slippage;
+//   }
+//   const targetToken = selectTargetToken(state);
+//   if (!targetToken?.amount) {
+//     throw new Error("No amount specified when fetching quote.");
+//   }
+//   const response = await adex.getExchangeOrderQuote(
+//     state.pairSelector.address,
+//     adexOrderType(state.orderInput),
+//     state.orderInput.side,
+//     targetToken.address,
+//     targetToken.amount,
+//     PLATFORM_BADGE_ID,
+//     priceToSend,
+//     slippageToSend
+//   );
+//   const quote: Quote = JSON.parse(JSON.stringify(response.data));
+//   return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
+// });
 
-  let priceToSend = undefined;
-  let slippageToSend = undefined;
-
-  if (
-    state.orderInput.type === OrderType.LIMIT &&
-    state.orderInput.price !== ""
-  ) {
-    priceToSend = state.orderInput.price;
-  } else if (state.orderInput.slippage !== "") {
-    slippageToSend = state.orderInput.slippage;
-  }
-  const targetToken = selectTargetToken(state);
-
-  if (!targetToken?.amount) {
-    throw new Error("No amount specified when fetching quote.");
-  }
-
-  const response = await adex.getExchangeOrderQuote(
-    state.pairSelector.address,
-    adexOrderType(state.orderInput),
-    state.orderInput.side,
-    targetToken.address,
-    targetToken.amount,
-    PLATFORM_BADGE_ID,
-    priceToSend,
-    slippageToSend
-  );
-  const quote: Quote = JSON.parse(JSON.stringify(response.data));
-
-  return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
-});
-
-export const submitOrder = createAsyncThunk<
-  SdkResult,
-  undefined,
-  { state: RootState }
->("orderInput/submitOrder", async (_arg, thunkAPI) => {
-  const state = thunkAPI.getState();
-  const dispatch = thunkAPI.dispatch;
-  const rdt = getRdt();
-
-  if (!rdt) {
-    throw new Error("RDT is not initialized yet.");
-  }
-
-  const result = await createTx(state, rdt);
-  //Updates account history + balances
-  dispatch(fetchBalances());
-  dispatch(fetchAccountHistory());
-
-  return result;
-});
+/*
+ * SUBMIT ORDER
+ */
+// export const submitOrder = createAsyncThunk<
+//   SdkResult,
+//   undefined,
+//   { state: RootState }
+// >("orderInput/submitOrder", async (_arg, thunkAPI) => {
+//   const state = thunkAPI.getState();
+//   const dispatch = thunkAPI.dispatch;
+//   const rdt = getRdt();
+//   if (!rdt) {
+//     throw new Error("RDT is not initialized yet.");
+//   }
+//   const result = await createTx(state, rdt);
+//   //Updates account history + balances
+//   dispatch(fetchBalances());
+//   dispatch(fetchAccountHistory());
+//   return result;
+// });
 
 export const orderInputSlice = createSlice({
   name: "orderInput",
@@ -315,42 +309,42 @@ export const orderInputSlice = createSlice({
     setAmountToken2(state, action: PayloadAction<number | "">) {
       state.token2.amount = action.payload;
     },
-    validateAmount(
-      state,
-      action: PayloadAction<{ amount: number | ""; address: string }>
-    ) {
-      const { amount, address: tokenAddress } = action.payload;
-      if (tokenAddress === state.token1.address) {
-        state.validationToken1 = _validateAmount(amount);
-      } else if (tokenAddress === state.token2.address) {
-        state.validationToken2 = _validateAmount(amount);
-      }
-    },
-    validateAmountWithBalance(
-      state,
-      action: PayloadAction<{
-        amount: number | "";
-        address: string;
-        balance: number;
-      }>
-    ) {
-      const { amount, address: tokenAddress, balance } = action.payload;
-      const validation = _validateAmountWithBalance({
-        amount,
-        balance,
-        decimals: state.token1.decimals,
-      });
-      if (tokenAddress === state.token1.address) {
-        state.validationToken1 = validation;
-      } else if (tokenAddress === state.token2.address) {
-        state.validationToken2 = validation;
-      }
-    },
-    swapTokens(state) {
-      const temp = state.token1;
-      state.token1 = state.token2;
-      state.token2 = temp;
-    },
+    // validateAmount(
+    //   state,
+    //   action: PayloadAction<{ amount: number | ""; address: string }>
+    // ) {
+    //   const { amount, address: tokenAddress } = action.payload;
+    //   if (tokenAddress === state.token1.address) {
+    //     state.validationToken1 = _validateAmount(amount);
+    //   } else if (tokenAddress === state.token2.address) {
+    //     state.validationToken2 = _validateAmount(amount);
+    //   }
+    // },
+    // validateAmountWithBalance(
+    //   state,
+    //   action: PayloadAction<{
+    //     amount: number | "";
+    //     address: string;
+    //     balance: number;
+    //   }>
+    // ) {
+    //   const { amount, address: tokenAddress, balance } = action.payload;
+    //   const validation = _validateAmountWithBalance({
+    //     amount,
+    //     balance,
+    //     decimals: state.token1.decimals,
+    //   });
+    //   if (tokenAddress === state.token1.address) {
+    //     state.validationToken1 = validation;
+    //   } else if (tokenAddress === state.token2.address) {
+    //     state.validationToken2 = validation;
+    //   }
+    // },
+    // swapTokens(state) {
+    //   const temp = state.token1;
+    //   state.token1 = state.token2;
+    //   state.token2 = temp;
+    // },
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
     },
@@ -367,18 +361,18 @@ export const orderInputSlice = createSlice({
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
     },
-    resetNumbersInput(state) {
-      state.token1 = initialTokenInput;
-      state.token2 = initialTokenInput;
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
-      state.price = 0;
-      state.slippage = 0.01;
-      state.transactionInProgress = false;
-      state.transactionResult = undefined;
-      state.quote = undefined;
-      state.description = undefined;
-    },
+    // resetNumbersInput(state) {
+    //   state.token1 = initialTokenInput;
+    //   state.token2 = initialTokenInput;
+    //   state.validationToken1 = initialValidationResult;
+    //   state.validationToken2 = initialValidationResult;
+    //   state.price = 0;
+    //   state.slippage = 0.01;
+    //   state.transactionInProgress = false;
+    //   state.transactionResult = undefined;
+    //   state.quote = undefined;
+    //   state.description = undefined;
+    // },
     resetUserInput(state) {
       state.token1.amount = "";
       state.token2.amount = "";
@@ -392,306 +386,282 @@ export const orderInputSlice = createSlice({
     // },
   },
 
-  // asynchronous reducers
-  extraReducers: (builder) => {
-    // fetchQuote
-    builder.addCase(fetchQuote.pending, (state) => {
-      state.quote = undefined;
-      state.description = undefined;
-    });
-
-    builder.addCase(
-      fetchQuote.fulfilled,
-      (
-        state,
-        action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
-      ) => {
-        const quote = action.payload;
-
-        if (!quote) {
-          console.debug("quote not valid", quote);
-          return;
-        }
-
-        function quoteResultCodeOk(quote: Quote) {
-          let ok = true;
-          if (quote.resultCode < 100 || quote.resultCode > 199) {
-            ok = false;
-          }
-          if (quote.resultCode === 5 || quote.resultCode === 6) {
-            ok = true;
-          }
-          return ok;
-        }
-        if (!quoteResultCodeOk(quote)) {
-          console.debug("quote not valid", quote);
-          return;
-        }
-
-        state.quote = quote;
-        state.description = toDescription(quote);
-
-        if (state.type === OrderType.MARKET) {
-          // MARKET
-
-          // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
-          if (quote.resultCode === 5 || quote.resultCode === 6) {
-            if (state.side === OrderSide.SELL) {
-              state.validationToken1.valid = false;
-              state.validationToken1.message = quote.resultMessageLong;
-            } else {
-              state.validationToken2.valid = false;
-              state.validationToken2.message = quote.resultMessageLong;
-            }
-          } else {
-            if (state.side === OrderSide.SELL) {
-              state.token2.amount = quote.toAmount;
-            } else {
-              state.token1.amount = quote.fromAmount;
-            }
-          }
-        } else {
-          // LIMIT order
-          // always changing the second token here because it's always the non-target token
-          state.token2.amount = calculateCost(
-            state.token1,
-            state.price,
-            quote.priceTokenAddress
-          );
-        }
-      }
-    );
-
-    builder.addCase(fetchQuote.rejected, (state, action) => {
-      if (state.type === OrderType.MARKET) {
-        if (state.side === OrderSide.SELL) {
-          state.token2.amount = "";
-          state.validationToken2.valid = false;
-          state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-        } else {
-          state.token1.amount = "";
-          state.validationToken1.valid = false;
-          state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-        }
-      }
-      state.quote = undefined;
-      console.error("fetchQuote rejected:", action.error.message);
-    });
-
-    // submitOrder
-    builder.addCase(submitOrder.pending, (state) => {
-      state.transactionInProgress = true;
-      state.transactionResult = undefined;
-    });
-    builder.addCase(submitOrder.fulfilled, (state, action) => {
-      state.transactionInProgress = false;
-      state.transactionResult = action.payload.message;
-    });
-    builder.addCase(submitOrder.rejected, (state, action) => {
-      state.transactionInProgress = false;
-      state.transactionResult = action.error.message;
-    });
-  },
+  // // asynchronous reducers
+  // extraReducers: (builder) => {
+  //   // fetchQuote
+  //   builder.addCase(fetchQuote.pending, (state) => {
+  //     state.quote = undefined;
+  //     state.description = undefined;
+  //   });
+  //   builder.addCase(
+  //     fetchQuote.fulfilled,
+  //     (
+  //       state,
+  //       action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
+  //     ) => {
+  //       const quote = action.payload;
+  //       if (!quote) {
+  //         console.debug("quote not valid", quote);
+  //         return;
+  //       }
+  //       function quoteResultCodeOk(quote: Quote) {
+  //         let ok = true;
+  //         if (quote.resultCode < 100 || quote.resultCode > 199) {
+  //           ok = false;
+  //         }
+  //         if (quote.resultCode === 5 || quote.resultCode === 6) {
+  //           ok = true;
+  //         }
+  //         return ok;
+  //       }
+  //       if (!quoteResultCodeOk(quote)) {
+  //         console.debug("quote not valid", quote);
+  //         return;
+  //       }
+  //       state.quote = quote;
+  //       state.description = toDescription(quote);
+  //       if (state.type === OrderType.MARKET) {
+  //         // MARKET
+  //         // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
+  //         if (quote.resultCode === 5 || quote.resultCode === 6) {
+  //           if (state.side === OrderSide.SELL) {
+  //             state.validationToken1.valid = false;
+  //             state.validationToken1.message = quote.resultMessageLong;
+  //           } else {
+  //             state.validationToken2.valid = false;
+  //             state.validationToken2.message = quote.resultMessageLong;
+  //           }
+  //         } else {
+  //           if (state.side === OrderSide.SELL) {
+  //             state.token2.amount = quote.toAmount;
+  //           } else {
+  //             state.token1.amount = quote.fromAmount;
+  //           }
+  //         }
+  //       } else {
+  //         // LIMIT order
+  //         // always changing the second token here because it's always the non-target token
+  //         state.token2.amount = calculateCost(
+  //           state.token1,
+  //           state.price,
+  //           quote.priceTokenAddress
+  //         );
+  //       }
+  //     }
+  //   );
+  //   builder.addCase(fetchQuote.rejected, (state, action) => {
+  //     if (state.type === OrderType.MARKET) {
+  //       if (state.side === OrderSide.SELL) {
+  //         state.token2.amount = "";
+  //         state.validationToken2.valid = false;
+  //         state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
+  //       } else {
+  //         state.token1.amount = "";
+  //         state.validationToken1.valid = false;
+  //         state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
+  //       }
+  //     }
+  //     state.quote = undefined;
+  //     console.error("fetchQuote rejected:", action.error.message);
+  //   });
+  //   // submitOrder
+  //   builder.addCase(submitOrder.pending, (state) => {
+  //     state.transactionInProgress = true;
+  //     state.transactionResult = undefined;
+  //   });
+  //   builder.addCase(submitOrder.fulfilled, (state, action) => {
+  //     state.transactionInProgress = false;
+  //     state.transactionResult = action.payload.message;
+  //   });
+  //   builder.addCase(submitOrder.rejected, (state, action) => {
+  //     state.transactionInProgress = false;
+  //     state.transactionResult = action.error.message;
+  //   });
+  // },
 });
 
-function toDescription(quote: Quote): string {
-  let description = "";
+// function toDescription(quote: Quote): string {
+//   let description = "";
+//   if (quote.fromAmount > 0 && quote.toAmount > 0) {
+//     description +=
+//       `Sending ${displayNumber(quote.fromAmount, 8)} ${
+//         quote.fromToken.symbol
+//       } ` +
+//       `to receive ${displayNumber(quote.toAmount, 8)} ${
+//         quote.toToken.symbol
+//       }.\n`;
+//   }
+//   if (quote.resultMessageLong) {
+//     description += "\n" + quote.resultMessageLong;
+//   }
+//   return description;
+// }
 
-  if (quote.fromAmount > 0 && quote.toAmount > 0) {
-    description +=
-      `Sending ${displayNumber(quote.fromAmount, 8)} ${
-        quote.fromToken.symbol
-      } ` +
-      `to receive ${displayNumber(quote.toAmount, 8)} ${
-        quote.toToken.symbol
-      }.\n`;
-  }
+/*
+ * CREATE TX
+ */
+// async function createTx(state: RootState, rdt: RDT) {
+//   const type = state.orderInput.type;
+//   const targetToken = selectTargetToken(state);
+//   let slippage = -1;
+//   let price = -1;
+//   if (type === OrderType.MARKET && state.orderInput.slippage !== "") {
+//     slippage = state.orderInput.slippage;
+//   } else if (type === OrderType.LIMIT && state.orderInput.price !== "") {
+//     price = state.orderInput.price;
+//   }
+//   if (!targetToken?.amount) {
+//     throw new Error("No amount specified when creating transaction.");
+//   }
+//   //Adex creates the transaction manifest
+//   const createOrderResponse = await adex.createExchangeOrderTx(
+//     state.pairSelector.address,
+//     adexOrderType(state.orderInput),
+//     state.orderInput.side,
+//     targetToken.address,
+//     targetToken.amount,
+//     price,
+//     slippage,
+//     PLATFORM_BADGE_ID,
+//     state.radix?.walletData.accounts[0]?.address || "",
+//     state.radix?.walletData.accounts[0]?.address || ""
+//   );
+//   //Then submits the order to the wallet
+//   let submitTransactionResponse = await adex.submitTransaction(
+//     createOrderResponse.data,
+//     rdt
+//   );
+//   submitTransactionResponse = JSON.parse(
+//     JSON.stringify(submitTransactionResponse)
+//   );
+//   return submitTransactionResponse;
+// }
 
-  if (quote.resultMessageLong) {
-    description += "\n" + quote.resultMessageLong;
-  }
+// export const validateSlippageInput = createSelector(
+//   [selectSlippage],
+//   (slippage) => {
+//     if (slippage === "") {
+//       return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
+//     }
+//     if (slippage < 0) {
+//       return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
+//     }
+//     if (slippage >= 0.05) {
+//       return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
+//     }
+//     return { valid: true, message: "" };
+//   }
+// );
 
-  return description;
-}
+// export const validatePriceInput = createSelector(
+//   [
+//     selectPrice,
+//     selectToken1MaxDecimals,
+//     selectToken2MaxDecimals,
+//     selectBestBuy,
+//     selectBestSell,
+//     selectSide,
+//   ],
+//   (
+//     price,
+//     selectToken1MaxDecimals,
+//     selectToken2MaxDecimals,
+//     bestBuy,
+//     bestSell,
+//     side
+//   ) => {
+//     if (price === "") {
+//       return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
+//     }
+//     if (price <= 0) {
+//       return { valid: false, message: ErrorMessage.NONZERO_PRICE };
+//     }
+//     if (selectToken1MaxDecimals !== undefined)
+//       if (price.toString().split(".")[1]?.length > selectToken1MaxDecimals) {
+//         return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+//       }
+//     if (selectToken2MaxDecimals !== undefined)
+//       if (price.toString().split(".")[1]?.length > selectToken2MaxDecimals) {
+//         return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
+//       }
+//     if (bestSell) {
+//       if (side === OrderSide.BUY && price > bestSell * 1.05) {
+//         return {
+//           valid: true,
+//           message: ErrorMessage.HIGH_PRICE,
+//         };
+//       }
+//     }
+//     if (bestBuy) {
+//       if (side === OrderSide.SELL && price < bestBuy * 0.95) {
+//         return {
+//           valid: true,
+//           message: ErrorMessage.LOW_PRICE,
+//         };
+//       }
+//     }
+//     return { valid: true, message: "" };
+//   }
+// );
 
-async function createTx(state: RootState, rdt: RDT) {
-  const type = state.orderInput.type;
-  const targetToken = selectTargetToken(state);
+// function _validateAmount(amount: number | ""): ValidationResult {
+//   let valid = true;
+//   let message = "";
+//   if (amount === "" || amount === undefined) {
+//     return { valid, message };
+//   }
+//   /*
+//   if (amount.toString().split(".")[1]?.length > decimals) {
+//     console.log(amount.toString().split(".")[1]?.length, " vs ", decimals);
+//     valid = false;
+//     message = ErrorMessage.EXCESSIVE_DECIMALS;
+//   }
+// */
+//   if (amount <= 0) {
+//     valid = false;
+//     message = ErrorMessage.NONZERO_AMOUNT;
+//   }
 
-  let slippage = -1;
-  let price = -1;
+//   return { valid, message };
+// }
 
-  if (type === OrderType.MARKET && state.orderInput.slippage !== "") {
-    slippage = state.orderInput.slippage;
-  } else if (type === OrderType.LIMIT && state.orderInput.price !== "") {
-    price = state.orderInput.price;
-  }
+// function _validateAmountWithBalance({
+//   amount,
+//   balance,
+// }: {
+//   amount: number | "";
+//   balance: number;
+//   decimals: number | 0;
+// }): ValidationResult {
+//   if ((balance || 0) < (amount || 0)) {
+//     return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
+//   } else {
+//     return _validateAmount(amount);
+//   }
+// }
 
-  if (!targetToken?.amount) {
-    throw new Error("No amount specified when creating transaction.");
-  }
-
-  //Adex creates the transaction manifest
-  const createOrderResponse = await adex.createExchangeOrderTx(
-    state.pairSelector.address,
-    adexOrderType(state.orderInput),
-    state.orderInput.side,
-    targetToken.address,
-    targetToken.amount,
-    price,
-    slippage,
-    PLATFORM_BADGE_ID,
-    state.radix?.walletData.accounts[0]?.address || "",
-    state.radix?.walletData.accounts[0]?.address || ""
-  );
-  //Then submits the order to the wallet
-  let submitTransactionResponse = await adex.submitTransaction(
-    createOrderResponse.data,
-    rdt
-  );
-
-  submitTransactionResponse = JSON.parse(
-    JSON.stringify(submitTransactionResponse)
-  );
-
-  return submitTransactionResponse;
-}
-
-export const validateSlippageInput = createSelector(
-  [selectSlippage],
-  (slippage) => {
-    if (slippage === "") {
-      return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
-    }
-
-    if (slippage < 0) {
-      return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
-    }
-
-    if (slippage >= 0.05) {
-      return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
-    }
-
-    return { valid: true, message: "" };
-  }
-);
-
-export const validatePriceInput = createSelector(
-  [
-    selectPrice,
-    selectToken1MaxDecimals,
-    selectToken2MaxDecimals,
-    selectBestBuy,
-    selectBestSell,
-    selectSide,
-  ],
-  (
-    price,
-    selectToken1MaxDecimals,
-    selectToken2MaxDecimals,
-    bestBuy,
-    bestSell,
-    side
-  ) => {
-    if (price === "") {
-      return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
-    }
-
-    if (price <= 0) {
-      return { valid: false, message: ErrorMessage.NONZERO_PRICE };
-    }
-
-    if (selectToken1MaxDecimals !== undefined)
-      if (price.toString().split(".")[1]?.length > selectToken1MaxDecimals) {
-        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
-      }
-    if (selectToken2MaxDecimals !== undefined)
-      if (price.toString().split(".")[1]?.length > selectToken2MaxDecimals) {
-        return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
-      }
-
-    if (bestSell) {
-      if (side === OrderSide.BUY && price > bestSell * 1.05) {
-        return {
-          valid: true,
-          message: ErrorMessage.HIGH_PRICE,
-        };
-      }
-    }
-
-    if (bestBuy) {
-      if (side === OrderSide.SELL && price < bestBuy * 0.95) {
-        return {
-          valid: true,
-          message: ErrorMessage.LOW_PRICE,
-        };
-      }
-    }
-    return { valid: true, message: "" };
-  }
-);
-
-function _validateAmount(amount: number | ""): ValidationResult {
-  let valid = true;
-  let message = "";
-  if (amount === "" || amount === undefined) {
-    return { valid, message };
-  }
-  /*
-  if (amount.toString().split(".")[1]?.length > decimals) {
-    console.log(amount.toString().split(".")[1]?.length, " vs ", decimals);
-    valid = false;
-    message = ErrorMessage.EXCESSIVE_DECIMALS;
-  }
-*/
-  if (amount <= 0) {
-    valid = false;
-    message = ErrorMessage.NONZERO_AMOUNT;
-  }
-
-  return { valid, message };
-}
-
-function _validateAmountWithBalance({
-  amount,
-  balance,
-}: {
-  amount: number | "";
-  balance: number;
-  decimals: number | 0;
-}): ValidationResult {
-  if ((balance || 0) < (amount || 0)) {
-    return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
-  } else {
-    return _validateAmount(amount);
-  }
-}
-
-export function calculateCost(
-  token1: { amount: number | ""; address: string },
-  price: number | "",
-  priceTokenAddress: string
-): number | "" {
-  if (token1.amount === "" || token1.amount === 0) {
-    return token1.amount;
-  }
-  if (price === "" || price === 0) {
-    return "";
-  }
-  const amountToken1 = Number(token1.amount);
-  if (isNaN(amountToken1)) {
-    console.error("Invalid amount:", token1.amount);
-    return "";
-  }
-
-  let cost;
-  if (token1.address === priceTokenAddress) {
-    cost = amountToken1 / price;
-  } else {
-    cost = amountToken1 * price;
-  }
-
-  cost = roundTo(cost, adex.AMOUNT_MAX_DECIMALS, RoundType.NEAREST);
-
-  return cost;
-}
+// export function calculateCost(
+//   token1: { amount: number | ""; address: string },
+//   price: number | "",
+//   priceTokenAddress: string
+// ): number | "" {
+//   if (token1.amount === "" || token1.amount === 0) {
+//     return token1.amount;
+//   }
+//   if (price === "" || price === 0) {
+//     return "";
+//   }
+//   const amountToken1 = Number(token1.amount);
+//   if (isNaN(amountToken1)) {
+//     console.error("Invalid amount:", token1.amount);
+//     return "";
+//   }
+//   let cost;
+//   if (token1.address === priceTokenAddress) {
+//     cost = amountToken1 / price;
+//   } else {
+//     cost = amountToken1 * price;
+//   }
+//   cost = roundTo(cost, adex.AMOUNT_MAX_DECIMALS, RoundType.NEAREST);
+//   return cost;
+// }
