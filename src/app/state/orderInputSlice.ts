@@ -46,9 +46,9 @@ export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
-interface QuoteWithPriceTokenAddress extends Quote {
-  priceTokenAddress: string;
-}
+// interface QuoteWithPriceTokenAddress extends Quote {
+//   priceTokenAddress: string;
+// }
 
 export interface TokenInfo extends adex.TokenInfo {
   decimals?: number;
