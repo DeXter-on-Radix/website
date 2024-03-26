@@ -13,11 +13,11 @@ export default function Markets() {
     };
   }, []);
   return (
-    <div className="container mx-auto md:px-16 sm:px-0">
+    <div className="container mx-auto md:px-16 sm:px-0 h-full">
       <div className="flex flex-col justify-center">
         <div className="flex flex-1 xs:flex-col md:flex-row justify-around items-center">
-          <h1 className="flex-initial w-1/2 uppercase">Rewards</h1>
-          <div className="flex-initial justify-center w-1/2">
+          <h1 className="flex-initial uppercase">Rewards</h1>
+          <div className="flex-initial justify-center">
             <img
               className="mx-auto"
               src="/claims/chest.png"
@@ -27,7 +27,7 @@ export default function Markets() {
           </div>
         </div>
         <div className="flex flex-1 xs:flex-col md:flex-row items-center justify-around">
-          <div className="flex flex-inital flex-col flex-inital w-1/2">
+          <div className="flex flex-1 flex-col flex-inital">
             <p className="text-xl">
               Earn rewards by adding liquidity or trading on DeXter
             </p>
@@ -52,7 +52,7 @@ export default function Markets() {
               </a>
             </div>
           </div>
-          <div className="flex flex-inital xs:order-first md:order-last flex-col items-center w-1/2">
+          <div className="flex flex-1 xs:order-first md:order-last flex-col items-center">
             <Claims />
           </div>
         </div>
