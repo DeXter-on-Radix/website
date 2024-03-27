@@ -319,6 +319,10 @@ export function getPriceSymbol(order: OrderReceipt): string {
   return order.pairName.split("/")[1];
 }
 
+export function capitalizeFirstLetter(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1);
+}
+
 export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Helper function to extract first 2 chars and ensure its lowercased.
   const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
