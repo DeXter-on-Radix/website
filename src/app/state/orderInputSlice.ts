@@ -19,10 +19,12 @@ export enum OrderType {
   LIMIT = "LIMIT",
 }
 
+// Tracks user input
 export enum SpecifiedToken {
   UNSPECIFIED = "UNSPECIFIED",
   TOKEN_1 = "TOKEN_1", // Quantity
   TOKEN_2 = "TOKEN_2", // Total
+  PRICE = "PRICE",
 }
 
 export enum ErrorMessage {

@@ -8,7 +8,6 @@
  * -> CurrencyInput {currency, onAccept}
  * -> Label {name}
  * -> SecondaryLabel {disabled, name, value, currency, onClick}
- *
  */
 
 import { useEffect } from "react";
@@ -48,47 +47,30 @@ interface OrderSideTabProps {
   orderSide: OrderSide;
 }
 
-interface TokenInputProps {
-  specifiedToken: SpecifiedToken;
+interface CurrencyInputGroupProps {
+  disabled?: boolean; // for price input
+  specifiedToken: SpecifiedToken; // for token1 + token2 inputs
 }
 
-interface DisabledInputFieldLabelProps {
-  label: string;
+interface CurrencyInputProps {
+  currency: string;
+  onAccept: () => void;
 }
-
-interface PriceInputProps {
-  disabled: boolean;
-}
-
-interface TokenInputProps {
-  specifiedToken: SpecifiedToken;
-}
-
-// interface CurrencyLabelProps {
-//   currency?: string;
-// }
-
-// interface OrderInputPrimaryLabelProps {
-//   label: string;
-// }
-
-// interface OrderInputSecondaryLabelProps {
-//   disabled: boolean;
-//   label?: string;
-//   value?: number;
-//   currency?: string;
-//   onClick?: () => void;
-// }
 
 interface LabelProps {
   label: string;
 }
 
 interface SecondaryLabelProps {
-  label?: string;
-  value?: number;
-  currency?: string;
-  onClick?: () => void;
+  hide: boolean;
+  label: string;
+  currency: string;
+  fetchValue: () => number;
+  onClick: () => void;
+}
+
+interface DisabledInputFieldProps {
+  label: string;
 }
 
 export function OrderInput() {
@@ -147,6 +129,81 @@ export function OrderInput() {
         <FeesDisclaimer />
         <button onClick={showCurrentState}>DEBUG: show state</button>
       </div>
+    </div>
+  );
+}
+
+function OrderSideTabs() {
+  return (
+    <div
+      // OUTSIDE_CONTAINER_MAX_WIDTH
+      className={`min-h-[44px] flex max-w-[450px] w-full`}
+    >
+      {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
+        <OrderSideTab orderSide={currentSide} key={indx} />
+      ))}
+    </div>
+  );
+}
+
+function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
+  const side = useAppSelector((state) => state.orderInput.side);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div
+      className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
+        side === "BUY" && orderSide === "BUY"
+          ? "bg-dexter-green text-content-dark"
+          : side === "SELL" && orderSide === "SELL"
+          ? "bg-dexter-red text-white"
+          : "opacity-50"
+      }`}
+      onClick={() => {
+        dispatch(orderInputSlice.actions.setSide(orderSide));
+      }}
+    >
+      <p className="font-bold text-sm tracking-[.1px] select-none">
+        {orderSide}
+      </p>
+    </div>
+  );
+}
+
+function OrderTypeTabs() {
+  return (
+    <>
+      <div className="min-h-[44px] flex justify-center">
+        <div className="w-full">
+          <div className="flex min-h-[44px]">
+            {[OrderType.MARKET, OrderType.LIMIT].map((currentType, indx) => (
+              <OrderTypeTab orderType={currentType} key={indx} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
+  const type = useAppSelector((state) => state.orderInput.type);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div
+      className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
+        type === orderType.toString()
+          ? " bg-base-100 text-white"
+          : " bg-base-200 opacity-50"
+      }`}
+      onClick={() => {
+        dispatch(orderInputSlice.actions.setOrderType(orderType));
+      }}
+    >
+      <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
+        {orderType.toString()}
+      </p>
     </div>
   );
 }
@@ -274,91 +331,106 @@ function UserInputContainer() {
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
-  const isBuy = side === "BUY";
-  const isSell = side === "SELL";
+  const isBuyOrder = side === "BUY";
+  const isSellOrder = side === "SELL";
 
   return (
     <div className="bg-base-100 px-5 pb-5">
       {isMarketOrder && (
         <>
-          <PriceInput disabled={true} />
+          <CurrencyInputGroup
+            specifiedToken={SpecifiedToken.PRICE}
+            disabled={true}
+          />
           <PercentageSlider />
-          {/* Market BUY -> specify total to spend (token2) */}
-          {isBuy && <TokenInput specifiedToken={SpecifiedToken.TOKEN_2} />}
-          {/* Market SELL -> specify total to sell (token1) */}
-          {isSell && <TokenInput specifiedToken={SpecifiedToken.TOKEN_1} />}
+          {isSellOrder && ( // specify "Quantity"
+            <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_1} />
+          )}
+          {isBuyOrder && ( // specify "Total"
+            <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_2} />
+          )}
         </>
       )}
       {isLimitOrder && (
         <>
-          <PriceInput disabled={false} />
+          <CurrencyInputGroup specifiedToken={SpecifiedToken.PRICE} />
           <PercentageSlider />
-          <TokenInput specifiedToken={SpecifiedToken.TOKEN_1} />
-          <TokenInput specifiedToken={SpecifiedToken.TOKEN_2} />
+          <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_1} />
+          <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_2} />
         </>
       )}
     </div>
   );
 }
-
 // Container with labels (left + right) and input field
-function TokenInput({ specifiedToken }: TokenInputProps): JSX.Element | null {
-  const { side, token1, token2 } = useAppSelector((state) => state.orderInput);
-  const showBalance =
-    (side === "BUY" && specifiedToken === "TOKEN_2") ||
-    (side === "SELL" && specifiedToken === "TOKEN_1");
-  const currency = specifiedToken === "TOKEN_1" ? token1.symbol : token2.symbol;
-  const currentBalance = 123.12; // TODO(dcts) get from orderbook
-  return (
-    <div className="pt-5">
-      <div className="w-full flex content-between">
-        <Label label={"Price"} />
-        {showBalance && (
-          <SecondaryLabel
-            label="Available"
-            value={currentBalance}
-            currency={currency}
-            onClick={() => {}}
-          />
-        )}
-      </div>
-      <div className="min-h-[44px] w-full content-between bg-base-200 flex relative">
-        <CurrencyInput currency={currency} onAccept={() => {}} />
-      </div>
-    </div>
+function CurrencyInputGroup({
+  disabled = false,
+  specifiedToken,
+}: CurrencyInputGroupProps): JSX.Element | null {
+  const { side, type, token1, token2 } = useAppSelector(
+    (state) => state.orderInput
   );
-}
+  const { label, currency, secondaryLabelProps } = {
+    TOKEN_1: {
+      label: "Quantity",
+      currency: token1.symbol,
+      secondaryLabelProps: {
+        hide: side !== "SELL",
+        label: "Available",
+        currency: token1.symbol,
+        fetchValue: () => 0,
+        onClick: () => {}, // set token1 amount
+      },
+    },
+    TOKEN_2: {
+      label: "Total",
+      currency: token2.symbol,
+      secondaryLabelProps: {
+        hide: side !== "BUY",
+        label: "Available",
+        currency: token2.symbol,
+        fetchValue: () => 0,
+        onClick: () => {}, // set token2 amount
+      },
+    },
+    PRICE: {
+      label: "Price",
+      currency: token2.symbol,
+      secondaryLabelProps: {
+        hide: disabled,
+        label: `Best ${side.toLowerCase()}`,
+        currency: token2.symbol,
+        fetchValue: () => 0,
+        onClick: () => {}, // set Price
+      },
+    },
+    UNSPECIFIED: {
+      label: "",
+      currency: "",
+      secondaryLabelProps: {
+        hide: true,
+        label: "",
+        currency: "",
+        fetchValue: () => 0,
+        onClick: () => {},
+      },
+    },
+  }[specifiedToken];
 
-// Container with labels (left + right) and input field
-function PriceInput({ disabled = false }: PriceInputProps): JSX.Element | null {
-  const { side, token2 } = useAppSelector((state) => state.orderInput);
-  const showBestPrices = !disabled;
-  const currency = token2.symbol;
-  // const decimalSeparator = getLocaleSeparators().decimalSeparator
-  // const [showBestPrices, _] /*setShowBestPrices]*/ = useState(!disabled);
-  const bestPriceLabel = side === "BUY" ? "Best Buy" : "Best Sell";
-  const bestPrice = 123.12; // TODO(dcts) get from orderbook
-
+  const isMarketOrder = type === "MARKET";
+  const isPriceSpecified = specifiedToken === "PRICE";
   return (
     <div className="pt-5">
       <div className="w-full flex content-between">
-        <Label label={"Price"} />
-        {showBestPrices && (
-          <SecondaryLabel
-            label={bestPriceLabel}
-            value={bestPrice}
-            currency={token2.symbol}
-            onClick={() => {}}
-          />
-        )}
+        <Label label={label} />
+        <SecondaryLabel {...secondaryLabelProps} />
       </div>
-      <div className="min-h-[44px] w-full content-between bg-base-200 flex relative">
-        {disabled ? (
-          <DisabledInputFieldLabel label="MARKET" />
-        ) : (
-          <CurrencyInput currency={currency} onAccept={() => {}} />
-        )}
-      </div>
+      {/* conditionally show disabled MARKET price label */}
+      {isMarketOrder && isPriceSpecified ? (
+        <DisabledInputField label="MARKET" />
+      ) : (
+        <CurrencyInput currency={currency} onAccept={() => {}} />
+      )}
     </div>
   );
 }
@@ -374,12 +446,16 @@ function Label({ label }: LabelProps): JSX.Element | null {
 // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
 // Can be empty/disabled (e.g. Market Price)
 function SecondaryLabel({
+  hide,
   label,
-  value,
   currency,
+  fetchValue,
   onClick,
 }: SecondaryLabelProps): JSX.Element | null {
-  return (
+  const value = fetchValue() || 0;
+  return hide ? (
+    <></>
+  ) : (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
       onClick={onClick}
@@ -389,9 +465,16 @@ function SecondaryLabel({
   );
 }
 
-interface CurrencyInputProps {
-  currency: string;
-  onAccept: () => void;
+function DisabledInputField({
+  label,
+}: DisabledInputFieldProps): JSX.Element | null {
+  return (
+    <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg">
+      <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
+        {label}
+      </div>
+    </div>
+  );
 }
 
 function CurrencyInput({
@@ -409,7 +492,7 @@ function CurrencyInput({
         min={0}
         mask={Number}
         unmask={"typed"}
-        className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-l-md"
+        className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
         onAccept={onAccept}
       ></IMaskInput>
       {/* <CurrencyLabel currency={currency} /> */}
@@ -423,91 +506,6 @@ function CurrencyInput({
 // TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
   return <></>;
-}
-
-function OrderTypeTabs() {
-  return (
-    <>
-      <div className="min-h-[44px] flex justify-center">
-        <div className="w-full">
-          <div className="flex min-h-[44px]">
-            {[OrderType.MARKET, OrderType.LIMIT].map((currentType, indx) => (
-              <OrderTypeTab orderType={currentType} key={indx} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
-  const type = useAppSelector((state) => state.orderInput.type);
-  const dispatch = useAppDispatch();
-
-  return (
-    <div
-      className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-        type === orderType.toString()
-          ? " bg-base-100 text-white"
-          : " bg-base-200 opacity-50"
-      }`}
-      onClick={() => {
-        dispatch(orderInputSlice.actions.setOrderType(orderType));
-      }}
-    >
-      <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
-        {orderType.toString()}
-      </p>
-    </div>
-  );
-}
-
-function OrderSideTabs() {
-  return (
-    <div
-      // OUTSIDE_CONTAINER_MAX_WIDTH
-      className={`min-h-[44px] flex max-w-[450px] w-full`}
-    >
-      {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
-        <OrderSideTab orderSide={currentSide} key={indx} />
-      ))}
-    </div>
-  );
-}
-
-function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
-  const side = useAppSelector((state) => state.orderInput.side);
-  const dispatch = useAppDispatch();
-
-  return (
-    <div
-      className={`w-1/2 flex justify-center items-center cursor-pointer hover:opacity-100 ${
-        side === "BUY" && orderSide === "BUY"
-          ? "bg-dexter-green text-content-dark"
-          : side === "SELL" && orderSide === "SELL"
-          ? "bg-dexter-red text-white"
-          : "opacity-50"
-      }`}
-      onClick={() => {
-        dispatch(orderInputSlice.actions.setSide(orderSide));
-      }}
-    >
-      <p className="font-bold text-sm tracking-[.1px] select-none">
-        {orderSide}
-      </p>
-    </div>
-  );
-}
-
-function DisabledInputFieldLabel({
-  label,
-}: DisabledInputFieldLabelProps): JSX.Element | null {
-  return (
-    <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
-      {label}
-    </div>
-  );
 }
 
 /**
@@ -681,4 +679,20 @@ function DisabledInputFieldLabel({
 //     );
 //   }
 //   return <></>;
+// }
+
+// interface CurrencyLabelProps {
+//   currency?: string;
+// }
+
+// interface OrderInputPrimaryLabelProps {
+//   label: string;
+// }
+
+// interface OrderInputSecondaryLabelProps {
+//   disabled: boolean;
+//   label?: string;
+//   value?: number;
+//   currency?: string;
+//   onClick?: () => void;
 // }
