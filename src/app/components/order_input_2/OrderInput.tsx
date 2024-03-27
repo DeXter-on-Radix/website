@@ -278,7 +278,7 @@ function UserInputContainer() {
   const isSell = side === "SELL";
 
   return (
-    <>
+    <div className="bg-base-100 px-5 pb-5">
       {isMarketOrder && (
         <>
           <PriceInput disabled={true} />
@@ -297,7 +297,7 @@ function UserInputContainer() {
           <TokenInput specifiedToken={SpecifiedToken.TOKEN_2} />
         </>
       )}
-    </>
+    </div>
   );
 }
 
