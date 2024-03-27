@@ -11,6 +11,7 @@ Here are a few guidelines to follow:
 - **Make PRs small and focused on a single change** so they are easier to review and merge
 - **Make PRs complete** so that the new feature is functional
 - **Write tests** to prevent regressions, unit tests with [Jest](https://jestjs.io/) in `__tests__` folder, end to end tests with [Playwright](https://playwright.dev/) in `e2e` folder
+- **Try to avoid custom CSS** - the project uses [DaisyUI](https://daisyui.com/) and [TailwindCSS](https://tailwindcss.com/docs/) for styling, whenever possible use the existing components and classes, the full rationale (by creator of TailwindCSS) is [here](https://adamwathan.me/css-utility-classes-and-separation-of-concerns/)
 
 If you happen to use VS Code, install the recommended extensions to get automatic formatting and linting on save, they are listed in `.vscode/extensions.json` and VS Code will prompt you to install them.
 
