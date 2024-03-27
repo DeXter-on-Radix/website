@@ -1,18 +1,8 @@
 /*
- * -> OrderInput (the main component, unfortunately you acnnot change this name, please keep it)
- * -> CurrencyInputGroup {disabled, disabledText, label, currency, onAccept}
- * -> Label {name}
- * -> SecondaryLabel {disabled, label, value, currency, onClick}
- * -> CurrencyInput {disabled}
- */
-
-/*
- * -> OrderInput (the main component, unfortunately you acnnot change this name, please keep it)
+ * -> OrderInput
  *
- * -> PriceInputGroup {disabled} -> hardcoded Price label + onAccept is also hardcoded
- * -> CurrencyInputGroup {specifiedToken} -> specified token determines label, currency and onAccept functionality
- * -> ALTERNATIVE
- * -> CurrencyInputGroup {label, currency, onAccept} -> no disabled state
+ * -> PriceInput {disabled} -> hardcoded Price label + onAccept is also hardcoded
+ * -> TokenInput {specifiedToken} -> specified token determines label, currency and onAccept functionality
  *
  * -> UI COMPONENTS
  * -> CurrencyInput {currency, onAccept}
@@ -26,8 +16,8 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { IMaskInput } from "react-imask";
 import {
   capitalizeFirstLetter,
-  getLocaleSeparators,
-  numberOrEmptyInput,
+  // getLocaleSeparators,
+  // numberOrEmptyInput,
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
@@ -36,7 +26,7 @@ import {
   OrderSide,
   OrderType,
   // fetchQuote,
-  selectBalanceByAddress,
+  // selectBalanceByAddress,
   orderInputSlice,
   SpecifiedToken,
   // selectTargetToken,
@@ -50,24 +40,28 @@ const POST_ONLY_TOOLTIP =
   "If the order can be matched immediately, it will not be created. " +
   "This option helps ensure you receive the maker rebate.";
 
-interface OrderInputProps {
-  label: string;
-  currency?: string;
-  secondaryLabel?: string;
-  secondaryLabelValue?: number | string;
-  available?: number;
-  disabled?: boolean;
-  // onFocus?: () => void;
-  onAccept?: (value: any) => void;
-  value?: number | "";
-}
-
 interface OrderTypeTabProps {
   orderType: OrderType;
 }
 
 interface OrderSideTabProps {
   orderSide: OrderSide;
+}
+
+interface TokenInputProps {
+  specifiedToken: SpecifiedToken;
+}
+
+interface DisabledInputFieldLabelProps {
+  label: string;
+}
+
+interface PriceInputProps {
+  disabled: boolean;
+}
+
+interface TokenInputProps {
+  specifiedToken: SpecifiedToken;
 }
 
 // interface CurrencyLabelProps {
@@ -86,29 +80,15 @@ interface OrderSideTabProps {
 //   onClick?: () => void;
 // }
 
-interface CurrencyInputGroup {
-  specifiedToken: SpecifiedToken;
-}
-
-interface PriceInputGroup {
-  disabled: boolean;
-}
-
 interface LabelProps {
   label: string;
 }
 
 interface SecondaryLabelProps {
-  disabled: boolean;
   label?: string;
   value?: number;
   currency?: string;
   onClick?: () => void;
-}
-
-interface CurrencyInputProps {
-  currency: string;
-  onAccept: () => void;
 }
 
 export function OrderInput() {
@@ -147,42 +127,6 @@ export function OrderInput() {
   useEffect(() => {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
-
-  // useEffect(() => {
-  //   if (
-  //     tartgetToken.amount !== "" &&
-  //     validationToken1.valid &&
-  //     validationToken2.valid
-  //   ) {
-  //     dispatch(fetchQuote());
-  //   }
-  // }, [
-  //   dispatch,
-  //   pairAddress,
-  //   token1,
-  //   token2,
-  //   side,
-  //   type,
-  //   tartgetToken,
-  //   validationToken1.valid,
-  //   validationToken2.valid,
-  // ]);
-
-  // useEffect(() => {
-  //   console.log("quote");
-  //   console.log(quote);
-  //   console.log("description");
-  //   console.log(description);
-  // }, [quote, description]);
-
-  // useEffect(() => {
-  //   orderInputSlice.actions.swapTokens();
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("SIDE CHANGED");
-  //   dispatch(orderInputSlice.actions.resetUserInput());
-  // }, [dispatch, side]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
@@ -330,161 +274,94 @@ function UserInputContainer() {
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
+  const isBuy = side === "BUY";
+  const isSell = side === "SELL";
 
   return (
     <>
       {isMarketOrder && (
         <>
           <PriceInput disabled={true} />
+          <PercentageSlider />
           {/* Market BUY -> specify total to spend (token2) */}
-          {side === "BUY" && <TokenInput specifiedToken="token2" />}
+          {isBuy && <TokenInput specifiedToken={SpecifiedToken.TOKEN_2} />}
           {/* Market SELL -> specify total to sell (token1) */}
-          {side === "SELL" && <TokenInput specifiedToken="token1" />}
+          {isSell && <TokenInput specifiedToken={SpecifiedToken.TOKEN_1} />}
         </>
       )}
       {isLimitOrder && (
         <>
-          <PriceInput />
-          <TokenInput specifiedToken="token1" />
-          <TokenInput specifiedToken="token2" />
+          <PriceInput disabled={false} />
+          <PercentageSlider />
+          <TokenInput specifiedToken={SpecifiedToken.TOKEN_1} />
+          <TokenInput specifiedToken={SpecifiedToken.TOKEN_2} />
         </>
       )}
     </>
   );
 }
 
-// function UserInputContainer() {
-//   const { side, type, price, token1, token2 } = useAppSelector(
-//     (state) => state.orderInput
-//   );
-//   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
-//   const token1Balance = useAppSelector((state) =>
-//     selectBalanceByAddress(state, token1.address)
-//   );
-//   const token2Balance = useAppSelector((state) =>
-//     selectBalanceByAddress(state, token2.address)
-//   );
-//   const dispatch = useAppDispatch();
+// Container with labels (left + right) and input field
+function TokenInput({ specifiedToken }: TokenInputProps): JSX.Element | null {
+  const { side, token1, token2 } = useAppSelector((state) => state.orderInput);
+  const showBalance =
+    (side === "BUY" && specifiedToken === "TOKEN_2") ||
+    (side === "SELL" && specifiedToken === "TOKEN_1");
+  const currency = specifiedToken === "TOKEN_1" ? token1.symbol : token2.symbol;
+  const currentBalance = 123.12; // TODO(dcts) get from orderbook
+  return (
+    <div className="pt-5">
+      <div className="w-full flex content-between">
+        <Label label={"Price"} />
+        {showBalance && (
+          <SecondaryLabel
+            label="Available"
+            value={currentBalance}
+            currency={currency}
+            onClick={() => {}}
+          />
+        )}
+      </div>
+      <div className="min-h-[44px] w-full content-between bg-base-200 flex relative">
+        <CurrencyInput currency={currency} onAccept={() => {}} />
+      </div>
+    </div>
+  );
+}
 
-//   if (type === "MARKET") {
-//     return (
-//       <div className="bg-base-100 px-5 pb-5 mb-6" key="market">
-//         <OrderInputElement label={"Price"} disabled={true} key="market-price" />
-//         <OrderInputElement
-//           label={side === "BUY" ? "Total" : "Quantity"}
-//           secondaryLabel={"Available"}
-//           secondaryLabelValue={
-//             side === "BUY"
-//               ? token2Balance?.toFixed(4) || 0
-//               : token1Balance?.toFixed(4) || 0
-//           }
-//           currency={side === "BUY" ? token2.symbol : token1.symbol}
-//           onAccept={(value) => {
-//             dispatch(orderInputSlice.actions.resetValidation());
-//             dispatch(
-//               orderInputSlice.actions[
-//                 side === "BUY" ? "setAmountToken2" : "setAmountToken1"
-//               ](numberOrEmptyInput(value))
-//             );
-//           }}
-//           key={"market-" + side === "BUY" ? "total" : "quantity"}
-//           value={side === "BUY" ? token2.amount : token1.amount}
-//         />
-//         <PercentageSlider />
-//       </div>
-//     );
-//   }
-//   if (type === "LIMIT") {
-//     return (
-//       <div className="bg-base-100 px-5 pb-5 " key="limit">
-//         <OrderInputElement
-//           label={"Price"}
-//           currency={token2.symbol}
-//           secondaryLabel={`Best ${side.toLowerCase()}`}
-//           secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
-//           key="limit-price"
-//           value={price}
-//           onAccept={(value) => {
-//             dispatch(orderInputSlice.actions.resetValidation());
-//             dispatch(
-//               orderInputSlice.actions.setPrice(numberOrEmptyInput(value))
-//             );
-//           }}
-//         />
-//         <OrderInputElement
-//           label={"Quantity"}
-//           currency={token1.symbol}
-//           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
-//           secondaryLabelValue={token1Balance?.toFixed(4) || 0}
-//           key="limit-quantity"
-//         />
-//         <PercentageSlider />
-//         <OrderInputElement
-//           label={"Total"}
-//           currency={token2.symbol}
-//           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
-//           secondaryLabelValue={token2Balance?.toFixed(4) || 0}
-//           key="limit-total"
-//         />
-//       </div>
-//     );
-//   }
-//   return <></>;
-// }
+// Container with labels (left + right) and input field
+function PriceInput({ disabled = false }: PriceInputProps): JSX.Element | null {
+  const { side, token2 } = useAppSelector((state) => state.orderInput);
+  const showBestPrices = !disabled;
+  const currency = token2.symbol;
+  // const decimalSeparator = getLocaleSeparators().decimalSeparator
+  // const [showBestPrices, _] /*setShowBestPrices]*/ = useState(!disabled);
+  const bestPriceLabel = side === "BUY" ? "Best Buy" : "Best Sell";
+  const bestPrice = 123.12; // TODO(dcts) get from orderbook
 
-// function OrderInputElement({
-//   label,
-//   currency,
-//   secondaryLabel,
-//   secondaryLabelValue,
-//   disabled = false,
-//   onAccept,
-//   value,
-// }: OrderInputProps): JSX.Element | null {
-//   const decimalSeparator = getLocaleSeparators().decimalSeparator;
-//   return (
-//     // Container with labels (left + right) and input field
-//     <div className="pt-5">
-//       <div className="w-full flex content-between">
-//         <OrderInputPrimaryLabel label={label} />{" "}
-//         <OrderInputSecondaryLabel
-//           label={secondaryLabel}
-//           labelValue={secondaryLabelValue}
-//         />
-//       </div>
-//       {/* Input field (left) + currency label (right) */}
-//       <div
-//         className={`min-h-[44px] w-full content-between bg-base-200 flex ${
-//           disabled
-//             ? "relative"
-//             : "rounded-lg hover:outline hover:outline-1 hover:outline-white/50 "
-//         }`}
-//       >
-//         <IMaskInput
-//           // scale={targetToken.decimals} // todo(dcts)
-//           // placeholder={"0.0"} // todo(dcts)
-//           // onFocus={onFocus} // todo(dcts)
-//           value={String(value)}
-//           disabled={disabled || false}
-//           min={0}
-//           mask={Number}
-//           unmask={"typed"}
-//           radix={decimalSeparator}
-//           className={`text-sm grow w-full text-right pr-2 bg-base-200 ${
-//             disabled
-//               ? "rounded-md border-[1.5px] border-dashed border-[#768089]"
-//               : "rounded-l-md"
-//           }`}
-//           onAccept={onAccept || (() => {})}
-//         ></IMaskInput>
-//         {/* If disabled, add "MARKET" text and dashed border and skip currency label */}
-//         {disabled && <FixedMarketPriceLabel />}
-//         {/* If not disabled, add a currency label next to the input */}
-//         {!disabled && <CurrencyLabel currency={currency} />}
-//       </div>
-//     </div>
-//   );
-// }
+  return (
+    <div className="pt-5">
+      <div className="w-full flex content-between">
+        <Label label={"Price"} />
+        {showBestPrices && (
+          <SecondaryLabel
+            label={bestPriceLabel}
+            value={bestPrice}
+            currency={token2.symbol}
+            onClick={() => {}}
+          />
+        )}
+      </div>
+      <div className="min-h-[44px] w-full content-between bg-base-200 flex relative">
+        {disabled ? (
+          <DisabledInputFieldLabel label="MARKET" />
+        ) : (
+          <CurrencyInput currency={currency} onAccept={() => {}} />
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Label({ label }: LabelProps): JSX.Element | null {
   return (
@@ -497,15 +374,12 @@ function Label({ label }: LabelProps): JSX.Element | null {
 // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
 // Can be empty/disabled (e.g. Market Price)
 function SecondaryLabel({
-  disabled = false,
   label,
   value,
   currency,
   onClick,
 }: SecondaryLabelProps): JSX.Element | null {
-  return disabled ? (
-    <></>
-  ) : (
+  return (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
       onClick={onClick}
@@ -513,6 +387,11 @@ function SecondaryLabel({
       {label}: {value} {currency}
     </p>
   );
+}
+
+interface CurrencyInputProps {
+  currency: string;
+  onAccept: () => void;
 }
 
 function CurrencyInput({
@@ -540,54 +419,6 @@ function CurrencyInput({
     </div>
   );
 }
-
-// // Left Label: e.g. "Price", "Quantity", "Total"
-// function OrderInputPrimaryLabel({
-//   label,
-// }: OrderInputPrimaryLabelProps): JSX.Element | null {
-//   return (
-//     <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
-//       {label}:
-//     </p>
-//   );
-// }
-
-// // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
-// // Can be empty/disabled (e.g. Market Price)
-// function OrderInputSecondaryLabel({
-//   disabled = false,
-//   label,
-//   value,
-//   currency,
-//   onClick,
-// }: OrderInputSecondaryLabelProps): JSX.Element | null {
-//   return disabled ? (
-//     <></>
-//   ) : (
-//     <p
-//       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-//       onClick={onClick}
-//     >
-//       {label}: {value} {currency}
-//     </p>
-//   );
-// }
-
-// function FixedMarketPriceLabel() {
-//   return (
-//     <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
-//       MARKET
-//     </div>
-//   );
-// }
-
-// function CurrencyLabel({ currency }: CurrencyLabelProps): JSX.Element | null {
-//   return (
-//     <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
-//       {currency}
-//     </div>
-//   );
-// }
 
 // TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
@@ -668,3 +499,186 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
     </div>
   );
 }
+
+function DisabledInputFieldLabel({
+  label,
+}: DisabledInputFieldLabelProps): JSX.Element | null {
+  return (
+    <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
+      {label}
+    </div>
+  );
+}
+
+/**
+ * ARCHIVE
+ * ARCHIVE
+ * ARCHIVE
+ */
+
+// interface OrderInputProps {
+//   label: string;
+//   currency?: string;
+//   secondaryLabel?: string;
+//   secondaryLabelValue?: number | string;
+//   available?: number;
+//   disabled?: boolean;
+//   // onFocus?: () => void;
+//   onAccept?: (value: any) => void;
+//   value?: number | "";
+// }
+
+// useEffect(() => {
+//   if (
+//     tartgetToken.amount !== "" &&
+//     validationToken1.valid &&
+//     validationToken2.valid
+//   ) {
+//     dispatch(fetchQuote());
+//   }
+// }, [
+//   dispatch,
+//   pairAddress,
+//   token1,
+//   token2,
+//   side,
+//   type,
+//   tartgetToken,
+//   validationToken1.valid,
+//   validationToken2.valid,
+// ]);
+
+// useEffect(() => {
+//   console.log("quote");
+//   console.log(quote);
+//   console.log("description");
+//   console.log(description);
+// }, [quote, description]);
+
+// useEffect(() => {
+//   orderInputSlice.actions.swapTokens();
+// }, []);
+
+// useEffect(() => {
+//   console.log("SIDE CHANGED");
+//   dispatch(orderInputSlice.actions.resetUserInput());
+// }, [dispatch, side]);
+
+// // Left Label: e.g. "Price", "Quantity", "Total"
+// function OrderInputPrimaryLabel({
+//   label,
+// }: OrderInputPrimaryLabelProps): JSX.Element | null {
+//   return (
+//     <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
+//       {label}:
+//     </p>
+//   );
+// }
+
+// // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
+// // Can be empty/disabled (e.g. Market Price)
+// function OrderInputSecondaryLabel({
+//   disabled = false,
+//   label,
+//   value,
+//   currency,
+//   onClick,
+// }: OrderInputSecondaryLabelProps): JSX.Element | null {
+//   return disabled ? (
+//     <></>
+//   ) : (
+//     <p
+//       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
+//       onClick={onClick}
+//     >
+//       {label}: {value} {currency}
+//     </p>
+//   );
+// }
+
+// function CurrencyLabel({ currency }: CurrencyLabelProps): JSX.Element | null {
+//   return (
+//     <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
+//       {currency}
+//     </div>
+//   );
+// }
+
+// function UserInputContainer() {
+//   const { side, type, price, token1, token2 } = useAppSelector(
+//     (state) => state.orderInput
+//   );
+//   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
+//   const token1Balance = useAppSelector((state) =>
+//     selectBalanceByAddress(state, token1.address)
+//   );
+//   const token2Balance = useAppSelector((state) =>
+//     selectBalanceByAddress(state, token2.address)
+//   );
+//   const dispatch = useAppDispatch();
+
+//   if (type === "MARKET") {
+//     return (
+//       <div className="bg-base-100 px-5 pb-5 mb-6" key="market">
+//         <OrderInputElement label={"Price"} disabled={true} key="market-price" />
+//         <OrderInputElement
+//           label={side === "BUY" ? "Total" : "Quantity"}
+//           secondaryLabel={"Available"}
+//           secondaryLabelValue={
+//             side === "BUY"
+//               ? token2Balance?.toFixed(4) || 0
+//               : token1Balance?.toFixed(4) || 0
+//           }
+//           currency={side === "BUY" ? token2.symbol : token1.symbol}
+//           onAccept={(value) => {
+//             dispatch(orderInputSlice.actions.resetValidation());
+//             dispatch(
+//               orderInputSlice.actions[
+//                 side === "BUY" ? "setAmountToken2" : "setAmountToken1"
+//               ](numberOrEmptyInput(value))
+//             );
+//           }}
+//           key={"market-" + side === "BUY" ? "total" : "quantity"}
+//           value={side === "BUY" ? token2.amount : token1.amount}
+//         />
+//         <PercentageSlider />
+//       </div>
+//     );
+//   }
+//   if (type === "LIMIT") {
+//     return (
+//       <div className="bg-base-100 px-5 pb-5 " key="limit">
+//         <OrderInputElement
+//           label={"Price"}
+//           currency={token2.symbol}
+//           secondaryLabel={`Best ${side.toLowerCase()}`}
+//           secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
+//           key="limit-price"
+//           value={price}
+//           onAccept={(value) => {
+//             dispatch(orderInputSlice.actions.resetValidation());
+//             dispatch(
+//               orderInputSlice.actions.setPrice(numberOrEmptyInput(value))
+//             );
+//           }}
+//         />
+//         <OrderInputElement
+//           label={"Quantity"}
+//           currency={token1.symbol}
+//           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
+//           secondaryLabelValue={token1Balance?.toFixed(4) || 0}
+//           key="limit-quantity"
+//         />
+//         <PercentageSlider />
+//         <OrderInputElement
+//           label={"Total"}
+//           currency={token2.symbol}
+//           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
+//           secondaryLabelValue={token2Balance?.toFixed(4) || 0}
+//           key="limit-total"
+//         />
+//       </div>
+//     );
+//   }
+//   return <></>;
+// }
