@@ -15,6 +15,8 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { IMaskInput } from "react-imask";
 import {
   capitalizeFirstLetter,
+  getPrecision,
+  numberOrEmptyInput,
   // getLocaleSeparators,
   // numberOrEmptyInput,
 } from "../../utils";
@@ -25,7 +27,7 @@ import {
   OrderSide,
   OrderType,
   // fetchQuote,
-  // selectBalanceByAddress,
+  selectBalanceByAddress,
   orderInputSlice,
   SpecifiedToken,
   // selectTargetToken,
@@ -54,7 +56,8 @@ interface CurrencyInputGroupProps {
 
 interface CurrencyInputProps {
   currency: string;
-  onAccept: () => void;
+  value: number | "";
+  updateValue: (value: string) => void;
 }
 
 interface LabelProps {
@@ -66,7 +69,7 @@ interface SecondaryLabelProps {
   label: string;
   currency: string;
   fetchValue: () => number;
-  onClick: () => void;
+  setValue: (value: number | "") => void;
 }
 
 interface DisabledInputFieldProps {
@@ -80,27 +83,15 @@ export function OrderInput() {
   const {
     type,
     side,
-    token1,
-    token2,
+    // token1,
+    // token2,
     // validationToken1,
     // validationToken2,
     // description,
-    specifiedToken,
-    quote,
-    price,
+    // specifiedToken,
+    // quote,
+    // price,
   } = useAppSelector((state) => state.orderInput);
-  // const tartgetToken = useAppSelector(selectTargetToken);
-
-  const showCurrentState = () => {
-    let msg = `side = ${side}\n`;
-    msg += `type = ${type}\n`;
-    msg += `token1 (amount) = ${token1.symbol} [${token1.amount}]\n`;
-    msg += `token2 (amount) = ${token2.symbol} [${token2.amount}]\n`;
-    msg += `specifiedToken = ${specifiedToken}\n`;
-    msg += `price = ${price}\n`;
-    msg += `quote = ${quote}\n`;
-    alert(msg);
-  };
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -110,24 +101,26 @@ export function OrderInput() {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
 
+  const isMarketOrder = type === "MARKET";
+  const isLimitOrder = type === "LIMIT";
+
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
       <OrderSideTabs />
       {/* INNER_CONTAINER_MAX_WIDTH */}
-      <div className={`p-[24px] max-w-[380px] m-auto`}>
+      <div className={`p-[24px] max-w-[350px] m-auto`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />
-        {type === "MARKET" && (
+        {isMarketOrder && (
           <>
             <EstimatedTotalOrQuantity />
             <MarketOrderDisclaimer />
           </>
         )}
-        {type === "LIMIT" && <PostOnlyCheckbox />}
+        {isLimitOrder && <PostOnlyCheckbox />}
         <FeesTable />
         <FeesDisclaimer />
-        <button onClick={showCurrentState}>DEBUG: show state</button>
       </div>
     </div>
   );
@@ -160,6 +153,7 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
           : "opacity-50"
       }`}
       onClick={() => {
+        dispatch(orderInputSlice.actions.resetUserInput());
         dispatch(orderInputSlice.actions.setSide(orderSide));
       }}
     >
@@ -362,57 +356,80 @@ function UserInputContainer() {
     </div>
   );
 }
+
 // Container with labels (left + right) and input field
 function CurrencyInputGroup({
   disabled = false,
   specifiedToken,
 }: CurrencyInputGroupProps): JSX.Element | null {
-  const { side, type, token1, token2 } = useAppSelector(
-    (state) => state.orderInput
-  );
-  const { label, currency, secondaryLabelProps } = {
+  const dispatch = useAppDispatch();
+  const updateToken1 = (value: string) => {
+    dispatch(
+      orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(value))
+    );
+  };
+  const updateToken2 = (value: string) => {
+    dispatch(
+      orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(value))
+    );
+  };
+  const updatePrice = (value: string) => {
+    dispatch(orderInputSlice.actions.setPrice(numberOrEmptyInput(value)));
+  };
+  const state = useAppSelector((state) => state);
+  const { side, type, token1, token2, price } = state.orderInput;
+
+  const { label, currency, value, updateValue, secondaryLabelProps } = {
     TOKEN_1: {
       label: "Quantity",
       currency: token1.symbol,
+      value: token1.amount,
+      updateValue: updateToken1,
       secondaryLabelProps: {
         hide: side !== "SELL",
         label: "Available",
         currency: token1.symbol,
-        fetchValue: () => 0,
-        onClick: () => {}, // set token1 amount
+        fetchValue: () => selectBalanceByAddress(state, token1.address) || 0,
+        setValue: updateToken1, // set token1 amount
       },
     },
     TOKEN_2: {
       label: "Total",
       currency: token2.symbol,
+      value: token2.amount,
+      updateValue: updateToken2,
       secondaryLabelProps: {
         hide: side !== "BUY",
         label: "Available",
         currency: token2.symbol,
-        fetchValue: () => 0,
-        onClick: () => {}, // set token2 amount
+        fetchValue: () => selectBalanceByAddress(state, token2.address) || 0,
+        setValue: updateToken2, // set token2 amount
       },
     },
     PRICE: {
       label: "Price",
       currency: token2.symbol,
+      value: price,
+      updateValue: updatePrice,
       secondaryLabelProps: {
         hide: disabled,
         label: `Best ${side.toLowerCase()}`,
         currency: token2.symbol,
         fetchValue: () => 0,
-        onClick: () => {}, // set Price
+        setValue: updatePrice, // set Price
       },
     },
     UNSPECIFIED: {
       label: "",
       currency: "",
+      value: 0,
+      updateValue: () => {},
       secondaryLabelProps: {
         hide: true,
         label: "",
         currency: "",
         fetchValue: () => 0,
-        onClick: () => {},
+        setValue: () => {},
       },
     },
   }[specifiedToken];
@@ -429,7 +446,11 @@ function CurrencyInputGroup({
       {isMarketOrder && isPriceSpecified ? (
         <DisabledInputField label="MARKET" />
       ) : (
-        <CurrencyInput currency={currency} onAccept={() => {}} />
+        <CurrencyInput
+          currency={currency}
+          value={value}
+          updateValue={updateValue}
+        />
       )}
     </div>
   );
@@ -450,7 +471,7 @@ function SecondaryLabel({
   label,
   currency,
   fetchValue,
-  onClick,
+  setValue,
 }: SecondaryLabelProps): JSX.Element | null {
   const value = fetchValue() || 0;
   return hide ? (
@@ -458,9 +479,9 @@ function SecondaryLabel({
   ) : (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-      onClick={onClick}
+      onClick={() => setValue(value)}
     >
-      {label}: {value} {currency}
+      {label}: {value.toFixed(getPrecision(currency))} {currency}
     </p>
   );
 }
@@ -479,23 +500,25 @@ function DisabledInputField({
 
 function CurrencyInput({
   currency,
-  onAccept,
+  value,
+  updateValue,
 }: CurrencyInputProps): JSX.Element | null {
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
+      {/* UserInput */}
       <IMaskInput
         // scale={targetToken.decimals} // todo(dcts)
         // placeholder={"0.0"} // todo(dcts)
         // onFocus={onFocus} // todo(dcts)
-        // svalue={String(value)} // todo(dcts)
+        value={String(value)} // todo(dcts)
         // radix={decimalSeparator} // todo(dcts)
         min={0}
         mask={Number}
         unmask={"typed"}
         className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
-        onAccept={onAccept}
+        onAccept={updateValue}
       ></IMaskInput>
-      {/* <CurrencyLabel currency={currency} /> */}
+      {/* CurrencyLabel */}
       <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
         {currency}
       </div>

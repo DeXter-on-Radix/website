@@ -71,13 +71,13 @@ export interface TokenInput {
 
 export interface OrderInputState {
   token1: TokenInput;
-  validationToken1: ValidationResult;
   token2: TokenInput;
+  validationToken1: ValidationResult;
   validationToken2: ValidationResult;
   specifiedToken: SpecifiedToken;
+  side: OrderSide;
   type: OrderType;
   postOnly: boolean;
-  side: OrderSide;
   price: number | "";
   slippage: number | "";
   quote?: Quote;
@@ -121,7 +121,7 @@ export const initialState: OrderInputState = {
   type: OrderType.MARKET,
   postOnly: false,
   side: adex.OrderSide.BUY,
-  price: 0,
+  price: "",
   slippage: -1,
   transactionInProgress: false,
 };
@@ -307,9 +307,27 @@ export const orderInputSlice = createSlice({
     },
     setAmountToken1(state, action: PayloadAction<number | "">) {
       state.token1.amount = action.payload;
+      state.specifiedToken = SpecifiedToken.TOKEN_1;
+      // if (
+      //   state.type === OrderType.LIMIT &&
+      //   typeof state.price === "number" &&
+      //   state.price > 0 &&
+      //   typeof action.payload === "number"
+      // ) {
+      //   state.token2.amount = action.payload * state.price;
+      // }
     },
     setAmountToken2(state, action: PayloadAction<number | "">) {
       state.token2.amount = action.payload;
+      state.specifiedToken = SpecifiedToken.TOKEN_2;
+      // if (
+      //   state.type === OrderType.LIMIT &&
+      //   typeof state.price === "number" &&
+      //   state.price > 0 &&
+      //   typeof action.payload === "number"
+      // ) {
+      //   state.token1.amount = action.payload / state.price;
+      // }
     },
     // validateAmount(
     //   state,
@@ -352,6 +370,22 @@ export const orderInputSlice = createSlice({
     },
     setPrice(state, action: PayloadAction<number | "">) {
       state.price = action.payload;
+      // if (
+      //   state.type === OrderType.LIMIT &&
+      //   typeof action.payload === "number"
+      // ) {
+      //   if (
+      //     state.specifiedToken === SpecifiedToken.TOKEN_1 &&
+      //     typeof state.token1.amount === "number"
+      //   ) {
+      //     state.token2.amount = action.payload * state.token1.amount;
+      //   } else if (
+      //     state.specifiedToken === SpecifiedToken.TOKEN_2 &&
+      //     typeof state.token2.amount === "number"
+      //   ) {
+      //     state.token1.amount = action.payload / state.token2.amount;
+      //   }
+      // }
     },
     setSlippage(state, action: PayloadAction<number | "">) {
       state.slippage = action.payload;
@@ -363,22 +397,25 @@ export const orderInputSlice = createSlice({
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
     },
-    // resetNumbersInput(state) {
-    //   state.token1 = initialTokenInput;
-    //   state.token2 = initialTokenInput;
-    //   state.validationToken1 = initialValidationResult;
-    //   state.validationToken2 = initialValidationResult;
-    //   state.price = 0;
-    //   state.slippage = 0.01;
-    //   state.transactionInProgress = false;
-    //   state.transactionResult = undefined;
-    //   state.quote = undefined;
-    //   state.description = undefined;
-    // },
+    resetNumbersInput(state) {
+      state.token1 = initialTokenInput;
+      state.token2 = initialTokenInput;
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+      state.price = 0;
+      state.slippage = 0.01;
+      state.transactionInProgress = false;
+      state.transactionResult = undefined;
+      state.quote = undefined;
+      state.description = undefined;
+    },
     resetUserInput(state) {
+      state.price = "";
       state.token1.amount = "";
       state.token2.amount = "";
-      state.price = -1;
+      state.postOnly = false;
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
       state.quote = undefined;
       state.description = undefined;
       state.specifiedToken = SpecifiedToken.UNSPECIFIED;

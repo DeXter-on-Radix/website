@@ -14,3 +14,5 @@
 - [ ] LIMIT SELL (specify total)
 - [ ] prevents submitting transaction if POST ONLY is set and transaction can be partially filled
 - [ ] Buy order history shows as expected
+
+## Questions

@@ -247,9 +247,42 @@ export function PriceChart() {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
   }, [dispatch]);
 
+  const {
+    type,
+    side,
+    postOnly,
+    token1,
+    token2,
+    // validationToken1,
+    // validationToken2,
+    // description,
+    specifiedToken,
+    quote,
+    price,
+  } = useAppSelector((state) => state.orderInput);
+  // const tartgetToken = useAppSelector(selectTargetToken);
+
+  let msg = `side = ${side}\n`;
+  msg += `type = ${type}\n`;
+  msg += `postOnly = ${postOnly}\n`;
+  msg += `price = ${price}\n`;
+  msg += `token1 (amount) = ${token1.symbol} [${token1.amount}]\n`;
+  msg += `token2 (amount) = ${token2.symbol} [${token2.amount}]\n`;
+  msg += `specifiedToken = ${specifiedToken}\n`;
+  msg += `quote = ${quote}\n`;
+
   return (
     <div>
-      <div className="flex items-center justify-between sm:pr-10">
+      <h1>STATE DEBUGGER</h1>
+      <p>
+        {msg.split("\n").map((line, index) => (
+          <React.Fragment key={index}>
+            {line}
+            <br />
+          </React.Fragment>
+        ))}
+      </p>
+      {/* <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
             {t("trading_chart")}
@@ -277,7 +310,7 @@ export function PriceChart() {
         change={change}
         percChange={percChange}
         volume={currentVolume}
-      />
+      /> */}
     </div>
   );
 }

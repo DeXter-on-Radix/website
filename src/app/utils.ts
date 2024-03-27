@@ -350,3 +350,27 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Fallback to a default language if none is detected
   return defaultLanguage;
 }
+
+// Gets amount precision for each token traded on dexteronradix.
+// Note: precision for price is different.
+export function getPrecision(input: string): number {
+  return (
+    {
+      XRD: 2,
+      DEXTR: 2,
+      CASSIE: 0,
+      CAVIAR: 2,
+      DFP2: 2,
+      DGC: 0,
+      FLOOP: 5,
+      HUG: 0,
+      MNI: 0,
+      OCI: 2,
+      PLANET: 0,
+      RDK: 0,
+      WEFT: 2,
+      XRAW: 0,
+      XUSDC: 2,
+    }[input.toUpperCase()] || 2
+  );
+}
