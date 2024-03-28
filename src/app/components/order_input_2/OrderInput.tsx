@@ -2,7 +2,7 @@
  * -> OrderInput
  *
  * -> PriceInput {disabled} -> hardcoded Price label + onAccept is also hardcoded
- * -> TokenInput {specifiedToken} -> specified token determines label, currency and onAccept functionality
+//  * -> TokenInput {specifiedToken} -> specified token determines label, currency and onAccept functionality
  *
  * -> UI COMPONENTS
  * -> CurrencyInput {currency, onAccept}
@@ -28,7 +28,7 @@ import {
   // fetchQuote,
   selectBalanceByAddress,
   orderInputSlice,
-  SpecifiedToken,
+  // SpecifiedToken,
   UserAction,
   // selectTargetToken,
   // submitOrder,
