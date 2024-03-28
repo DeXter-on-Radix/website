@@ -1,15 +1,3 @@
-/*
- * -> OrderInput
- *
- * -> PriceInput {disabled} -> hardcoded Price label + onAccept is also hardcoded
-//  * -> TokenInput {specifiedToken} -> specified token determines label, currency and onAccept functionality
- *
- * -> UI COMPONENTS
- * -> CurrencyInput {currency, onAccept}
- * -> Label {name}
- * -> SecondaryLabel {disabled, name, value, currency, onClick}
- */
-
 import { useEffect } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { IMaskInput } from "react-imask";
@@ -17,7 +5,6 @@ import {
   capitalizeFirstLetter,
   getPrecision,
   getLocaleSeparators,
-  // numberOrEmptyInput,
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
@@ -246,8 +233,6 @@ function FeesTable() {
   const { side, token1, token2, quote } = useAppSelector(
     (state) => state.orderInput
   );
-  console.log(`${token1.symbol}: decimals: ${token1.decimals}`);
-  console.log(`${token2.symbol}: decimals: ${token2.decimals}`);
   const currency = side === "BUY" ? token1.symbol : token2.symbol;
   const exchange = quote?.exchangeFees || 0;
   const platform = quote?.platformFees || 0;
@@ -369,18 +354,12 @@ function CurrencyInputGroup({
     (state) => state.orderInput
   );
   const updateToken1 = (value: number) => {
-    console.log("updateToken1:");
-    console.log({ value });
     dispatch(orderInputSlice.actions.setAmountToken1(value));
   };
   const updateToken2 = (value: number) => {
-    console.log("updateToken2:");
-    console.log({ value });
     dispatch(orderInputSlice.actions.setAmountToken2(value));
   };
   const updatePrice = (value: number) => {
-    console.log("updatePrice:");
-    console.log({ value });
     dispatch(orderInputSlice.actions.setPrice(value));
   };
   const token1Balance =
