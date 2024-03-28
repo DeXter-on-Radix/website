@@ -57,7 +57,7 @@ interface CurrencyInputGroupProps {
 interface CurrencyInputProps {
   currency: string;
   value: number;
-  updateValue: (value: string) => void;
+  updateValue: (value: number) => void;
 }
 
 interface LabelProps {
@@ -69,7 +69,7 @@ interface SecondaryLabelProps {
   label: string;
   currency: string;
   value: number;
-  updateValue: (value: string) => void;
+  updateValue: (value: number) => void;
 }
 
 interface DisabledInputFieldProps {
@@ -246,6 +246,8 @@ function FeesTable() {
   const { side, token1, token2, quote } = useAppSelector(
     (state) => state.orderInput
   );
+  console.log(`${token1.symbol}: decimals: ${token1.decimals}`);
+  console.log(`${token2.symbol}: decimals: ${token2.decimals}`);
   const currency = side === "BUY" ? token1.symbol : token2.symbol;
   const exchange = quote?.exchangeFees || 0;
   const platform = quote?.platformFees || 0;
@@ -348,8 +350,8 @@ function UserInputContainer() {
       {isLimitOrder && (
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
-          <PercentageSlider />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+          <PercentageSlider />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
         </>
       )}
@@ -366,14 +368,20 @@ function CurrencyInputGroup({
   const { side, type, token1, token2, price } = useAppSelector(
     (state) => state.orderInput
   );
-  const updateToken1 = (value: string) => {
-    dispatch(orderInputSlice.actions.setAmountToken1(Number(value)));
+  const updateToken1 = (value: number) => {
+    console.log("updateToken1:");
+    console.log({ value });
+    dispatch(orderInputSlice.actions.setAmountToken1(value));
   };
-  const updateToken2 = (value: string) => {
-    dispatch(orderInputSlice.actions.setAmountToken2(Number(value)));
+  const updateToken2 = (value: number) => {
+    console.log("updateToken2:");
+    console.log({ value });
+    dispatch(orderInputSlice.actions.setAmountToken2(value));
   };
-  const updatePrice = (value: string) => {
-    dispatch(orderInputSlice.actions.setPrice(Number(value)));
+  const updatePrice = (value: number) => {
+    console.log("updatePrice:");
+    console.log({ value });
+    dispatch(orderInputSlice.actions.setPrice(value));
   };
   const token1Balance =
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
@@ -471,9 +479,10 @@ function SecondaryLabel({
   ) : (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-      onClick={() => updateValue(value.toString())}
+      onClick={() => updateValue(value)}
     >
-      {label}: {value?.toFixed(getPrecision(currency))} {currency}
+      {label}: {value === 0 ? 0 : value.toFixed(getPrecision(currency))}{" "}
+      {currency}
     </p>
   );
 }
@@ -496,20 +505,21 @@ function CurrencyInput({
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
   const { decimalSeparator } = getLocaleSeparators();
+  const stringValue = String(value);
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
       {/* UserInput */}
       <IMaskInput
-        // scale={targetToken.decimals} // todo(dcts)
+        scale={8} // todo(dcts): use TokenInfo.decimals instead of hardcoding 8
         // placeholder={"0.0"} // todo(dcts)
         // onFocus={onFocus} // todo(dcts)
-        value={value === 0 ? "" : String(value)} // todo(dcts)
+        value={value === 0 ? "" : stringValue} // todo(dcts)
         radix={decimalSeparator} // todo(dcts)
         min={0}
         mask={Number}
         unmask={"typed"}
         className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
-        onAccept={updateValue}
+        onAccept={(valueStr) => updateValue(Number(valueStr))}
       ></IMaskInput>
       {/* CurrencyLabel */}
       <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
