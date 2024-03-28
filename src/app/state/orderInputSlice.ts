@@ -19,7 +19,14 @@ export enum OrderType {
   LIMIT = "LIMIT",
 }
 
-// Tracks user input
+// List of user actions for CurrencyInputGroup
+export enum UserAction {
+  UPDATE_PRICE = "UPDATE_PRICE",
+  SET_TOKEN_1 = "SET_TOKEN_1",
+  SET_TOKEN_2 = "SET_TOKEN_2",
+}
+
+// Tracks the token the user specified
 export enum SpecifiedToken {
   UNSPECIFIED = "UNSPECIFIED",
   TOKEN_1 = "TOKEN_1", // Quantity

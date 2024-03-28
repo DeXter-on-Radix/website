@@ -16,7 +16,6 @@ import { IMaskInput } from "react-imask";
 import {
   capitalizeFirstLetter,
   getPrecision,
-  numberOrEmptyInput,
   getLocaleSeparators,
   // numberOrEmptyInput,
 } from "../../utils";
@@ -30,6 +29,7 @@ import {
   selectBalanceByAddress,
   orderInputSlice,
   SpecifiedToken,
+  UserAction,
   // selectTargetToken,
   // submitOrder,
   // selectTargetToken,
@@ -51,7 +51,7 @@ interface OrderSideTabProps {
 
 interface CurrencyInputGroupProps {
   disabled?: boolean; // for price input
-  specifiedToken: SpecifiedToken; // for token1 + token2 inputs
+  userAction: UserAction; // user can set price, token1, token2
 }
 
 interface CurrencyInputProps {
@@ -333,24 +333,24 @@ function UserInputContainer() {
       {isMarketOrder && (
         <>
           <CurrencyInputGroup
-            specifiedToken={SpecifiedToken.PRICE}
+            userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
           <PercentageSlider />
           {isSellOrder && ( // specify "Quantity"
-            <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_1} />
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           )}
           {isBuyOrder && ( // specify "Total"
-            <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_2} />
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           )}
         </>
       )}
       {isLimitOrder && (
         <>
-          <CurrencyInputGroup specifiedToken={SpecifiedToken.PRICE} />
+          <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
           <PercentageSlider />
-          <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_1} />
-          <CurrencyInputGroup specifiedToken={SpecifiedToken.TOKEN_2} />
+          <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+          <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
         </>
       )}
     </div>
@@ -360,7 +360,7 @@ function UserInputContainer() {
 // Container with labels (left + right) and input field
 function CurrencyInputGroup({
   disabled = false,
-  specifiedToken,
+  userAction,
 }: CurrencyInputGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { side, type, token1, token2, price } = useAppSelector(
@@ -386,7 +386,7 @@ function CurrencyInputGroup({
     useAppSelector((state) => state.orderBook.bestSell) || 0;
 
   const { label, currency, value, updateValue, secondaryLabelProps } = {
-    TOKEN_1: {
+    SET_TOKEN_1: {
       label: "Quantity",
       currency: token1.symbol,
       value: token1.amount,
@@ -399,7 +399,7 @@ function CurrencyInputGroup({
         updateValue: updateToken1, // set token1 amount
       },
     },
-    TOKEN_2: {
+    SET_TOKEN_2: {
       label: "Total",
       currency: token2.symbol,
       value: token2.amount,
@@ -412,7 +412,7 @@ function CurrencyInputGroup({
         updateValue: updateToken2, // set token2 amount
       },
     },
-    PRICE: {
+    UPDATE_PRICE: {
       label: "Price",
       currency: token2.symbol,
       value: price,
@@ -425,23 +425,10 @@ function CurrencyInputGroup({
         updateValue: updatePrice, // set Price
       },
     },
-    UNSPECIFIED: {
-      label: "",
-      currency: "",
-      value: 0,
-      updateValue: () => {},
-      secondaryLabelProps: {
-        hide: true,
-        label: "",
-        currency: "",
-        value: 0,
-        updateValue: () => {},
-      },
-    },
-  }[specifiedToken];
+  }[userAction];
 
   const isMarketOrder = type === "MARKET";
-  const isPriceSpecified = specifiedToken === "PRICE";
+  const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
   return (
     <div className="pt-5">
       <div className="w-full flex content-between">
@@ -449,7 +436,7 @@ function CurrencyInputGroup({
         <SecondaryLabel {...secondaryLabelProps} />
       </div>
       {/* conditionally show disabled MARKET price label */}
-      {isMarketOrder && isPriceSpecified ? (
+      {isMarketOrder && isUserActionUpdatePrice ? (
         <DisabledInputField label="MARKET" />
       ) : (
         <CurrencyInput
