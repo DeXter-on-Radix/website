@@ -265,23 +265,30 @@ export function PriceChart() {
   let msg = `side = ${side}\n`;
   msg += `type = ${type}\n`;
   msg += `postOnly = ${postOnly}\n`;
-  msg += `price = ${price}\n`;
-  msg += `token1 (amount) = ${token1.symbol} [${token1.amount}]\n`;
-  msg += `token2 (amount) = ${token2.symbol} [${token2.amount}]\n`;
+  msg += `price = ${price || "-"} ${token2.symbol}\n`;
+  msg += `Token1 (quantity) = ${token1.amount || "-"} ${token1.symbol}\n`;
+  msg += `Token2 (total) = ${token2.amount || "-"} ${token2.symbol}\n`;
   msg += `specifiedToken = ${specifiedToken}\n`;
   msg += `quote = ${quote}\n`;
 
   return (
     <div>
       <h1>STATE DEBUGGER</h1>
-      <p>
-        {msg.split("\n").map((line, index) => (
-          <React.Fragment key={index}>
-            {line}
-            <br />
-          </React.Fragment>
-        ))}
-      </p>
+      <table className="max-w-[500px] m-auto">
+        <tbody>
+          {msg.split("\n").map((line, index) => {
+            const parts = line.split("="); // Split each line by "="
+            return (
+              <tr key={index}>
+                <td className="w-1/2">{parts[0]}</td>{" "}
+                {/* First part of the line */}
+                <td className="w-1/2">{parts[1]}</td>{" "}
+                {/* Second part of the line */}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       {/* <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
