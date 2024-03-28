@@ -495,7 +495,7 @@ function DisabledInputField({
   label,
 }: DisabledInputFieldProps): JSX.Element | null {
   return (
-    <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg">
+    <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
       <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
         {label}
       </div>
