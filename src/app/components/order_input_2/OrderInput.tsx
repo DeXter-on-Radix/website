@@ -17,7 +17,7 @@ import {
   capitalizeFirstLetter,
   getPrecision,
   numberOrEmptyInput,
-  // getLocaleSeparators,
+  getLocaleSeparators,
   // numberOrEmptyInput,
 } from "../../utils";
 
@@ -56,7 +56,7 @@ interface CurrencyInputGroupProps {
 
 interface CurrencyInputProps {
   currency: string;
-  value: number | "";
+  value: number;
   updateValue: (value: string) => void;
 }
 
@@ -68,8 +68,8 @@ interface SecondaryLabelProps {
   hide: boolean;
   label: string;
   currency: string;
-  fetchValue: () => number;
-  setValue: (value: number | "") => void;
+  value: number;
+  updateValue: (value: string) => void;
 }
 
 interface DisabledInputFieldProps {
@@ -363,21 +363,27 @@ function CurrencyInputGroup({
   specifiedToken,
 }: CurrencyInputGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
+  const { side, type, token1, token2, price } = useAppSelector(
+    (state) => state.orderInput
+  );
   const updateToken1 = (value: string) => {
-    dispatch(
-      orderInputSlice.actions.setAmountToken1(numberOrEmptyInput(value))
-    );
+    dispatch(orderInputSlice.actions.setAmountToken1(Number(value)));
   };
   const updateToken2 = (value: string) => {
-    dispatch(
-      orderInputSlice.actions.setAmountToken2(numberOrEmptyInput(value))
-    );
+    dispatch(orderInputSlice.actions.setAmountToken2(Number(value)));
   };
   const updatePrice = (value: string) => {
-    dispatch(orderInputSlice.actions.setPrice(numberOrEmptyInput(value)));
+    dispatch(orderInputSlice.actions.setPrice(Number(value)));
   };
-  const state = useAppSelector((state) => state);
-  const { side, type, token1, token2, price } = state.orderInput;
+  const token1Balance =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+  const token2Balance =
+    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+    0;
+  const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy) || 0;
+  const bestSellPrice =
+    useAppSelector((state) => state.orderBook.bestSell) || 0;
 
   const { label, currency, value, updateValue, secondaryLabelProps } = {
     TOKEN_1: {
@@ -389,8 +395,8 @@ function CurrencyInputGroup({
         hide: side !== "SELL",
         label: "Available",
         currency: token1.symbol,
-        fetchValue: () => selectBalanceByAddress(state, token1.address) || 0,
-        setValue: updateToken1, // set token1 amount
+        value: token1Balance,
+        updateValue: updateToken1, // set token1 amount
       },
     },
     TOKEN_2: {
@@ -402,8 +408,8 @@ function CurrencyInputGroup({
         hide: side !== "BUY",
         label: "Available",
         currency: token2.symbol,
-        fetchValue: () => selectBalanceByAddress(state, token2.address) || 0,
-        setValue: updateToken2, // set token2 amount
+        value: token2Balance,
+        updateValue: updateToken2, // set token2 amount
       },
     },
     PRICE: {
@@ -415,8 +421,8 @@ function CurrencyInputGroup({
         hide: disabled,
         label: `Best ${side.toLowerCase()}`,
         currency: token2.symbol,
-        fetchValue: () => 0,
-        setValue: updatePrice, // set Price
+        value: side === "BUY" ? bestBuyPrice : bestSellPrice,
+        updateValue: updatePrice, // set Price
       },
     },
     UNSPECIFIED: {
@@ -428,8 +434,8 @@ function CurrencyInputGroup({
         hide: true,
         label: "",
         currency: "",
-        fetchValue: () => 0,
-        setValue: () => {},
+        value: 0,
+        updateValue: () => {},
       },
     },
   }[specifiedToken];
@@ -470,18 +476,17 @@ function SecondaryLabel({
   hide,
   label,
   currency,
-  fetchValue,
-  setValue,
+  value,
+  updateValue,
 }: SecondaryLabelProps): JSX.Element | null {
-  const value = fetchValue() || 0;
   return hide ? (
     <></>
   ) : (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-      onClick={() => setValue(value)}
+      onClick={() => updateValue(value.toString())}
     >
-      {label}: {value.toFixed(getPrecision(currency))} {currency}
+      {label}: {value?.toFixed(getPrecision(currency))} {currency}
     </p>
   );
 }
@@ -503,6 +508,7 @@ function CurrencyInput({
   value,
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
+  const { decimalSeparator } = getLocaleSeparators();
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
       {/* UserInput */}
@@ -510,8 +516,8 @@ function CurrencyInput({
         // scale={targetToken.decimals} // todo(dcts)
         // placeholder={"0.0"} // todo(dcts)
         // onFocus={onFocus} // todo(dcts)
-        value={String(value)} // todo(dcts)
-        // radix={decimalSeparator} // todo(dcts)
+        value={value === 0 ? "" : String(value)} // todo(dcts)
+        radix={decimalSeparator} // todo(dcts)
         min={0}
         mask={Number}
         unmask={"typed"}
@@ -530,192 +536,3 @@ function CurrencyInput({
 function PercentageSlider() {
   return <></>;
 }
-
-/**
- * ARCHIVE
- * ARCHIVE
- * ARCHIVE
- */
-
-// interface OrderInputProps {
-//   label: string;
-//   currency?: string;
-//   secondaryLabel?: string;
-//   secondaryLabelValue?: number | string;
-//   available?: number;
-//   disabled?: boolean;
-//   // onFocus?: () => void;
-//   onAccept?: (value: any) => void;
-//   value?: number | "";
-// }
-
-// useEffect(() => {
-//   if (
-//     tartgetToken.amount !== "" &&
-//     validationToken1.valid &&
-//     validationToken2.valid
-//   ) {
-//     dispatch(fetchQuote());
-//   }
-// }, [
-//   dispatch,
-//   pairAddress,
-//   token1,
-//   token2,
-//   side,
-//   type,
-//   tartgetToken,
-//   validationToken1.valid,
-//   validationToken2.valid,
-// ]);
-
-// useEffect(() => {
-//   console.log("quote");
-//   console.log(quote);
-//   console.log("description");
-//   console.log(description);
-// }, [quote, description]);
-
-// useEffect(() => {
-//   orderInputSlice.actions.swapTokens();
-// }, []);
-
-// useEffect(() => {
-//   console.log("SIDE CHANGED");
-//   dispatch(orderInputSlice.actions.resetUserInput());
-// }, [dispatch, side]);
-
-// // Left Label: e.g. "Price", "Quantity", "Total"
-// function OrderInputPrimaryLabel({
-//   label,
-// }: OrderInputPrimaryLabelProps): JSX.Element | null {
-//   return (
-//     <p className="text-xs font-medium text-left opacity-50 pb-1 tracking-[0.5px] grow select-none">
-//       {label}:
-//     </p>
-//   );
-// }
-
-// // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
-// // Can be empty/disabled (e.g. Market Price)
-// function OrderInputSecondaryLabel({
-//   disabled = false,
-//   label,
-//   value,
-//   currency,
-//   onClick,
-// }: OrderInputSecondaryLabelProps): JSX.Element | null {
-//   return disabled ? (
-//     <></>
-//   ) : (
-//     <p
-//       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-//       onClick={onClick}
-//     >
-//       {label}: {value} {currency}
-//     </p>
-//   );
-// }
-
-// function CurrencyLabel({ currency }: CurrencyLabelProps): JSX.Element | null {
-//   return (
-//     <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
-//       {currency}
-//     </div>
-//   );
-// }
-
-// function UserInputContainer() {
-//   const { side, type, price, token1, token2 } = useAppSelector(
-//     (state) => state.orderInput
-//   );
-//   const { bestBuy, bestSell } = useAppSelector((state) => state.orderBook);
-//   const token1Balance = useAppSelector((state) =>
-//     selectBalanceByAddress(state, token1.address)
-//   );
-//   const token2Balance = useAppSelector((state) =>
-//     selectBalanceByAddress(state, token2.address)
-//   );
-//   const dispatch = useAppDispatch();
-
-//   if (type === "MARKET") {
-//     return (
-//       <div className="bg-base-100 px-5 pb-5 mb-6" key="market">
-//         <OrderInputElement label={"Price"} disabled={true} key="market-price" />
-//         <OrderInputElement
-//           label={side === "BUY" ? "Total" : "Quantity"}
-//           secondaryLabel={"Available"}
-//           secondaryLabelValue={
-//             side === "BUY"
-//               ? token2Balance?.toFixed(4) || 0
-//               : token1Balance?.toFixed(4) || 0
-//           }
-//           currency={side === "BUY" ? token2.symbol : token1.symbol}
-//           onAccept={(value) => {
-//             dispatch(orderInputSlice.actions.resetValidation());
-//             dispatch(
-//               orderInputSlice.actions[
-//                 side === "BUY" ? "setAmountToken2" : "setAmountToken1"
-//               ](numberOrEmptyInput(value))
-//             );
-//           }}
-//           key={"market-" + side === "BUY" ? "total" : "quantity"}
-//           value={side === "BUY" ? token2.amount : token1.amount}
-//         />
-//         <PercentageSlider />
-//       </div>
-//     );
-//   }
-//   if (type === "LIMIT") {
-//     return (
-//       <div className="bg-base-100 px-5 pb-5 " key="limit">
-//         <OrderInputElement
-//           label={"Price"}
-//           currency={token2.symbol}
-//           secondaryLabel={`Best ${side.toLowerCase()}`}
-//           secondaryLabelValue={side === "BUY" ? bestBuy || 0 : bestSell || 0}
-//           key="limit-price"
-//           value={price}
-//           onAccept={(value) => {
-//             dispatch(orderInputSlice.actions.resetValidation());
-//             dispatch(
-//               orderInputSlice.actions.setPrice(numberOrEmptyInput(value))
-//             );
-//           }}
-//         />
-//         <OrderInputElement
-//           label={"Quantity"}
-//           currency={token1.symbol}
-//           secondaryLabel={`${side === "BUY" ? "" : "Available"}`}
-//           secondaryLabelValue={token1Balance?.toFixed(4) || 0}
-//           key="limit-quantity"
-//         />
-//         <PercentageSlider />
-//         <OrderInputElement
-//           label={"Total"}
-//           currency={token2.symbol}
-//           secondaryLabel={`${side === "SELL" ? "" : "Available"}`}
-//           secondaryLabelValue={token2Balance?.toFixed(4) || 0}
-//           key="limit-total"
-//         />
-//       </div>
-//     );
-//   }
-//   return <></>;
-// }
-
-// interface CurrencyLabelProps {
-//   currency?: string;
-// }
-
-// interface OrderInputPrimaryLabelProps {
-//   label: string;
-// }
-
-// interface OrderInputSecondaryLabelProps {
-//   disabled: boolean;
-//   label?: string;
-//   value?: number;
-//   currency?: string;
-//   onClick?: () => void;
-// }

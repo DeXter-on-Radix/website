@@ -65,7 +65,7 @@ export interface TokenInput {
   address: string;
   symbol: string;
   iconUrl: string;
-  amount: number | "";
+  amount: number;
   decimals: number;
 }
 
@@ -78,7 +78,7 @@ export interface OrderInputState {
   side: OrderSide;
   type: OrderType;
   postOnly: boolean;
-  price: number | "";
+  price: number;
   slippage: number | "";
   quote?: Quote;
   description?: string;
@@ -121,7 +121,7 @@ export const initialState: OrderInputState = {
   type: OrderType.MARKET,
   postOnly: false,
   side: adex.OrderSide.BUY,
-  price: "",
+  price: 0,
   slippage: -1,
   transactionInProgress: false,
 };
@@ -285,7 +285,7 @@ export const orderInputSlice = createSlice({
           address: adexToken1.address,
           symbol: adexToken1.symbol,
           iconUrl: adexToken1.iconUrl,
-          amount: "",
+          amount: 0,
           decimals: serializedState.currentPairInfo.token1MaxDecimals,
         };
       }
@@ -294,18 +294,18 @@ export const orderInputSlice = createSlice({
           address: adexToken2.address,
           symbol: adexToken2.symbol,
           iconUrl: adexToken2.iconUrl,
-          amount: "",
+          amount: 0,
           decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
       }
 
       // set up a valid default price
-      if (state.price === 0) {
-        state.price =
-          serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
-      }
+      // if (state.price === 0) {
+      //   state.price =
+      //     serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
+      // }
     },
-    setAmountToken1(state, action: PayloadAction<number | "">) {
+    setAmountToken1(state, action: PayloadAction<number>) {
       state.token1.amount = action.payload;
       state.specifiedToken = SpecifiedToken.TOKEN_1;
       // if (
@@ -317,7 +317,7 @@ export const orderInputSlice = createSlice({
       //   state.token2.amount = action.payload * state.price;
       // }
     },
-    setAmountToken2(state, action: PayloadAction<number | "">) {
+    setAmountToken2(state, action: PayloadAction<number>) {
       state.token2.amount = action.payload;
       state.specifiedToken = SpecifiedToken.TOKEN_2;
       // if (
@@ -368,7 +368,7 @@ export const orderInputSlice = createSlice({
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
     },
-    setPrice(state, action: PayloadAction<number | "">) {
+    setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
       // if (
       //   state.type === OrderType.LIMIT &&
@@ -410,9 +410,9 @@ export const orderInputSlice = createSlice({
       state.description = undefined;
     },
     resetUserInput(state) {
-      state.price = "";
-      state.token1.amount = "";
-      state.token2.amount = "";
+      state.price = 0;
+      state.token1.amount = 0;
+      state.token2.amount = 0;
       state.postOnly = false;
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
