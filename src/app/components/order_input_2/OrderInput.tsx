@@ -72,7 +72,15 @@ interface DisabledInputFieldProps {
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { type, side } = useAppSelector((state) => state.orderInput);
+  const { type, side, price, token1, token2 } = useAppSelector(
+    (state) => state.orderInput
+  );
+  const { lastPrice } = useAppSelector((state) => state.priceInfo);
+
+  // for better readibility
+  const isMarketOrder = type === "MARKET";
+  const isLimitOrder = type === "LIMIT";
+  const priceIsNull = price === 0;
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -82,9 +90,31 @@ export function OrderInput() {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
 
-  // for better readibility
-  const isMarketOrder = type === "MARKET";
-  const isLimitOrder = type === "LIMIT";
+  // Couple price/quantity/total for limit orders
+  const token1amount = token1.amount;
+  const token2amount = token2.amount;
+  useEffect(() => {
+    if (
+      isLimitOrder &&
+      priceIsNull &&
+      (token1amount !== 0 || token2amount !== 0)
+    ) {
+      dispatch(orderInputSlice.actions.setPrice(lastPrice));
+    }
+    //   - set PRICE
+    //   - set total:
+    //     - if BUY: quantity should be set
+    //     - if SELL: quantity should be set + WARN if not enough
+    //   - set quantity:
+    //     - if BUY: total should be set + WARN if not enough
+    //     - if SELL: total should be set
+    // - once all is set
+    //   - set price:
+    //     - if quantity (token1) was specified -> adapt total (token2)
+    //     - if total (token2) was specified -> adapt quantity (token1)
+    //   - set quantity (token1) -> same as "set PRICE -> set quantity"
+    //   - set total (token2) -> same as "set PRICE -> set total"
+  }, [token1amount, token2amount]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
