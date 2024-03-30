@@ -290,7 +290,9 @@ function PostOnlyCheckbox() {
 
 function SubmitButton() {
   const { side, type, token2 } = useAppSelector((state) => state.orderInput);
-
+  const handleSubmit = () => {
+    alert("TODO");
+  };
   return (
     <button
       className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 ${
@@ -298,6 +300,7 @@ function SubmitButton() {
           ? "bg-dexter-green  text-black "
           : "bg-dexter-red text-white "
       }`}
+      onClick={handleSubmit}
     >{`${type} ${side} ${token2.symbol}`}</button>
   );
 }

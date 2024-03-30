@@ -19,7 +19,7 @@
 
 General:
 
-- if no price is set and quantity or total is set, automatically set last price
+- on limit orders, if no price is set and quantity or total is set, automatically set last price
 
 Specific User Journeys:
 
@@ -30,3 +30,9 @@ Specific User Journeys:
   - set quantity:
     - if BUY: total should be set + WARN if not enough
     - if SELL: total should be set
+- once all is set
+  - set price:
+    - if quantity (token1) was specified -> adapt total (token2)
+    - if total (token2) was specified -> adapt quantity (token1)
+  - set quantity (token1) -> same as "set PRICE -> set quantity"
+  - set total (token2) -> same as "set PRICE -> set total"
