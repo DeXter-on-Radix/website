@@ -4,6 +4,6 @@
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
     "github.vscode-github-actions",
-    "orta.vscode-jest"
+    "vitest.explorer"
   ]
 }

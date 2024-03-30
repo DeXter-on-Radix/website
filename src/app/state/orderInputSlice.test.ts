@@ -1,5 +1,5 @@
-import { store } from "../src/app/state/store"; // Import the configured store that includes your slice
-import { orderInputSlice } from "../src/app/state/orderInputSlice";
+import { store } from "./store"; // Import the configured store that includes your slice
+import { orderInputSlice } from "./orderInputSlice";
 
 describe("OrderInputSlice", () => {
   it(`setToken1 / setToken2 also sets specifiedToken`, () => {
