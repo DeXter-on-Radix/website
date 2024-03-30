@@ -12,15 +12,12 @@ import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
   OrderType,
-  // fetchQuote,
   selectBalanceByAddress,
   orderInputSlice,
-  // SpecifiedToken,
   UserAction,
-  // selectTargetToken,
-  // submitOrder,
-  // selectTargetToken,
   // validatePriceInput,
+  // fetchQuote,
+  // submitOrder,
 } from "state/orderInputSlice";
 
 const POST_ONLY_TOOLTIP =
@@ -41,6 +38,15 @@ interface CurrencyInputGroupProps {
   userAction: UserAction; // user can set price, token1, token2
 }
 
+// Config representing each user action, derived from CurrencyInputGroupProps
+interface CurrencyInputGroupConfig {
+  label: string;
+  currency: string;
+  value: number;
+  updateValue: (value: number) => void;
+  secondaryLabelProps: SecondaryLabelProps;
+}
+
 interface CurrencyInputProps {
   currency: string;
   value: number;
@@ -52,7 +58,7 @@ interface LabelProps {
 }
 
 interface SecondaryLabelProps {
-  hide: boolean;
+  disabled: boolean;
   label: string;
   currency: string;
   value: number;
@@ -64,21 +70,9 @@ interface DisabledInputFieldProps {
 }
 
 export function OrderInput() {
-  // const state = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const {
-    type,
-    side,
-    // token1,
-    // token2,
-    // validationToken1,
-    // validationToken2,
-    // description,
-    // specifiedToken,
-    // quote,
-    // price,
-  } = useAppSelector((state) => state.orderInput);
+  const { type, side } = useAppSelector((state) => state.orderInput);
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -88,6 +82,7 @@ export function OrderInput() {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
 
+  // for better readibility
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
 
@@ -344,24 +339,16 @@ function UserInputContainer() {
   );
 }
 
-// Container with labels (left + right) and input field
-function CurrencyInputGroup({
-  disabled = false,
-  userAction,
-}: CurrencyInputGroupProps): JSX.Element | null {
+// Helper function that get config for each possible userAction
+// (SET_TOKEN_1, SET_TOKEN_2, UPDATE_PRICE)
+function CurrencyInputGroupSettings(
+  userAction: UserAction,
+  currencyInputGroupDisabled: boolean
+): CurrencyInputGroupConfig {
   const dispatch = useAppDispatch();
-  const { side, type, token1, token2, price } = useAppSelector(
+  const { side, token1, token2, price } = useAppSelector(
     (state) => state.orderInput
   );
-  const updateToken1 = (value: number) => {
-    dispatch(orderInputSlice.actions.setAmountToken1(value));
-  };
-  const updateToken2 = (value: number) => {
-    dispatch(orderInputSlice.actions.setAmountToken2(value));
-  };
-  const updatePrice = (value: number) => {
-    dispatch(orderInputSlice.actions.setPrice(value));
-  };
   const token1Balance =
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
     0;
@@ -372,18 +359,30 @@ function CurrencyInputGroup({
   const bestSellPrice =
     useAppSelector((state) => state.orderBook.bestSell) || 0;
 
-  const { label, currency, value, updateValue, secondaryLabelProps } = {
+  const updateToken1 = (value: number) => {
+    dispatch(orderInputSlice.actions.setAmountToken1(value));
+  };
+
+  const updateToken2 = (value: number) => {
+    dispatch(orderInputSlice.actions.setAmountToken2(value));
+  };
+
+  const updatePrice = (value: number) => {
+    dispatch(orderInputSlice.actions.setPrice(value));
+  };
+
+  const configMap: { [key in UserAction]: CurrencyInputGroupConfig } = {
     SET_TOKEN_1: {
       label: "Quantity",
       currency: token1.symbol,
       value: token1.amount,
       updateValue: updateToken1,
       secondaryLabelProps: {
-        hide: side !== "SELL",
+        disabled: side === "BUY", // hide token1 balance for BUY
         label: "Available",
         currency: token1.symbol,
         value: token1Balance,
-        updateValue: updateToken1, // set token1 amount
+        updateValue: updateToken1,
       },
     },
     SET_TOKEN_2: {
@@ -392,11 +391,11 @@ function CurrencyInputGroup({
       value: token2.amount,
       updateValue: updateToken2,
       secondaryLabelProps: {
-        hide: side !== "BUY",
+        disabled: side === "SELL", // hide token2 balance for SELL
         label: "Available",
         currency: token2.symbol,
         value: token2Balance,
-        updateValue: updateToken2, // set token2 amount
+        updateValue: updateToken2,
       },
     },
     UPDATE_PRICE: {
@@ -405,14 +404,26 @@ function CurrencyInputGroup({
       value: price,
       updateValue: updatePrice,
       secondaryLabelProps: {
-        hide: disabled,
+        disabled: currencyInputGroupDisabled, // hide if currencyInput is disabled (e.g. for market price)
         label: `Best ${side.toLowerCase()}`,
         currency: token2.symbol,
         value: side === "BUY" ? bestBuyPrice : bestSellPrice,
-        updateValue: updatePrice, // set Price
+        updateValue: updatePrice,
       },
     },
-  }[userAction];
+  };
+
+  return configMap[userAction];
+}
+
+// Container with labels (left + right) and input field
+function CurrencyInputGroup({
+  disabled = false,
+  userAction,
+}: CurrencyInputGroupProps): JSX.Element | null {
+  const { type } = useAppSelector((state) => state.orderInput);
+  const { label, currency, value, updateValue, secondaryLabelProps } =
+    CurrencyInputGroupSettings(userAction, disabled);
 
   const isMarketOrder = type === "MARKET";
   const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
@@ -447,13 +458,13 @@ function Label({ label }: LabelProps): JSX.Element | null {
 // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
 // Can be empty/disabled (e.g. Market Price)
 function SecondaryLabel({
-  hide,
+  disabled,
   label,
   currency,
   value,
   updateValue,
 }: SecondaryLabelProps): JSX.Element | null {
-  return hide ? (
+  return disabled ? (
     <></>
   ) : (
     <p

@@ -15,4 +15,18 @@
 - [ ] prevents submitting transaction if POST ONLY is set and transaction can be partially filled
 - [ ] Buy order history shows as expected
 
-## Questions
+## All user actions for LIMIT orders
+
+General:
+
+- if no price is set and quantity or total is set, automatically set last price
+
+Specific User Journeys:
+
+- set PRICE
+  - set total:
+    - if BUY: quantity should be set
+    - if SELL: quantity should be set + WARN if not enough
+  - set quantity:
+    - if BUY: total should be set + WARN if not enough
+    - if SELL: total should be set
