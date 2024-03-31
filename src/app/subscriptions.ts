@@ -12,7 +12,7 @@ import { orderBookSlice } from "./state/orderBookSlice";
 import { updateCandles } from "./state/priceChartSlice";
 import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
-import { orderInputSlice } from "state/orderInputSlice";
+import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;

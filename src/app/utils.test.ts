@@ -1,4 +1,4 @@
-import { displayNumber } from "../src/app/utils";
+import { displayNumber } from "./utils";
 
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
