@@ -40,19 +40,19 @@ const MOCK_BUYS = [
 ];
 
 describe("toOrderBookRowProps", () => {
-  it(`returns 11 rows if the input is empty`, () => {
+  it(`returns correct amount of rows if the input is empty`, () => {
     const input: OrderbookLine[] = [];
 
     expect(toOrderBookRowProps(input, "sell", 0).length).toBe(MAX_ROWS);
   });
 
-  it(`returns 11 rows if the input is smaller`, () => {
+  it(`returns correct amount of rows if the input is smaller`, () => {
     const input: OrderbookLine[] = MOCK_SELLS.slice(0, 5);
 
     expect(toOrderBookRowProps(input, "sell", 0).length).toBe(MAX_ROWS);
   });
 
-  it(`"returns 11 rows if the input is larger"`, () => {
+  it(`"returns correct amount of rows if the input is larger"`, () => {
     expect(toOrderBookRowProps(MOCK_SELLS, "sell", 0).length).toBe(MAX_ROWS);
   });
 
