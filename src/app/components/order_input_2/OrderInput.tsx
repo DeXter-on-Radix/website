@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-import { IMaskInput } from "react-imask";
+
 import {
   capitalizeFirstLetter,
   getPrecision,
   getLocaleSeparators,
+  formatNumericString,
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
@@ -47,6 +48,14 @@ interface CurrencyInputGroupConfig {
   secondaryLabelProps: SecondaryLabelProps;
 }
 
+interface CustomNumericIMaskProps {
+  value: number;
+  separator: string;
+  scale: number;
+  className: string;
+  onAccept: (value: number) => void;
+}
+
 interface CurrencyInputProps {
   currency: string;
   value: number;
@@ -75,12 +84,12 @@ export function OrderInput() {
   const { type, side, price, token1, token2 } = useAppSelector(
     (state) => state.orderInput
   );
-  const { lastPrice } = useAppSelector((state) => state.priceInfo);
+  // const { lastPrice } = useAppSelector((state) => state.priceInfo);
 
   // for better readibility
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
-  const priceIsNull = price === 0;
+  // const priceIsNull = price === 0;
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -90,31 +99,31 @@ export function OrderInput() {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
 
-  // Couple price/quantity/total for limit orders
-  const token1amount = token1.amount;
-  const token2amount = token2.amount;
-  useEffect(() => {
-    if (
-      isLimitOrder &&
-      priceIsNull &&
-      (token1amount !== 0 || token2amount !== 0)
-    ) {
-      dispatch(orderInputSlice.actions.setPrice(lastPrice));
-    }
-    //   - set PRICE
-    //   - set total:
-    //     - if BUY: quantity should be set
-    //     - if SELL: quantity should be set + WARN if not enough
-    //   - set quantity:
-    //     - if BUY: total should be set + WARN if not enough
-    //     - if SELL: total should be set
-    // - once all is set
-    //   - set price:
-    //     - if quantity (token1) was specified -> adapt total (token2)
-    //     - if total (token2) was specified -> adapt quantity (token1)
-    //   - set quantity (token1) -> same as "set PRICE -> set quantity"
-    //   - set total (token2) -> same as "set PRICE -> set total"
-  }, [token1amount, token2amount]);
+  // // Couple price/quantity/total for limit orders
+  // const token1amount = token1.amount;
+  // const token2amount = token2.amount;
+  // useEffect(() => {
+  //   if (
+  //     isLimitOrder &&
+  //     priceIsNull &&
+  //     (token1amount !== 0 || token2amount !== 0)
+  //   ) {
+  //     dispatch(orderInputSlice.actions.setPrice(lastPrice));
+  //   }
+  //   //   - set PRICE
+  //   //   - set total:
+  //   //     - if BUY: quantity should be set
+  //   //     - if SELL: quantity should be set + WARN if not enough
+  //   //   - set quantity:
+  //   //     - if BUY: total should be set + WARN if not enough
+  //   //     - if SELL: total should be set
+  //   // - once all is set
+  //   //   - set price:
+  //   //     - if quantity (token1) was specified -> adapt total (token2)
+  //   //     - if total (token2) was specified -> adapt quantity (token1)
+  //   //   - set quantity (token1) -> same as "set PRICE -> set quantity"
+  //   //   - set total (token2) -> same as "set PRICE -> set total"
+  // }, [token1amount, token2amount]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
@@ -528,22 +537,16 @@ function CurrencyInput({
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
   const { decimalSeparator } = getLocaleSeparators();
-  const stringValue = String(value);
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
       {/* UserInput */}
-      <IMaskInput
-        scale={8} // todo(dcts): use TokenInfo.decimals instead of hardcoding 8
-        // placeholder={"0.0"} // todo(dcts)
-        // onFocus={onFocus} // todo(dcts)
-        value={value === 0 ? "" : stringValue} // todo(dcts)
-        radix={decimalSeparator} // todo(dcts)
-        min={0}
-        mask={Number}
-        unmask={"typed"}
+      <CustomNumericIMask
+        value={value}
+        separator={decimalSeparator}
+        scale={8}
+        onAccept={updateValue}
         className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
-        onAccept={(valueStr) => updateValue(Number(valueStr))}
-      ></IMaskInput>
+      />
       {/* CurrencyLabel */}
       <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
         {currency}
@@ -555,4 +558,53 @@ function CurrencyInput({
 // TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
   return <></>;
+}
+
+// Mimics IMask with improved onAccept, triggered only by user input to avoid rerender bugs.
+function CustomNumericIMask({
+  value,
+  separator,
+  scale,
+  onAccept,
+  className,
+}: CustomNumericIMaskProps): JSX.Element | null {
+  // Format the input value according to the separator and scale props
+  const cutoffValue = formatNumericString(value.toString(), separator, scale);
+  if (cutoffValue !== value.toString()) {
+    onAccept(Number(cutoffValue)); // cutoff the actual value as well
+  }
+  const [inputValue, setInputValue] = useState(cutoffValue);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let { value } = e.target;
+    // Automatically convert "," to "." for internal processing
+    value = value.replace(/,/g, ".");
+    if (value === "") {
+      // If the input is cleared, set the internal state to an empty string and call onAccept with null or 0
+      setInputValue("");
+      onAccept(0); // or onAccept(0), depending on the expected behavior
+      return; // Exit early as there's no further processing needed
+    }
+    const formattedValue = formatNumericString(value, separator, scale);
+    setInputValue(formattedValue);
+    // Use the updated regex checks as before
+    const regexForAccept = new RegExp(`^\\d+(\\.\\d{1,${scale}})?$`);
+    if (regexForAccept.test(formattedValue)) {
+      onAccept(parseFloat(formattedValue));
+    }
+  };
+
+  // Update local state when the prop value changes
+  useEffect(() => {
+    setInputValue(formatNumericString(value.toString(), separator, scale));
+  }, [value, separator, scale]);
+
+  return (
+    <input
+      type="text"
+      value={inputValue === "0" ? "" : inputValue}
+      onChange={handleChange}
+      className={className} // Add TailwindCSS classes here
+    />
+  );
 }

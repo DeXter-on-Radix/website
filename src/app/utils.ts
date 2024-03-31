@@ -374,3 +374,28 @@ export function getPrecision(input: string): number {
     }[input.toUpperCase()] || 2
   );
 }
+
+export function formatNumericString(
+  value: string,
+  separator: string,
+  scale: number
+): string {
+  const regex = separator === "." ? /[^\d.]/g : /[^\d,]/g;
+  let formattedValue = value.replace(regex, "");
+  // Ensure only the first occurrence of the separator is allowed
+  const parts = formattedValue.split(separator);
+  if (parts.length > 2) {
+    // Rejoin with a single separator, discarding additional separators
+    formattedValue = parts[0] + separator + parts.slice(1).join("");
+  }
+  // Allow a trailing separator for user input
+  if (formattedValue.endsWith(separator)) {
+    return formattedValue;
+  }
+  // Split and limit fraction scale as before
+  let [whole, fraction] = formattedValue.split(separator);
+  if (fraction && fraction.length > scale) {
+    fraction = fraction.substring(0, scale);
+  }
+  return fraction ? `${whole}${separator}${fraction}` : whole;
+}

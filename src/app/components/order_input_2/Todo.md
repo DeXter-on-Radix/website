@@ -3,6 +3,8 @@
 - [ ] fetchQuote API + display estimate
 - [ ] display calculated fees
 - [ ] integrate input validation errors
+- [ ] remove order_input folder (old)
+- [ ] remove/uninstall react-imask package
 
 ## Test before deploy
 
