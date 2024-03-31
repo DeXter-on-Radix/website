@@ -22,6 +22,7 @@
     "@types/react-dom": "18.2.6",
     "alphadex-sdk-js": "^0.12.13",
     "autoprefixer": "10.4.14",
+    "big.js": "^6.2.1",
     "eslint-config-next": "13.4.7",
     "js-cookie": "^3.0.5",
     "lightweight-charts": "^4.1.3",
