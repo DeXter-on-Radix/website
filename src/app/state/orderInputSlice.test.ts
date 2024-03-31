@@ -9,6 +9,7 @@ describe("OrderInputSlice", () => {
     expect(store.getState().orderInput.token1.amount).toBe(12);
     expect(store.getState().orderInput.token2.amount).toBe(0);
 
+    // TODO(dcts): add more tests for buy-sell-panel redesign
     // OUTCOMMENT FOR NOW AS NOT MERGED TO MAIN
     // expect(store.getState().orderInput.specifiedToken).toBe(
     //   SpecifiedToken.TOKEN_1
@@ -20,6 +21,7 @@ describe("OrderInputSlice", () => {
     expect(store.getState().orderInput.token1.amount).toBe(12);
     expect(store.getState().orderInput.token2.amount).toBe(124);
 
+    // TODO(dcts): add more tests for buy-sell-panel redesign
     // OUTCOMMENT FOR NOW AS NOT MERGED TO MAIN
     // expect(store.getState().orderInput.specifiedToken).toBe(
     //   SpecifiedToken.TOKEN_2
