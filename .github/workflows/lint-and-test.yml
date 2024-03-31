@@ -27,7 +27,7 @@ jobs:
         run: npx eslint .
 
       - name: Run Unit Tests
-        run: npx vitest run --ci
+        run: npx vitest run
 
       - name: Build Project
         run: npm run build
