@@ -41,6 +41,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^14.0.0",
+    "@types/big.js": "^6.2.2",
     "@types/js-cookie": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
