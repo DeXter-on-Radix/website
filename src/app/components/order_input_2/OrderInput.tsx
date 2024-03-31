@@ -16,6 +16,7 @@ import {
   selectBalanceByAddress,
   orderInputSlice,
   UserAction,
+  SpecifiedToken,
   // validatePriceInput,
   // fetchQuote,
   // submitOrder,
@@ -397,16 +398,29 @@ function CurrencyInputGroupSettings(
   const token2Balance =
     useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
     0;
-  const bestBuyPrice = useAppSelector((state) => state.orderBook.bestBuy) || 0;
-  const bestSellPrice =
-    useAppSelector((state) => state.orderBook.bestSell) || 0;
+  const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
+  const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
 
   const updateToken1 = (value: number) => {
-    dispatch(orderInputSlice.actions.setAmountToken1(value));
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount: value,
+        bestBuy,
+        bestSell,
+        specifiedToken: SpecifiedToken.TOKEN_1,
+      })
+    );
   };
 
   const updateToken2 = (value: number) => {
-    dispatch(orderInputSlice.actions.setAmountToken2(value));
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount: value,
+        bestBuy,
+        bestSell,
+        specifiedToken: SpecifiedToken.TOKEN_2,
+      })
+    );
   };
 
   const updatePrice = (value: number) => {
@@ -449,7 +463,7 @@ function CurrencyInputGroupSettings(
         disabled: currencyInputGroupDisabled, // hide if currencyInput is disabled (e.g. for market price)
         label: `Best ${side.toLowerCase()}`,
         currency: token2.symbol,
-        value: side === "BUY" ? bestBuyPrice : bestSellPrice,
+        value: side === "BUY" ? bestBuy : bestSell,
         updateValue: updatePrice,
       },
     },

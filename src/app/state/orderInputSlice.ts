@@ -31,7 +31,6 @@ export enum SpecifiedToken {
   UNSPECIFIED = "UNSPECIFIED",
   TOKEN_1 = "TOKEN_1", // Quantity
   TOKEN_2 = "TOKEN_2", // Total
-  PRICE = "PRICE",
 }
 
 export enum ErrorMessage {
@@ -259,6 +258,25 @@ export const selectBalanceByAddress = createSelector(
 //   return result;
 // });
 
+interface SetTokenAmountPayload {
+  amount: number;
+  bestBuy: number; // Best buy price
+  bestSell: number; // Best sell price
+  specifiedToken: SpecifiedToken;
+}
+
+function resetUserInput(state: OrderInputState) {
+  state.price = 0;
+  state.token1.amount = 0;
+  state.token2.amount = 0;
+  state.postOnly = false;
+  state.validationToken1 = initialValidationResult;
+  state.validationToken2 = initialValidationResult;
+  state.quote = undefined;
+  state.description = undefined;
+  state.specifiedToken = SpecifiedToken.UNSPECIFIED;
+}
+
 export const orderInputSlice = createSlice({
   name: "orderInput",
   initialState,
@@ -266,7 +284,9 @@ export const orderInputSlice = createSlice({
   // synchronous reducers
   reducers: {
     setOrderType(state, action: PayloadAction<OrderType>) {
+      console.log("setting order type");
       state.type = action.payload;
+      console.log("setting order type done");
     },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
       //This clears up any validation when switching pairs
@@ -312,30 +332,90 @@ export const orderInputSlice = createSlice({
       //     serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       // }
     },
-    setAmountToken1(state, action: PayloadAction<number>) {
-      state.token1.amount = action.payload;
-      state.specifiedToken = SpecifiedToken.TOKEN_1;
+    setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
+      // Deconstruct inputs
+      const { amount, bestBuy, bestSell, specifiedToken } = action.payload;
+      console.log(action.payload);
+
+      // ignore if no token is specified
+      if (specifiedToken === SpecifiedToken.UNSPECIFIED) {
+        return;
+      }
+
+      // Set specified token + token amount
+      if (amount === 0) {
+        state.specifiedToken = SpecifiedToken.UNSPECIFIED;
+        state.token1.amount = 0;
+        state.token2.amount = 0;
+        return;
+      }
+
+      state.specifiedToken = specifiedToken;
+
+      const setTokenAmount = {
+        TOKEN_1: (amount: number) => (state.token1.amount = amount),
+        TOKEN_2: (amount: number) => (state.token2.amount = amount),
+      }[specifiedToken];
+      setTokenAmount(amount);
+      // const setTokenAmount = {
+      //   TOKEN_1: (amount: number) =>
+      //     (state.token1.amount = Number(
+      //       formatNumericString(amount.toString(), ".", 8)
+      //     )),
+      //   TOKEN_2: (amount: number) =>
+      //     (state.token2.amount = Number(
+      //       formatNumericString(amount.toString(), ".", 8)
+      //     )),
+      // }[specifiedToken];
+      // setTokenAmount(amount);
+
+      // Adapt price if neccessary
+      const bestPrice = {
+        BUY: bestBuy,
+        SELL: bestSell,
+      }[state.side];
+      const priceIsNull = state.price === 0;
+      const isLimitOrder = state.type === OrderType.LIMIT;
+      const amountIsPositive = amount > 0;
+      if (priceIsNull && isLimitOrder && amountIsPositive) {
+        state.price = bestPrice;
+      }
+
+      // Set the other token
+      const specifiedToken1 = specifiedToken === SpecifiedToken.TOKEN_1;
+      const specifiedToken2 = specifiedToken === SpecifiedToken.TOKEN_2;
+      if (isLimitOrder && specifiedToken1) {
+        state.token2.amount = amountIsPositive
+          ? state.token1.amount * state.price
+          : 0;
+      }
+      if (isLimitOrder && specifiedToken2) {
+        state.token1.amount = amountIsPositive
+          ? state.token2.amount / state.price
+          : 0;
+      }
+
       // if (
       //   state.type === OrderType.LIMIT &&
-      //   typeof state.price === "number" &&
+      //   typeof state.pricspecifiedToken1e === "number" &&
       //   state.price > 0 &&
       //   typeof action.payload === "number"
       // ) {
       //   state.token2.amount = action.payload * state.price;
       // }
     },
-    setAmountToken2(state, action: PayloadAction<number>) {
-      state.token2.amount = action.payload;
-      state.specifiedToken = SpecifiedToken.TOKEN_2;
-      // if (
-      //   state.type === OrderType.LIMIT &&
-      //   typeof state.price === "number" &&
-      //   state.price > 0 &&
-      //   typeof action.payload === "number"
-      // ) {
-      //   state.token1.amount = action.payload / state.price;
-      // }
-    },
+    // setAmountToken2(state, action: PayloadAction<number>) {
+    //   state.token2.amount = action.payload;
+    //   state.specifiedToken = SpecifiedToken.TOKEN_2;
+    //   // if (
+    //   //   state.type === OrderType.LIMIT &&
+    //   //   typeof state.price === "number" &&
+    //   //   state.price > 0 &&
+    //   //   typeof action.payload === "number"
+    //   // ) {
+    //   //   state.token1.amount = action.payload / state.price;
+    //   // }
+    // },
     // validateAmount(
     //   state,
     //   action: PayloadAction<{ amount: number | ""; address: string }>
@@ -373,10 +453,25 @@ export const orderInputSlice = createSlice({
     //   state.token2 = temp;
     // },
     setSide(state, action: PayloadAction<OrderSide>) {
+      // resetUserInput(state);
       state.side = action.payload;
     },
     setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
+      const isLimitOrder = state.type === OrderType.LIMIT;
+      const positiveTokenAmountSpecified =
+        state.specifiedToken === SpecifiedToken.TOKEN_1
+          ? state.token1.amount
+          : state.specifiedToken === SpecifiedToken.TOKEN_2
+          ? state.token2.amount
+          : 0;
+      if (isLimitOrder && positiveTokenAmountSpecified > 0) {
+        if (state.specifiedToken === SpecifiedToken.TOKEN_1) {
+          state.token2.amount = state.token1.amount * state.price;
+        } else if (state.specifiedToken === SpecifiedToken.TOKEN_2) {
+          state.token1.amount = state.token2.amount / state.price;
+        }
+      }
       // if (
       //   state.type === OrderType.LIMIT &&
       //   typeof action.payload === "number"
@@ -417,15 +512,9 @@ export const orderInputSlice = createSlice({
       state.description = undefined;
     },
     resetUserInput(state) {
-      state.price = 0;
-      state.token1.amount = 0;
-      state.token2.amount = 0;
-      state.postOnly = false;
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
-      state.quote = undefined;
-      state.description = undefined;
-      state.specifiedToken = SpecifiedToken.UNSPECIFIED;
+      console.log("resetting User Input");
+      resetUserInput(state);
+      console.log("resetting User Done");
     },
     // toAdexInputs(state) {
     //   let msg = "";
