@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 
 import { OrderBook } from "components/OrderBook";
 import { OrderInput } from "components/order_input/OrderInput";
@@ -86,21 +86,20 @@ export default function Home() {
 }
 
 function ToasterTest() {
-  const [background, setBackground] = useState("white");
-  const [color, setColor] = useState("#713200");
-  const [border, setBorder] = useState("1px solid #713200");
-  const [padding, setPadding] = useState("16px");
-  const [iconPrimary, setIconPrimary] = useState("#713200");
-  const [iconSecondary, setIconSecondary] = useState("#FFFAEE");
-  const [message, setMessage] = useState("Transaction Successful");
+  const [background, setBackground] = useState("#1a1c1e");
+  const [color, setColor] = useState("#FFFAEE");
+  const [border, setBorder] = useState("1px solid rgba(255,255,255,0.1)");
+  const [padding, setPadding] = useState("8px");
+  const [iconPrimary, setIconPrimary] = useState("#cafc40");
+  const [iconSecondary, setIconSecondary] = useState("#1a1c1e");
 
   const launchNotification = () => {
-    toast.success(message, {
+    toast.success("Success message", {
       style: {
         border: border,
         padding: padding,
         color: color,
-        background: background, // Make sure you apply the background state
+        background: background, // Apply the background color
       },
       iconTheme: {
         primary: iconPrimary,
@@ -117,29 +116,58 @@ function ToasterTest() {
     alignItems: "flex-start", // Align items to the left
   };
 
+  const handleChangeColor =
+    (setter: {
+      (value: SetStateAction<string>): void;
+      (value: SetStateAction<string>): void;
+      (arg0: any): void;
+    }) =>
+    (e: { target: { value: string; type: string } }) => {
+      setter(e.target.value);
+      // If the input is from the text field and is a valid hex code,
+      // update the corresponding state.
+      if (
+        e.target.type === "text" &&
+        /^#([0-9A-F]{3}){1,2}$/i.test(e.target.value)
+      ) {
+        setter(e.target.value);
+      }
+    };
+
   return (
     <>
       <h1>Toaster Playground</h1>
-      <div style={rowStyle}>
-        <label>
-          Background Color:
-          <input
-            type="color"
-            value={background}
-            onChange={(e) => setBackground(e.target.value)}
-          />
-        </label>
-      </div>
-      <div style={rowStyle}>
-        <label>
-          Text Color:
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
-        </label>
-      </div>
+      {[
+        { label: "Background Color", value: background, setter: setBackground },
+        { label: "Text Color", value: color, setter: setColor },
+        {
+          label: "Icon Primary Color",
+          value: iconPrimary,
+          setter: setIconPrimary,
+        },
+        {
+          label: "Icon Secondary Color",
+          value: iconSecondary,
+          setter: setIconSecondary,
+        },
+      ].map((item, index) => (
+        <div key={index} style={rowStyle}>
+          <label>
+            {item.label}:
+            <input
+              type="color"
+              value={item.value}
+              onChange={handleChangeColor(item.setter)}
+            />
+            <input
+              type="text"
+              value={item.value}
+              onChange={handleChangeColor(item.setter)}
+              placeholder="Hex code"
+            />
+          </label>
+        </div>
+      ))}
       <div style={rowStyle}>
         <label>
           Border:
@@ -159,37 +187,6 @@ function ToasterTest() {
             value={padding}
             onChange={(e) => setPadding(e.target.value)}
             placeholder="e.g., 20px"
-          />
-        </label>
-      </div>
-      <div style={rowStyle}>
-        <label>
-          Icon Primary Color:
-          <input
-            type="color"
-            value={iconPrimary}
-            onChange={(e) => setIconPrimary(e.target.value)}
-          />
-        </label>
-      </div>
-      <div style={rowStyle}>
-        <label>
-          Icon Secondary Color:
-          <input
-            type="color"
-            value={iconSecondary}
-            onChange={(e) => setIconSecondary(e.target.value)}
-          />
-        </label>
-      </div>
-      <div style={rowStyle}>
-        <label>
-          Notification Message:
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="e.g., Transaction Success"
           />
         </label>
       </div>
