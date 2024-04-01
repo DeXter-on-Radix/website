@@ -94,12 +94,12 @@ function ToasterTest() {
   const [iconSecondary, setIconSecondary] = useState("#1a1c1e");
 
   const launchNotification = () => {
-    toast.success("Success message", {
+    toast.success("Success Notification", {
       style: {
         border: border,
         padding: padding,
         color: color,
-        background: background, // Apply the background color
+        background: background,
       },
       iconTheme: {
         primary: iconPrimary,
@@ -108,35 +108,19 @@ function ToasterTest() {
     });
   };
 
-  // Inline styles for alignment and spacing
-  const rowStyle = {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: "10px", // Add spacing between rows
-    alignItems: "flex-start", // Align items to the left
-  };
-
   const handleChangeColor =
     (setter: {
       (value: SetStateAction<string>): void;
       (value: SetStateAction<string>): void;
       (arg0: any): void;
     }) =>
-    (e: { target: { value: string; type: string } }) => {
+    (e: { target: { value: any } }) => {
       setter(e.target.value);
-      // If the input is from the text field and is a valid hex code,
-      // update the corresponding state.
-      if (
-        e.target.type === "text" &&
-        /^#([0-9A-F]{3}){1,2}$/i.test(e.target.value)
-      ) {
-        setter(e.target.value);
-      }
     };
 
   return (
     <>
-      <h1>Toaster Playground</h1>
+      <h1 className="mb-4">Toaster Playground</h1>
       {[
         { label: "Background Color", value: background, setter: setBackground },
         { label: "Text Color", value: color, setter: setColor },
@@ -151,44 +135,42 @@ function ToasterTest() {
           setter: setIconSecondary,
         },
       ].map((item, index) => (
-        <div key={index} style={rowStyle}>
-          <label>
-            {item.label}:
-            <input
-              type="color"
-              value={item.value}
-              onChange={handleChangeColor(item.setter)}
-            />
-            <input
-              type="text"
-              value={item.value}
-              onChange={handleChangeColor(item.setter)}
-              placeholder="Hex code"
-            />
-          </label>
+        <div key={index} className="flex items-center mb-2 space-x-2">
+          <label className="min-w-max">{item.label}:</label>
+          <input
+            type="color"
+            value={item.value}
+            onChange={handleChangeColor(item.setter)}
+            className="w-16 h-10 p-0 border-0"
+          />
+          <input
+            type="text"
+            value={item.value}
+            onChange={handleChangeColor(item.setter)}
+            placeholder="Hex code"
+            className="flex-1 border-gray-300 rounded-md shadow-sm"
+          />
         </div>
       ))}
-      <div style={rowStyle}>
-        <label>
-          Border:
-          <input
-            type="text"
-            value={border}
-            onChange={(e) => setBorder(e.target.value)}
-            placeholder="e.g., 1px solid #000000"
-          />
-        </label>
+      <div className="flex items-center mb-2 space-x-2">
+        <label className="min-w-max">Border:</label>
+        <input
+          type="text"
+          value={border}
+          onChange={(e) => setBorder(e.target.value)}
+          placeholder="e.g., 1px solid #000000"
+          className="flex-1 border-gray-300 rounded-md shadow-sm"
+        />
       </div>
-      <div style={rowStyle}>
-        <label>
-          Padding:
-          <input
-            type="text"
-            value={padding}
-            onChange={(e) => setPadding(e.target.value)}
-            placeholder="e.g., 20px"
-          />
-        </label>
+      <div className="flex items-center mb-2 space-x-2">
+        <label className="min-w-max">Padding:</label>
+        <input
+          type="text"
+          value={padding}
+          onChange={(e) => setPadding(e.target.value)}
+          placeholder="e.g., 20px"
+          className="flex-1 border-gray-300 rounded-md shadow-sm"
+        />
       </div>
       <button
         onClick={launchNotification}
