@@ -5,7 +5,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import { OrderBook } from "components/OrderBook";
 import { OrderInput } from "components/order_input/OrderInput";
 import { PairSelector } from "components/PairSelector";
-import { PriceChart } from "components/PriceChart";
+// import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
 import { fetchBalances } from "state/pairSelectorSlice";
