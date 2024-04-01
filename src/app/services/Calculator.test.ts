@@ -5,10 +5,10 @@ describe("Calculator", () => {
   it("should perform basic operations", () => {
     // ADDITION
     expect(Calculator.add(10, 2)).toBe(12);
-    expect(Calculator.add(-5, 12)).toBe(8);
-    // SUBSTRACTION
-    expect(Calculator.substract(10, 2)).toBe(9);
-    expect(Calculator.substract(11230, 189022)).toBe(11230 - 189022);
+    expect(Calculator.add(-5, 12)).toBe(7);
+    // SUBTRACTION
+    expect(Calculator.subtract(10, 1)).toBe(9);
+    expect(Calculator.subtract(11230, 189022)).toBe(11230 - 189022);
     // MULTIPLICATION
     expect(Calculator.multiply(5, 4)).toBe(20);
     expect(Calculator.multiply(3, 2.5)).toBe(7.5);
@@ -22,7 +22,7 @@ describe("Calculator", () => {
   });
 
   it("should fix floating point error in subtraction", () => {
-    expect(Calculator.substract(1, 0.9)).toBe(0.1); // => 1 - 0.9 = 0.09999999999999998
+    expect(Calculator.subtract(1, 0.9)).toBe(0.1); // => 1 - 0.9 = 0.09999999999999998
   });
 
   it("should fix floating point error in multiplication", () => {
