@@ -10,10 +10,10 @@ function big2num(big: Big): number {
 }
 
 /**
- * A Calculator class for performing arithmetic operations with high precision,
+ * A Calculator object for performing arithmetic operations with high precision,
  * leveraging the Big.js library to avoid floating-point errors.
  */
-export class Calculator {
+export const Calculator = {
   /**
    * Accurately divides one number by another.
    * @param {number} dividend - The number to be divided.
@@ -21,10 +21,10 @@ export class Calculator {
    * @return {number} - The division result.
    * @throws {Error} When attempting to divide by zero.
    */
-  static divide(dividend: number, divisor: number): number {
+  divide(dividend: number, divisor: number): number {
     if (divisor === 0) throw new Error("Cannot divide by zero.");
     return big2num(new Big(dividend).div(divisor));
-  }
+  },
 
   /**
    * Accurately multiplies two numbers.
@@ -32,9 +32,9 @@ export class Calculator {
    * @param {number} multiplier - The second number in the multiplication.
    * @return {number} - The product of the multiplication.
    */
-  static multiply(multiplicand: number, multiplier: number): number {
+  multiply(multiplicand: number, multiplier: number): number {
     return big2num(new Big(multiplicand).mul(multiplier));
-  }
+  },
 
   /**
    * Accurately adds two numbers.
@@ -42,9 +42,9 @@ export class Calculator {
    * @param {number} addend2 - The second number to add.
    * @return {number} - The sum of the addition.
    */
-  static add(addend1: number, addend2: number): number {
+  add(addend1: number, addend2: number): number {
     return big2num(new Big(addend1).plus(addend2));
-  }
+  },
 
   /**
    * Accurately subtracts one number from another.
@@ -52,7 +52,7 @@ export class Calculator {
    * @param {number} subtrahend - The number to be subtracted.
    * @return {number} - The difference resulting from the subtraction.
    */
-  static subtract(minuend: number, subtrahend: number): number {
+  subtract(minuend: number, subtrahend: number): number {
     return big2num(new Big(minuend).minus(subtrahend));
-  }
-}
+  },
+};
