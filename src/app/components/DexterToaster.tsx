@@ -72,7 +72,7 @@ export function DexterToaster(props: DexterToasterProps) {
 }
 
 /**
- * Wrapper class
+ * Wrapper that exposes toaster API for internal usage
  */
 export const DexterToast = {
   success(message: string) {
