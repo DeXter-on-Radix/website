@@ -74,14 +74,16 @@ export function DexterToaster(props: DexterToasterProps) {
 /**
  * Wrapper class
  */
-export class DexterToast {
-  static success(message: string) {
+export const DexterToast = {
+  success(message: string) {
     toast.success(message);
-  }
-  static error(message: string) {
+  },
+
+  error(message: string) {
     toast.error(message);
-  }
-  static promise<T>(
+  },
+
+  promise<T>(
     func: () => Promise<T>,
     loadingMsg: string,
     successMsg: string,
@@ -101,5 +103,5 @@ export class DexterToast {
         error: errorMsg,
       }
     );
-  }
-}
+  },
+};
