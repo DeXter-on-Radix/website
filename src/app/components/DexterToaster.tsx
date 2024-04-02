@@ -81,7 +81,7 @@ export class DexterToast {
   static error(message: string) {
     toast.error(message);
   }
-  static promise(
+  static promise<T>(
     func: () => Promise<T>,
     loadingMsg: string,
     successMsg: string,
