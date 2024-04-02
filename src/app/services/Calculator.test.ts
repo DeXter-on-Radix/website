@@ -27,6 +27,7 @@ describe("Calculator", () => {
 
   it("should fix floating point error in multiplication", () => {
     expect(Calculator.multiply(0.1, 0.2)).toBe(0.02); // => 0.1 * 0.2 = 0.020000000000000004
+    expect(Calculator.multiply(1.65, 12)).toBe(19.8); // => 1.65 * 12 = 19.799999999
   });
 
   it("should fix floating point error in division", () => {
