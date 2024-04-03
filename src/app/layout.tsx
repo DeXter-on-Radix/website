@@ -18,7 +18,6 @@ export default function RootLayout({
   const path = usePathname();
 
   const os = detectOperatingSystem();
-  console.log({ os });
   const toastPosition = {
     WINDOWS: "bottom-center",
     MAC: "top-center",
