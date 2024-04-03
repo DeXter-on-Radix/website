@@ -115,23 +115,32 @@ Developers are responsible for replacing placeholders with actual values within 
 
 ## Notifications (Toasts)
 
-Whenever you need toast notifications, please use our `DexterToaster` wrapper class, which wraps `react-hot-toast` and applies Dexter branding to all generated toasts.
+Whenever you need toast notifications, please use our `DexterToast` API, which wraps `react-hot-toast` and applies Dexter branding to all generated toasts.
 
 Use Toast notifications for:
 
-- Low attention messages that do not require user action
-- Singular status updates
-- Confirmations
-- Information that does not need to be followed up
+- ✅ Low attention messages that do not require user action
+- ✅ Singular status updates
+- ✅ Confirmations
+- ✅ Information that does not need to be followed up
 
 Do not use Toast notifications for:
 
-- High attention and crtitical information
-- Time-sensitive information
-- Requires user action or input
-- Batch updates
+- ❌ High attention and crtitical information
+- ❌ Time-sensitive information
+- ❌ Requires user action or input
+- ❌ Batch updates
 
 ### Toast Notification Code Examples
+
+There are 3 functions exposed:
+- `DexterToast.success(...)`
+- `DexterToast.error(...)`
+- `DexterToast.promise(...)`
+
+![Group 56](https://github.com/DeXter-on-Radix/website/assets/44790691/09dca3d8-fd9b-4988-9c59-87669fb2a16b)
+
+See usage examples:
 
 ```jsx
 // Import DexterToast class anywhere in the code
