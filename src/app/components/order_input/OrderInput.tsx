@@ -13,6 +13,7 @@ import { LimitOrderInput } from "./LimitOrderInput";
 import { MarketOrderInput } from "./MarketOrderInput";
 import { OrderSideTabs } from "./OrderSideTabs";
 import { OrderTypeTabs } from "./OrderTypeTabs";
+import { DexterToast } from "components/DexterToaster";
 
 function SubmitButton() {
   const symbol = useAppSelector(selectTargetToken).symbol;
@@ -48,7 +49,28 @@ function SubmitButton() {
       <button
         className="flex-1 btn btn-accent uppercase"
         disabled={!isValidTransaction || transactionInProgress}
-        onClick={() => dispatch(submitOrder())}
+        onClick={async (e) => {
+          e.stopPropagation();
+          DexterToast.promise(
+            // Function input, with following state-to-toast mapping
+            // -> pending: loading toast
+            // -> rejceted: error toast
+            // -> resolved: success toast
+            async () => {
+              const action = await dispatch(submitOrder());
+              if (!action.type.endsWith("fulfilled")) {
+                // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+                throw new Error("Transaction failed due to user action.");
+              } else if ((action.payload as any)?.status === "ERROR") {
+                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+                throw new Error("Transaction failed onledger");
+              }
+            },
+            t("submitting_order"), // Loading message
+            t("order_submitted"), // success message
+            t("failed_to_submit_order") // error message
+          );
+        }}
       >
         {transactionInProgress ? t("transaction_in_progress") : submitString}
       </button>
