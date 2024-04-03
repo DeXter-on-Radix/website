@@ -134,6 +134,7 @@ Do not use Toast notifications for:
 ### Toast Notification Code Examples
 
 There are 3 functions exposed:
+
 - `DexterToast.success(...)`
 - `DexterToast.error(...)`
 - `DexterToast.promise(...)`
