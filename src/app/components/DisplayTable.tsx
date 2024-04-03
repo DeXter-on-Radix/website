@@ -71,27 +71,29 @@ function ActionButton({
       <button
         onClick={async (e) => {
           e.stopPropagation();
-          // Execute DexterToast.promise with the provided success and failure messages
           DexterToast.promise(
+            // Function input, with following state-to-toast mapping
+            // -> pending: loading toast
+            // -> rejceted: error toast
+            // -> resolved: success toast
             async () => {
-              // Await the dispatch and result of the cancelOrder action
               const action = await dispatch(
                 cancelOrder({
                   orderId: order.id,
                   pairAddress: order.pairAddress,
                 })
               );
-              // Transaction was not fulfilled (e.g. userRejected or userCanceled)
               if (!action.type.endsWith("fulfilled")) {
+                // Transaction was not fulfilled (e.g. userRejected or userCanceled)
                 throw new Error("Transaction failed due to user action.");
-                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
               } else if ((action.payload as any)?.status === "ERROR") {
+                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
                 throw new Error("Transaction failed onledger");
               }
-            }, // Since the action is now performed, we resolve the promise immediately
-            "Cancelling order",
-            "Order cancelled",
-            "Failed to cancel order"
+            },
+            t("cancelling_order"), // Loading message
+            t("order_cancelled"), // success message
+            t("failed_to_cancel_order") // error message
           );
         }}
         className="text-error hover:underline transition"
