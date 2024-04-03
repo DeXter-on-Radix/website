@@ -69,32 +69,26 @@ function ActionButton({
   if (order.status === "PENDING") {
     return (
       <button
-        onClick={(e) => {
+        onClick={async (e) => {
           e.stopPropagation();
+          // Execute DexterToast.promise with the provided success and failure messages
           DexterToast.promise(
-            () =>
-              dispatch(
+            async () => {
+              // Await the dispatch and result of the cancelOrder action
+              const action = await dispatch(
                 cancelOrder({
                   orderId: order.id,
                   pairAddress: order.pairAddress,
                 })
-              )
-                .then((action) => {
-                  // Handle transaction errors, e.g. when user rejects or cancels transaction
-                  if (!action.type.endsWith("fulfilled")) {
-                    throw new Error("Transaction failed");
-                  } else if (
-                    ((action.payload as any).status as string) === "ERROR"
-                  ) {
-                    throw new Error("Transaction failed onledger");
-                  }
-                })
-                .catch((error) => {
-                  // This catch block is for any errors thrown before the action is dispatched
-                  // or if Redux Toolkit setup is not catching errors as expected.
-                  console.error("Error dispatching cancelOrder action", error);
-                  throw new Error("Error2");
-                }),
+              );
+              // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+              if (!action.type.endsWith("fulfilled")) {
+                throw new Error("Transaction failed due to user action.");
+                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+              } else if ((action.payload as any)?.status === "ERROR") {
+                throw new Error("Transaction failed onledger");
+              }
+            }, // Since the action is now performed, we resolve the promise immediately
             "Cancelling order",
             "Order cancelled",
             "Failed to cancel order"
