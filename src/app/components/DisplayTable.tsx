@@ -18,6 +18,7 @@ interface TableProps {
 }
 
 import "../styles/table.css";
+import { DexterToast } from "./DexterToaster";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
@@ -70,8 +71,33 @@ function ActionButton({
       <button
         onClick={(e) => {
           e.stopPropagation();
-          dispatch(
-            cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
+          DexterToast.promise(
+            () =>
+              dispatch(
+                cancelOrder({
+                  orderId: order.id,
+                  pairAddress: order.pairAddress,
+                })
+              )
+                .then((action) => {
+                  // Handle transaction errors, e.g. when user rejects or cancels transaction
+                  if (!action.type.endsWith("fulfilled")) {
+                    throw new Error("Transaction failed");
+                  } else if (
+                    ((action.payload as any).status as string) === "ERROR"
+                  ) {
+                    throw new Error("Transaction failed onledger");
+                  }
+                })
+                .catch((error) => {
+                  // This catch block is for any errors thrown before the action is dispatched
+                  // or if Redux Toolkit setup is not catching errors as expected.
+                  console.error("Error dispatching cancelOrder action", error);
+                  throw new Error("Error2");
+                }),
+            "Cancelling order",
+            "Order cancelled",
+            "Failed to cancel order"
           );
         }}
         className="text-error hover:underline transition"
