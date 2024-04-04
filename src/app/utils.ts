@@ -380,7 +380,7 @@ export function formatNumericString(
   separator: string,
   scale: number
 ): string {
-  const regex = separator === "." ? /[^\d.]/g : /[^\d,]/g;
+  const regex = separator === "." ? /[^\d.-]/g : /[^\d,-]/g;
   let formattedValue = value.replace(regex, "");
   // Ensure only the first occurrence of the separator is allowed
   const parts = formattedValue.split(separator);

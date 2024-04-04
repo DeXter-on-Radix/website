@@ -110,7 +110,7 @@ export const initialTokenInput: TokenInput = {
   address: "",
   symbol: "",
   iconUrl: "",
-  amount: 0,
+  amount: -1,
   decimals: 0,
 };
 
@@ -128,7 +128,7 @@ export const initialState: OrderInputState = {
   type: OrderType.MARKET,
   postOnly: false,
   side: adex.OrderSide.BUY,
-  price: 0,
+  price: -1,
   slippage: -1,
   transactionInProgress: false,
 };
@@ -267,9 +267,9 @@ interface SetTokenAmountPayload {
 }
 
 function resetUserInput(state: OrderInputState) {
-  state.price = 0;
-  state.token1.amount = 0;
-  state.token2.amount = 0;
+  state.price = -1;
+  state.token1.amount = -1;
+  state.token2.amount = -1;
   state.postOnly = false;
   state.validationToken1 = initialValidationResult;
   state.validationToken2 = initialValidationResult;
@@ -313,7 +313,7 @@ export const orderInputSlice = createSlice({
           address: adexToken1.address,
           symbol: adexToken1.symbol,
           iconUrl: adexToken1.iconUrl,
-          amount: 0,
+          amount: -1,
           decimals: serializedState.currentPairInfo.token1MaxDecimals,
         };
       }
@@ -322,7 +322,7 @@ export const orderInputSlice = createSlice({
           address: adexToken2.address,
           symbol: adexToken2.symbol,
           iconUrl: adexToken2.iconUrl,
-          amount: 0,
+          amount: -1,
           decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
       }
@@ -349,11 +349,11 @@ export const orderInputSlice = createSlice({
         return;
       }
 
-      // Set specified token + token amount
-      if (amount === 0) {
+      // Reset if amount is -1
+      if (amount === -1) {
         state.specifiedToken = SpecifiedToken.UNSPECIFIED;
-        state.token1.amount = 0;
-        state.token2.amount = 0;
+        state.token1.amount = -1;
+        state.token2.amount = -1;
         return;
       }
 
@@ -362,11 +362,11 @@ export const orderInputSlice = createSlice({
       const setTokenAmount = {
         TOKEN_1: (amount: number) => {
           state.token1.amount = amount;
-          state.token2.amount = 0;
+          state.token2.amount = -1;
         },
         TOKEN_2: (amount: number) => {
           state.token2.amount = amount;
-          state.token1.amount = 0;
+          state.token1.amount = -1;
         },
       }[specifiedToken];
       setTokenAmount(amount);
@@ -388,10 +388,10 @@ export const orderInputSlice = createSlice({
         BUY: bestBuy,
         SELL: bestSell,
       }[state.side];
-      const priceIsNull = state.price === 0;
+      const priceIsUnset = state.price === -1;
       const isLimitOrder = state.type === OrderType.LIMIT;
       const amountIsPositive = amount > 0;
-      if (priceIsNull && isLimitOrder && amountIsPositive) {
+      if (priceIsUnset && isLimitOrder && amountIsPositive) {
         state.price = bestPrice;
       }
 
@@ -471,6 +471,9 @@ export const orderInputSlice = createSlice({
       state.side = action.payload;
     },
     setPrice(state, action: PayloadAction<number>) {
+      if (action.payload === -1) {
+        resetUserInput(state);
+      }
       state.price = action.payload;
       // const isLimitOrder = state.type === OrderType.LIMIT;
       // const positiveTokenAmountSpecified =
@@ -524,7 +527,7 @@ export const orderInputSlice = createSlice({
       state.token2 = initialTokenInput;
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
-      state.price = 0;
+      state.price = -1;
       state.slippage = 0.01;
       state.transactionInProgress = false;
       state.transactionResult = undefined;

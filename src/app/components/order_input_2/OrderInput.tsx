@@ -431,15 +431,20 @@ function CurrencyInputGroupSettings(
 
   let token1amount = token1.amount;
   let token2amount = token2.amount;
+  // let frontendPrice = price;
+  console.log({ token1amount, token2amount });
   // For limit orders, tokens that are not specified are derived using price
   // Note: this is only done for display, the state of these tokens will not be set.
   if (type === "LIMIT") {
-    if (specifiedToken === SpecifiedToken.TOKEN_1) {
+    if (specifiedToken === SpecifiedToken.TOKEN_1 && token1amount >= 0) {
       token2amount = Calculator.multiply(token1.amount, price);
     }
     if (specifiedToken === SpecifiedToken.TOKEN_2) {
-      token1amount = price === 0 ? 0 : Calculator.divide(token2.amount, price);
+      token1amount = price <= 0 ? 0 : Calculator.divide(token2.amount, price);
     }
+    // if (price === -1) {
+    //   frontendPrice = 0;
+    // }
   }
 
   const configMap: { [key in UserAction]: CurrencyInputGroupConfig } = {
@@ -608,7 +613,7 @@ function CustomNumericIMask({
       // If the input is cleared, set the internal state to an empty string
       // and reset token amount state to 0
       setInputValue("");
-      onAccept(0);
+      onAccept(-1);
       return; // Exit early as there's no further processing needed
     }
     const formattedValue = formatNumericString(value, separator, scale);
@@ -629,7 +634,7 @@ function CustomNumericIMask({
   return (
     <input
       type="text"
-      value={inputValue === "0" ? "" : inputValue}
+      value={inputValue === "-1" ? "" : inputValue}
       onChange={handleChange}
       className={className} // Add TailwindCSS classes here
     />
