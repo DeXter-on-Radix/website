@@ -570,6 +570,7 @@ function CurrencyInput({
   value,
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
+  console.log({ currency, value });
   const { decimalSeparator } = getLocaleSeparators();
   const scale = 8; // TODO(dcts): use token specific decimals
   return (
@@ -608,7 +609,10 @@ function CustomNumericIMask({
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     let { value } = e.target;
     // Automatically convert "," to "."
-    value = value.replace(/,/g, ".");
+    value = value.replace(/,/g, separator).replace(/-/g, "");
+    if (value.startsWith(".") || value.startsWith(",")) {
+      value = value.substring(1, value.length);
+    }
     if (value === "") {
       // If the input is cleared, set the internal state to an empty string
       // and reset token amount state to 0

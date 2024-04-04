@@ -471,8 +471,10 @@ export const orderInputSlice = createSlice({
       state.side = action.payload;
     },
     setPrice(state, action: PayloadAction<number>) {
-      if (action.payload === -1) {
-        resetUserInput(state);
+      if (action.payload <= 0) {
+        state.token1.amount = -1;
+        state.token2.amount = -1;
+        state.specifiedToken = SpecifiedToken.UNSPECIFIED;
       }
       state.price = action.payload;
       // const isLimitOrder = state.type === OrderType.LIMIT;
