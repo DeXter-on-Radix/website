@@ -265,9 +265,9 @@ export function PriceChart() {
   let msg = `side = ${side}\n`;
   msg += `type = ${type}\n`;
   msg += `postOnly = ${postOnly}\n`;
-  msg += `price = ${price || "-"} ${token2.symbol}\n`;
-  msg += `Token1 (quantity) = ${token1.amount || "-"} ${token1.symbol}\n`;
-  msg += `Token2 (total) = ${token2.amount || "-"} ${token2.symbol}\n`;
+  msg += `price = ${price} ${token2.symbol}\n`;
+  msg += `Token1 (quantity) = ${token1.amount} ${token1.symbol}\n`;
+  msg += `Token2 (total) = ${token2.amount} ${token2.symbol}\n`;
   msg += `specifiedToken = ${specifiedToken}\n`;
   msg += `quote = ${quote}\n`;
 
