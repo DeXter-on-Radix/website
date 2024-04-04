@@ -6,6 +6,7 @@ import {
   getPrecision,
   getLocaleSeparators,
   formatNumericString,
+  truncateWithPrecision,
 } from "../../utils";
 
 import { useAppDispatch, useAppSelector } from "hooks";
@@ -21,6 +22,7 @@ import {
   // fetchQuote,
   // submitOrder,
 } from "state/orderInputSlice";
+import { Calculator } from "services/Calculator";
 
 const POST_ONLY_TOOLTIP =
   "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
@@ -389,7 +391,7 @@ function CurrencyInputGroupSettings(
   currencyInputGroupDisabled: boolean
 ): CurrencyInputGroupConfig {
   const dispatch = useAppDispatch();
-  const { side, token1, token2, price } = useAppSelector(
+  const { side, type, token1, token2, price, specifiedToken } = useAppSelector(
     (state) => state.orderInput
   );
   const token1Balance =
@@ -427,30 +429,43 @@ function CurrencyInputGroupSettings(
     dispatch(orderInputSlice.actions.setPrice(value));
   };
 
+  let token1amount = token1.amount;
+  let token2amount = token2.amount;
+  // For limit orders, tokens that are not specified are derived using price
+  // Note: this is only done for display, the state of these tokens will not be set.
+  if (type === "LIMIT") {
+    if (specifiedToken === SpecifiedToken.TOKEN_1) {
+      token2amount = Calculator.multiply(token1.amount, price);
+    }
+    if (specifiedToken === SpecifiedToken.TOKEN_2) {
+      token1amount = price === 0 ? 0 : Calculator.divide(token2.amount, price);
+    }
+  }
+
   const configMap: { [key in UserAction]: CurrencyInputGroupConfig } = {
     SET_TOKEN_1: {
       label: "Quantity",
       currency: token1.symbol,
-      value: token1.amount,
+      value: token1amount,
       updateValue: updateToken1,
       secondaryLabelProps: {
         disabled: side === "BUY", // hide token1 balance for BUY
         label: "Available",
         currency: token1.symbol,
-        value: token1Balance,
+        value: truncateWithPrecision(token1Balance, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken1,
       },
     },
     SET_TOKEN_2: {
       label: "Total",
       currency: token2.symbol,
-      value: token2.amount,
+      value: token2amount,
       updateValue: updateToken2,
       secondaryLabelProps: {
         disabled: side === "SELL", // hide token2 balance for SELL
         label: "Available",
         currency: token2.symbol,
-        value: token2Balance,
+        value: truncateWithPrecision(token2Balance, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken2,
       },
     },
@@ -463,7 +478,7 @@ function CurrencyInputGroupSettings(
         disabled: currencyInputGroupDisabled, // hide if currencyInput is disabled (e.g. for market price)
         label: `Best ${side.toLowerCase()}`,
         currency: token2.symbol,
-        value: side === "BUY" ? bestBuy : bestSell,
+        value: truncateWithPrecision(side === "BUY" ? bestBuy : bestSell, 8), // TODO(dcts): use coin-decimals
         updateValue: updatePrice,
       },
     },
@@ -551,13 +566,14 @@ function CurrencyInput({
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
   const { decimalSeparator } = getLocaleSeparators();
+  const scale = 8; // TODO(dcts): use token specific decimals
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
       {/* UserInput */}
       <CustomNumericIMask
         value={value}
         separator={decimalSeparator}
-        scale={8}
+        scale={scale}
         onAccept={updateValue}
         className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
       />
@@ -582,26 +598,23 @@ function CustomNumericIMask({
   onAccept,
   className,
 }: CustomNumericIMaskProps): JSX.Element | null {
-  // Format the input value according to the separator and scale props
-  const cutoffValue = formatNumericString(value.toString(), separator, scale);
-  if (cutoffValue !== value.toString()) {
-    onAccept(Number(cutoffValue)); // cutoff the actual value as well
-  }
-  const [inputValue, setInputValue] = useState(cutoffValue);
+  const [inputValue, setInputValue] = useState(value.toString());
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     let { value } = e.target;
-    // Automatically convert "," to "." for internal processing
+    // Automatically convert "," to "."
     value = value.replace(/,/g, ".");
     if (value === "") {
-      // If the input is cleared, set the internal state to an empty string and call onAccept with null or 0
+      // If the input is cleared, set the internal state to an empty string
+      // and reset token amount state to 0
       setInputValue("");
-      onAccept(0); // or onAccept(0), depending on the expected behavior
+      onAccept(0);
       return; // Exit early as there's no further processing needed
     }
     const formattedValue = formatNumericString(value, separator, scale);
     setInputValue(formattedValue);
-    // Use the updated regex checks as before
+    // Regex that limits precision to defined "scale" and allows a single
+    // dot between digits or at the very end
     const regexForAccept = new RegExp(`^\\d+(\\.\\d{1,${scale}})?$`);
     if (regexForAccept.test(formattedValue)) {
       onAccept(parseFloat(formattedValue));
