@@ -333,6 +333,12 @@ export const orderInputSlice = createSlice({
       //     serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       // }
     },
+    setToken1(state, action: PayloadAction<number>) {
+      state.token1.amount = action.payload;
+    },
+    setToken2(state, action: PayloadAction<number>) {
+      state.token2.amount = action.payload;
+    },
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
       const { amount, bestBuy, bestSell, specifiedToken } = action.payload;
@@ -354,10 +360,17 @@ export const orderInputSlice = createSlice({
       state.specifiedToken = specifiedToken;
 
       const setTokenAmount = {
-        TOKEN_1: (amount: number) => (state.token1.amount = amount),
-        TOKEN_2: (amount: number) => (state.token2.amount = amount),
+        TOKEN_1: (amount: number) => {
+          state.token1.amount = amount;
+          state.token2.amount = 0;
+        },
+        TOKEN_2: (amount: number) => {
+          state.token2.amount = amount;
+          state.token1.amount = 0;
+        },
       }[specifiedToken];
       setTokenAmount(amount);
+
       // const setTokenAmount = {
       //   TOKEN_1: (amount: number) =>
       //     (state.token1.amount = Number(
@@ -370,7 +383,7 @@ export const orderInputSlice = createSlice({
       // }[specifiedToken];
       // setTokenAmount(amount);
 
-      // Adapt price if neccessary
+      // Set price for limit orders if empty
       const bestPrice = {
         BUY: bestBuy,
         SELL: bestSell,
@@ -382,19 +395,19 @@ export const orderInputSlice = createSlice({
         state.price = bestPrice;
       }
 
-      // Set the other token
-      const specifiedToken1 = specifiedToken === SpecifiedToken.TOKEN_1;
-      const specifiedToken2 = specifiedToken === SpecifiedToken.TOKEN_2;
-      if (isLimitOrder && specifiedToken1) {
-        state.token2.amount = amountIsPositive
-          ? Calculator.multiply(state.token1.amount, state.price)
-          : 0;
-      }
-      if (isLimitOrder && specifiedToken2) {
-        state.token1.amount = amountIsPositive
-          ? Calculator.divide(state.token2.amount, state.price)
-          : 0;
-      }
+      // // Set the other token
+      // const specifiedToken1 = specifiedToken === SpecifiedToken.TOKEN_1;
+      // const specifiedToken2 = specifiedToken === SpecifiedToken.TOKEN_2;
+      // if (isLimitOrder && specifiedToken1) {
+      //   state.token2.amount = amountIsPositive
+      //     ? Calculator.multiply(state.token1.amount, state.price)
+      //     : 0;
+      // }
+      // if (isLimitOrder && specifiedToken2) {
+      //   state.token1.amount = amountIsPositive
+      //     ? Calculator.divide(state.token2.amount, state.price)
+      //     : 0;
+      // }
 
       // if (
       //   state.type === OrderType.LIMIT &&
@@ -459,26 +472,26 @@ export const orderInputSlice = createSlice({
     },
     setPrice(state, action: PayloadAction<number>) {
       state.price = action.payload;
-      const isLimitOrder = state.type === OrderType.LIMIT;
-      const positiveTokenAmountSpecified =
-        state.specifiedToken === SpecifiedToken.TOKEN_1
-          ? state.token1.amount
-          : state.specifiedToken === SpecifiedToken.TOKEN_2
-          ? state.token2.amount
-          : 0;
-      if (isLimitOrder && positiveTokenAmountSpecified > 0) {
-        if (state.specifiedToken === SpecifiedToken.TOKEN_1) {
-          state.token2.amount = Calculator.multiply(
-            state.token1.amount,
-            state.price
-          );
-        } else if (state.specifiedToken === SpecifiedToken.TOKEN_2) {
-          state.token1.amount = Calculator.divide(
-            state.token2.amount,
-            state.price
-          );
-        }
-      }
+      // const isLimitOrder = state.type === OrderType.LIMIT;
+      // const positiveTokenAmountSpecified =
+      //   state.specifiedToken === SpecifiedToken.TOKEN_1
+      //     ? state.token1.amount
+      //     : state.specifiedToken === SpecifiedToken.TOKEN_2
+      //     ? state.token2.amount
+      //     : 0;
+      // if (isLimitOrder && positiveTokenAmountSpecified > 0) {
+      //   if (state.specifiedToken === SpecifiedToken.TOKEN_1) {
+      //     state.token2.amount = Calculator.multiply(
+      //       state.token1.amount,
+      //       state.price
+      //     );
+      //   } else if (state.specifiedToken === SpecifiedToken.TOKEN_2) {
+      //     state.token1.amount = Calculator.divide(
+      //       state.token2.amount,
+      //       state.price
+      //     );
+      //   }
+      // }
       // if (
       //   state.type === OrderType.LIMIT &&
       //   typeof action.payload === "number"
