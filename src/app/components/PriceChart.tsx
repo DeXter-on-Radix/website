@@ -80,7 +80,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 50, // TODO(dcts): set back to 500
+        height: 300, // TODO(dcts): set back to 500
         layout: {
           background: {
             color: theme["base-200"],
@@ -273,16 +273,20 @@ export function PriceChart() {
 
   return (
     <div>
-      <h1>STATE DEBUGGER</h1>
-      <table className="max-w-[500px] m-auto">
+      <strong>STATE DEBUGGER</strong>
+      <table className="max-w-[500px] m-auto mb-5">
         <tbody>
           {msg.split("\n").map((line, index) => {
             const parts = line.split("="); // Split each line by "="
             return (
               <tr key={index}>
-                <td className="w-1/2">{parts[0]}</td>{" "}
+                <td style={{ padding: 0, fontSize: "18px" }} className="w-1/2">
+                  {parts[0]}
+                </td>{" "}
                 {/* First part of the line */}
-                <td className="w-1/2">{parts[1]}</td>{" "}
+                <td style={{ padding: 0, fontSize: "18px" }} className="w-1/2">
+                  {parts[1]}
+                </td>{" "}
                 {/* Second part of the line */}
               </tr>
             );
