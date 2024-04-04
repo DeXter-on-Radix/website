@@ -319,6 +319,10 @@ export function getPriceSymbol(order: OrderReceipt): string {
   return order.pairName.split("/")[1];
 }
 
+export function capitalizeFirstLetter(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1);
+}
+
 export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Helper function to extract first 2 chars and ensure its lowercased.
   const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
@@ -345,4 +349,87 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   }
   // Fallback to a default language if none is detected
   return defaultLanguage;
+}
+
+// Gets amount precision for each token traded on dexteronradix.
+// Note: precision for price is different.
+export function getPrecision(input: string): number {
+  return (
+    {
+      XRD: 2,
+      DEXTR: 2,
+      CASSIE: 0,
+      CAVIAR: 2,
+      DFP2: 2,
+      DGC: 0,
+      FLOOP: 5,
+      HUG: 0,
+      MNI: 0,
+      OCI: 2,
+      PLANET: 0,
+      RDK: 0,
+      WEFT: 2,
+      XRAW: 0,
+      XUSDC: 2,
+    }[input.toUpperCase()] || 2
+  );
+}
+
+export function formatNumericString(
+  value: string,
+  separator: string,
+  scale: number
+): string {
+  const regex = separator === "." ? /[^\d.-]/g : /[^\d,-]/g;
+  let formattedValue = value.replace(regex, "");
+  // Ensure only the first occurrence of the separator is allowed
+  const parts = formattedValue.split(separator);
+  if (parts.length > 2) {
+    // Rejoin with a single separator, discarding additional separators
+    formattedValue = parts[0] + separator + parts.slice(1).join("");
+  }
+  // Allow a trailing separator for user input
+  if (formattedValue.endsWith(separator)) {
+    return formattedValue;
+  }
+  // Split and limit fraction scale as before
+  let [whole, fraction] = formattedValue.split(separator);
+  if (fraction && fraction.length > scale) {
+    fraction = fraction.substring(0, scale);
+  }
+  return fraction ? `${whole}${separator}${fraction}` : whole;
+}
+
+// Define an enum for the operating system types
+export enum OperatingSystem {
+  MAC = "MAC",
+  WINDOWS = "WINDOWS",
+  LINUX = "LINUX",
+  UNKNOWN = "UNKNOWN",
+}
+
+// Function to detect the users operating system based on navigator
+export function detectOperatingSystem(): OperatingSystem {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return OperatingSystem.UNKNOWN;
+  }
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.includes("mac os")) {
+    return OperatingSystem.MAC;
+  } else if (userAgent.includes("windows")) {
+    return OperatingSystem.WINDOWS;
+  } else if (userAgent.includes("linux")) {
+    return OperatingSystem.LINUX;
+  } else {
+    return OperatingSystem.UNKNOWN;
+  }
+}
+
+export function truncateWithPrecision(num: number, precision: number): number {
+  const split = num.toString().split(".");
+  if (split.length !== 2) {
+    return num;
+  }
+  const [part1, part2] = split;
+  return Number(`${part1}.${part2.substring(0, precision)}`);
 }

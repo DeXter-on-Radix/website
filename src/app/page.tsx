@@ -3,13 +3,13 @@
 import { useEffect } from "react";
 
 import { OrderBook } from "components/OrderBook";
-import { OrderInput } from "components/order_input/OrderInput";
+import { OrderInput } from "components/order_input_2/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
 import { PriceInfo } from "components/PriceInfo";
 import { fetchBalances } from "state/pairSelectorSlice";
-import { useAppDispatch } from "hooks";
+import { useAppDispatch, useAppSelector } from "hooks";
 import { fetchAccountHistory } from "state/accountHistorySlice";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
@@ -21,6 +21,12 @@ import Cookies from "js-cookie";
 
 export default function Home() {
   const dispatch = useAppDispatch();
+  const pairName = useAppSelector((state) => state.pairSelector.name);
+
+  // Detect changes in selected pair and adjust pagetitle
+  useEffect(() => {
+    document.title = pairName ? `DeXter • ${pairName.toUpperCase()}` : "DeXter";
+  }, [pairName]);
 
   // Detect browser langauge
   useEffect(() => {

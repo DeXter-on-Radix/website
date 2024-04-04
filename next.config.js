@@ -10,6 +10,9 @@ const nextConfig = {
   reactStrictMode: false,
 
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+
+  // for github pages
+  basePath: process.env.BASE_PATH || "",
 };
 
 module.exports = withMDX(nextConfig);

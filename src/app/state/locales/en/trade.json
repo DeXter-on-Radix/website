@@ -67,5 +67,11 @@
   "no_trades_have_occured_yet": "No trades have occurred yet",
   "market_action_token": "<$ORDER_TYPE> <$SIDE> <$TOKEN_SYMBOL>",
   "at_max_price": "At Max Price",
-  "at_min_price": "At Min Price"
+  "at_min_price": "At Min Price",
+  "cancelling_order": "Cancelling order...",
+  "order_cancelled": "Order cancelled",
+  "failed_to_cancel_order": "Failed to cancel order",
+  "submitting_order": "Submitting order...",
+  "order_submitted": "Order submitted",
+  "failed_to_submit_order": "Failed to submit order"
 }

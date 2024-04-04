@@ -80,7 +80,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 500,
+        height: 50, // TODO(dcts): set back to 500
         layout: {
           background: {
             color: theme["base-200"],
@@ -247,8 +247,48 @@ export function PriceChart() {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
   }, [dispatch]);
 
+  const {
+    type,
+    side,
+    postOnly,
+    token1,
+    token2,
+    // validationToken1,
+    // validationToken2,
+    // description,
+    specifiedToken,
+    quote,
+    price,
+  } = useAppSelector((state) => state.orderInput);
+  // const tartgetToken = useAppSelector(selectTargetToken);
+
+  let msg = `side = ${side}\n`;
+  msg += `type = ${type}\n`;
+  msg += `postOnly = ${postOnly}\n`;
+  msg += `price = ${price} ${token2.symbol}\n`;
+  msg += `Token1 (quantity) = ${token1.amount} ${token1.symbol}\n`;
+  msg += `Token2 (total) = ${token2.amount} ${token2.symbol}\n`;
+  msg += `specifiedToken = ${specifiedToken}\n`;
+  msg += `quote = ${quote}\n`;
+
   return (
     <div>
+      <h1>STATE DEBUGGER</h1>
+      <table className="max-w-[500px] m-auto">
+        <tbody>
+          {msg.split("\n").map((line, index) => {
+            const parts = line.split("="); // Split each line by "="
+            return (
+              <tr key={index}>
+                <td className="w-1/2">{parts[0]}</td>{" "}
+                {/* First part of the line */}
+                <td className="w-1/2">{parts[1]}</td>{" "}
+                {/* Second part of the line */}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">

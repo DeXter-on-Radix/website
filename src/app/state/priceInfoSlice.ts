@@ -1,5 +1,6 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { RootState } from "./store";
 
 export interface PriceInfoState {
   lastPrice: number;
@@ -43,5 +44,8 @@ export const priceInfoSlice = createSlice({
     },
   },
 });
+
+// Get last price
+export const selectLastPrice = (state: RootState) => state.priceInfo.lastPrice;
 
 export const { updatePriceInfo } = priceInfoSlice.actions;

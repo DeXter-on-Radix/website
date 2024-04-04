@@ -1,4 +1,4 @@
-import { displayNumber } from "../src/app/utils";
+import { displayNumber, truncateWithPrecision } from "./utils";
 
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
@@ -209,5 +209,20 @@ describe("displayAmount", () => {
     inputs.forEach(([input, expected]) => {
       expect(displayNumber(input, digits, 3)).toBe(expected);
     });
+  });
+});
+
+describe("truncateWithPrecision", () => {
+  it("ignores integer values", () => {
+    expect(truncateWithPrecision(1, 12)).toBe(1);
+    expect(truncateWithPrecision(-121, 0)).toBe(-121);
+  });
+  it("works for positive and negative numbers", () => {
+    expect(truncateWithPrecision(1.12345, 2)).toBe(1.12);
+    expect(truncateWithPrecision(-121.12345, 3)).toBe(-121.123);
+  });
+  it("doesnt round", () => {
+    expect(truncateWithPrecision(1.1216, 3)).toBe(1.121);
+    expect(truncateWithPrecision(1.1211, 3)).toBe(1.121);
   });
 });
