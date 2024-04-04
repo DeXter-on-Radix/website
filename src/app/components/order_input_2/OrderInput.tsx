@@ -84,9 +84,7 @@ interface DisabledInputFieldProps {
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { type, side, price, token1, token2 } = useAppSelector(
-    (state) => state.orderInput
-  );
+  const { type, side } = useAppSelector((state) => state.orderInput);
   // const { lastPrice } = useAppSelector((state) => state.priceInfo);
 
   // for better readibility
@@ -431,8 +429,6 @@ function CurrencyInputGroupSettings(
 
   let token1amount = token1.amount;
   let token2amount = token2.amount;
-  // let frontendPrice = price;
-  console.log({ token1amount, token2amount });
   // For limit orders, tokens that are not specified are derived using price
   // Note: this is only done for display, the state of these tokens will not be set.
   if (type === "LIMIT") {
@@ -442,9 +438,6 @@ function CurrencyInputGroupSettings(
     if (specifiedToken === SpecifiedToken.TOKEN_2) {
       token1amount = price <= 0 ? 0 : Calculator.divide(token2.amount, price);
     }
-    // if (price === -1) {
-    //   frontendPrice = 0;
-    // }
   }
 
   const configMap: { [key in UserAction]: CurrencyInputGroupConfig } = {
@@ -570,7 +563,6 @@ function CurrencyInput({
   value,
   updateValue,
 }: CurrencyInputProps): JSX.Element | null {
-  console.log({ currency, value });
   const { decimalSeparator } = getLocaleSeparators();
   const scale = 8; // TODO(dcts): use token specific decimals
   return (

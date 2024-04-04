@@ -80,7 +80,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 500,
+        height: 50, // TODO(dcts): set back to 500
         layout: {
           background: {
             color: theme["base-200"],
@@ -289,7 +289,7 @@ export function PriceChart() {
           })}
         </tbody>
       </table>
-      {/* <div className="flex items-center justify-between sm:pr-10">
+      <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
             {t("trading_chart")}
@@ -317,7 +317,7 @@ export function PriceChart() {
         change={change}
         percChange={percChange}
         volume={currentVolume}
-      /> */}
+      />
     </div>
   );
 }

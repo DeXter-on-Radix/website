@@ -13,7 +13,6 @@ import * as adex from "alphadex-sdk-js";
 // import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
 import { updateIconIfNeeded } from "../utils";
-import { Calculator } from "services/Calculator";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -285,9 +284,7 @@ export const orderInputSlice = createSlice({
   // synchronous reducers
   reducers: {
     setOrderType(state, action: PayloadAction<OrderType>) {
-      console.log("setting order type");
       state.type = action.payload;
-      console.log("setting order type done");
     },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
       //This clears up any validation when switching pairs
@@ -342,7 +339,6 @@ export const orderInputSlice = createSlice({
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
       const { amount, bestBuy, bestSell, specifiedToken } = action.payload;
-      console.log(action.payload);
 
       // ignore if no token is specified
       if (specifiedToken === SpecifiedToken.UNSPECIFIED) {
@@ -537,9 +533,7 @@ export const orderInputSlice = createSlice({
       state.description = undefined;
     },
     resetUserInput(state) {
-      console.log("resetting User Input");
       resetUserInput(state);
-      console.log("resetting User Done");
     },
     // toAdexInputs(state) {
     //   let msg = "";
