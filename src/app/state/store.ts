@@ -5,7 +5,7 @@ import { orderBookSlice } from "./orderBookSlice";
 import { priceChartSlice } from "./priceChartSlice";
 import { accountHistorySlice } from "./accountHistorySlice";
 import { radixSlice } from "./radixSlice";
-import { claimSlice } from "./claimSlice";
+import { rewardSlice } from "./rewardSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 import { i18nSlice } from "./i18nSlice";
 
@@ -19,7 +19,7 @@ export const store = configureStore({
     accountHistory: accountHistorySlice.reducer,
     priceInfo: priceInfoSlice.reducer,
     i18n: i18nSlice.reducer,
-    claimSlice: claimSlice.reducer,
+    rewardSlice: rewardSlice.reducer,
   },
 });
 

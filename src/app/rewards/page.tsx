@@ -1,6 +1,6 @@
 "use client";
 
-import { Claims } from "components/Claims";
+import { Rewards } from "components/Rewards";
 import { useEffect } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 import { store } from "../state/store";
@@ -13,7 +13,7 @@ export default function Markets() {
     };
   }, []);
   return (
-    <div className="container mx-auto md:px-16 sm:px-0 h-full">
+    <div className="container mx-auto md:px-16 sm:px-0  h-full h-min-full">
       <div className="flex flex-col justify-center">
         <div className="flex flex-1 xs:flex-col md:flex-row justify-around items-center">
           <h1 className="flex-initial uppercase">Rewards</h1>
@@ -27,7 +27,7 @@ export default function Markets() {
           </div>
         </div>
         <div className="flex flex-1 xs:flex-col md:flex-row items-center justify-around">
-          <div className="flex flex-1 flex-col flex-inital">
+          <div className="flex flex-1 flex-col gap-y-2">
             <p className="text-xl">
               Earn rewards by adding liquidity or trading on DeXter
             </p>
@@ -53,7 +53,7 @@ export default function Markets() {
             </div>
           </div>
           <div className="flex flex-1 xs:order-first md:order-last flex-col items-center">
-            <Claims />
+            <Rewards />
           </div>
         </div>
         <div className="flex-1 justify-center my-8 py-8">
