@@ -399,3 +399,28 @@ export function formatNumericString(
   }
   return fraction ? `${whole}${separator}${fraction}` : whole;
 }
+
+// Define an enum for the operating system types
+export enum OperatingSystem {
+  MAC = "MAC",
+  WINDOWS = "WINDOWS",
+  LINUX = "LINUX",
+  UNKNOWN = "UNKNOWN",
+}
+
+// Function to detect the users operating system based on navigator
+export function detectOperatingSystem(): OperatingSystem {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return OperatingSystem.UNKNOWN;
+  }
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.includes("mac os")) {
+    return OperatingSystem.MAC;
+  } else if (userAgent.includes("windows")) {
+    return OperatingSystem.WINDOWS;
+  } else if (userAgent.includes("linux")) {
+    return OperatingSystem.LINUX;
+  } else {
+    return OperatingSystem.UNKNOWN;
+  }
+}
