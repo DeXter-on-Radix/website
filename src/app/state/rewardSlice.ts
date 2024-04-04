@@ -59,7 +59,7 @@ export const fetchReciepts = createAsyncThunk<
 
     if (accountReceiptVault && accountReceiptVault?.vaults.items.length > 0) {
       dispatch(
-        claimSlice.actions.updateReciepts(
+        rewardSlice.actions.updateReciepts(
           accountReceiptVault?.vaults.items[0].items as string[]
         )
       );
@@ -77,9 +77,8 @@ export const fetchRewards = createAsyncThunk<
   {
     state: RootState;
   }
->("claims/fetchRewards", async (_, thunkAPI) => {
+>("claims/fetchRewards", async (_) => {
   console.log("fetchRewards");
-  const dispatch = thunkAPI.dispatch;
   const rdt = getRdt();
   if (!rdt) return;
   const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
@@ -123,7 +122,6 @@ export const rewardSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    checkRewardNft: () => ({}),
     claimRewards: (state) => {
       const rdt = getRdt();
       if (!rdt) return;
