@@ -424,3 +424,12 @@ export function detectOperatingSystem(): OperatingSystem {
     return OperatingSystem.UNKNOWN;
   }
 }
+
+export function truncateWithPrecision(num: number, precision: number): number {
+  const split = num.toString().split(".");
+  if (split.length !== 2) {
+    return num;
+  }
+  const [part1, part2] = split;
+  return Number(`${part1}.${part2.substring(0, precision)}`);
+}
