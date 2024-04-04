@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { rewardSlice, fetchReciepts, fetchRewards } from "../state/rewardSlice";
 import { useAppDispatch } from "../hooks";
 
@@ -21,41 +21,26 @@ function ClaimButton() {
   );
 }
 
-function ClaimButton2() {
-  const dispatch = useAppDispatch();
-  const handleClaim = async () => {
-    await dispatch(fetchReciepts());
-    await dispatch(fetchRewards());
-  };
-
-  return (
-    <button
-      className="btn btn-wide btn-primary-content btn-accent uppercase"
-      onClick={() => {
-        handleClaim();
-      }}
-    >
-      Claims 2
-    </button>
-  );
-}
-
 function TotalEarned() {
   const dispatch = useAppDispatch();
-  let totalEarned = 0;
+  let totalEarnedRef = useRef(0);
 
   useEffect(() => {
     async function fetchData() {
       console.log("data...");
       await dispatch(fetchReciepts());
-      await dispatch(fetchRewards());
+      const response = await dispatch(fetchRewards());
+      const rewards = response.payload as number;
+      totalEarnedRef.current = rewards;
+      //console.log(totalEarned);
       //dispatch(claimSlice.actions.getEarnedRewards());
+      console.log(totalEarnedRef.current);
     }
     fetchData();
-  }, [totalEarned]); // Or [] if effect doesn't need props or state
+  }, [totalEarnedRef]); // Or [] if effect doesn't need props or state
   return (
     <p>
-      Total Earned: <span>{totalEarned}</span>
+      Total Earned: <span>{totalEarnedRef.current}</span>
     </p>
   );
 }
@@ -69,7 +54,6 @@ export function Rewards() {
             <div className="flex flex-col items-center justify-center py-4 px-8 box-border gap-y-4">
               <b className="uppercase">CLAIM REWARDS</b>
               <TotalEarned />
-              <ClaimButton2 />
               <ClaimButton />
             </div>
           </div>

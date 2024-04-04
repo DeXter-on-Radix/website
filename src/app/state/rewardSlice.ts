@@ -1,20 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
-import {
-  NonFungibleResourcesCollectionItem,
-  State,
-  StateApi,
-  StateNonFungibleDetailsResponseItem,
-  ProgrammaticScryptoSborValueTupleAllOfFromJSONTyped,
-  ProgrammaticScryptoSborValueMapAllOfFromJSON,
-  StateNonFungibleDataRequestFromJSONTyped,
-  instanceOfProgrammaticScryptoSborValueMapAllOf,
-  ProgrammaticScryptoSborValueMapAllOfFromJSONTyped,
-  ProgrammaticScryptoSborValueTupleFromJSONTyped,
-  ProgrammaticScryptoSborValueMapFromJSONTyped,
-  ProgrammaticScryptoSborV,
-} from "@radixdlt/radix-dapp-toolkit";
+import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 
 export interface RewardState {
   recieptIds: string[];
@@ -96,9 +83,11 @@ export const fetchRewards = createAsyncThunk<
   const rdt = getRdt();
   if (!rdt) return;
   const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
-  const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
-
   if (!claimComponentAddress) return;
+
+  const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
+  if (!claimNFTAddress) return;
+
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
@@ -119,53 +108,7 @@ export const fetchRewards = createAsyncThunk<
     const name: { value: string; field_name: string } | undefined = (
       response.data?.programmatic_json as any
     ).fields.find((nfData: any) => nfData.field_name === "rewards");
-    console.log(name.entries[0].value.entries[0].value.value);
-
-    //console.log(response.data?.programmatic_json.fields[1].entries[0]);
-    /*
-    console.log("a");
-    console.log(response);
-    let c = [];
-    const b = ProgrammaticScryptoSborValueTupleFromJSONTyped(
-      response.data?.programmatic_json,
-      false
-    );
-    console.log(b);
-    console.log(getValueByFieldName(b, "AccountRewardsData"));
-    console.log("-----");
-    const d = ProgrammaticScryptoSborValueMapFromJSONTyped(b.fields[1], false);
-    const e = ProgrammaticScryptoSborValueMapFromJSONTyped(d.fields[1], false);
-    console.log(e);
-    */
-    //const d = ProgrammaticScryptoSborValueMapFromJSONTyped(b.fields[1]);
-    //console.log(b);
-
-    //StateNonFungibleDataRequestFromJSONTyped;
-
-    /*
-    ///console.log(instanceOfProgrammaticScryptoSborValueMapAllOf());
-    const rewardsField = b.fields.find(
-      (field) => field.field_name === "rewards"
-    );
-    const mapy = ProgrammaticScryptoSborValueMapAllOfFromJSON(rewardsField);
-    console.log(mapy.entries);
-    */
-    //console.log(a.data?.programmatic_json);
-    //const { items } = response;
-    /*
-    const accountReceiptVault =
-      (items.find(
-        // eslint-disable-next-line camelcase
-        ({ resource_address }) => resource_address === resourceAddress
-      ) as NonFungibleResource) || null;
-
-    if (accountReceiptVault && accountReceiptVault?.vaults.items.length > 0) {
-      dispatch(
-        claimSlice.actions.updateReciepts(
-          accountReceiptVault?.vaults.items[0].items as string[]
-        )
-      );
-    }*/
+    return name?.entries[0].value.entries[0].value.value;
   } catch (error) {
     console.log(error);
     return undefined;
@@ -180,9 +123,7 @@ export const rewardSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    checkRewardNft: () => ({
-      //Check if they have an nft in their wallet
-    }),
+    checkRewardNft: () => ({}),
     claimRewards: (state) => {
       const rdt = getRdt();
       if (!rdt) return;
