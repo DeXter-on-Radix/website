@@ -13,6 +13,7 @@ import * as adex from "alphadex-sdk-js";
 // import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
 import { updateIconIfNeeded } from "../utils";
+import { Calculator } from "services/Calculator";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -386,12 +387,12 @@ export const orderInputSlice = createSlice({
       const specifiedToken2 = specifiedToken === SpecifiedToken.TOKEN_2;
       if (isLimitOrder && specifiedToken1) {
         state.token2.amount = amountIsPositive
-          ? state.token1.amount * state.price
+          ? Calculator.multiply(state.token1.amount, state.price)
           : 0;
       }
       if (isLimitOrder && specifiedToken2) {
         state.token1.amount = amountIsPositive
-          ? state.token2.amount / state.price
+          ? Calculator.divide(state.token2.amount, state.price)
           : 0;
       }
 
@@ -467,9 +468,15 @@ export const orderInputSlice = createSlice({
           : 0;
       if (isLimitOrder && positiveTokenAmountSpecified > 0) {
         if (state.specifiedToken === SpecifiedToken.TOKEN_1) {
-          state.token2.amount = state.token1.amount * state.price;
+          state.token2.amount = Calculator.multiply(
+            state.token1.amount,
+            state.price
+          );
         } else if (state.specifiedToken === SpecifiedToken.TOKEN_2) {
-          state.token1.amount = state.token2.amount / state.price;
+          state.token1.amount = Calculator.divide(
+            state.token2.amount,
+            state.price
+          );
         }
       }
       // if (
