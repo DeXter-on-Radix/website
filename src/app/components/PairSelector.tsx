@@ -190,7 +190,7 @@ export function PairSelector() {
           const [pair1, pair2] = getPairs(option["name"]);
 
           return (
-            <React.Fragment key={`fragment-${index}`}>
+            <React.Fragment key={`pair-${index}`}>
               {index === 0 && (
                 <div className="flex justify-between text-sm opacity-40 ml-3 mr-3">
                   <span className="uppercase">{t("pairs")}</span>
