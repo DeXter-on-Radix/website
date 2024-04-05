@@ -11,7 +11,7 @@ const fontSize = "1rem";
 const padding = "8px";
 const dexterGreen = "#CAFC40";
 const dexterRed = "#D22D2D";
-const dexterBG = "#1A1C1E";
+const dexterBG = "#232629";
 const almostWhite = "#FFFAEE";
 const grey = "#74787b";
 
