@@ -85,11 +85,51 @@ export interface OrderInputState {
   type: OrderType;
   postOnly: boolean;
   price: number;
+  validationPrice: ValidationResult;
   slippage: number | "";
   quote?: Quote;
   description?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
+}
+
+interface SetPricePayload {
+  price: number;
+  bestBuy: number;
+  bestSell: number;
+}
+
+interface ValidatePriceInputs extends SetPricePayload {
+  side: OrderSide;
+}
+
+export function validatePrice({
+  price,
+}: // bestBuy,
+// bestSell,
+// side,
+ValidatePriceInputs): ValidationResult {
+  // const isSellOrder = side === OrderSide.SELL;
+  // const isBuyorder = side === OrderSide.BUY;
+  // const highPrice = bestSell ? price > bestSell * 1.05 : false;
+  // const lowPrice = bestBuy ? price < bestBuy * 0.95 : false;
+  const priceIsZero = price === 0;
+  if (priceIsZero) {
+    return { valid: false, message: ErrorMessage.NONZERO_PRICE };
+  }
+  // if (isBuyorder && lowPrice) {
+  //   return {
+  //     valid: true,
+  //     message: ErrorMessage.LOW_PRICE,
+  //   };
+  // }
+  // if (isSellOrder && highPrice) {
+  //   return {
+  //     valid: true,
+  //     message: ErrorMessage.HIGH_PRICE,
+  //   };
+  // }
+  return { valid: true, message: "" };
 }
 
 // function ToAdexOrderType(state: OrderInputState): adex.OrderType {
@@ -128,6 +168,7 @@ export const initialState: OrderInputState = {
   postOnly: false,
   side: adex.OrderSide.BUY,
   price: -1,
+  validationPrice: { ...initialValidationResult },
   slippage: -1,
   transactionInProgress: false,
 };
@@ -262,6 +303,7 @@ interface SetTokenAmountPayload {
   amount: number;
   bestBuy: number; // Best buy price
   bestSell: number; // Best sell price
+  balance: number;
   specifiedToken: SpecifiedToken;
 }
 
@@ -272,6 +314,7 @@ function resetUserInput(state: OrderInputState) {
   state.postOnly = false;
   state.validationToken1 = initialValidationResult;
   state.validationToken2 = initialValidationResult;
+  state.validationPrice = initialValidationResult;
   state.quote = undefined;
   state.description = undefined;
   state.specifiedToken = SpecifiedToken.UNSPECIFIED;
@@ -338,12 +381,22 @@ export const orderInputSlice = createSlice({
     },
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
-      const { amount, bestBuy, bestSell, specifiedToken } = action.payload;
+      const { amount, bestBuy, bestSell, balance, specifiedToken } =
+        action.payload;
 
       // ignore if no token is specified
       if (specifiedToken === SpecifiedToken.UNSPECIFIED) {
         return;
       }
+
+      // Reset Validation
+      state.validationToken1 = initialValidationResult;
+      state.validationToken2 = initialValidationResult;
+      // state[
+      //   `validationToken${
+      //     specifiedToken === SpecifiedToken.TOKEN_1 ? "1" : "2"
+      //   }`
+      // ] = initialValidationResult;
 
       // Reset if amount is -1
       if (amount === -1) {
@@ -389,6 +442,34 @@ export const orderInputSlice = createSlice({
       const amountIsPositive = amount > 0;
       if (priceIsUnset && isLimitOrder && amountIsPositive) {
         state.price = bestPrice;
+      }
+
+      if (amount === 0) {
+        if (specifiedToken === SpecifiedToken.TOKEN_1) {
+          state.validationToken1 = {
+            valid: false,
+            message: ErrorMessage.NONZERO_AMOUNT,
+          };
+        } else if (specifiedToken === SpecifiedToken.TOKEN_2) {
+          state.validationToken2 = {
+            valid: false,
+            message: ErrorMessage.NONZERO_AMOUNT,
+          };
+        }
+      }
+
+      if (balance > 0 && amount > balance) {
+        if (specifiedToken === SpecifiedToken.TOKEN_1) {
+          state.validationToken1 = {
+            valid: false,
+            message: ErrorMessage.INSUFFICIENT_FUNDS,
+          };
+        } else if (specifiedToken === SpecifiedToken.TOKEN_2) {
+          state.validationToken2 = {
+            valid: false,
+            message: ErrorMessage.INSUFFICIENT_FUNDS,
+          };
+        }
       }
 
       // // Set the other token
@@ -466,49 +547,26 @@ export const orderInputSlice = createSlice({
       // resetUserInput(state);
       state.side = action.payload;
     },
-    setPrice(state, action: PayloadAction<number>) {
-      if (action.payload <= 0) {
+    setPrice(state, action: PayloadAction<SetPricePayload>) {
+      // TODO: change PayloadAction type for setPrice
+      // TODO: change all setPrice occurencies
+      // TODO: alternatively: select price within reducer function?
+      // TODO: alternatively: make bestBuy / bestSell a state?
+      const { price, bestBuy, bestSell } = action.payload;
+
+      if (price <= 0) {
         state.token1.amount = -1;
         state.token2.amount = -1;
         state.specifiedToken = SpecifiedToken.UNSPECIFIED;
       }
-      state.price = action.payload;
-      // const isLimitOrder = state.type === OrderType.LIMIT;
-      // const positiveTokenAmountSpecified =
-      //   state.specifiedToken === SpecifiedToken.TOKEN_1
-      //     ? state.token1.amount
-      //     : state.specifiedToken === SpecifiedToken.TOKEN_2
-      //     ? state.token2.amount
-      //     : 0;
-      // if (isLimitOrder && positiveTokenAmountSpecified > 0) {
-      //   if (state.specifiedToken === SpecifiedToken.TOKEN_1) {
-      //     state.token2.amount = Calculator.multiply(
-      //       state.token1.amount,
-      //       state.price
-      //     );
-      //   } else if (state.specifiedToken === SpecifiedToken.TOKEN_2) {
-      //     state.token1.amount = Calculator.divide(
-      //       state.token2.amount,
-      //       state.price
-      //     );
-      //   }
-      // }
-      // if (
-      //   state.type === OrderType.LIMIT &&
-      //   typeof action.payload === "number"
-      // ) {
-      //   if (
-      //     state.specifiedToken === SpecifiedToken.TOKEN_1 &&
-      //     typeof state.token1.amount === "number"
-      //   ) {
-      //     state.token2.amount = action.payload * state.token1.amount;
-      //   } else if (
-      //     state.specifiedToken === SpecifiedToken.TOKEN_2 &&
-      //     typeof state.token2.amount === "number"
-      //   ) {
-      //     state.token1.amount = action.payload / state.token2.amount;
-      //   }
-      // }
+      state.price = price;
+
+      state.validationPrice = validatePrice({
+        price: state.price,
+        bestBuy: bestBuy,
+        bestSell: bestSell,
+        side: state.side,
+      });
     },
     setSlippage(state, action: PayloadAction<number | "">) {
       state.slippage = action.payload;

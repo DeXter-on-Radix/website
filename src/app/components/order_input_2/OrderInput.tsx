@@ -9,7 +9,7 @@ import {
   truncateWithPrecision,
 } from "../../utils";
 
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
@@ -18,6 +18,7 @@ import {
   orderInputSlice,
   UserAction,
   SpecifiedToken,
+  ValidationResult,
   // validatePriceInput,
   // fetchQuote,
   // submitOrder,
@@ -48,6 +49,7 @@ interface CurrencyInputGroupConfig {
   currency: string;
   value: number;
   updateValue: (value: number) => void;
+  inputValidation: ValidationResult;
   secondaryLabelProps: SecondaryLabelProps;
 }
 
@@ -63,6 +65,7 @@ interface CurrencyInputProps {
   currency: string;
   value: number;
   updateValue: (value: number) => void;
+  inputValidation: ValidationResult;
 }
 
 interface LabelProps {
@@ -389,9 +392,17 @@ function CurrencyInputGroupSettings(
   currencyInputGroupDisabled: boolean
 ): CurrencyInputGroupConfig {
   const dispatch = useAppDispatch();
-  const { side, type, token1, token2, price, specifiedToken } = useAppSelector(
-    (state) => state.orderInput
-  );
+  const {
+    side,
+    type,
+    token1,
+    token2,
+    price,
+    specifiedToken,
+    validationPrice,
+    validationToken1,
+    validationToken2,
+  } = useAppSelector((state) => state.orderInput);
   const token1Balance =
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
     0;
@@ -407,6 +418,7 @@ function CurrencyInputGroupSettings(
         amount: value,
         bestBuy,
         bestSell,
+        balance: token1Balance,
         specifiedToken: SpecifiedToken.TOKEN_1,
       })
     );
@@ -418,13 +430,20 @@ function CurrencyInputGroupSettings(
         amount: value,
         bestBuy,
         bestSell,
+        balance: token2Balance,
         specifiedToken: SpecifiedToken.TOKEN_2,
       })
     );
   };
 
   const updatePrice = (value: number) => {
-    dispatch(orderInputSlice.actions.setPrice(value));
+    dispatch(
+      orderInputSlice.actions.setPrice({
+        price: value,
+        bestBuy: bestBuy,
+        bestSell: bestSell,
+      })
+    );
   };
 
   let token1amount = token1.amount;
@@ -446,6 +465,7 @@ function CurrencyInputGroupSettings(
       currency: token1.symbol,
       value: token1amount,
       updateValue: updateToken1,
+      inputValidation: validationToken1,
       secondaryLabelProps: {
         disabled: side === "BUY", // hide token1 balance for BUY
         label: "Available",
@@ -459,6 +479,7 @@ function CurrencyInputGroupSettings(
       currency: token2.symbol,
       value: token2amount,
       updateValue: updateToken2,
+      inputValidation: validationToken2,
       secondaryLabelProps: {
         disabled: side === "SELL", // hide token2 balance for SELL
         label: "Available",
@@ -472,6 +493,7 @@ function CurrencyInputGroupSettings(
       currency: token2.symbol,
       value: price,
       updateValue: updatePrice,
+      inputValidation: validationPrice,
       secondaryLabelProps: {
         disabled: currencyInputGroupDisabled, // hide if currencyInput is disabled (e.g. for market price)
         label: `Best ${side.toLowerCase()}`,
@@ -491,8 +513,14 @@ function CurrencyInputGroup({
   userAction,
 }: CurrencyInputGroupProps): JSX.Element | null {
   const { type } = useAppSelector((state) => state.orderInput);
-  const { label, currency, value, updateValue, secondaryLabelProps } =
-    CurrencyInputGroupSettings(userAction, disabled);
+  const {
+    label,
+    currency,
+    value,
+    updateValue,
+    inputValidation,
+    secondaryLabelProps,
+  } = CurrencyInputGroupSettings(userAction, disabled);
 
   const isMarketOrder = type === "MARKET";
   const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
@@ -510,6 +538,7 @@ function CurrencyInputGroup({
           currency={currency}
           value={value}
           updateValue={updateValue}
+          inputValidation={inputValidation}
         />
       )}
     </div>
@@ -562,24 +591,49 @@ function CurrencyInput({
   currency,
   value,
   updateValue,
+  inputValidation,
 }: CurrencyInputProps): JSX.Element | null {
   const { decimalSeparator } = getLocaleSeparators();
   const scale = 8; // TODO(dcts): use token specific decimals
   return (
-    <div className="min-h-[44px] w-full content-between bg-base-200 flex rounded-lg hover:outline hover:outline-1 hover:outline-white/50 ">
-      {/* UserInput */}
-      <CustomNumericIMask
-        value={value}
-        separator={decimalSeparator}
-        scale={scale}
-        onAccept={updateValue}
-        className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
-      />
-      {/* CurrencyLabel */}
-      <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
-        {currency}
+    <>
+      <div
+        className={`min-h-[44px] w-full content-between bg-base-200 flex rounded-lg ${
+          inputValidation.valid
+            ? "hover:outline hover:outline-1 hover:outline-white/50"
+            : "border-2 border-red-500"
+        }`}
+      >
+        {/* UserInput */}
+        <CustomNumericIMask
+          value={value}
+          separator={decimalSeparator}
+          scale={scale}
+          onAccept={updateValue}
+          className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
+        />
+        {/* CurrencyLabel */}
+        <div className="text-sm shrink-0 bg-base-200 content-center items-center flex pl-2 pr-4 rounded-r-md">
+          {currency}
+        </div>
       </div>
-    </div>
+      {!inputValidation.valid && (
+        <InputTooltip message={inputValidation.message} />
+      )}
+    </>
+  );
+}
+
+interface InputTooltipProps {
+  message: string;
+}
+
+function InputTooltip({ message }: InputTooltipProps) {
+  const t = useTranslations();
+  return (
+    <>
+      <p>{t(message)}</p>
+    </>
   );
 }
 

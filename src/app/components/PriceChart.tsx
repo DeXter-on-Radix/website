@@ -253,8 +253,9 @@ export function PriceChart() {
     postOnly,
     token1,
     token2,
-    // validationToken1,
-    // validationToken2,
+    validationToken1,
+    validationToken2,
+    validationPrice,
     // description,
     specifiedToken,
     quote,
@@ -266,8 +267,11 @@ export function PriceChart() {
   msg += `type = ${type}\n`;
   msg += `postOnly = ${postOnly}\n`;
   msg += `price = ${price} ${token2.symbol}\n`;
+  msg += `price (valid.) = ${validationPrice.valid} ${validationPrice.message}\n`;
   msg += `Token1 (quantity) = ${token1.amount} ${token1.symbol}\n`;
+  msg += `Token1 (valid.) = ${validationToken1.valid} ${validationToken1.message}\n`;
   msg += `Token2 (total) = ${token2.amount} ${token2.symbol}\n`;
+  msg += `Token2 (valid.) = ${validationToken2.valid} ${validationToken2.message}\n`;
   msg += `specifiedToken = ${specifiedToken}\n`;
   msg += `quote = ${quote}\n`;
 
