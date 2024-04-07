@@ -13,6 +13,7 @@ import * as adex from "alphadex-sdk-js";
 // import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
 import { updateIconIfNeeded } from "../utils";
+import { Calculator } from "services/Calculator";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -303,7 +304,8 @@ interface SetTokenAmountPayload {
   amount: number;
   bestBuy: number; // Best buy price
   bestSell: number; // Best sell price
-  balance: number;
+  balanceToken1: number;
+  balanceToken2: number;
   specifiedToken: SpecifiedToken;
 }
 
@@ -381,8 +383,14 @@ export const orderInputSlice = createSlice({
     },
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
-      const { amount, bestBuy, bestSell, balance, specifiedToken } =
-        action.payload;
+      const {
+        amount,
+        bestBuy,
+        bestSell,
+        balanceToken1,
+        balanceToken2,
+        specifiedToken,
+      } = action.payload;
 
       // ignore if no token is specified
       if (specifiedToken === SpecifiedToken.UNSPECIFIED) {
@@ -458,14 +466,46 @@ export const orderInputSlice = createSlice({
         }
       }
 
-      if (balance > 0 && amount > balance) {
-        if (specifiedToken === SpecifiedToken.TOKEN_1) {
-          state.validationToken1 = {
+      // SET INSUFFICIENT BALANCE FOR SPECIFIED TOKEN
+      if (
+        specifiedToken === SpecifiedToken.TOKEN_1 &&
+        state.side === "SELL" &&
+        balanceToken1 > 0 &&
+        balanceToken1 < amount
+      ) {
+        state.validationToken1 = {
+          valid: false,
+          message: ErrorMessage.INSUFFICIENT_FUNDS,
+        };
+      }
+      if (
+        specifiedToken === SpecifiedToken.TOKEN_2 &&
+        state.side === "BUY" &&
+        balanceToken2 > 0 &&
+        balanceToken2 < amount
+      ) {
+        state.validationToken2 = {
+          valid: false,
+          message: ErrorMessage.INSUFFICIENT_FUNDS,
+        };
+      }
+
+      // SET INSUFFICIENT BALANCE FOR UNSPECIFIED TOKEN
+      if (specifiedToken === SpecifiedToken.TOKEN_1 && state.side === "BUY") {
+        // calculate Token2 amount
+        const amountToken2 = Calculator.multiply(amount, state.price);
+        if (amountToken2 > balanceToken2) {
+          state.validationToken2 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
           };
-        } else if (specifiedToken === SpecifiedToken.TOKEN_2) {
-          state.validationToken2 = {
+        }
+      }
+      if (specifiedToken === SpecifiedToken.TOKEN_2 && state.side === "SELL") {
+        // calculate Token1 amount
+        const amountToken1 = Calculator.divide(amount, state.price);
+        if (amountToken1 > balanceToken1) {
+          state.validationToken1 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
           };

@@ -403,10 +403,10 @@ function CurrencyInputGroupSettings(
     validationToken1,
     validationToken2,
   } = useAppSelector((state) => state.orderInput);
-  const token1Balance =
+  const balanceToken1 =
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
     0;
-  const token2Balance =
+  const balanceToken2 =
     useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
     0;
   const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
@@ -418,7 +418,8 @@ function CurrencyInputGroupSettings(
         amount: value,
         bestBuy,
         bestSell,
-        balance: token1Balance,
+        balanceToken1: balanceToken1,
+        balanceToken2: balanceToken2,
         specifiedToken: SpecifiedToken.TOKEN_1,
       })
     );
@@ -430,7 +431,8 @@ function CurrencyInputGroupSettings(
         amount: value,
         bestBuy,
         bestSell,
-        balance: token2Balance,
+        balanceToken1: balanceToken1,
+        balanceToken2: balanceToken2,
         specifiedToken: SpecifiedToken.TOKEN_2,
       })
     );
@@ -470,7 +472,7 @@ function CurrencyInputGroupSettings(
         disabled: side === "BUY", // hide token1 balance for BUY
         label: "Available",
         currency: token1.symbol,
-        value: truncateWithPrecision(token1Balance, 8), // TODO(dcts): use coin-decimals
+        value: truncateWithPrecision(balanceToken1, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken1,
       },
     },
@@ -484,7 +486,7 @@ function CurrencyInputGroupSettings(
         disabled: side === "SELL", // hide token2 balance for SELL
         label: "Available",
         currency: token2.symbol,
-        value: truncateWithPrecision(token2Balance, 8), // TODO(dcts): use coin-decimals
+        value: truncateWithPrecision(balanceToken2, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken2,
       },
     },
