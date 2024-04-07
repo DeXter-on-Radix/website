@@ -442,8 +442,8 @@ function CurrencyInputGroupSettings(
     dispatch(
       orderInputSlice.actions.setPrice({
         price: value,
-        bestBuy: bestBuy,
-        bestSell: bestSell,
+        balanceToken1: balanceToken1,
+        balanceToken2: balanceToken2,
       })
     );
   };
