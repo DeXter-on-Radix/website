@@ -1,27 +1,61 @@
-// import { store } from "./store"; // Import the configured store that includes your slice
-// import { orderInputSlice } from "./orderInputSlice";
+import { store } from "./store"; // Import the configured store that includes your slice
+import {
+  ErrorMessage,
+  SpecifiedToken,
+  orderInputSlice,
+} from "./orderInputSlice";
 
 describe("OrderInputSlice", () => {
-  it(`setToken1 and setToken2 work`, () => {
-    // // Set token1
-    // store.dispatch(orderInputSlice.actions.setAmountToken1(12));
-    // // Assert the expected outcomes
-    // expect(store.getState().orderInput.token1.amount).toBe(12);
-    // expect(store.getState().orderInput.token2.amount).toBe(0);
-    // // TODO(dcts): add more tests for buy-sell-panel redesign
-    // // OUTCOMMENT FOR NOW AS NOT MERGED TO MAIN
-    // // expect(store.getState().orderInput.specifiedToken).toBe(
-    // //   SpecifiedToken.TOKEN_1
-    // // );
-    // // Set token2
-    // store.dispatch(orderInputSlice.actions.setAmountToken2(124));
-    // // Assert the expected outcomes
-    // expect(store.getState().orderInput.token1.amount).toBe(12);
-    // expect(store.getState().orderInput.token2.amount).toBe(124);
-    // // TODO(dcts): add more tests for buy-sell-panel redesign
-    // // OUTCOMMENT FOR NOW AS NOT MERGED TO MAIN
-    // // expect(store.getState().orderInput.specifiedToken).toBe(
-    // //   SpecifiedToken.TOKEN_2
-    // // );
+  describe("Setting tokens work", () => {
+    it(`setToken1 works`, () => {
+      store.dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: 12,
+          specifiedToken: SpecifiedToken.TOKEN_1,
+          bestBuy: 0,
+          bestSell: 0,
+          balanceToken1: 0,
+          balanceToken2: 0,
+        })
+      );
+    });
+    it(`setToken2 works`, () => {
+      store.dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: 120,
+          specifiedToken: SpecifiedToken.TOKEN_2,
+          bestBuy: 0,
+          bestSell: 0,
+          balanceToken1: 0,
+          balanceToken2: 0,
+        })
+      );
+      expect(store.getState().orderInput.token2.amount).toBe(120);
+      // the unspecified token should be resettet
+      expect(store.getState().orderInput.token1.amount).toBe(-1);
+    });
+  });
+
+  describe("Validation implemented", () => {
+    it("for zero price", () => {
+      store.dispatch(
+        orderInputSlice.actions.setPrice({
+          price: 0,
+          balanceToken1: 0,
+          balanceToken2: 0,
+        })
+      );
+      expect(store.getState().orderInput.validationPrice.valid).toBe(false);
+      expect(store.getState().orderInput.validationPrice.message).toBe(
+        ErrorMessage.NONZERO_PRICE
+      );
+    });
+    it("for zero amounts (token 1 and token2)", () => {});
+    it("insufficient balance for token1 on sell order ", () => {});
+    it("insufficient balance for token1 on sell order when token2 is specified", () => {});
+    it("insufficient balance for token2 on buy order ", () => {});
+    it("insufficient balance for token2 on buy order when token1 is specified", () => {});
+    it("insufficient balance for unspecifiedToken triggers on buy orders when price is adapted", () => {});
+    it("insufficient balance for unspecifiedToken triggers on sell orders when price is adapted", () => {});
   });
 });

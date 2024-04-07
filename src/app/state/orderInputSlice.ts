@@ -13,7 +13,7 @@ import * as adex from "alphadex-sdk-js";
 // import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
 import { updateIconIfNeeded } from "../utils";
-import { Calculator } from "services/Calculator";
+import { Calculator } from "../services/Calculator";
 
 export enum OrderType {
   MARKET = "MARKET",
