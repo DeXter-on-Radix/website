@@ -195,8 +195,8 @@ function OrderTypeTabs() {
       <div className="min-h-[44px] flex justify-center">
         <div className="w-full">
           <div className="flex min-h-[44px]">
-            {[OrderType.MARKET, OrderType.LIMIT].map((currentType, indx) => (
-              <OrderTypeTab orderType={currentType} key={indx} />
+            {[OrderType.MARKET, OrderType.LIMIT].map((type, indx) => (
+              <OrderTypeTab orderType={type} key={indx} />
             ))}
           </div>
         </div>
@@ -212,16 +212,16 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
   return (
     <div
       className={`w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center ${
-        type === orderType.toString()
+        type === orderType
           ? " bg-base-100 text-white"
           : " bg-base-200 opacity-50"
-      }`}
+      } ${type === "MARKET" ? "rounded-tl" : "rounded-tr"}`}
       onClick={() => {
         dispatch(orderInputSlice.actions.setType(orderType));
       }}
     >
       <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
-        {orderType.toString()}
+        {orderType}
       </p>
     </div>
   );
@@ -338,9 +338,9 @@ function SubmitButton() {
   };
   return (
     <button
-      className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 ${
+      className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 rounded ${
         side === "BUY"
-          ? "bg-dexter-green  text-black "
+          ? "bg-dexter-green text-black "
           : "bg-dexter-red text-white "
       }`}
       onClick={handleSubmit}
@@ -357,7 +357,7 @@ function UserInputContainer() {
   const isSellOrder = side === "SELL";
 
   return (
-    <div className="bg-base-100 px-5 pb-5">
+    <div className="bg-base-100 px-5 pb-5 rounded-b">
       {isMarketOrder && (
         <>
           <CurrencyInputGroup
@@ -631,7 +631,7 @@ function InputTooltip({ message }: { message: string }) {
   return (
     <>
       {/* Red Text */}
-      <div className="absolute bottom-[-20px] z-10 left-1/2 transform -translate-x-1/2 p-1">
+      <div className="absolute bottom-[-20px] z-10 right-0 p-1">
         <p className="text-xs tracking-[0.5px] truncate text-red-500 text-center">
           {t(message)}
         </p>

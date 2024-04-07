@@ -43,10 +43,6 @@ export enum ErrorMessage {
   EXCESSIVE_DECIMALS = "EXCESSIVE_DECIMALS",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   COULD_NOT_GET_QUOTE = "COULD_NOT_GET_QUOTE",
-  //Slippage
-  UNSPECIFIED_SLIPPAGE = "UNSPECIFIED_SLIPPAGE",
-  NEGATIVE_SLIPPAGE = "NEGATIVE_SLIPPAGE",
-  HIGH_SLIPPAGE = "HIGH_SLIPPAGE",
 }
 
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
@@ -79,15 +75,14 @@ export interface TokenInput {
 export interface OrderInputState {
   token1: TokenInput;
   token2: TokenInput;
+  price: number;
   validationToken1: ValidationResult;
   validationToken2: ValidationResult;
+  validationPrice: ValidationResult;
   specifiedToken: SpecifiedToken;
   side: OrderSide;
   type: OrderType;
   postOnly: boolean;
-  price: number;
-  validationPrice: ValidationResult;
-  slippage: number | "";
   quote?: Quote;
   description?: string;
   transactionInProgress: boolean;
@@ -137,15 +132,14 @@ const initialValidationResult: ValidationResult = {
 export const initialState: OrderInputState = {
   token1: { ...initialTokenInput },
   token2: { ...initialTokenInput },
+  price: -1,
   validationToken1: { ...initialValidationResult },
   validationToken2: { ...initialValidationResult },
+  validationPrice: { ...initialValidationResult },
   specifiedToken: SpecifiedToken.UNSPECIFIED,
+  side: adex.OrderSide.BUY,
   type: OrderType.MARKET,
   postOnly: false,
-  side: adex.OrderSide.BUY,
-  price: -1,
-  validationPrice: { ...initialValidationResult },
-  slippage: -1,
   transactionInProgress: false,
 };
 
@@ -284,19 +278,6 @@ interface SetTokenAmountPayload {
   balanceToken2?: number;
 }
 
-function resetUserInput(state: OrderInputState) {
-  state.price = -1;
-  state.token1.amount = -1;
-  state.token2.amount = -1;
-  state.postOnly = false;
-  state.validationToken1 = initialValidationResult;
-  state.validationToken2 = initialValidationResult;
-  state.validationPrice = initialValidationResult;
-  state.quote = undefined;
-  state.description = undefined;
-  state.specifiedToken = SpecifiedToken.UNSPECIFIED;
-}
-
 export const orderInputSlice = createSlice({
   name: "orderInput",
   initialState,
@@ -340,12 +321,15 @@ export const orderInputSlice = createSlice({
           decimals: serializedState.currentPairInfo.token2MaxDecimals,
         };
       }
-
-      // set up a valid default price
-      // if (state.price === 0) {
-      //   state.price =
-      //     serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
-      // }
+    },
+    setSide(state, action: PayloadAction<OrderSide>) {
+      state.side = action.payload;
+    },
+    setType(state, action: PayloadAction<OrderType>) {
+      state.type = action.payload;
+    },
+    togglePostOnly(state) {
+      state.postOnly = !state.postOnly;
     },
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
@@ -471,19 +455,13 @@ export const orderInputSlice = createSlice({
         }
       }
     },
-    setSide(state, action: PayloadAction<OrderSide>) {
-      state.side = action.payload;
-    },
-    setType(state, action: PayloadAction<OrderType>) {
-      state.type = action.payload;
-    },
     setPrice(state, action: PayloadAction<SetPricePayload>) {
       if (state.type === OrderType.MARKET) {
         return;
       }
       // Reset Validation
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
+      state.validationToken1 = { ...initialValidationResult };
+      state.validationToken2 = { ...initialValidationResult };
 
       const { price, balanceToken1, balanceToken2 } = action.payload;
 
@@ -534,31 +512,32 @@ export const orderInputSlice = createSlice({
         }
       }
     },
-    setSlippage(state, action: PayloadAction<number | "">) {
-      state.slippage = action.payload;
-    },
-    togglePostOnly(state) {
-      state.postOnly = !state.postOnly;
-    },
     resetValidation(state) {
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
+      state.validationToken1 = { ...initialValidationResult };
+      state.validationToken2 = { ...initialValidationResult };
     },
     resetNumbersInput(state) {
-      // TODO(dcts): decide whether side should be resettet too on pair selector change
-      state.token1 = initialTokenInput;
-      state.token2 = initialTokenInput;
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
+      state.token1 = { ...initialTokenInput };
+      state.token2 = { ...initialTokenInput };
+      state.validationToken1 = { ...initialValidationResult };
+      state.validationToken2 = { ...initialValidationResult };
       state.price = -1;
-      state.slippage = 0.01;
       state.transactionInProgress = false;
       state.transactionResult = undefined;
       state.quote = undefined;
       state.description = undefined;
     },
     resetUserInput(state) {
-      resetUserInput(state);
+      state.price = -1;
+      state.token1.amount = -1;
+      state.token2.amount = -1;
+      state.postOnly = false;
+      state.validationToken1 = { ...initialValidationResult };
+      state.validationToken2 = { ...initialValidationResult };
+      state.validationPrice = { ...initialValidationResult };
+      state.quote = undefined;
+      state.description = undefined;
+      state.specifiedToken = SpecifiedToken.UNSPECIFIED;
     },
     resetState(state) {
       Object.assign(state, initialState);
