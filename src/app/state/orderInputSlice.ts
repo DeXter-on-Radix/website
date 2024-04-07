@@ -96,8 +96,8 @@ export interface OrderInputState {
 
 interface SetPricePayload {
   price: number;
-  balanceToken1: number;
-  balanceToken2: number;
+  balanceToken1?: number;
+  balanceToken2?: number;
 }
 
 export function validatePrice(price: number): ValidationResult {
@@ -277,11 +277,11 @@ export const selectBalanceByAddress = createSelector(
 
 interface SetTokenAmountPayload {
   amount: number;
-  bestBuy: number; // Best buy price
-  bestSell: number; // Best sell price
-  balanceToken1: number;
-  balanceToken2: number;
   specifiedToken: SpecifiedToken;
+  bestBuy?: number; // Best buy price
+  bestSell?: number; // Best sell price
+  balanceToken1?: number;
+  balanceToken2?: number;
 }
 
 function resetUserInput(state: OrderInputState) {
@@ -303,9 +303,6 @@ export const orderInputSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    setOrderType(state, action: PayloadAction<OrderType>) {
-      state.type = action.payload;
-    },
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
       //This clears up any validation when switching pairs
       /*
@@ -350,21 +347,15 @@ export const orderInputSlice = createSlice({
       //     serializedState.currentPairOrderbook.buys?.[0]?.price || 0;
       // }
     },
-    setToken1(state, action: PayloadAction<number>) {
-      state.token1.amount = action.payload;
-    },
-    setToken2(state, action: PayloadAction<number>) {
-      state.token2.amount = action.payload;
-    },
     setTokenAmount(state, action: PayloadAction<SetTokenAmountPayload>) {
       // Deconstruct inputs
       const {
         amount,
+        specifiedToken,
         bestBuy,
         bestSell,
         balanceToken1,
         balanceToken2,
-        specifiedToken,
       } = action.payload;
 
       // ignore if no token is specified
@@ -408,7 +399,12 @@ export const orderInputSlice = createSlice({
       const priceIsUnset = state.price === -1;
       const isLimitOrder = state.type === OrderType.LIMIT;
       const amountIsPositive = amount > 0;
-      if (priceIsUnset && isLimitOrder && amountIsPositive) {
+      if (
+        priceIsUnset &&
+        isLimitOrder &&
+        amountIsPositive &&
+        bestPrice !== undefined
+      ) {
         state.price = bestPrice;
       }
 
@@ -431,6 +427,7 @@ export const orderInputSlice = createSlice({
       if (
         specifiedToken === SpecifiedToken.TOKEN_1 &&
         state.side === "SELL" &&
+        balanceToken1 !== undefined &&
         balanceToken1 > 0 &&
         balanceToken1 < amount
       ) {
@@ -442,6 +439,7 @@ export const orderInputSlice = createSlice({
       if (
         specifiedToken === SpecifiedToken.TOKEN_2 &&
         state.side === "BUY" &&
+        balanceToken2 !== undefined &&
         balanceToken2 > 0 &&
         balanceToken2 < amount
       ) {
@@ -455,7 +453,7 @@ export const orderInputSlice = createSlice({
       if (specifiedToken === SpecifiedToken.TOKEN_1 && state.side === "BUY") {
         // calculate Token2 amount
         const amountToken2 = Calculator.multiply(amount, state.price);
-        if (amountToken2 > balanceToken2) {
+        if (balanceToken2 !== undefined && amountToken2 > balanceToken2) {
           state.validationToken2 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
@@ -465,7 +463,7 @@ export const orderInputSlice = createSlice({
       if (specifiedToken === SpecifiedToken.TOKEN_2 && state.side === "SELL") {
         // calculate Token1 amount
         const amountToken1 = Calculator.divide(amount, state.price);
-        if (amountToken1 > balanceToken1) {
+        if (balanceToken1 !== undefined && amountToken1 > balanceToken1) {
           state.validationToken1 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
@@ -476,7 +474,13 @@ export const orderInputSlice = createSlice({
     setSide(state, action: PayloadAction<OrderSide>) {
       state.side = action.payload;
     },
+    setType(state, action: PayloadAction<OrderType>) {
+      state.type = action.payload;
+    },
     setPrice(state, action: PayloadAction<SetPricePayload>) {
+      if (state.type === OrderType.MARKET) {
+        return;
+      }
       // Reset Validation
       state.validationToken1 = initialValidationResult;
       state.validationToken2 = initialValidationResult;
@@ -505,7 +509,7 @@ export const orderInputSlice = createSlice({
           state.token1.amount,
           state.price
         );
-        if (amountToken2 > balanceToken2) {
+        if (balanceToken2 && amountToken2 > balanceToken2) {
           state.validationToken2 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
@@ -522,7 +526,7 @@ export const orderInputSlice = createSlice({
           state.token2.amount,
           state.price
         );
-        if (amountToken1 > balanceToken1) {
+        if (balanceToken1 && amountToken1 > balanceToken1) {
           state.validationToken1 = {
             valid: false,
             message: ErrorMessage.INSUFFICIENT_FUNDS,
@@ -541,6 +545,7 @@ export const orderInputSlice = createSlice({
       state.validationToken2 = initialValidationResult;
     },
     resetNumbersInput(state) {
+      // TODO(dcts): decide whether side should be resettet too on pair selector change
       state.token1 = initialTokenInput;
       state.token2 = initialTokenInput;
       state.validationToken1 = initialValidationResult;
@@ -554,6 +559,9 @@ export const orderInputSlice = createSlice({
     },
     resetUserInput(state) {
       resetUserInput(state);
+    },
+    resetState(state) {
+      Object.assign(state, initialState);
     },
   },
 

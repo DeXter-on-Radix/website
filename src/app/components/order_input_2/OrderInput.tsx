@@ -217,7 +217,7 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
           : " bg-base-200 opacity-50"
       }`}
       onClick={() => {
-        dispatch(orderInputSlice.actions.setOrderType(orderType));
+        dispatch(orderInputSlice.actions.setType(orderType));
       }}
     >
       <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
