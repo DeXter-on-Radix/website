@@ -20,7 +20,7 @@ export default function Markets() {
           <div className="flex-initial justify-center">
             <img
               className="mx-auto"
-              src="/claims/chest.png"
+              src="/rewards/chest.png"
               alt="chest"
               width="240"
             ></img>
