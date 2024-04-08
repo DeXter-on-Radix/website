@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { rewardSlice, fetchReciepts, fetchRewards } from "../state/rewardSlice";
 import { useAppDispatch } from "../hooks";
 import { useSelector } from "react-redux";
+import type { RootState } from "../state/store";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -46,11 +47,12 @@ function ClaimButton2() {
 
 function TotalEarned() {
   const dispatch = useAppDispatch();
-  const rewardsTotal = useSelector((state) => state.rewardSlice.rewardsTotal);
+  const rewardsTotal = useSelector(
+    (state: RootState) => state.rewardSlice.rewardsTotal
+  );
 
   useEffect(() => {
     async function fetchData() {
-      console.log("data...");
       await dispatch(fetchReciepts());
       await dispatch(fetchRewards());
     }
@@ -58,7 +60,7 @@ function TotalEarned() {
   }, []); // Or [] if effect doesn't need props or state
   return (
     <p>
-      Total Earned: <span>{rewardsTotal}</span>
+      Total Rewards: <span>{rewardsTotal} DEXTR</span>
     </p>
   );
 }

@@ -1,6 +1,6 @@
 //import { getRadixApiValue } from "./api-functions";
 import { getRdt } from "../subscriptions";
-import { KeyValueStoreDataRequest } from "@radixdlt/radix-dapp-toolkit";
+import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
 export class AccountRewards {
   accountAddress: string = "";
@@ -28,15 +28,14 @@ const claimNFTResourceAddress =
   "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
 
-const orderRewardsKvsAddress =
-  "internal_keyvaluestore_tdx_2_1kzd9du9jmjlxdfcthgwtwlsug6z05hw0r864mwhhtgay3yxvuqdvds";
-//  "internal_keyvaluestore_tdx_2_1krdcmelr0tluywyg04zqc8vdacluh2m8ll0rr7ctg6gksp6herhgre";
-
 export async function getAccountsRewardsApiData(
   accountAddresses: string[]
 ): Promise<any> {
   const rdt = getRdt();
-  let result;
+  if (!rdt) {
+    console.error("Problem RDT");
+    return;
+  }
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
   );
@@ -46,17 +45,6 @@ export async function getAccountsRewardsApiData(
       claimNFTResourceAddress,
       accountNftIds
     );
-   /*
-  if (accountRewardsNftResult.status != 200) {
-    console.error(
-      "Problem loading Rewards NFT data for accounts: ",
-      accountAddresses,
-      accountRewardsNftResult
-    );
-  } else {
-    result = accountRewardsNftResult.data;
-  }
-  */
     return accountRewardsNftResult[0];
   } catch (error) {
     console.error(
@@ -162,6 +150,7 @@ export async function getOrdersRewardsApiData(
   const rdt = getRdt();
   let kvsKeysRequest = orderIndices.map((orderIndex) => {
     return {
+      // eslint-disable-next-line camelcase
       key_json: {
         kind: "String",
         value: orderIndex,
@@ -170,20 +159,17 @@ export async function getOrdersRewardsApiData(
   });
   try {
     let orderRewardsResult =
-      await rdt?.gatewayApi.state.innerClient.keyValueStoreData(
-        {
-          stateKeyValueStoreDataRequest: {
-            key_value_store_address: orderRewardsKvsAddress,
-            keys: kvsKeysRequest,
-          },
+      await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
+        stateKeyValueStoreDataRequest: {
+          // eslint-disable-next-line camelcase
+          key_value_store_address: orderRewardsKvsAddress,
+          keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
         },
-        false
-      );
+      });
     result = orderRewardsResult;
   } catch (error) {
     console.error(
-      "Problem loading Order Rewards data for orderIndices: " + orderIndices,
-      orderRewardsResult
+      "Problem loading Order Rewards data for orderIndices: " + orderIndices
     );
   }
   /*

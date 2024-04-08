@@ -10,8 +10,6 @@ import {
   OrderRewards,
 } from "./rewardUtils";
 
-import * as adex from "alphadex-sdk-js";
-
 export interface RewardState {
   recieptIds: string[];
   rewardsTotal: number;
@@ -34,18 +32,19 @@ interface RewardConfig {
 //State will default to stokenet values if not provided
 const initialState: RewardState = {
   recieptIds: [],
+  rewardsTotal: 0,
   config: {
     resourcePrefix:
       process.env.NEXT_PUBLIC_RESOURCE_PREFIX || "account_tdx_2_1",
     rewardComponent:
       process.env.NEXT_PUBLIC_CLAIM_COMPONENT ||
-      "component_tdx_2_1cplmpwere04zemtjdryuaf5km5epmu4ek2vcgactekcf9r8255y6l9",
+      "component_tdx_2_1cz6m9sarml3fltfslegdyuy3s6x2rkxtzlm7k8amflt9d2lh6r05pj",
     rewardNFTAddress:
       process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS ||
-      "resource_tdx_2_1n27yfyf74vfftp96035f2t7f6usaljkc33mja5jhya4mjk334xp7ns",
+      "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc360",
     rewardOrderAddress:
       process.env.NEXT_PUBLIC_CLAIM_ORDER_ADDRESS ||
-      "internal_keyvaluestore_tdx_2_1kqm23mcrv2g9ml4u4d0jm9v5l8dhuwznuufc4gvzvstw2cu05xsnmn",
+      "internal_keyvaluestore_tdx_2_1kzd9du9jmjlxdfcthgwtwlsug6z05hw0r864mwhhtgay3yxvuqdvds",
     rewardVaultAddress:
       process.env.NEXT_PUBLIC_CLAIM_VAULT_ADDRESS ||
       "internal_keyvaluestore_tdx_2_1kqy9qv7nr7mc42fm7nlhald7g4lyzazrwyjsu8zwxsqmzjv6j7wcnn",
@@ -69,43 +68,13 @@ type NonFungibleResource = NonFungibleResourcesCollectionItem & {
   };
 };
 
-//claim_orders key pair data
-//internal_keyvaluestore_tdx_2_1kqm23mcrv2g9ml4u4d0jm9v5l8dhuwznuufc4gvzvstw2cu05xsnmn
-
-//Look at the entity details
-// at component_tdx_2_1cplmpwere04zemtjdryuaf5km5epmu4ek2vcgactekcf9r8255y6l9
-
-//claim_vaults holds tokens
-//internal_keyvaluestore_tdx_2_1kqy9qv7nr7mc42fm7nlhald7g4lyzazrwyjsu8zwxsqmzjv6j7wcnn
-
-//ORder reciept
-//resource manager of order reciept#NFTORDERID#
-/*
-{
-  "key_value_store_address": "internal_keyvaluestore_tdx_2_1krtvlqrgffvdkd9r53avj74fnvm4rxvjyk70c59ytd63y0ecrgjqeu",
-  "keys": [
-    {
-      "key_json": {
-        "kind": "Tuple",
-        "fields": [
-          {
-             "kind": "String",
-              "value": "resource_tdx_2_1ng6vf9g4d30dw8h6h4t2t6e3mfxrhpw8d0n5dkpzh4xaqzqha57cd2:#272#"
-          }
-        ]
-      }
-    }
-  ]
-}
-*/
-
 export const fetchReciepts = createAsyncThunk<
   undefined, // Return type of the payload creator
   undefined, // argument type
   {
     state: RewardState;
   }
->("claims/fetchReciepts", async (_, thunkAPI) => {
+>("rewards/fetchReciepts", async (_, thunkAPI) => {
   const dispatch = thunkAPI.dispatch;
   const rdt = getRdt();
   if (!rdt) return;
@@ -150,31 +119,22 @@ export const fetchReciepts = createAsyncThunk<
 });
 
 export const fetchRewards = createAsyncThunk<
-  undefined, // Return type of the payload creator
+  Number | undefined, // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
   }
->("claims/fetchRewards", async (_, thunkAPI) => {
-  console.log("Fetching rewards");
+>("rewards/fetchRewards", async (_, thunkAPI) => {
   const state = thunkAPI.getState();
   const dispatch = thunkAPI.dispatch;
 
   //console.log(state.config);
   const rdt = getRdt();
   if (!rdt) return;
-  const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
-  if (!claimComponentAddress) return;
-
-  const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
-  if (!claimNFTAddress) return;
 
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
-  const resourcePrefix = process.env.NEXT_PUBLIC_RESOURCE_PREFIX;
-  if (!resourcePrefix) return;
-  console.log("Starting logic");
   try {
     let recieptIds = state.rewardSlice.recieptIds;
     if (recieptIds.length <= 0) return;
@@ -187,43 +147,30 @@ export const fetchRewards = createAsyncThunk<
         `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
     );
 
-    const eligibleAddresses = [
-      state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress,
-    ];
-    //console.log(apiResponse);
-    const c = await getOrdersRewardsApiData(
-      "internal_keyvaluestore_tdx_2_1kzd9du9jmjlxdfcthgwtwlsug6z05hw0r864mwhhtgay3yxvuqdvds",
+    const orderRewardsData = await getOrdersRewardsApiData(
+      state.rewardSlice.config.rewardOrderAddress,
       prefixedReceiptIds
     );
-    const d = await getOrderRewardsFromApiData(c);
-    const sumTokenRewards = (orders: OrderRewards[]): number => {
-      return orders.reduce((total, order) => {
-        const orderTotal = order.rewards.reduce((rewardTotal, reward) => {
-          const tokenTotal = reward.tokenRewards.reduce(
-            (tokenSum, tokenReward) => {
-              return tokenSum + parseFloat(tokenReward.amount);
-            },
+    const orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
+    const sumTokenRewards = (orders: OrderRewards[]) =>
+      orders.reduce(
+        (total, order) =>
+          total +
+          order.rewards.reduce(
+            (rewardTotal, reward) =>
+              rewardTotal +
+              reward.tokenRewards.reduce(
+                (tokenSum, tokenReward) =>
+                  tokenSum + Number(tokenReward.amount),
+                0
+              ),
             0
-          );
-          return rewardTotal + tokenTotal;
-        }, 0);
-        return total + orderTotal;
-      }, 0);
-    };
-    const total = parseFloat(sumTokenRewards(d)) + parseFloat(accountRewards);
-    console.log(total);
-    //Get any rewards attached to the account
-    /*
-    const response = await rdt.gatewayApi.state.getNonFungibleData(
-      claimNFTAddress,
-      `<${nonfungibleLocalId}>`
-    );
-    console.log(response);
-    const name: { value: string; field_name: string } | undefined = (
-      response.data?.programmatic_json as any
-    ).fields.find((nfData: any) => nfData.field_name === "rewards");
-    return name?.entries[0].value.entries[0].value.value;
-    */
+          ),
+        0
+      );
+
+    const total = sumTokenRewards(orderRewards) + Number(accountRewards);
+
     dispatch(rewardSlice.actions.updateRewardsTotal(total));
 
     return total;
