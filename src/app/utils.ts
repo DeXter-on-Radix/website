@@ -346,3 +346,9 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Fallback to a default language if none is detected
   return defaultLanguage;
 }
+
+export async function wait(milliseconds: number): Promise<void> {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}

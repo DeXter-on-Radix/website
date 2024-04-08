@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { rewardSlice, fetchReciepts, fetchRewards } from "../state/rewardSlice";
+import { getRdt } from "../subscriptions";
 import { useAppDispatch } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
+import { wait } from "utils";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -53,6 +55,10 @@ function TotalEarned() {
 
   useEffect(() => {
     async function fetchData() {
+      while (!getRdt()) {
+        console.log("not yet loaded");
+        await wait(500); // polling every half second
+      }
       await dispatch(fetchReciepts());
       await dispatch(fetchRewards());
     }
