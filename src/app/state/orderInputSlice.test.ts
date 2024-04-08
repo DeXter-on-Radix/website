@@ -1,9 +1,11 @@
 import { store } from "./store"; // Import the configured store that includes your slice
+import * as adex from "alphadex-sdk-js";
 import {
   ErrorMessage,
   OrderSide,
   OrderType,
   SpecifiedToken,
+  toAdexOrderType,
   orderInputSlice,
 } from "./orderInputSlice";
 
@@ -199,6 +201,31 @@ describe("OrderInputSlice", () => {
     expect(store.getState().orderInput.validationToken1.valid).toBe(false);
     expect(store.getState().orderInput.validationToken1.message).toBe(
       ErrorMessage.INSUFFICIENT_FUNDS
+    );
+  });
+
+  it("toAdexOrderType converts frontend ordertype correctly to adex order type", () => {
+    // MARKET -> MARKET
+    store.dispatch(orderInputSlice.actions.resetState());
+    store.dispatch(orderInputSlice.actions.setType(OrderType.MARKET));
+    expect(toAdexOrderType(store.getState().orderInput)).toBe(
+      adex.OrderType.MARKET
+    );
+    // postonly should be ignored in market order
+    store.dispatch(orderInputSlice.actions.togglePostOnly()); // now true
+    expect(toAdexOrderType(store.getState().orderInput)).toBe(
+      adex.OrderType.MARKET
+    );
+    // LIMIT -> LIMIT
+    store.dispatch(orderInputSlice.actions.resetState());
+    store.dispatch(orderInputSlice.actions.setType(OrderType.LIMIT));
+    expect(toAdexOrderType(store.getState().orderInput)).toBe(
+      adex.OrderType.LIMIT
+    );
+    // LIMIT, POSTONLY -> POSTONLY
+    store.dispatch(orderInputSlice.actions.togglePostOnly()); // now true
+    expect(toAdexOrderType(store.getState().orderInput)).toBe(
+      adex.OrderType.POSTONLY
     );
   });
 });
