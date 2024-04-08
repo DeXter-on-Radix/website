@@ -8,7 +8,6 @@ import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
-import { detectOperatingSystem } from "utils";
 
 export default function RootLayout({
   children,
@@ -17,13 +16,6 @@ export default function RootLayout({
 }) {
   const path = usePathname();
 
-  const os = detectOperatingSystem();
-  const toastPosition = {
-    WINDOWS: "bottom-center",
-    MAC: "top-center",
-    LINUX: "top-center",
-    UNKNOWN: "top-center",
-  }[os];
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
   // and use metadata https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#step-2-creating-a-root-layout
@@ -35,7 +27,7 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body>
-          <DexterToaster toastPosition={toastPosition} />
+          <DexterToaster toastPosition="top-center" />
           <div
             data-path={path}
             className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"

@@ -68,10 +68,10 @@
   "market_action_token": "<$SIDE> <$TOKEN_SYMBOL> a <$ORDER_TYPE>",
   "at_max_price": "Preço Máximo",
   "at_min_price": "Preço Mínimo",
-  "cancelling_order": "Cancelando ordem...",
+  "cancelling_order": "Cancelando a ordem...",
   "order_cancelled": "Ordem cancelada",
-  "failed_to_cancel_order": "Falha ao cancelar ordem",
-  "submitting_order": "Enviando ordem...",
+  "failed_to_cancel_order": "Erro ao cancelar a ordem",
+  "submitting_order": "Enviando a ordem...",
   "order_submitted": "Ordem enviada",
-  "failed_to_submit_order": "Falha ao enviar ordem"
+  "failed_to_submit_order": "Erro ao enviar a ordem"
 }
