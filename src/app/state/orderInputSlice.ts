@@ -109,8 +109,47 @@ export function toAdexOrderType(state: OrderInputState): adex.OrderType {
   throw new Error("Invalid order type");
 }
 
-export function toAdexOrderSide(state: OrderInputState): adex.OrderSide {
-  return state.side;
+function swapSideIfToken2Specified(
+  side: OrderSide,
+  specifiedToken: SpecifiedToken
+): OrderSide {
+  if (specifiedToken === SpecifiedToken.UNSPECIFIED) {
+    throw new Error("Token must be specified");
+  }
+  const swapSide = (side: OrderSide) => {
+    return side === OrderSide.BUY ? OrderSide.SELL : OrderSide.BUY;
+  };
+  return specifiedToken === SpecifiedToken.TOKEN_2 ? swapSide(side) : side;
+}
+
+// Map the user-facing side to the Alphadex convention. Alphadex defines
+// "side" relative to the specifiedToken, while DeXter sets it based on
+// token order of the pairAddress. The general rule is, whenever TOKEN_2
+// is specified, the side needs to be swapped.
+// |------------|----------------|----------|
+// | DexterSide | specifiedToken | AdexSide |
+// |------------|----------------|----------|
+// | buy        | token1         | buy      |
+// | buy        | token2         | sell     | <- swap
+// | sell       | token1         | sell     |
+// | sell       | token2         | buy      | <- swap
+// |------------|----------------|----------|
+export function toAdexOrderSide(
+  dexterSide: OrderSide,
+  specifiedToken: SpecifiedToken
+): adex.OrderSide {
+  return swapSideIfToken2Specified(dexterSide, specifiedToken);
+}
+
+// Convert Alphadex side to user-facing side in DeXter. DeXter defines
+// "side" based on token order in pairAddress, while Alphadex sets it based
+// on the specifiedToken.
+export function toDexterOrderSide(
+  adexSide: adex.OrderSide,
+  specifiedToken: SpecifiedToken
+): OrderSide {
+  // same logic to convert back, so we can reuse the same logic
+  return swapSideIfToken2Specified(adexSide, specifiedToken);
 }
 
 export const initialTokenInput: TokenInput = {

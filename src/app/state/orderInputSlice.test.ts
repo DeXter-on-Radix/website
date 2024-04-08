@@ -7,6 +7,8 @@ import {
   SpecifiedToken,
   toAdexOrderType,
   orderInputSlice,
+  toAdexOrderSide,
+  toDexterOrderSide,
 } from "./orderInputSlice";
 
 describe("OrderInputSlice", () => {
@@ -227,5 +229,22 @@ describe("OrderInputSlice", () => {
     expect(toAdexOrderType(store.getState().orderInput)).toBe(
       adex.OrderType.POSTONLY
     );
+  });
+
+  it(`toAdexOrderSide() and toDexterOrderSide() correctly convert side`, () => {
+    // Helper function to test converstion from DexterSide -> AdexSide and back
+    const testSideConversions = (
+      dexterSide: OrderSide,
+      specifiedToken: SpecifiedToken,
+      adexSide: OrderSide
+    ) => {
+      expect(toAdexOrderSide(dexterSide, specifiedToken)).toBe(adexSide);
+      expect(toDexterOrderSide(adexSide, specifiedToken)).toBe(dexterSide);
+    };
+    // Cover all 4 usecases. Side note, this applies independantly of OrderType
+    testSideConversions(OrderSide.BUY, SpecifiedToken.TOKEN_1, OrderSide.BUY);
+    testSideConversions(OrderSide.BUY, SpecifiedToken.TOKEN_2, OrderSide.SELL); // swap when token2 is specified
+    testSideConversions(OrderSide.SELL, SpecifiedToken.TOKEN_1, OrderSide.SELL);
+    testSideConversions(OrderSide.SELL, SpecifiedToken.TOKEN_2, OrderSide.BUY); // swap when token2 is specified
   });
 });
