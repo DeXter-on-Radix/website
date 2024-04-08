@@ -5,9 +5,10 @@ import {
   OrderSide,
   OrderType,
   SpecifiedToken,
-  toAdexOrderType,
   orderInputSlice,
+  toAdexOrderType,
   toAdexOrderSide,
+  toDexterOrderType,
   toDexterOrderSide,
 } from "./orderInputSlice";
 
@@ -206,31 +207,6 @@ describe("OrderInputSlice", () => {
     );
   });
 
-  it("toAdexOrderType converts frontend ordertype correctly to adex order type", () => {
-    // MARKET -> MARKET
-    store.dispatch(orderInputSlice.actions.resetState());
-    store.dispatch(orderInputSlice.actions.setType(OrderType.MARKET));
-    expect(toAdexOrderType(store.getState().orderInput)).toBe(
-      adex.OrderType.MARKET
-    );
-    // postonly should be ignored in market order
-    store.dispatch(orderInputSlice.actions.togglePostOnly()); // now true
-    expect(toAdexOrderType(store.getState().orderInput)).toBe(
-      adex.OrderType.MARKET
-    );
-    // LIMIT -> LIMIT
-    store.dispatch(orderInputSlice.actions.resetState());
-    store.dispatch(orderInputSlice.actions.setType(OrderType.LIMIT));
-    expect(toAdexOrderType(store.getState().orderInput)).toBe(
-      adex.OrderType.LIMIT
-    );
-    // LIMIT, POSTONLY -> POSTONLY
-    store.dispatch(orderInputSlice.actions.togglePostOnly()); // now true
-    expect(toAdexOrderType(store.getState().orderInput)).toBe(
-      adex.OrderType.POSTONLY
-    );
-  });
-
   it(`toAdexOrderSide() and toDexterOrderSide() correctly convert side`, () => {
     // Helper function to test converstion from DexterSide -> AdexSide and back
     const testSideConversions = (
@@ -246,5 +222,22 @@ describe("OrderInputSlice", () => {
     testSideConversions(OrderSide.BUY, SpecifiedToken.TOKEN_2, OrderSide.SELL); // swap when token2 is specified
     testSideConversions(OrderSide.SELL, SpecifiedToken.TOKEN_1, OrderSide.SELL);
     testSideConversions(OrderSide.SELL, SpecifiedToken.TOKEN_2, OrderSide.BUY); // swap when token2 is specified
+  });
+
+  it(`toAdexOrderType() and toDexterOrderType() correctly convert OrderTypes`, () => {
+    // Helper function to test converstion from DexterSide -> AdexSide and back
+    const testTypeConversions = (
+      dexterType: OrderType,
+      postOnly: boolean,
+      adexOrderType: adex.OrderType
+    ) => {
+      expect(toAdexOrderType(dexterType, postOnly)).toBe(adexOrderType);
+      expect(toDexterOrderType(adexOrderType)).toBe(dexterType);
+    };
+    // Cover all 4 usecases. Side note, this applies independantly of OrderType
+    testTypeConversions(OrderType.MARKET, false, adex.OrderType.MARKET);
+    testTypeConversions(OrderType.MARKET, true, adex.OrderType.MARKET); // postonly is irrelevant for market orders
+    testTypeConversions(OrderType.LIMIT, false, adex.OrderType.LIMIT);
+    testTypeConversions(OrderType.LIMIT, true, adex.OrderType.POSTONLY);
   });
 });

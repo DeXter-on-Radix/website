@@ -91,6 +91,33 @@ interface SetPricePayload {
   balanceToken2?: number;
 }
 
+export const initialTokenInput: TokenInput = {
+  address: "",
+  symbol: "",
+  iconUrl: "",
+  amount: -1,
+  decimals: 0,
+};
+
+const initialValidationResult: ValidationResult = {
+  valid: true,
+  message: "",
+};
+
+export const initialState: OrderInputState = {
+  token1: { ...initialTokenInput },
+  token2: { ...initialTokenInput },
+  price: -1,
+  validationToken1: { ...initialValidationResult },
+  validationToken2: { ...initialValidationResult },
+  validationPrice: { ...initialValidationResult },
+  specifiedToken: SpecifiedToken.UNSPECIFIED,
+  side: OrderSide.BUY,
+  type: OrderType.MARKET,
+  postOnly: false,
+  transactionInProgress: false,
+};
+
 export function validatePrice(price: number): ValidationResult {
   const priceIsZero = price === 0;
   if (priceIsZero) {
@@ -99,14 +126,25 @@ export function validatePrice(price: number): ValidationResult {
   return { valid: true, message: "" };
 }
 
-export function toAdexOrderType(state: OrderInputState): adex.OrderType {
-  if (state.type === OrderType.MARKET) {
-    return adex.OrderType.MARKET;
+export function toAdexOrderType(
+  dexterOrderType: OrderType,
+  postOnly: boolean
+): adex.OrderType {
+  return {
+    MARKET: adex.OrderType.MARKET,
+    LIMIT: postOnly ? adex.OrderType.POSTONLY : adex.OrderType.LIMIT,
+  }[dexterOrderType];
+}
+
+export function toDexterOrderType(adexOrderType: adex.OrderType): OrderType {
+  if (adexOrderType === adex.OrderType.MARKETPARTIAL) {
+    throw new Error("Unimplemented"); // TODO(dcts): decide whether this usecase is even needed (for TradeHistory table)
   }
-  if (state.type === OrderType.LIMIT) {
-    return state.postOnly ? adex.OrderType.POSTONLY : adex.OrderType.LIMIT;
-  }
-  throw new Error("Invalid order type");
+  return {
+    MARKET: OrderType.MARKET,
+    LIMIT: OrderType.LIMIT,
+    POSTONLY: OrderType.LIMIT,
+  }[adexOrderType];
 }
 
 function swapSideIfToken2Specified(
@@ -151,33 +189,6 @@ export function toDexterOrderSide(
   // same logic to convert back, so we can reuse the same logic
   return swapSideIfToken2Specified(adexSide, specifiedToken);
 }
-
-export const initialTokenInput: TokenInput = {
-  address: "",
-  symbol: "",
-  iconUrl: "",
-  amount: -1,
-  decimals: 0,
-};
-
-const initialValidationResult: ValidationResult = {
-  valid: true,
-  message: "",
-};
-
-export const initialState: OrderInputState = {
-  token1: { ...initialTokenInput },
-  token2: { ...initialTokenInput },
-  price: -1,
-  validationToken1: { ...initialValidationResult },
-  validationToken2: { ...initialValidationResult },
-  validationPrice: { ...initialValidationResult },
-  specifiedToken: SpecifiedToken.UNSPECIFIED,
-  side: OrderSide.BUY,
-  type: OrderType.MARKET,
-  postOnly: false,
-  transactionInProgress: false,
-};
 
 // export const selectTargetToken = (state: RootState) => {
 //   if (state.orderInput.type === OrderType.MARKET) {
@@ -256,14 +267,14 @@ export const fetchQuote = createAsyncThunk<
   if (state.pairSelector.address === "") {
     throw new Error("Pair address is not initilized yet.");
   }
+  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
+    throw new Error("No token was specified");
+  }
   if (
     state.orderInput.type === OrderType.LIMIT &&
     state.orderInput.price <= 0
   ) {
     throw new Error("Price must be set on LIMIT orders");
-  }
-  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
-    throw new Error("No token was specified");
   }
   let priceToSend =
     state.orderInput.type === OrderType.MARKET
@@ -280,7 +291,7 @@ export const fetchQuote = createAsyncThunk<
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     toAdexOrderType(state.orderInput),
-    toAdexOrderSide(state.orderInput.side),
+    toAdexOrderSide(state.orderInput.side, state.orderInput.specifiedToken),
     targetToken.address,
     targetToken.amount,
     PLATFORM_BADGE_ID,
