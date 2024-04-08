@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
-  // createAsyncThunk,
+  createAsyncThunk,
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
@@ -35,12 +35,8 @@ export enum SpecifiedToken {
 }
 
 export enum ErrorMessage {
-  UNSPECIFIED_PRICE = "UNSPECIFIED_PRICE",
   NONZERO_PRICE = "NONZERO_PRICE",
   NONZERO_AMOUNT = "NONZERO_AMOUNT",
-  HIGH_PRICE = "HIGH_PRICE",
-  LOW_PRICE = "LOW_PRICE",
-  EXCESSIVE_DECIMALS = "EXCESSIVE_DECIMALS",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   COULD_NOT_GET_QUOTE = "COULD_NOT_GET_QUOTE",
 }
@@ -51,9 +47,9 @@ export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
-// interface QuoteWithPriceTokenAddress extends Quote {
-//   priceTokenAddress: string;
-// }
+interface QuoteWithPriceTokenAddress extends Quote {
+  priceTokenAddress: string;
+}
 
 export interface TokenInfo extends adex.TokenInfo {
   decimals?: number;
@@ -103,18 +99,19 @@ export function validatePrice(price: number): ValidationResult {
   return { valid: true, message: "" };
 }
 
-// function ToAdexOrderType(state: OrderInputState): adex.OrderType {
-//   if (state.postOnly) {
-//     return adex.OrderType.POSTONLY;
-//   }
-//   if (state.type === OrderType.MARKET) {
-//     return adex.OrderType.MARKET;
-//   }
-//   if (state.type === OrderType.LIMIT) {
-//     return adex.OrderType.LIMIT;
-//   }
-//   throw new Error("Invalid order type");
-// }
+export function toAdexOrderType(state: OrderInputState): adex.OrderType {
+  if (state.type === OrderType.MARKET) {
+    return adex.OrderType.MARKET;
+  }
+  if (state.type === OrderType.LIMIT) {
+    return state.postOnly ? adex.OrderType.POSTONLY : adex.OrderType.LIMIT;
+  }
+  throw new Error("Invalid order type");
+}
+
+export function toAdexOrderSide(state: OrderInputState): adex.OrderSide {
+  return state.side;
+}
 
 export const initialTokenInput: TokenInput = {
   address: "",
@@ -137,7 +134,7 @@ export const initialState: OrderInputState = {
   validationToken2: { ...initialValidationResult },
   validationPrice: { ...initialValidationResult },
   specifiedToken: SpecifiedToken.UNSPECIFIED,
-  side: adex.OrderSide.BUY,
+  side: OrderSide.BUY,
   type: OrderType.MARKET,
   postOnly: false,
   transactionInProgress: false,
@@ -211,42 +208,49 @@ export const selectBalanceByAddress = createSelector(
 /*
  * FETCH QUOTE
  */
-// export const fetchQuote = createAsyncThunk<
-//   QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
-//   undefined, // set to undefined if the thunk doesn't expect any arguments
-//   { state: RootState }
-// >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
-//   const state = thunkAPI.getState();
-//   if (state.pairSelector.address === "") {
-//     throw new Error("Pair address is not initilized yet.");
-//   }
-//   let priceToSend = undefined;
-//   let slippageToSend = undefined;
-//   if (
-//     state.orderInput.type === OrderType.LIMIT &&
-//     state.orderInput.price !== ""
-//   ) {
-//     priceToSend = state.orderInput.price;
-//   } else if (state.orderInput.slippage !== "") {
-//     slippageToSend = state.orderInput.slippage;
-//   }
-//   const targetToken = selectTargetToken(state);
-//   if (!targetToken?.amount) {
-//     throw new Error("No amount specified when fetching quote.");
-//   }
-//   const response = await adex.getExchangeOrderQuote(
-//     state.pairSelector.address,
-//     adexOrderType(state.orderInput),
-//     state.orderInput.side,
-//     targetToken.address,
-//     targetToken.amount,
-//     PLATFORM_BADGE_ID,
-//     priceToSend,
-//     slippageToSend
-//   );
-//   const quote: Quote = JSON.parse(JSON.stringify(response.data));
-//   return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
-// });
+export const fetchQuote = createAsyncThunk<
+  QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
+  undefined, // set to undefined if the thunk doesn't expect any arguments
+  { state: RootState }
+>("orderInput/fetchQuote", async (_arg, thunkAPI) => {
+  const state = thunkAPI.getState();
+  if (state.pairSelector.address === "") {
+    throw new Error("Pair address is not initilized yet.");
+  }
+  if (
+    state.orderInput.type === OrderType.LIMIT &&
+    state.orderInput.price <= 0
+  ) {
+    throw new Error("Price must be set on LIMIT orders");
+  }
+  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
+    throw new Error("No token was specified");
+  }
+  let priceToSend =
+    state.orderInput.type === OrderType.MARKET
+      ? undefined
+      : state.orderInput.price;
+
+  const targetToken = {
+    TOKEN_1: () => state.orderInput.token1,
+    TOKEN_2: () => state.orderInput.token2,
+  }[state.orderInput.specifiedToken]();
+  if (!targetToken.amount) {
+    throw new Error("No amount specified when fetching quote.");
+  }
+  const response = await adex.getExchangeOrderQuote(
+    state.pairSelector.address,
+    toAdexOrderType(state.orderInput),
+    toAdexOrderSide(state.orderInput.side),
+    targetToken.address,
+    targetToken.amount,
+    PLATFORM_BADGE_ID,
+    priceToSend,
+    undefined // slippage to sent
+  );
+  const quote: Quote = JSON.parse(JSON.stringify(response.data));
+  return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
+});
 
 /*
  * SUBMIT ORDER
