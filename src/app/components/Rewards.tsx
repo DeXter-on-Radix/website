@@ -1,10 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { rewardSlice, fetchReciepts, fetchRewards } from "../state/rewardSlice";
-import { getRdt } from "../subscriptions";
-import { useAppDispatch } from "../hooks";
+import { radixSlice } from "../state/radixSlice";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
-import { wait } from "utils";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -52,40 +51,60 @@ function TotalEarned() {
   const rewardsTotal = useSelector(
     (state: RootState) => state.rewardSlice.rewardsTotal
   );
+  const [loadingRewards, setLoadingRewards] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
-      while (!getRdt()) {
-        console.log("not yet loaded");
-        await wait(500); // polling every half second
-      }
+      setLoadingRewards(true);
       await dispatch(fetchReciepts());
       await dispatch(fetchRewards());
+      setLoadingRewards(false);
     }
     fetchData();
   }, []); // Or [] if effect doesn't need props or state
   return (
     <p>
-      Total Rewards: <span>{rewardsTotal} DEXTR</span>
+      Total Rewards:{" "}
+      <span>
+        {loadingRewards ? "loading rewards..." : `${rewardsTotal} DEXTR`}
+      </span>
     </p>
   );
 }
 
 export function Rewards() {
+  // TODO: once https://github.com/DeXter-on-Radix/website/pull/335 is merged, use state from isConnected boolean
+  const { walletData } = useAppSelector((state) => state.radix);
+  const isConnected = walletData.accounts.length > 0;
   return (
     <div>
       <div className="card bg-base-100">
         <div className="card-body items-center uppercase">
           <div className="w-full text-center ">
             <div className="flex flex-col items-center justify-center py-4 px-8 box-border gap-y-4">
-              <b className="uppercase">CLAIM REWARDS</b>
-              <TotalEarned />
-              <ClaimButton2 />
-              <ClaimButton />
+              {isConnected ? <LoggedInClaimUi /> : <LoggedOutClaimUi />}
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function LoggedInClaimUi() {
+  return (
+    <>
+      <b className="uppercase">CLAIM REWARDS</b>
+      <TotalEarned />
+      <ClaimButton />
+    </>
+  );
+}
+
+function LoggedOutClaimUi() {
+  return (
+    <>
+      <b className="uppercase">Login to claim Rewards</b>
+    </>
   );
 }
