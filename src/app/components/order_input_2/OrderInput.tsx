@@ -629,28 +629,11 @@ function CurrencyInput({
 function InputTooltip({ message }: { message: string }) {
   const t = useTranslations();
   return (
-    <>
-      {/* Red Text */}
-      <div className="absolute bottom-[-20px] z-10 right-0 p-1">
-        <p className="text-xs tracking-[0.5px] truncate text-red-500 text-center">
-          {t(message)}
-        </p>
-      </div>
-      {/* NORMAL TOOLTIP TOP */}
-      {/* <div className="absolute bg-[#474D52] top-[-1px] tracking-[0.5px] z-10 left-1/2 transform -translate-x-1/2 truncate bg-gray-800 text-white text-center p-3 rounded-lg shadow-lg max-w-xs mx-auto">
-        <p className="text-xs">{t(message)}</p>
-      </div> */}
-
-      {/* NORMAL TOOLTIP BOTTOM */}
-      {/* <div className="absolute bg-[#474D52] bottom-[-26px] tracking-[0.5px] z-10 left-1/2 transform -translate-x-1/2 truncate bg-gray-800 text-white text-center p-2 rounded-lg shadow-lg max-w-xs mx-auto">
-        <p className="text-xs">{t(message)}</p>
-      </div> */}
-
-      {/* ALERTING TOOLTIP */}
-      {/* <div className="absolute bg-[#474D52] bg-red-500 bottom-[-16px] tracking-[0.5px] z-10 left-1/2 transform -translate-x-1/2 truncate bg-gray-800 text-white font-bold text-center p-1 rounded shadow-lg max-w-xs mx-auto">
-        <p className="text-xs">{t(message)}</p>
-      </div> */}
-    </>
+    <div className="absolute bottom-[-20px] z-10 right-0 p-1">
+      <p className="text-xs tracking-[0.5px] truncate text-red-500 text-center">
+        {t(message)}
+      </p>
+    </div>
   );
 }
 
