@@ -302,10 +302,7 @@ export const rewardSlice = createSlice({
       .addCase(
         fetchAccountRewards.fulfilled,
         (state, action: PayloadAction<AccountRewards[]>) => {
-          console.log("updating");
-          console.log(action.payload);
           state.rewardData.rewardsAccounts = action.payload;
-          console.log(state.rewardData.rewardsAccounts);
         }
       )
       .addCase(
