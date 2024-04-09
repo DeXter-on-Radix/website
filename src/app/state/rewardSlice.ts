@@ -83,7 +83,7 @@ export const fetchReciepts = createAsyncThunk<
   undefined, // Return type of the payload creator
   undefined, // argument type
   {
-    state: RewardState;
+    state: RootState;
   }
 >("rewards/fetchReciepts", async (_, thunkAPI) => {
   const dispatch = thunkAPI.dispatch;
