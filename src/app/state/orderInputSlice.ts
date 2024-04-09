@@ -47,9 +47,9 @@ export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
-interface QuoteWithPriceTokenAddress extends Quote {
-  priceTokenAddress: string;
-}
+// interface QuoteWithPriceTokenAddress extends Quote {
+//   priceTokenAddress: string;
+// }
 
 export interface TokenInfo extends adex.TokenInfo {
   decimals?: number;
@@ -190,6 +190,16 @@ export function toDexterOrderSide(
   return swapSideIfToken2Specified(adexSide, specifiedToken);
 }
 
+export function noValidationErrors(
+  validationPrice: ValidationResult,
+  validationToken1: ValidationResult,
+  validationToken2: ValidationResult
+): boolean {
+  return (
+    validationPrice.valid && validationToken1.valid && validationToken2.valid
+  );
+}
+
 // export const selectTargetToken = (state: RootState) => {
 //   if (state.orderInput.type === OrderType.MARKET) {
 //     if (state.orderInput.side === OrderSide.SELL) {
@@ -259,11 +269,20 @@ export const selectBalanceByAddress = createSelector(
  * FETCH QUOTE
  */
 export const fetchQuote = createAsyncThunk<
-  QuoteWithPriceTokenAddress | undefined, // Return type of the payload creator
+  Quote | undefined, // Return type of the payload creator
   undefined, // set to undefined if the thunk doesn't expect any arguments
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
   const state = thunkAPI.getState();
+  if (
+    !noValidationErrors(
+      state.orderInput.validationPrice,
+      state.orderInput.validationToken1,
+      state.orderInput.validationToken2
+    )
+  ) {
+    throw new Error("Validation errors found");
+  }
   if (state.pairSelector.address === "") {
     throw new Error("Pair address is not initilized yet.");
   }
@@ -285,12 +304,9 @@ export const fetchQuote = createAsyncThunk<
     TOKEN_1: () => state.orderInput.token1,
     TOKEN_2: () => state.orderInput.token2,
   }[state.orderInput.specifiedToken]();
-  if (!targetToken.amount) {
-    throw new Error("No amount specified when fetching quote.");
-  }
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
-    toAdexOrderType(state.orderInput),
+    toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
     toAdexOrderSide(state.orderInput.side, state.orderInput.specifiedToken),
     targetToken.address,
     targetToken.amount,
@@ -299,7 +315,10 @@ export const fetchQuote = createAsyncThunk<
     undefined // slippage to sent
   );
   const quote: Quote = JSON.parse(JSON.stringify(response.data));
-  return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
+  console.log("quote");
+  console.log(quote);
+  return quote;
+  // return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
 });
 
 /*
@@ -510,6 +529,7 @@ export const orderInputSlice = createSlice({
       }
     },
     setPrice(state, action: PayloadAction<SetPricePayload>) {
+      // ignore price for MARKET OrDERS
       if (state.type === OrderType.MARKET) {
         return;
       }
@@ -566,10 +586,15 @@ export const orderInputSlice = createSlice({
         }
       }
     },
-    resetValidation(state) {
-      state.validationToken1 = { ...initialValidationResult };
-      state.validationToken2 = { ...initialValidationResult };
-    },
+    // resetValidation(state) {
+    //   state.validationToken1 = { ...initialValidationResult };
+    //   state.validationToken2 = { ...initialValidationResult };
+    //   state.quote = undefined;
+    // },
+    // resetQuote(state) {
+    //   state.quote = undefined;
+    //   state.description = undefined;
+    // },
     resetNumbersInput(state) {
       state.token1 = { ...initialTokenInput };
       state.token2 = { ...initialTokenInput };
@@ -598,99 +623,102 @@ export const orderInputSlice = createSlice({
     },
   },
 
-  // // asynchronous reducers
-  // extraReducers: (builder) => {
-  //   // fetchQuote
-  //   builder.addCase(fetchQuote.pending, (state) => {
-  //     state.quote = undefined;
-  //     state.description = undefined;
-  //   });
-  //   builder.addCase(
-  //     fetchQuote.fulfilled,
-  //     (
-  //       state,
-  //       action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
-  //     ) => {
-  //       const quote = action.payload;
-  //       if (!quote) {
-  //         console.debug("quote not valid", quote);
-  //         return;
-  //       }
-  //       function quoteResultCodeOk(quote: Quote) {
-  //         let ok = true;
-  //         if (quote.resultCode < 100 || quote.resultCode > 199) {
-  //           ok = false;
-  //         }
-  //         if (quote.resultCode === 5 || quote.resultCode === 6) {
-  //           ok = true;
-  //         }
-  //         return ok;
-  //       }
-  //       if (!quoteResultCodeOk(quote)) {
-  //         console.debug("quote not valid", quote);
-  //         return;
-  //       }
-  //       state.quote = quote;
-  //       state.description = toDescription(quote);
-  //       if (state.type === OrderType.MARKET) {
-  //         // MARKET
-  //         // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
-  //         if (quote.resultCode === 5 || quote.resultCode === 6) {
-  //           if (state.side === OrderSide.SELL) {
-  //             state.validationToken1.valid = false;
-  //             state.validationToken1.message = quote.resultMessageLong;
-  //           } else {
-  //             state.validationToken2.valid = false;
-  //             state.validationToken2.message = quote.resultMessageLong;
-  //           }
-  //         } else {
-  //           if (state.side === OrderSide.SELL) {
-  //             state.token2.amount = quote.toAmount;
-  //           } else {
-  //             state.token1.amount = quote.fromAmount;
-  //           }
-  //         }
-  //       } else {
-  //         // LIMIT order
-  //         // always changing the second token here because it's always the non-target token
-  //         state.token2.amount = calculateCost(
-  //           state.token1,
-  //           state.price,
-  //           quote.priceTokenAddress
-  //         );
-  //       }
-  //     }
-  //   );
-  //   builder.addCase(fetchQuote.rejected, (state, action) => {
-  //     if (state.type === OrderType.MARKET) {
-  //       if (state.side === OrderSide.SELL) {
-  //         state.token2.amount = "";
-  //         state.validationToken2.valid = false;
-  //         state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-  //       } else {
-  //         state.token1.amount = "";
-  //         state.validationToken1.valid = false;
-  //         state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-  //       }
-  //     }
-  //     state.quote = undefined;
-  //     console.error("fetchQuote rejected:", action.error.message);
-  //   });
-  //   // submitOrder
-  //   builder.addCase(submitOrder.pending, (state) => {
-  //     state.transactionInProgress = true;
-  //     state.transactionResult = undefined;
-  //   });
-  //   builder.addCase(submitOrder.fulfilled, (state, action) => {
-  //     state.transactionInProgress = false;
-  //     state.transactionResult = action.payload.message;
-  //   });
-  //   builder.addCase(submitOrder.rejected, (state, action) => {
-  //     state.transactionInProgress = false;
-  //     state.transactionResult = action.error.message;
-  //   });
-  // },
+  // asynchronous reducers
+  extraReducers: (builder) => {
+    // fetchQuote
+    builder.addCase(fetchQuote.pending, (state) => {
+      state.quote = undefined;
+      state.description = undefined;
+    });
+    builder.addCase(
+      fetchQuote.fulfilled,
+      (
+        state,
+        // action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
+        action: PayloadAction<Quote | undefined>
+      ) => {
+        const quote = action.payload;
+        state.quote = quote;
+        // if (!quote) {
+        //   console.debug("quote not valid", quote);
+        //   return;
+        // }
+        // function quoteResultCodeOk(quote: Quote) {
+        //   let ok = true;
+        //   if (quote.resultCode < 100 || quote.resultCode > 199) {
+        //     ok = false;
+        //   }
+        //   if (quote.resultCode === 5 || quote.resultCode === 6) {
+        //     ok = true;
+        //   }
+        //   return ok;
+        // }
+        // if (!quoteResultCodeOk(quote)) {
+        //   console.debug("quote not valid", quote);
+        //   return;
+        // }
+        // state.quote = quote;
+        // state.description = toDescription(quote);
+        // if (state.type === OrderType.MARKET) {
+        //   // MARKET
+        //   // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
+        //   if (quote.resultCode === 5 || quote.resultCode === 6) {
+        //     if (state.side === OrderSide.SELL) {
+        //       state.validationToken1.valid = false;
+        //       state.validationToken1.message = quote.resultMessageLong;
+        //     } else {
+        //       state.validationToken2.valid = false;
+        //       state.validationToken2.message = quote.resultMessageLong;
+        //     }
+        //   } else {
+        //     if (state.side === OrderSide.SELL) {
+        //       state.token2.amount = quote.toAmount;
+        //     } else {
+        //       state.token1.amount = quote.fromAmount;
+        //     }
+        //   }
+        // } else {
+        //   // LIMIT order
+        //   // always changing the second token here because it's always the non-target token
+        //   state.token2.amount = calculateCost(
+        //     state.token1,
+        //     state.price,
+        //     quote.priceTokenAddress
+        //   );
+        // }
+      }
+    );
+    builder.addCase(fetchQuote.rejected, (state, action) => {
+      // if (state.type === OrderType.MARKET) {
+      //   if (state.side === OrderSide.SELL) {
+      //     state.token2.amount = "";
+      //     state.validationToken2.valid = false;
+      //     state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
+      //   } else {
+      //     state.token1.amount = "";
+      //     state.validationToken1.valid = false;
+      //     state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
+      //   }
+      // }
+      state.quote = undefined;
+      console.error("fetchQuote rejected:", action.error.message);
+    });
+  },
 });
+//   // submitOrder
+//   builder.addCase(submitOrder.pending, (state) => {
+//     state.transactionInProgress = true;
+//     state.transactionResult = undefined;
+//   });
+//   builder.addCase(submitOrder.fulfilled, (state, action) => {
+//     state.transactionInProgress = false;
+//     state.transactionResult = action.payload.message;
+//   });
+//   builder.addCase(submitOrder.rejected, (state, action) => {
+//     state.transactionInProgress = false;
+//     state.transactionResult = action.error.message;
+//   });
+// },
 
 // function toDescription(quote: Quote): string {
 //   let description = "";

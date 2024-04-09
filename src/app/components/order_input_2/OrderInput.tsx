@@ -19,8 +19,8 @@ import {
   UserAction,
   SpecifiedToken,
   ValidationResult,
-  // validatePriceInput,
-  // fetchQuote,
+  fetchQuote,
+  noValidationErrors,
   // submitOrder,
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
@@ -87,7 +87,18 @@ interface DisabledInputFieldProps {
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  const { type, side } = useAppSelector((state) => state.orderInput);
+  const {
+    type,
+    side,
+    token1,
+    token2,
+    price,
+    specifiedToken,
+    postOnly,
+    validationPrice,
+    validationToken1,
+    validationToken2,
+  } = useAppSelector((state) => state.orderInput);
   // const { lastPrice } = useAppSelector((state) => state.priceInfo);
 
   // for better readibility
@@ -128,6 +139,10 @@ export function OrderInput() {
   //   //   - set quantity (token1) -> same as "set PRICE -> set quantity"
   //   //   - set total (token2) -> same as "set PRICE -> set total"
   // }, [token1amount, token2amount]);
+
+  useEffect(() => {
+    dispatch(fetchQuote());
+  }, [dispatch, specifiedToken, token1, token2, price, side, type]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">
@@ -232,7 +247,7 @@ function EstimatedTotalOrQuantity() {
   const amount = quote?.toAmount;
   const symbol = quote?.toToken.symbol;
   return (
-    <div className="flex content-between w-full text-white">
+    <div className="flex content-between w-full text-white pb-3 px-2">
       {amount && (
         <>
           <p className="grow text-left">Total:</p>
