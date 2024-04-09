@@ -16,7 +16,6 @@ const initialState: RadixState = {
     personaData: [],
     proofs: [],
   },
-  // TODO: handle connection status
   isConnected: false,
 };
 
@@ -27,6 +26,7 @@ export const radixSlice = createSlice({
   // synchronous reducers
   reducers: {
     setWalletData: (state: RadixState, action: PayloadAction<WalletData>) => {
+      state.isConnected = action.payload.accounts.length > 0;
       state.walletData = action.payload;
     },
   },
