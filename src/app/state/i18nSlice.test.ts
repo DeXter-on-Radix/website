@@ -1,4 +1,4 @@
-import { i18nSlice } from "../src/app/state/i18nSlice";
+import { i18nSlice } from "./i18nSlice";
 
 const initialState = i18nSlice.getInitialState();
 

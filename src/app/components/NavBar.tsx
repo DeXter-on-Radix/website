@@ -26,6 +26,7 @@ export function Navbar() {
             width={40}
             height={40}
             className="!my-0"
+            priority={true}
           />
           <span className="ml-6 pt-1 xs:invisible sm:visible hover:text-accent uppercase">
             DeXter
