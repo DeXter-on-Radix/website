@@ -7,6 +7,7 @@ import { Navbar } from "./components/NavBar";
 import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
+import { DexterToaster } from "./components/DexterToaster";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
       </head>
       <Provider store={store}>
         <body>
+          <DexterToaster toastPosition="top-center" />
           <div
             data-path={path}
             className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"

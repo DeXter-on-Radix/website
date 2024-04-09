@@ -18,6 +18,7 @@ interface TableProps {
 }
 
 import "../styles/table.css";
+import { DexterToast } from "./DexterToaster";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
@@ -68,10 +69,31 @@ function ActionButton({
   if (order.status === "PENDING") {
     return (
       <button
-        onClick={(e) => {
+        onClick={async (e) => {
           e.stopPropagation();
-          dispatch(
-            cancelOrder({ orderId: order.id, pairAddress: order.pairAddress })
+          DexterToast.promise(
+            // Function input, with following state-to-toast mapping
+            // -> pending: loading toast
+            // -> rejceted: error toast
+            // -> resolved: success toast
+            async () => {
+              const action = await dispatch(
+                cancelOrder({
+                  orderId: order.id,
+                  pairAddress: order.pairAddress,
+                })
+              );
+              if (!action.type.endsWith("fulfilled")) {
+                // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+                throw new Error("Transaction failed due to user action.");
+              } else if ((action.payload as any)?.status === "ERROR") {
+                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+                throw new Error("Transaction failed onledger");
+              }
+            },
+            t("cancelling_order"), // Loading message
+            t("order_cancelled"), // success message
+            t("failed_to_cancel_order") // error message
           );
         }}
         className="text-error hover:underline transition"

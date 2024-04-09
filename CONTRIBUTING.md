@@ -11,6 +11,7 @@ Here are a few guidelines to follow:
 - **Make PRs small and focused on a single change** so they are easier to review and merge
 - **Make PRs complete** so that the new feature is functional
 - **Write tests** to prevent regressions, unit tests with [Jest](https://jestjs.io/) in `__tests__` folder, end to end tests with [Playwright](https://playwright.dev/) in `e2e` folder
+- **Try to avoid custom CSS** - the project uses [DaisyUI](https://daisyui.com/) and [TailwindCSS](https://tailwindcss.com/docs/) for styling, whenever possible use the existing components and classes, the full rationale (by creator of TailwindCSS) is [here](https://adamwathan.me/css-utility-classes-and-separation-of-concerns/)
 
 If you happen to use VS Code, install the recommended extensions to get automatic formatting and linting on save, they are listed in `.vscode/extensions.json` and VS Code will prompt you to install them.
 
@@ -111,3 +112,60 @@ Placeholders allow the dynamic insertion of content into sentences, accommodatin
 - pt: "comprar <$TOKEN_SYMBOL> a mercado"
 
 Developers are responsible for replacing placeholders with actual values within the code.
+
+## Notifications (Toasts)
+
+Whenever you need toast notifications, please use our `DexterToast` API, which wraps `react-hot-toast` and applies Dexter branding to all generated toasts.
+
+Use Toast notifications for:
+
+- ✅ Low attention messages that do not require user action
+- ✅ Singular status updates
+- ✅ Confirmations
+- ✅ Information that does not need to be followed up
+
+Do not use Toast notifications for:
+
+- ❌ High attention and crtitical information
+- ❌ Time-sensitive information
+- ❌ Requires user action or input
+- ❌ Batch updates
+
+### Toast Notification Code Examples
+
+There are 3 functions exposed:
+
+- `DexterToast.success(...)`
+- `DexterToast.error(...)`
+- `DexterToast.promise(...)`
+
+![Group 56](https://github.com/DeXter-on-Radix/website/assets/44790691/09dca3d8-fd9b-4988-9c59-87669fb2a16b)
+
+See usage examples:
+
+```jsx
+// Import DexterToast class anywhere in the code
+import { DexterToast } from "components/DexterToaster";
+
+// Create success toast
+DexterToast.success("Success!");
+
+// Create error toast
+DexterToast.error("Oops, something went wrong!");
+
+// Create loading toast that initially has a loading state
+// and resolves to either a success or error toast
+DexterToast.promise(
+  () => dispatch(fetchBalances()), // function call, must return a promise
+  "Fetching balances", // loading text
+  "Balances fetched", // success text
+  "Failed to fetch balances" // error text
+);
+```
+
+Further reading:
+
+- [Toast notifications — how to make it efficient](https://bootcamp.uxdesign.cc/toast-notifications-how-to-make-it-efficient-400cab6026e9)
+- [When should we “TOAST” use the most? — fix UX.](https://bootcamp.uxdesign.cc/when-should-we-toast-use-the-most-fix-ux-353def0e61a5)
+- [Toast notifications Guide](https://design-system.hpe.design/templates/toast-notifications)
+- [A UX designer’s guide to implementing toast notifications](https://blog.logrocket.com/ux-design/toast-notifications/)
