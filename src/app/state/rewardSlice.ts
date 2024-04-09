@@ -49,16 +49,16 @@ const initialState: RewardState = {
       process.env.NEXT_PUBLIC_RESOURCE_PREFIX || "account_tdx_2_1",
     rewardComponent:
       process.env.NEXT_PUBLIC_CLAIM_COMPONENT ||
-      "component_tdx_2_1cz6m9sarml3fltfslegdyuy3s6x2rkxtzlm7k8amflt9d2lh6r05pj",
+      "component_tdx_2_1czzn503fzras55wyrs9zczxrtvf8fpytmm52rc5g3hsyx9y5dv9zzs",
     rewardNFTAddress:
       process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS ||
-      "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc360",
+      "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2",
     rewardOrderAddress:
       process.env.NEXT_PUBLIC_CLAIM_ORDER_ADDRESS ||
-      "internal_keyvaluestore_tdx_2_1kzd9du9jmjlxdfcthgwtwlsug6z05hw0r864mwhhtgay3yxvuqdvds",
+      "internal_keyvaluestore_tdx_2_1krdcmelr0tluywyg04zqc8vdacluh2m8ll0rr7ctg6gksp6herhgre",
     rewardVaultAddress:
       process.env.NEXT_PUBLIC_CLAIM_VAULT_ADDRESS ||
-      "internal_keyvaluestore_tdx_2_1kqy9qv7nr7mc42fm7nlhald7g4lyzazrwyjsu8zwxsqmzjv6j7wcnn",
+      "internal_keyvaluestore_tdx_2_1kpsef4ra7hufqnnkw4jhryyev3alzq9xkmk8zcxk02zfl8m6vk070p",
     resourceAddresses: {
       DEXTERXRD: {
         resourceAddress:
