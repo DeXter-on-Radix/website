@@ -1,19 +1,12 @@
-import { useEffect } from "react";
 import {
   rewardSlice,
   fetchReciepts,
-  fetchRewards,
   fetchAccountRewards,
   fetchOrderRewards,
 } from "../state/rewardSlice";
 import { useAppDispatch } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
-
-import {
-  TypeRewards,
-  TokenReward,
-} from "./rewardUtils";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -36,17 +29,10 @@ function ClaimButton() {
 
 function ClaimButton2() {
   const dispatch = useAppDispatch();
-  const rewardData = useSelector(
-    (state: RootState) => state.rewardSlice.rewardData
-  );
   const handleClaim = async () => {
-    const c = await dispatch(fetchReciepts());
-    //const response = await dispatch(fetchRewards());
-    const a = await dispatch(fetchAccountRewards());
-    const b = await dispatch(fetchOrderRewards());
-    console.log(rewardData);
-    //console.log(a);
-    //dispatch(rewardSlice.actions.claimRewards());
+    await dispatch(fetchReciepts());
+    await dispatch(fetchAccountRewards());
+    await dispatch(fetchOrderRewards());
   };
 
   return (
@@ -65,20 +51,30 @@ function TotalEarned() {
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
   );
-  console.log("update");
+  const accountRewardsTable = rewardData.rewardsAccounts?.flatMap((rewards) =>
+    rewards.rewards.flatMap((typeReward) =>
+      typeReward.tokenRewards.map((tokenReward) => tokenReward)
+    )
+  );
+
+  const rewardsTable = rewardData.rewardsOrders?.flatMap((receipt) =>
+    receipt.rewards.flatMap((reward) =>
+      reward.tokenRewards.map((tokenReward) => tokenReward)
+    )
+  );
   return (
     <div className="text-xs">
       <table>
         <thead>
           <tr>
-            <th>Account Address</th>
+            <th>Account Rewards</th>
           </tr>
         </thead>
         <tbody>
-          {rewardData.rewardsAccounts?.map((account, index) => (
+          {accountRewardsTable?.map((account, index) => (
             <tr key={`account-${index}`}>
-              <td>{account.accountAddress}</td>
-              <td>{account.rewards.toString()}</td>
+              <td>{account.tokenAddress}</td>
+              <td>{account.amount}</td>
             </tr>
           ))}
         </tbody>
@@ -86,13 +82,14 @@ function TotalEarned() {
       <table>
         <thead>
           <tr>
-            <th>Order Details</th>
+            <th>Order Rewards</th>
           </tr>
         </thead>
         <tbody>
-          {rewardData.rewardsOrders?.map((order, index) => (
+          {rewardsTable?.map((order, index) => (
             <tr key={`order-${index}`}>
-              <td>{JSON.stringify(order)}</td>
+              <td>{order.tokenAddress}</td>
+              <td>{order.amount}</td>
             </tr>
           ))}
         </tbody>
