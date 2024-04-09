@@ -7,12 +7,14 @@ import {
   getAccountsRewardsFromApiData,
   getOrdersRewardsApiData,
   getOrderRewardsFromApiData,
+  AccountRewards,
   OrderRewards,
 } from "./rewardUtils";
 
 export interface RewardState {
   recieptIds: string[];
   rewardsTotal: number;
+  rewardData: RewardData;
   config: RewardConfig;
 }
 
@@ -29,10 +31,19 @@ interface RewardConfig {
   };
 }
 
+export interface RewardData {
+  rewardsAccounts: AccountRewards[] | null;
+  rewardsOrders: OrderRewards[] | null;
+}
+
 //State will default to stokenet values if not provided
 const initialState: RewardState = {
   recieptIds: [],
   rewardsTotal: 0,
+  rewardData: {
+    rewardsAccounts: null,
+    rewardsOrders: null,
+  },
   config: {
     resourcePrefix:
       process.env.NEXT_PUBLIC_RESOURCE_PREFIX || "account_tdx_2_1",
@@ -118,68 +129,52 @@ export const fetchReciepts = createAsyncThunk<
   return undefined;
 });
 
-export const fetchRewards = createAsyncThunk<
-  Number | undefined, // Return type of the payload creator
+export const fetchAccountRewards = createAsyncThunk<
+  AccountRewards[], // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
   }
->("rewards/fetchRewards", async (_, thunkAPI) => {
-  const state = thunkAPI.getState();
-  const dispatch = thunkAPI.dispatch;
-
-  //console.log(state.config);
+>("rewards/fetchAccountRewards", async () => {
   const rdt = getRdt();
   if (!rdt) return;
 
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
-  try {
-    let recieptIds = state.rewardSlice.recieptIds;
-    if (recieptIds.length <= 0) return;
-    const accountRewardData = await getAccountsRewardsApiData([accountAddress]);
-    const accountRewards = (
-      await getAccountsRewardsFromApiData(accountRewardData)
-    )[0].rewards[0].tokenRewards[0].amount;
-    const prefixedReceiptIds = recieptIds.map(
-      (id) =>
-        `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
-    );
+  const accountRewardData = await getAccountsRewardsApiData([accountAddress]);
+  const accountRewards = await getAccountsRewardsFromApiData(accountRewardData);
+  const serialize = JSON.stringify(accountRewards);
+  return JSON.parse(serialize);
+});
 
-    const orderRewardsData = await getOrdersRewardsApiData(
-      state.rewardSlice.config.rewardOrderAddress,
-      prefixedReceiptIds
-    );
-    const orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
-    const sumTokenRewards = (orders: OrderRewards[]) =>
-      orders.reduce(
-        (total, order) =>
-          total +
-          order.rewards.reduce(
-            (rewardTotal, reward) =>
-              rewardTotal +
-              reward.tokenRewards.reduce(
-                (tokenSum, tokenReward) =>
-                  tokenSum + Number(tokenReward.amount),
-                0
-              ),
-            0
-          ),
-        0
-      );
-
-    const total = sumTokenRewards(orderRewards) + Number(accountRewards);
-
-    dispatch(rewardSlice.actions.updateRewardsTotal(total));
-
-    return total;
-  } catch (error) {
-    console.log(error);
-    return undefined;
+export const fetchOrderRewards = createAsyncThunk<
+  OrderRewards[], // Return type of the payload creator
+  undefined, // argument type
+  {
+    state: RootState;
   }
+>("rewards/fetchOrderRewards", async (_, thunkAPI) => {
+  const rdt = getRdt();
+  if (!rdt) return;
 
-  return undefined;
+  const state = thunkAPI.getState();
+
+  let recieptIds = state.rewardSlice.recieptIds;
+  const prefixedReceiptIds = recieptIds.map(
+    (id) =>
+      `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
+  );
+
+  const orderRewardsData = await getOrdersRewardsApiData(
+    state.rewardSlice.config.rewardOrderAddress,
+    prefixedReceiptIds
+  );
+
+  const orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
+
+  const serialize = JSON.stringify(orderRewards);
+  return JSON.parse(serialize);
 });
 
 export const rewardSlice = createSlice({
@@ -297,5 +292,28 @@ export const rewardSlice = createSlice({
     updateRewardsTotal: (state, action: PayloadAction<number>) => {
       state.rewardsTotal = action.payload;
     },
+    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
+      state.rewardData.rewardsAccounts = action.payload;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(
+        fetchAccountRewards.fulfilled,
+        (state, action: PayloadAction<AccountRewards[]>) => {
+          console.log("updating");
+          console.log(action.payload);
+          state.rewardData.rewardsAccounts = action.payload;
+          console.log(state.rewardData.rewardsAccounts);
+        }
+      )
+      .addCase(
+        fetchOrderRewards.fulfilled,
+        (state, action: PayloadAction<OrderRewards[]>) => {
+          state.rewardData.rewardsOrders = action.payload;
+        }
+      );
+    // You can add more cases here
   },
 });
