@@ -259,6 +259,7 @@ export function PriceChart() {
     // description,
     specifiedToken,
     quote,
+    quoteError,
     price,
   } = useAppSelector((state) => state.orderInput);
   // const tartgetToken = useAppSelector(selectTargetToken);
@@ -273,7 +274,8 @@ export function PriceChart() {
   msg += `Token2 (total) = ${token2.amount} ${token2.symbol}\n`;
   msg += `Token2 (valid.) = ${validationToken2.valid} ${validationToken2.message}\n`;
   msg += `specifiedToken = ${specifiedToken}\n`;
-  msg += `quote = ${quote}\n`;
+  msg += `quote = ${quote?.resultMessageLong}\n`;
+  msg += `quoteError = ${quoteError}\n`;
 
   return (
     <div>
@@ -284,11 +286,11 @@ export function PriceChart() {
             const parts = line.split("="); // Split each line by "="
             return (
               <tr key={index}>
-                <td style={{ padding: 0, fontSize: "18px" }} className="w-1/2">
+                <td style={{ padding: 0, fontSize: "18px" }} className="w-1/3">
                   {parts[0]}
                 </td>{" "}
                 {/* First part of the line */}
-                <td style={{ padding: 0, fontSize: "18px" }} className="w-1/2">
+                <td style={{ padding: 0, fontSize: "18px" }} className="w-2/3">
                   {parts[1]}
                 </td>{" "}
                 {/* Second part of the line */}
