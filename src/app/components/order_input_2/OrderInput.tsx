@@ -347,16 +347,23 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const { side, type, token1 } = useAppSelector((state) => state.orderInput);
+  const { side, type, token1, quote, quoteError } = useAppSelector(
+    (state) => state.orderInput
+  );
   const handleSubmit = () => {
     alert("TODO");
   };
+  const hasQuote = quote !== undefined;
+  const hasQuoteError = quoteError !== undefined;
+  const disabled = !hasQuote || hasQuoteError;
   return (
     <button
       className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 rounded ${
-        side === "BUY"
-          ? "bg-dexter-green text-black "
-          : "bg-dexter-red text-white "
+        disabled
+          ? "bg-[#232629] text-[#474D52] opacity-50"
+          : side === "BUY"
+          ? "bg-dexter-green text-black opacity-100"
+          : "bg-dexter-red text-white opacity-100"
       }`}
       onClick={handleSubmit}
     >{`${type} ${side} ${token1.symbol}`}</button>
