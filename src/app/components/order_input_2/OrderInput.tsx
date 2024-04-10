@@ -245,7 +245,7 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
 function EstimatedTotalOrQuantity() {
   const { quote } = useAppSelector((state) => state.orderInput);
   const amount = quote?.toAmount;
-  const symbol = quote?.toToken.symbol;
+  const symbol = quote?.toToken?.symbol;
   return (
     <div className="flex content-between w-full text-white pb-3 px-2">
       {amount && (

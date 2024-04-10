@@ -14,6 +14,7 @@ import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { updateIconIfNeeded } from "../utils";
 import { Calculator } from "../services/Calculator";
+import { DexterToast } from "components/DexterToaster";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -35,10 +36,13 @@ export enum SpecifiedToken {
 }
 
 export enum ErrorMessage {
+  // NONE = "NONE", // default state, use when there is no error
   NONZERO_PRICE = "NONZERO_PRICE",
   NONZERO_AMOUNT = "NONZERO_AMOUNT",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   COULD_NOT_GET_QUOTE = "COULD_NOT_GET_QUOTE",
+  INSUFFICIENT_LIQUDITIY = "INSUFFICIENT_LIQUDITIY",
+  NO_ORDERS = "NO_ORDERS",
 }
 
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
@@ -80,6 +84,7 @@ export interface OrderInputState {
   type: OrderType;
   postOnly: boolean;
   quote?: Quote;
+  quoteError?: ErrorMessage;
   description?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
@@ -315,8 +320,6 @@ export const fetchQuote = createAsyncThunk<
     undefined // slippage to sent
   );
   const quote: Quote = JSON.parse(JSON.stringify(response.data));
-  console.log("quote");
-  console.log(quote);
   return quote;
   // return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
 });
@@ -604,6 +607,7 @@ export const orderInputSlice = createSlice({
       state.transactionInProgress = false;
       state.transactionResult = undefined;
       state.quote = undefined;
+      state.quoteError = undefined;
       state.description = undefined;
     },
     resetUserInput(state) {
@@ -615,6 +619,7 @@ export const orderInputSlice = createSlice({
       state.validationToken2 = { ...initialValidationResult };
       state.validationPrice = { ...initialValidationResult };
       state.quote = undefined;
+      state.quoteError = undefined;
       state.description = undefined;
       state.specifiedToken = SpecifiedToken.UNSPECIFIED;
     },
@@ -628,6 +633,7 @@ export const orderInputSlice = createSlice({
     // fetchQuote
     builder.addCase(fetchQuote.pending, (state) => {
       state.quote = undefined;
+      state.quoteError = undefined;
       state.description = undefined;
     });
     builder.addCase(
@@ -639,53 +645,19 @@ export const orderInputSlice = createSlice({
       ) => {
         const quote = action.payload;
         state.quote = quote;
-        // if (!quote) {
-        //   console.debug("quote not valid", quote);
-        //   return;
-        // }
-        // function quoteResultCodeOk(quote: Quote) {
-        //   let ok = true;
-        //   if (quote.resultCode < 100 || quote.resultCode > 199) {
-        //     ok = false;
-        //   }
-        //   if (quote.resultCode === 5 || quote.resultCode === 6) {
-        //     ok = true;
-        //   }
-        //   return ok;
-        // }
-        // if (!quoteResultCodeOk(quote)) {
-        //   console.debug("quote not valid", quote);
-        //   return;
-        // }
-        // state.quote = quote;
-        // state.description = toDescription(quote);
-        // if (state.type === OrderType.MARKET) {
-        //   // MARKET
-        //   // https://www.npmjs.com/package/alphadex-sdk-js#quoteresultmessages
-        //   if (quote.resultCode === 5 || quote.resultCode === 6) {
-        //     if (state.side === OrderSide.SELL) {
-        //       state.validationToken1.valid = false;
-        //       state.validationToken1.message = quote.resultMessageLong;
-        //     } else {
-        //       state.validationToken2.valid = false;
-        //       state.validationToken2.message = quote.resultMessageLong;
-        //     }
-        //   } else {
-        //     if (state.side === OrderSide.SELL) {
-        //       state.token2.amount = quote.toAmount;
-        //     } else {
-        //       state.token1.amount = quote.fromAmount;
-        //     }
-        //   }
-        // } else {
-        //   // LIMIT order
-        //   // always changing the second token here because it's always the non-target token
-        //   state.token2.amount = calculateCost(
-        //     state.token1,
-        //     state.price,
-        //     quote.priceTokenAddress
-        //   );
-        // }
+        if (!quote) {
+          console.debug("quote not valid", quote);
+          DexterToast.error("Could not fetch quote. Try again later");
+          return;
+        }
+        state.quoteError = {
+          100: undefined, // success
+          101: undefined, // success
+          103: undefined, // success
+          102: ErrorMessage.INSUFFICIENT_LIQUDITIY,
+          5: ErrorMessage.INSUFFICIENT_LIQUDITIY,
+          2: ErrorMessage.NO_ORDERS,
+        }[quote.resultCode];
       }
     );
     builder.addCase(fetchQuote.rejected, (state, action) => {
