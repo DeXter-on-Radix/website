@@ -4,8 +4,7 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
 } from "../state/rewardSlice";
-import { useEffect, useState } from "react";
-import { radixSlice } from "../state/radixSlice";
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
@@ -57,10 +56,9 @@ function TotalEarned() {
 
   useEffect(() => {
     async function fetchData() {
-      setLoadingRewards(true);
+      await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
       await dispatch(fetchOrderRewards());
-      setLoadingRewards(false);
     }
     fetchData();
   }, []);
@@ -70,7 +68,6 @@ function TotalEarned() {
       typeReward.tokenRewards.map((tokenReward) => tokenReward)
     )
   );
-  const [loadingRewards, setLoadingRewards] = useState(true);
 
   const rewardsTable = rewardData.rewardsOrders?.flatMap((receipt) =>
     receipt.rewards.flatMap((reward) =>
@@ -97,7 +94,7 @@ function TotalEarned() {
       <table>
         <thead>
           <tr>
-            <th>Order Rewards</th>
+            <th>Rewards</th>
           </tr>
         </thead>
         <tbody>
@@ -110,6 +107,7 @@ function TotalEarned() {
         </tbody>
       </table>
     </div>
+  );
 }
 
 export function Rewards() {
@@ -136,6 +134,7 @@ function LoggedInClaimUi() {
     <>
       <b className="uppercase">CLAIM REWARDS</b>
       <TotalEarned />
+      <ClaimButton2 />
       <ClaimButton />
     </>
   );
