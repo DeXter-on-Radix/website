@@ -47,15 +47,20 @@ const initialState: RewardState = {
   config: {
     resourcePrefix:
       process.env.NEXT_PUBLIC_RESOURCE_PREFIX || "account_tdx_2_1",
+
+    // this is the only address that will be specified in the .env file. All the other variables should be read from the component state variables
     rewardComponent:
       process.env.NEXT_PUBLIC_CLAIM_COMPONENT ||
       "component_tdx_2_1czzn503fzras55wyrs9zczxrtvf8fpytmm52rc5g3hsyx9y5dv9zzs",
+    // should be read from claim component state
     rewardNFTAddress:
       process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS ||
       "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2",
+    // should be read from claim component state
     rewardOrderAddress:
       process.env.NEXT_PUBLIC_CLAIM_ORDER_ADDRESS ||
       "internal_keyvaluestore_tdx_2_1krdcmelr0tluywyg04zqc8vdacluh2m8ll0rr7ctg6gksp6herhgre",
+    // should be read from claim component state
     rewardVaultAddress:
       process.env.NEXT_PUBLIC_CLAIM_VAULT_ADDRESS ||
       "internal_keyvaluestore_tdx_2_1kpsef4ra7hufqnnkw4jhryyev3alzq9xkmk8zcxk02zfl8m6vk070p",
@@ -79,6 +84,8 @@ type NonFungibleResource = NonFungibleResourcesCollectionItem & {
   };
 };
 
+// when fetching receipts for rewards, you need to fetch receipts for all pairs (not just the DEXTER/XRD pair).
+// You can use the existing alphadex api endpoint: /account/orders to get the orders for each pair.
 export const fetchReciepts = createAsyncThunk<
   undefined, // Return type of the payload creator
   undefined, // argument type
@@ -161,17 +168,18 @@ export const fetchOrderRewards = createAsyncThunk<
   const state = thunkAPI.getState();
 
   let recieptIds = state.rewardSlice.recieptIds;
-  const prefixedReceiptIds = recieptIds.map(
-    (id) =>
-      `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
-  );
-
-  const orderRewardsData = await getOrdersRewardsApiData(
-    state.rewardSlice.config.rewardOrderAddress,
-    prefixedReceiptIds
-  );
-
-  const orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
+  let orderRewards: OrderRewards[] = [];
+  if (recieptIds.length > 0) {
+    const prefixedReceiptIds = recieptIds.map(
+      (id) =>
+        `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
+    );
+    const orderRewardsData = await getOrdersRewardsApiData(
+      state.rewardSlice.config.rewardOrderAddress,
+      prefixedReceiptIds
+    );
+    orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
+  }
 
   const serialize = JSON.stringify(orderRewards);
   return JSON.parse(serialize);

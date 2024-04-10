@@ -25,7 +25,8 @@ export class TokenReward {
 }
 
 const claimNFTResourceAddress =
-  "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
+  "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2"; // this value should be loaded from the claim component field: account_rewards_nft_manager
+// "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
 
 export async function getAccountsRewardsApiData(
