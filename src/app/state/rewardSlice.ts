@@ -33,7 +33,7 @@ interface RewardConfig {
 }
 
 export interface RewardData {
-  accountRewards: AccountRewards | null;
+  accountsRewards: AccountRewards[] | null;
   ordersRewards: OrderRewards[] | null;
 }
 
@@ -42,7 +42,7 @@ const initialState: RewardState = {
   recieptIds: [],
   rewardsTotal: 0,
   rewardData: {
-    accountRewards: null,
+    accountsRewards: null,
     ordersRewards: null,
   },
   config: {
@@ -138,7 +138,7 @@ export const fetchReciepts = createAsyncThunk<
 });
 
 export const fetchAccountRewards = createAsyncThunk<
-  AccountRewards, // Return type of the payload creator
+  AccountRewards[], // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
@@ -154,12 +154,7 @@ export const fetchAccountRewards = createAsyncThunk<
   const accountsRewards = await getAccountsRewardsFromApiData(
     accountRewardData
   );
-  // TODO handle more than one account
-  let accountRewards = new AccountRewards();
-  if (accountsRewards.length > 0) {
-    accountRewards = accountsRewards[0];
-  }
-  const serialize = JSON.stringify(accountRewards);
+  const serialize = JSON.stringify(accountsRewards);
   return JSON.parse(serialize);
 });
 
@@ -312,8 +307,8 @@ export const rewardSlice = createSlice({
     updateRewardsTotal: (state, action: PayloadAction<number>) => {
       state.rewardsTotal = action.payload;
     },
-    updateAccountRewards: (state, action: PayloadAction<AccountRewards>) => {
-      state.rewardData.accountRewards = action.payload;
+    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
+      state.rewardData.accountsRewards = action.payload;
     },
   },
 
@@ -321,8 +316,8 @@ export const rewardSlice = createSlice({
     builder
       .addCase(
         fetchAccountRewards.fulfilled,
-        (state, action: PayloadAction<AccountRewards>) => {
-          state.rewardData.accountRewards = action.payload;
+        (state, action: PayloadAction<AccountRewards[]>) => {
+          state.rewardData.accountsRewards = action.payload;
         }
       )
       .addCase(
