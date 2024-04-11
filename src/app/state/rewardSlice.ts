@@ -9,6 +9,7 @@ import {
   getOrderRewardsFromApiData,
   AccountRewards,
   OrderRewards,
+  createAccountNftId,
 } from "./rewardUtils";
 
 export interface RewardState {
@@ -32,8 +33,8 @@ interface RewardConfig {
 }
 
 export interface RewardData {
-  rewardsAccounts: AccountRewards[] | null;
-  rewardsOrders: OrderRewards[] | null;
+  accountRewards: AccountRewards | null;
+  ordersRewards: OrderRewards[] | null;
 }
 
 //State will default to stokenet values if not provided
@@ -41,8 +42,8 @@ const initialState: RewardState = {
   recieptIds: [],
   rewardsTotal: 0,
   rewardData: {
-    rewardsAccounts: null,
-    rewardsOrders: null,
+    accountRewards: null,
+    ordersRewards: null,
   },
   config: {
     resourcePrefix:
@@ -137,7 +138,7 @@ export const fetchReciepts = createAsyncThunk<
 });
 
 export const fetchAccountRewards = createAsyncThunk<
-  AccountRewards[], // Return type of the payload creator
+  AccountRewards, // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
@@ -150,7 +151,14 @@ export const fetchAccountRewards = createAsyncThunk<
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
   const accountRewardData = await getAccountsRewardsApiData([accountAddress]);
-  const accountRewards = await getAccountsRewardsFromApiData(accountRewardData);
+  const accountsRewards = await getAccountsRewardsFromApiData(
+    accountRewardData
+  );
+  // TODO handle more than one account
+  let accountRewards = new AccountRewards();
+  if (accountsRewards.length > 0) {
+    accountRewards = accountsRewards[0];
+  }
   const serialize = JSON.stringify(accountRewards);
   return JSON.parse(serialize);
 });
@@ -204,10 +212,10 @@ export const rewardSlice = createSlice({
       const resourceAddress =
         process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD;
 
-      const nonfungibleLocalId = accountAddress.replace(
-        new RegExp(state.config.resourcePrefix, "g"),
-        ""
-      );
+      //   const nonfungibleLocalId = accountAddress.replace(
+      //   new RegExp(state.config.resourcePrefix, "g"),
+      //   ""
+      // );
 
       const nftArray = recieptIds
         .map((id) => `NonFungibleLocalId("${id}")`)
@@ -218,7 +226,9 @@ export const rewardSlice = createSlice({
           Address("${accountAddress}") 
           "create_proof_of_non_fungibles" 
           Address("${state.config.rewardNFTAddress}") 
-          Array<NonFungibleLocalId>(NonFungibleLocalId("<${nonfungibleLocalId}>")); 
+          Array<NonFungibleLocalId>(NonFungibleLocalId("${createAccountNftId(
+            accountAddress
+          )}")); 
         POP_FROM_AUTH_ZONE 
           Proof("account_proof_1");
           CALL_METHOD Address("${accountAddress}") 
@@ -226,7 +236,9 @@ export const rewardSlice = createSlice({
           Address("${resourceAddress}") 
           Array<NonFungibleLocalId>(${nftArray}); 
         CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL 
-          Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")   
+          Address("${
+            state.config.resourceAddresses.DEXTERXRD.resourceAddress
+          }")   
           Proof("proof_1");
         CALL_METHOD 
           Address("${state.config.rewardComponent}") 
@@ -300,8 +312,8 @@ export const rewardSlice = createSlice({
     updateRewardsTotal: (state, action: PayloadAction<number>) => {
       state.rewardsTotal = action.payload;
     },
-    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
-      state.rewardData.rewardsAccounts = action.payload;
+    updateAccountRewards: (state, action: PayloadAction<AccountRewards>) => {
+      state.rewardData.accountRewards = action.payload;
     },
   },
 
@@ -309,14 +321,14 @@ export const rewardSlice = createSlice({
     builder
       .addCase(
         fetchAccountRewards.fulfilled,
-        (state, action: PayloadAction<AccountRewards[]>) => {
-          state.rewardData.rewardsAccounts = action.payload;
+        (state, action: PayloadAction<AccountRewards>) => {
+          state.rewardData.accountRewards = action.payload;
         }
       )
       .addCase(
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
-          state.rewardData.rewardsOrders = action.payload;
+          state.rewardData.ordersRewards = action.payload;
         }
       );
     // You can add more cases here

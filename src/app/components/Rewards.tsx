@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
+import { getOrdersByRewardType } from "state/rewardUtils";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -63,45 +64,41 @@ function TotalEarned() {
     fetchData();
   }, []);
 
-  const accountRewardsTable = rewardData.rewardsAccounts?.flatMap((rewards) =>
-    rewards.rewards.flatMap((typeReward) =>
-      typeReward.tokenRewards.map((tokenReward) => tokenReward)
-    )
-  );
+  // const accountRewardsTable = rewardData.rewardsAccounts?.flatMap(
+  //   (accountRewards) =>
+  //     accountRewards.rewards.flatMap((typeRewards) =>
+  //       typeRewards.tokenRewards.map((tokenReward) => tokenReward)
+  //     )
+  // );
 
-  const rewardsTable = rewardData.rewardsOrders?.flatMap((receipt) =>
-    receipt.rewards.flatMap((reward) =>
-      reward.tokenRewards.map((tokenReward) => tokenReward)
-    )
-  );
+  // const rewardsTable = rewardData.rewardsOrders?.flatMap((receipt) =>
+  //   receipt.rewards.flatMap((reward) =>
+  //     reward.tokenRewards.map((tokenReward) => tokenReward)
+  //   )
+
+  const ordersByRewardType = getOrdersByRewardType(rewardData.ordersRewards);
+  const ordersRewardsTypes = Array.from(ordersByRewardType.keys());
+  // );
   return (
     <div className="text-xs">
+      <h3>
+        Account Rewards (Account: {rewardData.accountRewards?.accountAddress})
+      </h3>
       <table>
-        <thead>
-          <tr>
-            <th>Account Rewards</th>
-          </tr>
-        </thead>
         <tbody>
-          {accountRewardsTable?.map((account, index) => (
-            <tr key={`account-${index}`}>
-              <td>{account.tokenAddress}</td>
-              <td>{account.amount}</td>
+          {rewardData.accountRewards?.rewards.map((typeRewards) => (
+            <tr key={typeRewards.rewardType}>
+              <td>{typeRewards.rewardType}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <h3>Market Order Rewards</h3>
       <table>
-        <thead>
-          <tr>
-            <th>Rewards</th>
-          </tr>
-        </thead>
         <tbody>
-          {rewardsTable?.map((order, index) => (
-            <tr key={`order-${index}`}>
-              <td>{order.tokenAddress}</td>
-              <td>{order.amount}</td>
+          {ordersRewardsTypes.map((rewardType) => (
+            <tr key={rewardType}>
+              <td>{rewardType}</td>
             </tr>
           ))}
         </tbody>
