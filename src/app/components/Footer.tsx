@@ -2,62 +2,113 @@ import "react";
 import { useTranslations } from "hooks";
 import "../styles/footer.css";
 import Image from "next/image";
-import { AccentLink } from "./AccentLink";
-
-import { FaXTwitter } from "react-icons/fa6";
-import { FaTelegram } from "react-icons/fa6";
-import { FaDiscord } from "react-icons/fa6";
-import { FaGithub } from "react-icons/fa6";
-import { SiGitbook } from "react-icons/si";
 
 export function Footer() {
-  const t = useTranslations();
+  // TODO(dcts): add translations
+  // const t = useTranslations();
+  const contentColumn1 = {
+    title: "Ecosystem",
+    links: [
+      {
+        text: "Trade",
+        url: "",
+      },
+      {
+        text: "Provide Liquidity",
+        url: "",
+      },
+      {
+        text: "Tokenomics",
+        url: "",
+      },
+    ],
+  };
+  const contentColumn2 = {
+    title: "Developers",
+    links: [
+      {
+        text: "Contribute",
+        url: "",
+      },
+      {
+        text: "Github",
+        url: "",
+      },
+    ],
+  };
+  const contentColumn3 = {
+    title: "About",
+    links: [
+      {
+        text: "Talk to us",
+        url: "",
+      },
+      {
+        text: "Report Translation Issue",
+        url: "",
+      },
+      {
+        text: "Terms & Conditions",
+        url: "",
+      },
+      {
+        text: "Privacy Policy",
+        url: "",
+      },
+    ],
+  };
+  const socials = [
+    {
+      id: "telegram",
+      url: "",
+    },
+    {
+      id: "discord",
+      url: "",
+    },
+    {
+      id: "github",
+      url: "",
+    },
+    {
+      id: "x",
+      url: "",
+    },
+    {
+      id: "instagram",
+      url: "",
+    },
+    {
+      id: "youtube",
+      url: "",
+    },
+    // TODO(dcts): add gitbook
+    // {
+    //   id: "gitbook",
+    //   url: "",
+    // },
+  ];
+
   return (
-    <footer className="col-span-12 p-4 grid grid-cols-1 grid-rows-5 gap-4 bg-base-300 text-xs text-secondary-content lg:grid-cols-3 lg:grid-rows-3 lg:p-12 lg:gap-8">
-      <div className="row-start-2 row-span-3 grid grid-cols-6 gap-4 text-xs lg:row-start-1">
-        <Image
-          src="/dexter_icon.svg"
-          alt="DeXter icon"
-          width="0"
-          height="0"
-          sizes="100vw"
-          className="w-8 h-auto !my-auto col-start-1 place-self-end"
-        />
-        <Image
-          src="/dexter_name.svg"
-          alt="DeXter"
-          width="0"
-          height="0"
-          sizes="100vw"
-          className="w-24 h-auto !my-auto col-start-2 col-span-5 place-self-start"
-        />
-
-        <div className="col-start-2 col-span-5">
-          {t("footer_1")} <br /> {t("footer_2")} <br />
-          {t("runs_on")}{" "}
-          <a href="https://www.radixdlt.com/" target="_blank">
-            RADIX
-          </a>{" "}
-          &{" "}
-          <a href="https://alphadex.net/" target="_blank">
-            ALPHA DEX
-          </a>
-          .
+    <footer className="p-4 bg-base-300 text-xs text-secondary-content px-12 pt-8 pb-16">
+      <div className="flex">
+        <div>
+          <FirstFooterElement />
+          <FooterContentColumn {...contentColumn1} />
+          <FooterContentColumn {...contentColumn2} />
+          <FooterContentColumn {...contentColumn3} />
         </div>
-
-        <div className="col-span-11 col-start-2">{t("footer_3")}</div>
-
-        <div className="col-span-11 col-start-2">
-          <a href="https://www.radixdlt.com/" target="_blank">
-            <img
-              width="150"
-              src="runs-on-radix.png"
-              alt="Runs on Radix Button"
-            ></img>
-          </a>
+        <div className="">
+          <h3>Our Community</h3>
+          {socials.map(({ id, url }, indx) => (
+            <a href={url} key={indx} target="_blank">
+              <img width="28" src={`/socials/${id}.svg`} alt={id}></img>
+            </a>
+          ))}
         </div>
       </div>
-
+    </footer>
+    /* <footer className="col-span-12 p-4 grid grid-cols-1 grid-rows-5 gap-4 bg-base-300 text-xs text-secondary-content lg:grid-cols-3 lg:grid-rows-3 lg:p-12 lg:gap-8">
       <div className="flex flex-col space-y-4 px-16 lg:row-span-2">
         <div className="uppercase">{t("social_media")}</div>
 
@@ -112,6 +163,66 @@ export function Footer() {
           {t("terms_and_conditions")}
         </AccentLink>
       </div>
-    </footer>
+    </footer> */
+  );
+}
+
+function FirstFooterElement() {
+  const t = useTranslations();
+  return (
+    <div className="text-xs flex flex-col ">
+      <Image
+        src="/dexter-logo-and-lettering.svg"
+        alt="DeXter icon"
+        width="113"
+        height="22"
+        className="h-auto"
+      />
+
+      <div className="">
+        {t("footer_3")} <br /> {t("footer_2")} <br />
+        {t("runs_on")}{" "}
+        <a href="https://www.radixdlt.com/" target="_blank">
+          RADIX
+        </a>{" "}
+        &{" "}
+        <a href="https://alphadex.net/" target="_blank">
+          ALPHA DEX
+        </a>
+        .
+      </div>
+
+      <div className="">
+        <a href="https://www.radixdlt.com/" target="_blank">
+          <img
+            width="115"
+            src="runs-on-radix.png"
+            alt="Runs on Radix Button"
+          ></img>
+        </a>
+      </div>
+    </div>
+  );
+}
+
+interface FooterContentColumnProps {
+  title: string;
+  links: { text: string; url: string }[];
+}
+
+function FooterContentColumn({
+  title = "",
+  links = [],
+}: FooterContentColumnProps) {
+  console.log({ title, links });
+  return (
+    <>
+      <h3>{title}</h3>
+      {links.map((link, i) => (
+        <p className="text-secondary-content" key={i}>
+          {link.text}
+        </p>
+      ))}
+    </>
   );
 }
