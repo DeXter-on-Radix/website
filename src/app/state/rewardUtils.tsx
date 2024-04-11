@@ -24,10 +24,56 @@ export class TokenReward {
   amount: number = 0;
 }
 
+export type OrdersByTypeRewards = Map<string, Map<string, OrderTokenReward[]>>; // Map< rewardType, Map< tokenAddress , OrderTokenReward>>
+export interface OrderTokenReward {
+  orderReceiptAddress: string;
+  orderId: number;
+  orderIndex: string;
+  amount: number;
+}
+
 const claimNFTResourceAddress =
   "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2"; // this value should be loaded from the claim component field: account_rewards_nft_manager
 // "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
+
+export function getOrdersByRewardType(
+  ordersRewards: OrderRewards[] | null
+): OrdersByTypeRewards {
+  let result: OrdersByTypeRewards = new Map();
+  if (ordersRewards) {
+    ordersRewards.forEach((orderRewardData) => {
+      orderRewardData.rewards.forEach((typeReward) => {
+        let existingTypeRewards = result.get(typeReward.rewardType);
+        if (!existingTypeRewards) {
+          existingTypeRewards = new Map();
+        }
+        typeReward.tokenRewards.forEach((tokenReward) => {
+          let orderTokenReward: OrderTokenReward = {
+            orderReceiptAddress: orderRewardData.orderReceiptAddress,
+            orderId: orderRewardData.orderId,
+            orderIndex: orderRewardData.orderIndex,
+            amount: tokenReward.amount,
+          };
+          let existingTokenRewards = existingTypeRewards.get(
+            tokenReward.tokenAddress
+          );
+          if (!existingTokenRewards) {
+            existingTokenRewards = [orderTokenReward];
+          } else {
+            existingTokenRewards.push(orderTokenReward);
+          }
+          existingTypeRewards.set(
+            tokenReward.tokenAddress,
+            existingTokenRewards
+          );
+        });
+        result.set(typeReward.rewardType, existingTypeRewards);
+      });
+    });
+  }
+  return result;
+}
 
 export async function getAccountsRewardsApiData(
   accountAddresses: string[]
@@ -56,11 +102,18 @@ export async function getAccountsRewardsApiData(
   }
 }
 
-export function createAccountNftId(accountAddress: string): string {
+export function createAccountNftId(
+  accountAddress: string,
+  clean: boolean = false
+): string {
   let result = "";
   let splitAddress = accountAddress.split("1");
   if (splitAddress.length > 1) {
-    result = "<" + splitAddress[1] + ">";
+    if (clean) {
+      result = splitAddress[1];
+    } else {
+      result = "<" + splitAddress[1] + ">";
+    }
   }
   return result;
 }
