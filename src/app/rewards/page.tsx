@@ -87,6 +87,7 @@ function RewardsCard() {
   const t = useTranslations();
 
   useEffect(() => {
+    console.log("isConnected state changed to: " + isConnected);
     async function loadRewards() {
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
@@ -198,10 +199,11 @@ function ClaimableCoins() {
 
 function ClaimButton() {
   const { isConnected } = useAppSelector((state) => state.radix);
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const handleClaim = async () => {
-    await dispatch(fetchReciepts()); //Get all users reciepts already exists
-    dispatch(rewardSlice.actions.claimRewards());
+    alert("Not yet implmeneted");
+    // await dispatch(fetchReciepts()); //Get all users reciepts already exists
+    // dispatch(rewardSlice.actions.claimRewards());
   };
 
   return (
