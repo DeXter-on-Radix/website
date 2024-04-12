@@ -33,8 +33,8 @@ interface RewardConfig {
 }
 
 export interface RewardData {
-  accountsRewards: AccountRewards[] | null;
-  ordersRewards: OrderRewards[] | null;
+  accountsRewards: AccountRewards[];
+  ordersRewards: OrderRewards[];
 }
 
 //State will default to stokenet values if not provided
@@ -42,8 +42,8 @@ const initialState: RewardState = {
   recieptIds: [],
   rewardsTotal: 0,
   rewardData: {
-    accountsRewards: null,
-    ordersRewards: null,
+    accountsRewards: [],
+    ordersRewards: [],
   },
   config: {
     resourcePrefix:
@@ -183,7 +183,6 @@ export const fetchOrderRewards = createAsyncThunk<
     );
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
-
   const serialize = JSON.stringify(orderRewards);
   return JSON.parse(serialize);
 });
