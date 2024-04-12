@@ -27,7 +27,7 @@ function HeaderComponent() {
   const t = useTranslations();
   return (
     <div className="max-w-[400px] sm:max-w-[650px] px-5 sm:p-0 m-auto">
-      <div className="sm:flex sm:justify-center sm:items-center m-8">
+      <div className="sm:flex sm:justify-center sm:items-center mt-10">
         <div className="text-white sm:w-[55%]">
           <div className="flex flex-col justify-center h-full">
             <DexterHeading title={t("rewards")} />
@@ -35,7 +35,7 @@ function HeaderComponent() {
             <DexterParagraph text={t("rewards_distribution")} />
           </div>
         </div>
-        <div className="sm:w-[40%] max-w-[200px] sm:ml-5">
+        <div className="sm:w-[35%] max-[640px]:max-w-[200px] sm:ml-5">
           <img
             src="/rewards/chest.png"
             alt="treasury"
@@ -49,7 +49,7 @@ function HeaderComponent() {
 }
 
 function DexterParagraph({ text }: { text: string }) {
-  return <p className="text-sm tracking-wide py-1">{text}</p>;
+  return <p className="text-sm tracking-wide py-2">{text}</p>;
 }
 
 function DexterHeading({ title }: { title: string }) {
@@ -59,7 +59,7 @@ function DexterHeading({ title }: { title: string }) {
         className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
         style={{
           margin: 0,
-          marginBottom: "24px",
+          marginBottom: "20px",
           marginTop: "0px",
           fontSize: "45px",
         }}
