@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
-import { store } from "../state/store";
+import { RootState, store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   fetchAccountRewards,
@@ -11,8 +11,10 @@ import {
   fetchReciepts,
   // rewardSlice,
 } from "state/rewardSlice";
-import tokenData from "../data/tokenDict.json";
+import tokenData from "../data/stokenetTokens.json";
 import { TokenInfo } from "alphadex-sdk-js";
+import { useSelector } from "react-redux";
+import { getRewardsByToken } from "state/rewardUtils";
 // import { getRewardsByToken } from "state/rewardUtils";
 
 export default function Rewards() {
@@ -135,38 +137,63 @@ function ClaimableCoins() {
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
+  // const dispatch = useAppDispatch();
+  const rewardData = useSelector(
+    (state: RootState) => state.rewardSlice.rewardData
+  );
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     await dispatch(fetchReciepts());
+  //     await dispatch(fetchAccountRewards());
+  //     await dispatch(fetchOrderRewards());
+  //   }
+  //   fetchData();
+  // }, [dispatch]);
+
+  const rewardsByToken = getRewardsByToken(
+    rewardData.accountsRewards,
+    rewardData.ordersRewards
+  );
+  console.log("Rewards by token: ", rewardsByToken);
   const claimableCoins: {
     name: string;
     symbol: string;
     iconUrl: string;
     amount: number;
   }[] = isConnected
-    ? [
-        {
-          ...getTokenInfo(
-            "resource_rdx1tkktjr0ew96se7wpsqxxvhp2vr67jc8anq04r5xkgxq3f0rg9pcj0c"
-          ),
-          amount: 1239.23,
-        },
-        {
-          ...getTokenInfo(
-            "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8"
-          ),
-          amount: 32150,
-        },
-        {
-          ...getTokenInfo("some none existant address"),
-          amount: 100,
-        },
-        {
-          ...getTokenInfo(
-            "resource_rdx1t4zrksrzh7ucny7r57ss99nsrxscqwh8crjn6k22m8e9qyxh8c05pl"
-          ),
-          amount: 10.235,
-        },
-      ]
-    : [];
-
+    ? rewardsByToken.map((tokenReward) => {
+        return {
+          ...getTokenInfo(tokenReward.tokenAddress),
+          amount: tokenReward.amount,
+        };
+      })
+    : // ? [
+      //     {
+      //       ...getTokenInfo(
+      //         "resource_rdx1tkktjr0ew96se7wpsqxxvhp2vr67jc8anq04r5xkgxq3f0rg9pcj0c"
+      //       ),
+      //       amount: 1239.23,
+      //     },
+      //     {
+      //       ...getTokenInfo(
+      //         "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8"
+      //       ),
+      //       amount: 32150,
+      //     },
+      //     {
+      //       ...getTokenInfo("some none existant address"),
+      //       amount: 100,
+      //     },
+      //     {
+      //       ...getTokenInfo(
+      //         "resource_rdx1t4zrksrzh7ucny7r57ss99nsrxscqwh8crjn6k22m8e9qyxh8c05pl"
+      //       ),
+      //       amount: 10.235,
+      //     },
+      //   ]
+      [];
+  console.log("Claimable coins: ", claimableCoins);
   // TODO: for each token, get name, symbol, iconUrl and amount.
   // const rewardsByToken = getRewardsByToken(
   //   rewardData.accountsRewards,
