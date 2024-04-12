@@ -27,7 +27,7 @@ export default function Rewards() {
   }, []);
 
   return (
-    <div className="bg-[#141414] h-full">
+    <div className="bg-[#141414] min-h-[100%]">
       <HeaderComponent />
       <RewardsCard />
       {/* Comment back in for old UI */}
