@@ -1,5 +1,6 @@
 {
-  "earn_rewards_by": "Earn rewards by executing market order and placing limit orders close to the market price",
+  "rewards": "Rewards",
+  "earn_rewards_by": "Earn rewards by opening buy and sell positions close to the market price, or by executing market orders.",
   "rewards_distribution": "The rewards are distributed every two weeks.",
   "next_distribution": "Next Distribution",
   "total_rewards": "Total Rewards",
