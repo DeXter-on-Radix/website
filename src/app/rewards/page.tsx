@@ -44,6 +44,7 @@ function HeaderComponent() {
           />
         </div>
       </div>
+      <RewardsTable />
     </div>
   );
 }
@@ -67,5 +68,17 @@ function DexterHeading({ title }: { title: string }) {
         {title}
       </h2>
     </>
+  );
+}
+
+function RewardsTable() {
+  return (
+    <div className="w-full">
+      <div className="flex flex-col">
+        <div>TotalRewards section</div>
+        <div>CoinList table</div>
+        <div>ClaimAllRewards BUTTOn</div>
+      </div>
+    </div>
   );
 }
