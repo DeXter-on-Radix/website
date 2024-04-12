@@ -225,7 +225,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
                 tokenReward.tokenAddress = tokenRewardData.key.value;
-                tokenReward.amount = tokenRewardData.value.value;
+                tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }
               accountRewards.rewards.push(typeRewards);
@@ -259,7 +259,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
             for (const tokenRewardData of tokensRewardData) {
               let tokenReward = new TokenReward();
               tokenReward.tokenAddress = tokenRewardData.key.value;
-              tokenReward.amount = tokenRewardData.value.value;
+              tokenReward.amount = Number(tokenRewardData.value.value);
               typeRewards.tokenRewards.push(tokenReward);
             }
             accountRewards.rewards.push(typeRewards);
@@ -376,7 +376,7 @@ export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
                 tokenReward.tokenAddress = tokenRewardData.key.value;
-                tokenReward.amount = tokenRewardData.value.value;
+                tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }
               orderRewards.rewards.push(typeRewards);
