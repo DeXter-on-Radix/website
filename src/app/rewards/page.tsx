@@ -155,7 +155,6 @@ function ClaimableCoins() {
     rewardData.accountsRewards,
     rewardData.ordersRewards
   );
-  console.log("Rewards by token: ", rewardsByToken);
   const claimableCoins: {
     name: string;
     symbol: string;
@@ -193,7 +192,6 @@ function ClaimableCoins() {
       //     },
       //   ]
       [];
-  console.log("Claimable coins: ", claimableCoins);
   // TODO: for each token, get name, symbol, iconUrl and amount.
   // const rewardsByToken = getRewardsByToken(
   //   rewardData.accountsRewards,
