@@ -1,9 +1,9 @@
 {
   "rewards": "Rewards",
-  "earn_rewards_by": "Earn rewards by opening buy and sell positions close to the market price, or by executing market orders.",
-  "rewards_distribution": "The rewards are distributed every two weeks.",
+  "connect_wallet_to_claim_rewards": "Connect wallet to claim rewards",
+  "earn_rewards_by": "Earn rewards by opening buy and sell positions close to the market price, or by executing market orders. The rewards are distributed every two weeks.",
   "next_distribution": "Next Distribution",
   "total_rewards": "Total Rewards",
   "claim_all_rewards": "Claim All Rewards",
-  "learn_more": "Learn more about Dexter tokenomics and rewards."
+  "learn_more_about_rewards": "Learn more about rewards"
 }
