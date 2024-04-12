@@ -135,7 +135,7 @@ export function getOrdersByRewardType(
             orderIndex: orderRewardData.orderIndex,
             amount: tokenReward.amount,
           };
-          let existingTokenRewards = existingTypeRewards.get(
+          let existingTokenRewards = existingTypeRewards!.get(
             tokenReward.tokenAddress
           );
           if (!existingTokenRewards) {
@@ -143,12 +143,12 @@ export function getOrdersByRewardType(
           } else {
             existingTokenRewards.push(orderTokenReward);
           }
-          existingTypeRewards.set(
+          existingTypeRewards!.set(
             tokenReward.tokenAddress,
             existingTokenRewards
           );
         });
-        result.set(typeReward.rewardType, existingTypeRewards);
+        result.set(typeReward.rewardType, existingTypeRewards!);
       });
     });
   }
