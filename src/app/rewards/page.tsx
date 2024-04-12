@@ -15,7 +15,7 @@ import tokenData from "../data/stokenetTokens.json";
 import { TokenInfo } from "alphadex-sdk-js";
 import { useSelector } from "react-redux";
 import { getRewardsByToken } from "state/rewardUtils";
-import { DexterToast } from "components/DexterToaster";
+// import { DexterToast } from "components/DexterToaster";
 // import { getRewardsByToken } from "state/rewardUtils";
 
 export default function Rewards() {
@@ -162,12 +162,14 @@ function ClaimableCoins() {
     symbol: string;
     iconUrl: string;
     amount: number;
-  }[] = rewardsByToken.map((tokenReward) => {
-    return {
-      ...getTokenInfo(tokenReward.tokenAddress),
-      amount: tokenReward.amount,
-    };
-  });
+  }[] = isConnected
+    ? rewardsByToken.map((tokenReward) => {
+        return {
+          ...getTokenInfo(tokenReward.tokenAddress),
+          amount: tokenReward.amount,
+        };
+      })
+    : [];
 
   return (
     <div>
