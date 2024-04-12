@@ -9,12 +9,13 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
   fetchReciepts,
-  // rewardSlice,
+  rewardSlice,
 } from "state/rewardSlice";
 import tokenData from "../data/stokenetTokens.json";
 import { TokenInfo } from "alphadex-sdk-js";
 import { useSelector } from "react-redux";
 import { getRewardsByToken } from "state/rewardUtils";
+import { DexterToast } from "components/DexterToaster";
 // import { getRewardsByToken } from "state/rewardUtils";
 
 export default function Rewards() {
@@ -90,6 +91,7 @@ function RewardsCard() {
 
   useEffect(() => {
     async function loadRewards() {
+      // TODO: ask @fredlieb whether we can fetch all things asynchronously?
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
       await dispatch(fetchOrderRewards());
@@ -160,44 +162,12 @@ function ClaimableCoins() {
     symbol: string;
     iconUrl: string;
     amount: number;
-  }[] = isConnected
-    ? rewardsByToken.map((tokenReward) => {
-        return {
-          ...getTokenInfo(tokenReward.tokenAddress),
-          amount: tokenReward.amount,
-        };
-      })
-    : // ? [
-      //     {
-      //       ...getTokenInfo(
-      //         "resource_rdx1tkktjr0ew96se7wpsqxxvhp2vr67jc8anq04r5xkgxq3f0rg9pcj0c"
-      //       ),
-      //       amount: 1239.23,
-      //     },
-      //     {
-      //       ...getTokenInfo(
-      //         "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8"
-      //       ),
-      //       amount: 32150,
-      //     },
-      //     {
-      //       ...getTokenInfo("some none existant address"),
-      //       amount: 100,
-      //     },
-      //     {
-      //       ...getTokenInfo(
-      //         "resource_rdx1t4zrksrzh7ucny7r57ss99nsrxscqwh8crjn6k22m8e9qyxh8c05pl"
-      //       ),
-      //       amount: 10.235,
-      //     },
-      //   ]
-      [];
-  // TODO: for each token, get name, symbol, iconUrl and amount.
-  // const rewardsByToken = getRewardsByToken(
-  //   rewardData.accountsRewards,
-  //   rewardData.ordersRewards
-  // );
-  // console.log({ rewardsByToken });
+  }[] = rewardsByToken.map((tokenReward) => {
+    return {
+      ...getTokenInfo(tokenReward.tokenAddress),
+      amount: tokenReward.amount,
+    };
+  });
 
   return (
     <div>
@@ -223,13 +193,12 @@ function ClaimableCoins() {
 
 function ClaimButton() {
   const { isConnected } = useAppSelector((state) => state.radix);
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const handleClaim = async () => {
-    alert("Not yet implmeneted");
-    // await dispatch(fetchReciepts()); //Get all users reciepts already exists
-    // dispatch(rewardSlice.actions.claimRewards());
+    await dispatch(fetchReciepts()); //Get all users reciepts already exists
+    await dispatch(rewardSlice.actions.claimRewards());
   };
-
+  // const t = useTranslations();
   return (
     <button
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
@@ -238,6 +207,19 @@ function ClaimButton() {
           : "bg-[#232629] text-[#474D52] opacity-50"
       }`}
       onClick={handleClaim}
+      // // TODO: make claimRewards an async function using createAsyncThunk<>
+      // // then comment the below code back in:
+      // onClick={async (e) => {
+      //   e.stopPropagation();
+      //   DexterToast.promise(
+      //     async () => {
+      //       handleClaim();
+      //     },
+      //     t("claiming_rewards_loading"),
+      //     t("claiming_rewards_success"),
+      //     t("claiming_rewards_fail")
+      //   );
+      // }}
     >{`Claim All Rewards`}</button>
   );
 }
