@@ -2,6 +2,14 @@
 import { getRdt } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
+export class ClaimComponent {
+  address: string = "";
+  dextrTokenAddress: string = "";
+  adminTokenAddress: string = "";
+  accountRewardsNftAddress: string = "";
+  orderRewardsKvsAddress: string = "";
+}
+
 export class AccountRewards {
   accountAddress: string = "";
   rewards: TypeRewards[] = [];
@@ -37,6 +45,38 @@ const claimNFTResourceAddress =
 // "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
 
+export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
+  let claimComponent = new ClaimComponent();
+  if (apiData && apiData.items && apiData.items.length > 0) {
+    let componentApiData = apiData.items[0];
+    if (componentApiData.address && componentApiData.details?.state?.fields) {
+      claimComponent.address = componentApiData.address;
+      let stateFields = componentApiData.details.state.fields;
+      for (const fieldData of stateFields) {
+        switch (fieldData.field_name) {
+          case "dextr_token_address": {
+            claimComponent.dextrTokenAddress = fieldData.value;
+            break;
+          }
+          case "admin_token_address": {
+            claimComponent.adminTokenAddress = fieldData.value;
+            break;
+          }
+          case "account_rewards_nft_manager": {
+            claimComponent.accountRewardsNftAddress = fieldData.value;
+            break;
+          }
+          case "order_rewards": {
+            claimComponent.orderRewardsKvsAddress = fieldData.value;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return claimComponent;
+}
+
 export function getRewardsByToken(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[]
@@ -47,9 +87,11 @@ export function getRewardsByToken(
       typeReward.tokenRewards.forEach((tokenReward) => {
         let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
         if (!existingTokenReward) {
-          existingTokenReward = tokenReward;
+          existingTokenReward = { ...tokenReward };
         } else {
-          existingTokenReward.amount += tokenReward.amount;
+          existingTokenReward = { ...existingTokenReward };
+          existingTokenReward.amount =
+            existingTokenReward.amount + tokenReward.amount;
         }
         tokenRewardsMap.set(
           existingTokenReward.tokenAddress,
@@ -95,7 +137,7 @@ export function getOrdersByRewardType(
             orderIndex: orderRewardData.orderIndex,
             amount: tokenReward.amount,
           };
-          let existingTokenRewards = existingTypeRewards.get(
+          let existingTokenRewards = existingTypeRewards!.get(
             tokenReward.tokenAddress
           );
           if (!existingTokenRewards) {
@@ -103,12 +145,12 @@ export function getOrdersByRewardType(
           } else {
             existingTokenRewards.push(orderTokenReward);
           }
-          existingTypeRewards.set(
+          existingTypeRewards!.set(
             tokenReward.tokenAddress,
             existingTokenRewards
           );
         });
-        result.set(typeReward.rewardType, existingTypeRewards);
+        result.set(typeReward.rewardType, existingTypeRewards!);
       });
     });
   }
@@ -183,7 +225,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
                 tokenReward.tokenAddress = tokenRewardData.key.value;
-                tokenReward.amount = tokenRewardData.value.value;
+                tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }
               accountRewards.rewards.push(typeRewards);
@@ -217,7 +259,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
             for (const tokenRewardData of tokensRewardData) {
               let tokenReward = new TokenReward();
               tokenReward.tokenAddress = tokenRewardData.key.value;
-              tokenReward.amount = tokenRewardData.value.value;
+              tokenReward.amount = Number(tokenRewardData.value.value);
               typeRewards.tokenRewards.push(tokenReward);
             }
             accountRewards.rewards.push(typeRewards);
@@ -334,7 +376,7 @@ export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
                 tokenReward.tokenAddress = tokenRewardData.key.value;
-                tokenReward.amount = tokenRewardData.value.value;
+                tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }
               orderRewards.rewards.push(typeRewards);

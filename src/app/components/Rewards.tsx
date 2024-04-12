@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { useSelector } from "react-redux";
 import type { RootState } from "../state/store";
-import { getOrdersByRewardType } from "state/rewardUtils";
+import { getRewardsByToken } from "state/rewardUtils";
 
 function ClaimButton() {
   const dispatch = useAppDispatch();
@@ -64,34 +64,19 @@ function TotalEarned() {
     fetchData();
   }, []);
 
-  // const accountRewardsTable = rewardData.rewardsAccounts?.flatMap(
-  //   (accountRewards) =>
-  //     accountRewards.rewards.flatMap((typeRewards) =>
-  //       typeRewards.tokenRewards.map((tokenReward) => tokenReward)
-  //     )
-  // );
-
-  // const rewardsTable = rewardData.rewardsOrders?.flatMap((receipt) =>
-  //   receipt.rewards.flatMap((reward) =>
-  //     reward.tokenRewards.map((tokenReward) => tokenReward)
-  //   )
-
-  const ordersByRewardType = getOrdersByRewardType(rewardData.ordersRewards);
-  const ordersRewardsTypes = Array.from(ordersByRewardType.keys());
+  const rewardsByToken = getRewardsByToken(
+    rewardData.accountsRewards,
+    rewardData.ordersRewards
+  );
   // );
   return (
     <div className="text-xs">
-      {rewardData.accountsRewards?.map((accountRewards) => (
-        <h3 key={accountRewards.accountAddress}>
-          Account Rewards (Account: {accountRewards.accountAddress})
-        </h3>
-      ))}
-      <h3>Market Order Rewards</h3>
       <table>
         <tbody>
-          {ordersRewardsTypes.map((rewardType) => (
-            <tr key={rewardType}>
-              <td>{rewardType}</td>
+          {rewardsByToken.map((tokenReward) => (
+            <tr key={tokenReward.tokenAddress}>
+              <td>{tokenReward.tokenAddress}</td>
+              <td>{tokenReward.amount}</td>
             </tr>
           ))}
         </tbody>
