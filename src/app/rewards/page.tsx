@@ -9,7 +9,7 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
   fetchReciepts,
-  rewardSlice,
+  // rewardSlice,
 } from "state/rewardSlice";
 import tokenData from "../data/tokenDict.json";
 import { TokenInfo } from "alphadex-sdk-js";
@@ -87,7 +87,6 @@ function RewardsCard() {
   const t = useTranslations();
 
   useEffect(() => {
-    console.log("isConnected state changed to: " + isConnected);
     async function loadRewards() {
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
