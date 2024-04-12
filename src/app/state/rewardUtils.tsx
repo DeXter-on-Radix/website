@@ -2,6 +2,14 @@
 import { getRdt } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
+export class ClaimComponent {
+  address: string = "";
+  dextrTokenAddress: string = "";
+  adminTokenAddress: string = "";
+  accountRewardsNftAddress: string = "";
+  orderRewardsKvsAddress: string = "";
+}
+
 export class AccountRewards {
   accountAddress: string = "";
   rewards: TypeRewards[] = [];
@@ -36,6 +44,38 @@ const claimNFTResourceAddress =
   "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2"; // this value should be loaded from the claim component field: account_rewards_nft_manager
 // "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
+
+export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
+  let claimComponent = new ClaimComponent();
+  if (apiData && apiData.items && apiData.items.length > 0) {
+    let componentApiData = apiData.items[0];
+    if (componentApiData.address && componentApiData.details?.state?.fields) {
+      claimComponent.address = componentApiData.address;
+      let stateFields = componentApiData.details.state.fields;
+      for (const fieldData of stateFields) {
+        switch (fieldData.field_name) {
+          case "dextr_token_address": {
+            claimComponent.dextrTokenAddress = fieldData.value;
+            break;
+          }
+          case "admin_token_address": {
+            claimComponent.adminTokenAddress = fieldData.value;
+            break;
+          }
+          case "account_rewards_nft_manager": {
+            claimComponent.accountRewardsNftAddress = fieldData.value;
+            break;
+          }
+          case "order_rewards": {
+            claimComponent.orderRewardsKvsAddress = fieldData.value;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return claimComponent;
+}
 
 export function getRewardsByToken(
   accountsRewards: AccountRewards[],
