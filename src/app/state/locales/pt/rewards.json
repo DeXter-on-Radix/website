@@ -5,5 +5,8 @@
   "next_distribution": "Próxima Distribuição",
   "total_rewards": "Total de Recompensas",
   "claim_all_rewards": "Reivindicar Todas as Recompensas",
-  "learn_more_about_rewards": "Saiba mais sobre a recompensas"
+  "learn_more_about_rewards": "Saiba mais sobre a recompensas",
+  "claiming_rewards_loading": "Reivindicando recompensas...",
+  "claiming_rewards_success": "Recompensas reivindicadas",
+  "claiming_rewards_fail": "Erro ao reivindicar recompensas"
 }
