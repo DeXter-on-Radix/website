@@ -81,18 +81,11 @@ function TotalEarned() {
   // );
   return (
     <div className="text-xs">
-      <h3>
-        Account Rewards (Account: {rewardData.accountRewards?.accountAddress})
-      </h3>
-      <table>
-        <tbody>
-          {rewardData.accountRewards?.rewards.map((typeRewards) => (
-            <tr key={typeRewards.rewardType}>
-              <td>{typeRewards.rewardType}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {rewardData.accountsRewards?.map((accountRewards) => (
+        <h3 key={accountRewards.accountAddress}>
+          Account Rewards (Account: {accountRewards.accountAddress})
+        </h3>
+      ))}
       <h3>Market Order Rewards</h3>
       <table>
         <tbody>

@@ -37,6 +37,46 @@ const claimNFTResourceAddress =
 // "resource_tdx_2_1nfpa6s98aamfmw5r04phl0crtxpdl9j8qpz5pwqey2gqqk0ptepc36";
 ///"resource_tdx_2_1n2wh9ns5makc8xvv0chp4xmlhgl8qwlmdmtduyq92yhq634vjxaw4l";
 
+export function getRewardsByToken(
+  accountsRewards: AccountRewards[],
+  ordersRewards: OrderRewards[]
+): TokenReward[] {
+  let tokenRewardsMap: Map<string, TokenReward> = new Map();
+  accountsRewards.forEach((accountReward) => {
+    accountReward.rewards.forEach((typeReward) => {
+      typeReward.tokenRewards.forEach((tokenReward) => {
+        let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
+        if (!existingTokenReward) {
+          existingTokenReward = tokenReward;
+        } else {
+          existingTokenReward.amount += tokenReward.amount;
+        }
+        tokenRewardsMap.set(
+          existingTokenReward.tokenAddress,
+          existingTokenReward
+        );
+      });
+    });
+  });
+  ordersRewards.forEach((orderRewards) => {
+    orderRewards.rewards.forEach((typeRewards) => {
+      typeRewards.tokenRewards.forEach((tokenReward) => {
+        let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
+        if (!existingTokenReward) {
+          existingTokenReward = tokenReward;
+        } else {
+          existingTokenReward.amount += tokenReward.amount;
+        }
+        tokenRewardsMap.set(
+          existingTokenReward.tokenAddress,
+          existingTokenReward
+        );
+      });
+    });
+  });
+  return Array.from(tokenRewardsMap.values());
+}
+
 export function getOrdersByRewardType(
   ordersRewards: OrderRewards[] | null
 ): OrdersByTypeRewards {
