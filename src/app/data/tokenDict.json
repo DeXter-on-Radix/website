@@ -1,0 +1,98 @@
+{
+  "resource_rdx1tkktjr0ew96se7wpsqxxvhp2vr67jc8anq04r5xkgxq3f0rg9pcj0c": {
+    "address": "resource_rdx1tkktjr0ew96se7wpsqxxvhp2vr67jc8anq04r5xkgxq3f0rg9pcj0c",
+    "iconUrl": "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg",
+    "name": "DeXter",
+    "symbol": "DEXTR"
+  },
+  "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd": {
+    "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+    "iconUrl": "https://assets.radixdlt.com/icons/icon-xrd-32x32.png",
+    "name": "Radix",
+    "symbol": "XRD"
+  },
+  "resource_rdx1tk7g72c0uv2g83g3dqtkg6jyjwkre6qnusgjhrtz0cj9u54djgnk3c": {
+    "address": "resource_rdx1tk7g72c0uv2g83g3dqtkg6jyjwkre6qnusgjhrtz0cj9u54djgnk3c",
+    "iconUrl": "https://xidar.live/token-icon/cassie_rr1qw3ws4wh9s2qkz08fmwh9qxdatjaazla6dhsc77nr8nqrgpsm7",
+    "name": "Cassie",
+    "symbol": "cassie"
+  },
+  "resource_rdx1tkk83magp3gjyxrpskfsqwkg4g949rmcjee4tu2xmw93ltw2cz94sq": {
+    "address": "resource_rdx1tkk83magp3gjyxrpskfsqwkg4g949rmcjee4tu2xmw93ltw2cz94sq",
+    "iconUrl": "https://assets.caviarnine.com/tokens/caviar_babylon.png",
+    "name": "Caviar",
+    "symbol": "CAVIAR"
+  },
+  "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq": {
+    "address": "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq",
+    "iconUrl": "https://radix.defiplaza.net/assets/img/babylon/defiplaza-icon.png",
+    "name": "DefiPlaza",
+    "symbol": "DFP2"
+  },
+  "resource_rdx1t4qfgjm35dkwdrpzl3d8pc053uw9v4pj5wfek0ffuzsp73evye6wu6": {
+    "address": "resource_rdx1t4qfgjm35dkwdrpzl3d8pc053uw9v4pj5wfek0ffuzsp73evye6wu6",
+    "iconUrl": "https://i.ibb.co/hysnndT/ico.png",
+    "name": "Doge³",
+    "symbol": "dgc"
+  },
+  "resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9": {
+    "address": "resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9",
+    "iconUrl": "https://assets.caviarnine.com/tokens/floop_babylon.png",
+    "name": "Floop",
+    "symbol": "FLOOP"
+  },
+  "resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97": {
+    "address": "resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97",
+    "iconUrl": "https://i.imgur.com/TjciHNV.png",
+    "name": "Hug",
+    "symbol": "HUG"
+  },
+  "resource_rdx1t5fut5566uvkrgf6fltt7pxcdcjs42ydgc5tm3gj8qzaag7xkqn4lg": {
+    "address": "resource_rdx1t5fut5566uvkrgf6fltt7pxcdcjs42ydgc5tm3gj8qzaag7xkqn4lg",
+    "iconUrl": "https://i.postimg.cc/C1dRn4r5/Token-logo.png",
+    "name": "Minnie",
+    "symbol": "MNI"
+  },
+  "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8": {
+    "address": "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
+    "iconUrl": "https://ociswap.com/icons/oci.png",
+    "name": "Ociswap",
+    "symbol": "OCI"
+  },
+  "resource_rdx1thn6xa5vjdh5zagqzvxkxpd70r6eadpzmzr83m20ayp3yhxrjavxz5": {
+    "address": "resource_rdx1thn6xa5vjdh5zagqzvxkxpd70r6eadpzmzr83m20ayp3yhxrjavxz5",
+    "iconUrl": "https://www.radixplanet.com/PlanetTokenV2.png",
+    "name": "RadixPlanet Token V2",
+    "symbol": "PLANET"
+  },
+  "resource_rdx1t4zrksrzh7ucny7r57ss99nsrxscqwh8crjn6k22m8e9qyxh8c05pl": {
+    "address": "resource_rdx1t4zrksrzh7ucny7r57ss99nsrxscqwh8crjn6k22m8e9qyxh8c05pl",
+    "iconUrl": "https://www.radket.com/img/logo.svg",
+    "name": "Radket",
+    "symbol": "rdk"
+  },
+  "resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3": {
+    "address": "resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3",
+    "iconUrl": "https://res.cloudinary.com/daisvxhyu/image/upload/v1696647342/weft/icons/icon-weft.png",
+    "name": "Weft Finance",
+    "symbol": "WEFT"
+  },
+  "resource_rdx1t4m7udxhunuxnyjnufr3zqyreuwy2u5fw0gnf8zg522p20na4390f9": {
+    "address": "resource_rdx1t4m7udxhunuxnyjnufr3zqyreuwy2u5fw0gnf8zg522p20na4390f9",
+    "iconUrl": "https://imgur.com/NPlERcz.jpg",
+    "name": "WonderWoman",
+    "symbol": "WOWO"
+  },
+  "resource_rdx1t527rp7t54k5chjarkze5xcyw3qm4z7mg5c4uh2v6ehl8ugl99kc93": {
+    "address": "resource_rdx1t527rp7t54k5chjarkze5xcyw3qm4z7mg5c4uh2v6ehl8ugl99kc93",
+    "iconUrl": "https://i.imgur.com/l0nMUwh.png",
+    "name": "Raw Dicks",
+    "symbol": "XRAW"
+  },
+  "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf": {
+    "address": "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+    "iconUrl": "https://assets.instabridge.io/tokens/icons/xUSDC.png",
+    "name": "Wrapped USDC",
+    "symbol": "xUSDC"
+  }
+}

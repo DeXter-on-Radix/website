@@ -26,7 +26,8 @@ module.exports = {
       },
       colors: {
         "dexter-gradient-blue": "#2DB9D2",
-        "dexter-gradient-green": "#A7D22D",
+        "dexter-gradient-green": "#CAFC40",
+        // "dexter-gradient-green": "#A7D22D",
       },
     },
   },

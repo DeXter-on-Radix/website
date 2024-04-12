@@ -62,7 +62,7 @@ function TotalEarned() {
       await dispatch(fetchOrderRewards());
     }
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
