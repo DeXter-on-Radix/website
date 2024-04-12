@@ -16,7 +16,6 @@ import { TokenInfo } from "alphadex-sdk-js";
 import { useSelector } from "react-redux";
 import { getRewardsByToken } from "state/rewardUtils";
 // import { DexterToast } from "components/DexterToaster";
-// import { getRewardsByToken } from "state/rewardUtils";
 
 export default function Rewards() {
   useEffect(() => {
