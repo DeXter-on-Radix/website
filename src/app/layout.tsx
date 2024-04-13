@@ -32,9 +32,11 @@ export default function RootLayout({
             data-path={path}
             className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
           >
-            <Navbar />
-            {children}
-            <Footer />
+            <div className="flex flex-col justify-between min-h-[100vh]">
+              <Navbar />
+              {children}
+              <Footer />
+            </div>
           </div>
         </body>
       </Provider>
