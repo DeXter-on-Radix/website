@@ -22,6 +22,10 @@ import {
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
+  // HARDCODED TOKEN INFO FROM RESSOURCE
+  // To get all token info, use the following code snippet inside
+  // pair selector component:
+  // https://gist.github.com/dcts/e92ad3302be703707592761426854dec
   const tokensDict: Record<string, TokenInfo> = tokenData;
   useEffect(() => {
     initializeSubscriptions(store);
@@ -124,6 +128,16 @@ function RewardsCard({
         <ClaimableCoins tokensDict={tokensDict} />
         <ClaimButton />
         <LearnMore />
+        <div>
+          <h4
+            style={{ margin: 0, marginBottom: 12 }}
+            className={isConnected ? "" : "opacity-50 text-center"}
+          >
+            {isConnected
+              ? t("Reward Details") + ":"
+              : t("connect_wallet_to_claim_rewards")}
+          </h4>
+        </div>
         <ClaimableTypes tokensDict={tokensDict} />
       </div>
     </div>
@@ -151,7 +165,6 @@ function ClaimableCoins({
 }) {
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
-  const { isConnected } = useAppSelector((state) => state.radix);
   // const dispatch = useAppDispatch();
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
@@ -163,40 +176,7 @@ function ClaimableCoins({
     tokensDict
   );
 
-  const claimableCoins: {
-    name: string;
-    symbol: string;
-    iconUrl: string;
-    amount: number;
-  }[] = isConnected
-    ? rewardsByToken.map((tokenReward) => {
-        return {
-          ...getTokenInfo(tokenReward.address),
-          amount: tokenReward.amount,
-        };
-      })
-    : [];
-
-  return (
-    <div>
-      {claimableCoins.map((val, indx) => (
-        <div
-          className="flex justify-between items-center w-full text-base p-3 my-2 bg-[#232629] rounded"
-          key={indx}
-        >
-          <img
-            src={val.iconUrl}
-            alt={val.name}
-            className="w-7 h-7 rounded-full mr-3"
-          ></img>
-          <span className="flex-1 truncate">{val.name}</span>
-          <span className="uppercase">
-            {val.amount} {val.symbol}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+  return <TokenList tokenRewards={rewardsByToken} />;
 }
 
 function ClaimableTypes({
@@ -222,14 +202,14 @@ function ClaimableTypes({
     <div>
       {rewardsByTypeThenToken.map((typeReward, indx) => (
         <div key={indx}>
-          <h4
+          <h6
             style={{ margin: 0, marginBottom: 12 }}
-            className={isConnected ? "" : "opacity-50 text-center"}
+            className={isConnected ? "text-white" : "opacity-50 text-center"}
           >
             {isConnected
               ? typeReward.rewardType + ":"
               : "connect_wallet_to_claim_rewards"}
-          </h4>
+          </h6>
           <TokenList tokenRewards={typeReward.tokenRewards} />
         </div>
       ))}
@@ -291,26 +271,4 @@ function ClaimButton() {
       // }}
     >{`Claim All Rewards`}</button>
   );
-}
-
-// HARDCODED TOKEN INFO FROM RESSOURCE
-// To get all token info, use the following code snippet inside
-// pair selector component:
-// https://gist.github.com/dcts/e92ad3302be703707592761426854dec
-function getTokenInfo(tokenAddress: string): {
-  address: string;
-  symbol: string;
-  name: string;
-  iconUrl: string;
-} {
-  const tokenDict: Record<string, TokenInfo> = tokenData;
-
-  return tokenDict[tokenAddress]
-    ? tokenDict[tokenAddress]
-    : {
-        address: tokenAddress,
-        name: "Unknown Token",
-        symbol: "?",
-        iconUrl: "/unknown-token-icon.svg",
-      };
 }
