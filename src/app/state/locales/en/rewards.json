@@ -5,5 +5,8 @@
   "next_distribution": "Next Distribution",
   "total_rewards": "Total Rewards",
   "claim_all_rewards": "Claim All Rewards",
-  "learn_more_about_rewards": "Learn more about rewards"
+  "learn_more_about_rewards": "Learn more about rewards",
+  "claiming_rewards_loading": "Claiming rewards...",
+  "claiming_rewards_success": "Rewards claimed",
+  "claiming_rewards_fail": "Failed to claim rewards"
 }

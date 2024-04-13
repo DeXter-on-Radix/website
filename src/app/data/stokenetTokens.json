@@ -1,37 +1,32 @@
 {
-  "resource_tdx_2_1tkx85qzy8nhnayjzt6c6627teeeavzjjjq26uthzm477e5h9cwpjvy":
-        {
-            "address": "resource_tdx_2_1tkx85qzy8nhnayjzt6c6627teeeavzjjjq26uthzm477e5h9cwpjvy",
-            "name": "Adex Test Token 1",
-            "symbol": "ADEX1",
-            "iconUrl": "https://www.alphadex.net/favicon-32x32.png"
-        },
-  "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc":
-        {
-            "address": "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc",
-            "name": "Radix",
-            "symbol": "XRD",
-            "iconUrl": "https://assets.radixdlt.com/icons/icon-xrd-32x32.png"
-        },
-  "resource_tdx_2_1thrn8vw7lrxpej7enxmhd84mqd9f3cp97rf5qyy8jxa7gpxcnxr5uu":
-        {
-            "address": "resource_tdx_2_1thrn8vw7lrxpej7enxmhd84mqd9f3cp97rf5qyy8jxa7gpxcnxr5uu",
-            "name": "Dexter Test Token",
-            "symbol": "DEXTR",
-            "iconUrl": "https://test.dexteronradix.com/logo_icon.svg"
-        },
-  "resource_tdx_2_1th6almpy4qwslezcsz2pvr9n4232eg6n5c7v4ruduewpgwn0fzuwrl":
-        {
-            "address": "resource_tdx_2_1th6almpy4qwslezcsz2pvr9n4232eg6n5c7v4ruduewpgwn0fzuwrl",
-            "name": "Test USD Token",
-            "symbol": "TUSD",
-            "iconUrl": "https://picsum.photos/id/580/32"
-        },
-  "resource_tdx_2_1t42mtv8crede4harkaz7pwyym69yf5j6r5klxe260cxlqeccaga58e":
-        {
-            "address": "resource_tdx_2_1t42mtv8crede4harkaz7pwyym69yf5j6r5klxe260cxlqeccaga58e",
-            "name": "Cuppa Test Token",
-            "symbol": "CUPPA",
-            "iconUrl": "https://picsum.photos/id/63/32"
-        }
+  "resource_tdx_2_1tkx85qzy8nhnayjzt6c6627teeeavzjjjq26uthzm477e5h9cwpjvy": {
+    "address": "resource_tdx_2_1tkx85qzy8nhnayjzt6c6627teeeavzjjjq26uthzm477e5h9cwpjvy",
+    "name": "Adex Test Token 1",
+    "symbol": "ADEX1",
+    "iconUrl": "https://www.alphadex.net/favicon-32x32.png"
+  },
+  "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc": {
+    "address": "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc",
+    "name": "Radix",
+    "symbol": "XRD",
+    "iconUrl": "https://assets.radixdlt.com/icons/icon-xrd-32x32.png"
+  },
+  "resource_tdx_2_1thrn8vw7lrxpej7enxmhd84mqd9f3cp97rf5qyy8jxa7gpxcnxr5uu": {
+    "address": "resource_tdx_2_1thrn8vw7lrxpej7enxmhd84mqd9f3cp97rf5qyy8jxa7gpxcnxr5uu",
+    "name": "Dexter Test Token",
+    "symbol": "DEXTR",
+    "iconUrl": "https://test.dexteronradix.com/logo_icon.svg"
+  },
+  "resource_tdx_2_1th6almpy4qwslezcsz2pvr9n4232eg6n5c7v4ruduewpgwn0fzuwrl": {
+    "address": "resource_tdx_2_1th6almpy4qwslezcsz2pvr9n4232eg6n5c7v4ruduewpgwn0fzuwrl",
+    "name": "Test USD Token",
+    "symbol": "TUSD",
+    "iconUrl": "https://picsum.photos/id/580/32"
+  },
+  "resource_tdx_2_1t42mtv8crede4harkaz7pwyym69yf5j6r5klxe260cxlqeccaga58e": {
+    "address": "resource_tdx_2_1t42mtv8crede4harkaz7pwyym69yf5j6r5klxe260cxlqeccaga58e",
+    "name": "Cuppa Test Token",
+    "symbol": "CUPPA",
+    "iconUrl": "https://picsum.photos/id/63/32"
+  }
 }
