@@ -13,15 +13,15 @@ export function Footer() {
     links: [
       {
         text: "Trade",
-        url: "",
+        url: "https://dexter-on-radix.gitbook.io/dexter/using-dexter/start-trading",
       },
       {
         text: "Provide Liquidity",
-        url: "",
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
       },
       {
         text: "Tokenomics",
-        url: "",
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
       },
     ],
   };
@@ -30,32 +30,32 @@ export function Footer() {
     links: [
       {
         text: "Contribute",
-        url: "",
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       },
       {
         text: "Github",
-        url: "",
+        url: "https://github.com/DeXter-on-Radix",
       },
     ],
   };
   const contentColumn3 = {
-    title: "About",
+    title: "Support",
     links: [
       {
         text: "Talk to us",
-        url: "",
+        url: "https://t.me/dexter_discussion",
+      },
+      {
+        text: "Report Bug",
+        url: "https://t.me/dexter_discussion",
       },
       {
         text: "Report Translation Issue",
-        url: "",
+        url: "https://docs.google.com/document/d/11I9c3XjKPmXgc9V6puznD_mSXA5QCqNKAG1QCcClkRw/edit?usp=sharing",
       },
       {
         text: "Terms & Conditions",
-        url: "",
-      },
-      {
-        text: "Privacy Policy",
-        url: "",
+        url: "/terms",
       },
     ],
   };
@@ -128,7 +128,7 @@ function FooterContentColumn({
       </h3>
       {links.map((link, i) => (
         <p
-          className="truncate  text-xs py-[2px] cursor-pointer text-white"
+          className="truncate  text-xs py-[2px] cursor-pointer text-white hover:underline"
           key={i}
         >
           {link.text}
@@ -142,7 +142,7 @@ function SocialIcons() {
   const socials = [
     {
       id: "telegram",
-      url: "",
+      url: "https://t.me/dexter_discussion",
     },
     {
       id: "discord",
@@ -154,7 +154,7 @@ function SocialIcons() {
     },
     {
       id: "x",
-      url: "",
+      url: "https://twitter.com/DexterOnRadix",
     },
     {
       id: "instagram",
