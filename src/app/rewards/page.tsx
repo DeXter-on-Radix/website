@@ -14,10 +14,15 @@ import {
 import tokenData from "../data/stokenetTokens.json";
 import { TokenInfo } from "alphadex-sdk-js";
 import { useSelector } from "react-redux";
-import { getRewardsByToken } from "state/rewardUtils";
+import {
+  TokenReward,
+  getRewardsByToken,
+  getRewardsByTypeThenToken,
+} from "state/rewardUtils";
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
+  const tokensDict: Record<string, TokenInfo> = tokenData;
   useEffect(() => {
     initializeSubscriptions(store);
     return () => {
@@ -28,7 +33,7 @@ export default function Rewards() {
   return (
     <div className="bg-[#141414] h-full">
       <HeaderComponent />
-      <RewardsCard />
+      <RewardsCard tokensDict={tokensDict} />
       {/* Comment back in for old UI */}
       {/* <div className="flex flex-1 flex-col items-center my-8">
         <Rewards />
@@ -83,7 +88,11 @@ function DexterHeading({ title }: { title: string }) {
   );
 }
 
-function RewardsCard() {
+function RewardsCard({
+  tokensDict,
+}: {
+  tokensDict: Record<string, TokenInfo>;
+}) {
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
   const t = useTranslations();
@@ -112,9 +121,10 @@ function RewardsCard() {
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableCoins />
+        <ClaimableCoins tokensDict={tokensDict} />
         <ClaimButton />
         <LearnMore />
+        <ClaimableTypes tokensDict={tokensDict} />
       </div>
     </div>
   );
@@ -134,7 +144,11 @@ function LearnMore() {
   );
 }
 
-function ClaimableCoins() {
+function ClaimableCoins({
+  tokensDict,
+}: {
+  tokensDict: Record<string, TokenInfo>;
+}) {
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
@@ -143,19 +157,12 @@ function ClaimableCoins() {
     (state: RootState) => state.rewardSlice.rewardData
   );
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     await dispatch(fetchReciepts());
-  //     await dispatch(fetchAccountRewards());
-  //     await dispatch(fetchOrderRewards());
-  //   }
-  //   fetchData();
-  // }, [dispatch]);
-
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
-    rewardData.ordersRewards
+    rewardData.ordersRewards,
+    tokensDict
   );
+
   const claimableCoins: {
     name: string;
     symbol: string;
@@ -164,7 +171,7 @@ function ClaimableCoins() {
   }[] = isConnected
     ? rewardsByToken.map((tokenReward) => {
         return {
-          ...getTokenInfo(tokenReward.tokenAddress),
+          ...getTokenInfo(tokenReward.address),
           amount: tokenReward.amount,
         };
       })
@@ -173,6 +180,67 @@ function ClaimableCoins() {
   return (
     <div>
       {claimableCoins.map((val, indx) => (
+        <div
+          className="flex justify-between items-center w-full text-base p-3 my-2 bg-[#232629] rounded"
+          key={indx}
+        >
+          <img
+            src={val.iconUrl}
+            alt={val.name}
+            className="w-7 h-7 rounded-full mr-3"
+          ></img>
+          <span className="flex-1 truncate">{val.name}</span>
+          <span className="uppercase">
+            {val.amount} {val.symbol}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ClaimableTypes({
+  tokensDict,
+}: {
+  tokensDict: Record<string, TokenInfo>;
+}) {
+  // TODO: replace hardcoded coins with fetched coins to claim
+  // const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const { isConnected } = useAppSelector((state) => state.radix);
+  // const dispatch = useAppDispatch();
+  const rewardData = useSelector(
+    (state: RootState) => state.rewardSlice.rewardData
+  );
+
+  const rewardsByTypeThenToken = getRewardsByTypeThenToken(
+    rewardData.accountsRewards,
+    rewardData.ordersRewards,
+    tokensDict
+  );
+
+  return (
+    <div>
+      {rewardsByTypeThenToken.map((typeReward, indx) => (
+        <div key={indx}>
+          <h4
+            style={{ margin: 0, marginBottom: 12 }}
+            className={isConnected ? "" : "opacity-50 text-center"}
+          >
+            {isConnected
+              ? typeReward.rewardType + ":"
+              : "connect_wallet_to_claim_rewards"}
+          </h4>
+          <TokenList tokenRewards={typeReward.tokenRewards} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
+  return (
+    <div>
+      {tokenRewards.map((val, indx) => (
         <div
           className="flex justify-between items-center w-full text-base p-3 my-2 bg-[#232629] rounded"
           key={indx}

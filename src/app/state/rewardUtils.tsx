@@ -1,4 +1,5 @@
 //import { getRadixApiValue } from "./api-functions";
+import { TokenInfo } from "alphadex-sdk-js";
 import { getRdt } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
@@ -27,8 +28,7 @@ export class TypeRewards {
   tokenRewards: TokenReward[] = [];
 }
 
-export class TokenReward {
-  tokenAddress: string = "";
+export class TokenReward extends TokenInfo {
   amount: number = 0;
 }
 
@@ -77,42 +77,137 @@ export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
   return claimComponent;
 }
 
+export function getRewardsByTypeThenToken(
+  accountsRewards: AccountRewards[],
+  ordersRewards: OrderRewards[],
+  tokensDict: Record<string, TokenInfo>
+): TypeRewards[] {
+  let typeRewardsMap: Map<string, Map<string, TokenReward>> = new Map();
+  accountsRewards.forEach((accountReward) => {
+    accountReward.rewards.forEach((typeReward) => {
+      let existingTypeRewardTokens = typeRewardsMap.get(typeReward.rewardType);
+      if (!existingTypeRewardTokens) {
+        existingTypeRewardTokens = new Map<string, TokenReward>();
+      } else {
+        existingTypeRewardTokens = new Map(existingTypeRewardTokens);
+      }
+      typeReward.tokenRewards.forEach((tokenReward) => {
+        let existingTokenReward = existingTypeRewardTokens.get(
+          tokenReward.address
+        );
+        if (!existingTokenReward) {
+          let tokenInfo = tokensDict[tokenReward.address]
+            ? tokensDict[tokenReward.address]
+            : {
+                address: tokenReward.address,
+                name: "Unknown Token",
+                symbol: "?",
+                iconUrl: "/unknown-token-icon.svg",
+              };
+          existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
+        } else {
+          existingTokenReward = { ...existingTokenReward };
+          existingTokenReward.amount += tokenReward.amount;
+        }
+        existingTypeRewardTokens.set(
+          existingTokenReward.address,
+          existingTokenReward
+        );
+      });
+      typeRewardsMap.set(typeReward.rewardType, existingTypeRewardTokens);
+    });
+  });
+  ordersRewards.forEach((orderRewards) => {
+    orderRewards.rewards.forEach((typeReward) => {
+      let existingTypeRewardTokens = typeRewardsMap.get(typeReward.rewardType);
+      if (!existingTypeRewardTokens) {
+        existingTypeRewardTokens = new Map<string, TokenReward>();
+      } else {
+        existingTypeRewardTokens = new Map(existingTypeRewardTokens);
+      }
+      typeReward.tokenRewards.forEach((tokenReward) => {
+        let existingTokenReward = existingTypeRewardTokens.get(
+          tokenReward.address
+        );
+        if (!existingTokenReward) {
+          let tokenInfo = tokensDict[tokenReward.address]
+            ? tokensDict[tokenReward.address]
+            : {
+                address: tokenReward.address,
+                name: "Unknown Token",
+                symbol: "?",
+                iconUrl: "/unknown-token-icon.svg",
+              };
+          existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
+        } else {
+          existingTokenReward = { ...existingTokenReward };
+          existingTokenReward.amount += tokenReward.amount;
+        }
+        existingTypeRewardTokens.set(
+          existingTokenReward.address,
+          existingTokenReward
+        );
+      });
+      typeRewardsMap.set(typeReward.rewardType, existingTypeRewardTokens);
+    });
+  });
+  let result: TypeRewards[] = [];
+  typeRewardsMap.forEach((tokenRewardsMap, rewardType) => {
+    result.push({
+      rewardType,
+      tokenRewards: Array.from(tokenRewardsMap.values()),
+    });
+  });
+  return result;
+}
+
 export function getRewardsByToken(
   accountsRewards: AccountRewards[],
-  ordersRewards: OrderRewards[]
+  ordersRewards: OrderRewards[],
+  tokensDict: Record<string, TokenInfo>
 ): TokenReward[] {
   let tokenRewardsMap: Map<string, TokenReward> = new Map();
   accountsRewards.forEach((accountReward) => {
     accountReward.rewards.forEach((typeReward) => {
       typeReward.tokenRewards.forEach((tokenReward) => {
-        let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
+        let existingTokenReward = tokenRewardsMap.get(tokenReward.address);
         if (!existingTokenReward) {
-          existingTokenReward = { ...tokenReward };
+          let tokenInfo = tokensDict[tokenReward.address]
+            ? tokensDict[tokenReward.address]
+            : {
+                address: tokenReward.address,
+                name: "Unknown Token",
+                symbol: "?",
+                iconUrl: "/unknown-token-icon.svg",
+              };
+          existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
           existingTokenReward.amount += tokenReward.amount;
         }
-        tokenRewardsMap.set(
-          existingTokenReward.tokenAddress,
-          existingTokenReward
-        );
+        tokenRewardsMap.set(existingTokenReward.address, existingTokenReward);
       });
     });
   });
   ordersRewards.forEach((orderRewards) => {
     orderRewards.rewards.forEach((typeRewards) => {
       typeRewards.tokenRewards.forEach((tokenReward) => {
-        let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
+        let existingTokenReward = tokenRewardsMap.get(tokenReward.address);
         if (!existingTokenReward) {
-          existingTokenReward = { ...tokenReward };
+          let tokenInfo = tokensDict[tokenReward.address]
+            ? tokensDict[tokenReward.address]
+            : {
+                address: tokenReward.address,
+                name: "Unknown Token",
+                symbol: "?",
+                iconUrl: "/unknown-token-icon.svg",
+              };
+          existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
           existingTokenReward.amount += tokenReward.amount;
         }
-        tokenRewardsMap.set(
-          existingTokenReward.tokenAddress,
-          existingTokenReward
-        );
+        tokenRewardsMap.set(existingTokenReward.address, existingTokenReward);
       });
     });
   });
@@ -138,17 +233,14 @@ export function getOrdersByRewardType(
             amount: tokenReward.amount,
           };
           let existingTokenRewards = existingTypeRewards!.get(
-            tokenReward.tokenAddress
+            tokenReward.address
           );
           if (!existingTokenRewards) {
             existingTokenRewards = [orderTokenReward];
           } else {
             existingTokenRewards.push(orderTokenReward);
           }
-          existingTypeRewards!.set(
-            tokenReward.tokenAddress,
-            existingTokenRewards
-          );
+          existingTypeRewards!.set(tokenReward.address, existingTokenRewards);
         });
         result.set(typeReward.rewardType, existingTypeRewards!);
       });
@@ -224,7 +316,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
               let tokensRewardData = rewardTypeData.value.entries;
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
-                tokenReward.tokenAddress = tokenRewardData.key.value;
+                tokenReward.address = tokenRewardData.key.value;
                 tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }
@@ -258,7 +350,7 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
             let tokensRewardData = rewardTypeData.value.entries;
             for (const tokenRewardData of tokensRewardData) {
               let tokenReward = new TokenReward();
-              tokenReward.tokenAddress = tokenRewardData.key.value;
+              tokenReward.address = tokenRewardData.key.value;
               tokenReward.amount = Number(tokenRewardData.value.value);
               typeRewards.tokenRewards.push(tokenReward);
             }
@@ -375,7 +467,7 @@ export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
               let tokensRewardData = rewardTypeData.value.entries;
               for (const tokenRewardData of tokensRewardData) {
                 let tokenReward = new TokenReward();
-                tokenReward.tokenAddress = tokenRewardData.key.value;
+                tokenReward.address = tokenRewardData.key.value;
                 tokenReward.amount = Number(tokenRewardData.value.value);
                 typeRewards.tokenRewards.push(tokenReward);
               }

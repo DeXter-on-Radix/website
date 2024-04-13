@@ -66,7 +66,8 @@ function TotalEarned() {
 
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
-    rewardData.ordersRewards
+    rewardData.ordersRewards,
+    {}
   );
   // );
   return (
@@ -74,8 +75,8 @@ function TotalEarned() {
       <table>
         <tbody>
           {rewardsByToken.map((tokenReward) => (
-            <tr key={tokenReward.tokenAddress}>
-              <td>{tokenReward.tokenAddress}</td>
+            <tr key={tokenReward.address}>
+              <td>{tokenReward.address}</td>
               <td>{tokenReward.amount}</td>
             </tr>
           ))}
