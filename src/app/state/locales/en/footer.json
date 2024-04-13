@@ -1,8 +1,18 @@
 {
   "footer_1": "Trade and leave the algorithms do the rest!",
-  "footer_2": "Safe, Accurate, Intuitive, Decentralised.",
+  "safe_accurate_intuitive_decentralized": "Safe, Accurate, Intuitive, Decentralised.",
   "runs_on": "Runs on",
-  "footer_3": "Built with passion by a global community.",
+  "built_with_passion_by_community": "Built with passion by a global community.",
   "terms_and_conditions": "Terms & Conditions",
-  "social_media": "Social Media"
+  "social_media": "Social Media",
+  "our_community": "Our Community",
+  "ecosystem": "Ecosystem",
+  "trade": "Trade",
+  "provide_liquidity": "Provide Liquidity",
+  "tokenomics": "Tokenomics",
+  "contribute": "Contribute",
+  "talk_to_us": "Talk to Us",
+  "report_bug": "Report Bug",
+  "support": "Support",
+  "report_translation_issue": "Report Translation Issue"
 }

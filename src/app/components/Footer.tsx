@@ -6,55 +6,54 @@ import Image from "next/image";
 const marginBottom = "mb-8";
 
 export function Footer() {
-  // TODO(dcts): add translations
-  // const t = useTranslations();
+  const t = useTranslations();
   const contentColumn1 = {
-    title: "Ecosystem",
+    title: t("ecosystem"),
     links: [
       {
-        text: "Trade",
+        text: t("trade"),
         url: "https://dexter-on-radix.gitbook.io/dexter/using-dexter/start-trading",
       },
       {
-        text: "Provide Liquidity",
+        text: t("provide_liquidity"),
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
       },
       {
-        text: "Tokenomics",
+        text: t("tokenomics"),
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
       },
     ],
   };
   const contentColumn2 = {
-    title: "Developers",
+    title: t("developers"),
     links: [
       {
-        text: "Contribute",
+        text: t("contribute"),
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       },
       {
-        text: "Github",
+        text: t("github"),
         url: "https://github.com/DeXter-on-Radix",
       },
     ],
   };
   const contentColumn3 = {
-    title: "Support",
+    title: t("support"),
     links: [
       {
-        text: "Talk to us",
+        text: t("talk_to_us"),
         url: "https://t.me/dexter_discussion",
       },
       {
-        text: "Report Bug",
+        text: t("report_bug"),
         url: "https://t.me/dexter_discussion",
       },
       {
-        text: "Report Translation Issue",
+        text: t("report_translation_issue"),
         url: "https://docs.google.com/document/d/11I9c3XjKPmXgc9V6puznD_mSXA5QCqNKAG1QCcClkRw/edit?usp=sharing",
       },
       {
-        text: "Terms & Conditions",
+        text: t("terms_and_conditions"),
         url: "/terms",
       },
     ],
@@ -91,8 +90,10 @@ function FirstFooterElement() {
       />
 
       <div className="">
-        <p className="truncate pt-4">{t("footer_3")}</p>
-        <p className="truncate pt-2">{t("footer_2")}</p>
+        <p className="truncate pt-4">
+          {t("safe_accurate_intuitive_decentralized")}
+        </p>
+        <p className="truncate pt-2">{t("built_with_passion_by_community")}</p>
         <p className="truncate">
           {t("runs_on")}{" "}
           <a href="https://www.radixdlt.com/" target="_blank">
@@ -146,11 +147,11 @@ function SocialIcons() {
     },
     {
       id: "discord",
-      url: "",
+      url: "https://discord.gg/Y44jqe2q2W",
     },
     {
       id: "github",
-      url: "",
+      url: "https://github.com/DeXter-on-Radix",
     },
     {
       id: "x",
@@ -158,15 +159,15 @@ function SocialIcons() {
     },
     {
       id: "instagram",
-      url: "",
+      url: "https://www.instagram.com/dexter_on_radix/",
     },
     {
       id: "youtube",
-      url: "",
+      url: "https://www.youtube.com/@Dexter_Official_Dex/videos",
     },
     {
       id: "gitbook",
-      url: "",
+      url: "https://dexter-on-radix.gitbook.io/dexter",
     },
   ];
   return (
