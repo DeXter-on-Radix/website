@@ -9,5 +9,12 @@
   "tailwindCSS.includeLanguages": {
     "plaintext": "html"
   },
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", ".*Class*"]
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass",
+    ".*Class*"
+  ],
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true
 }

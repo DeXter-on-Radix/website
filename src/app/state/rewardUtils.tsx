@@ -90,8 +90,7 @@ export function getRewardsByToken(
           existingTokenReward = { ...tokenReward };
         } else {
           existingTokenReward = { ...existingTokenReward };
-          existingTokenReward.amount =
-            existingTokenReward.amount + tokenReward.amount;
+          existingTokenReward.amount += tokenReward.amount;
         }
         tokenRewardsMap.set(
           existingTokenReward.tokenAddress,
@@ -105,8 +104,9 @@ export function getRewardsByToken(
       typeRewards.tokenRewards.forEach((tokenReward) => {
         let existingTokenReward = tokenRewardsMap.get(tokenReward.tokenAddress);
         if (!existingTokenReward) {
-          existingTokenReward = tokenReward;
+          existingTokenReward = { ...tokenReward };
         } else {
+          existingTokenReward = { ...existingTokenReward };
           existingTokenReward.amount += tokenReward.amount;
         }
         tokenRewardsMap.set(
