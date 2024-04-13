@@ -32,7 +32,7 @@ export function Footer() {
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       },
       {
-        text: t("github"),
+        text: "Github",
         url: "https://github.com/DeXter-on-Radix",
       },
     ],
@@ -69,7 +69,12 @@ export function Footer() {
           <FooterContentColumn {...contentColumn3} />
         </div>
         <div className="">
-          <h3>Our Community</h3>
+          <h3
+            style={{ margin: 0, fontSize: "14px" }}
+            className="py-2 text-white font-medium"
+          >
+            {t("our_community")}
+          </h3>
           <SocialIcons />
         </div>
       </div>
@@ -128,12 +133,11 @@ function FooterContentColumn({
         {title}
       </h3>
       {links.map((link, i) => (
-        <p
-          className="truncate  text-xs py-[2px] cursor-pointer text-white hover:underline"
-          key={i}
-        >
-          {link.text}
-        </p>
+        <a href={link.url} key={i} target="_blank">
+          <p className="truncate pl-[1px] text-xs py-[2px] cursor-pointer text-white font-normal hover:underline">
+            {link.text}
+          </p>
+        </a>
       ))}
     </div>
   );
