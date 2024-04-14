@@ -7,7 +7,10 @@
     @apply !my-0;
   }
 
-  p {
+  p,
+  h1,
+  h2,
+  h3 {
     @apply !my-0;
   }
 
@@ -120,10 +123,4 @@ input[type="number"]::-ms-clear {
 /* Grid layout for rest of the pages */
 .custom-auto-row-grid {
   grid-auto-rows: 0fr auto 0fr;
-}
-
-h1,
-h2,
-h3 {
-  margin: 0 !important;
 }
