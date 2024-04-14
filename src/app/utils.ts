@@ -371,3 +371,11 @@ export function detectOperatingSystem(): OperatingSystem {
     return OperatingSystem.UNKNOWN;
   }
 }
+
+export function isMobile(): boolean {
+  const userAgent = navigator.userAgent.toLowerCase();
+  // Check the user agent for mobile patterns
+  return /android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos/i.test(
+    userAgent
+  );
+}
