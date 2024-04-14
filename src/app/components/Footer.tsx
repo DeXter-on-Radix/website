@@ -64,9 +64,11 @@ export function Footer() {
       <div className="flex flex-wrap justify-between">
         <div className="flex flex-wrap">
           <FirstFooterElement />
-          <FooterContentColumn {...contentColumn1} />
-          <FooterContentColumn {...contentColumn2} />
-          <FooterContentColumn {...contentColumn3} />
+          <div className="flex flex-wrap sm:flex-nowrap">
+            <FooterContentColumn {...contentColumn1} />
+            <FooterContentColumn {...contentColumn2} />
+            <FooterContentColumn {...contentColumn3} />
+          </div>
         </div>
         <div className="">
           <h3 className="py-2 text-white font-medium !my-0 !text-sm">
@@ -172,7 +174,7 @@ function SocialIcons() {
     <div className={`flex flex-wrap ${marginBottom}`}>
       {socials.map(({ id, url }, indx) => (
         <a href={url} key={indx} target="_blank" className="mr-2 mt-2">
-          <img className="w-6 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
+          <img className="w-8 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
         </a>
       ))}
     </div>
