@@ -3,6 +3,7 @@ import {
   fetchReciepts,
   fetchAccountRewards,
   fetchOrderRewards,
+  fetchAddresses,
 } from "../state/rewardSlice";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -57,6 +58,7 @@ function TotalEarned() {
 
   useEffect(() => {
     async function fetchData() {
+      await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
       await dispatch(fetchOrderRewards());

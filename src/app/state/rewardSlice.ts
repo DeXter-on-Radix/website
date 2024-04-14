@@ -32,6 +32,10 @@ interface RewardConfig {
   };
 }
 
+function findFieldByName(fieldName: string, fields: any[]) {
+  return fields.find((field) => field.field_name === fieldName);
+}
+
 export interface RewardData {
   accountsRewards: AccountRewards[];
   ordersRewards: OrderRewards[];
@@ -53,18 +57,9 @@ const initialState: RewardState = {
     rewardComponent:
       process.env.NEXT_PUBLIC_CLAIM_COMPONENT ||
       "component_tdx_2_1czzn503fzras55wyrs9zczxrtvf8fpytmm52rc5g3hsyx9y5dv9zzs",
-    // should be read from claim component state
-    rewardNFTAddress:
-      process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS ||
-      "resource_tdx_2_1ngd6gldntd0sq0qar0ul0ll9zke7ez2qutk2jxey9um7hzu3xzjtl2",
-    // should be read from claim component state
-    rewardOrderAddress:
-      process.env.NEXT_PUBLIC_CLAIM_ORDER_ADDRESS ||
-      "internal_keyvaluestore_tdx_2_1krdcmelr0tluywyg04zqc8vdacluh2m8ll0rr7ctg6gksp6herhgre",
-    // should be read from claim component state
-    rewardVaultAddress:
-      process.env.NEXT_PUBLIC_CLAIM_VAULT_ADDRESS ||
-      "internal_keyvaluestore_tdx_2_1kpsef4ra7hufqnnkw4jhryyev3alzq9xkmk8zcxk02zfl8m6vk070p",
+    rewardNFTAddress: "",
+    rewardOrderAddress: "",
+    rewardVaultAddress: "",
     resourceAddresses: {
       DEXTERXRD: {
         resourceAddress:
@@ -143,14 +138,19 @@ export const fetchAccountRewards = createAsyncThunk<
   {
     state: RootState;
   }
->("rewards/fetchAccountRewards", async () => {
+>("rewards/fetchAccountRewards", async (_, thunkAPI) => {
   const rdt = getRdt();
   if (!rdt) return;
+
+  const state = thunkAPI.getState();
 
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
-  const accountRewardData = await getAccountsRewardsApiData([accountAddress]);
+  const accountRewardData = await getAccountsRewardsApiData(
+    [accountAddress],
+    state.rewardSlice.config.rewardNFTAddress
+  );
   const accountsRewards = await getAccountsRewardsFromApiData(
     accountRewardData
   );
@@ -184,6 +184,43 @@ export const fetchOrderRewards = createAsyncThunk<
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
   const serialize = JSON.stringify(orderRewards);
+  return JSON.parse(serialize);
+});
+
+export const fetchAddresses = createAsyncThunk<
+  RewardConfig, // Return type of the payload creator
+  undefined, // argument type
+  {
+    state: RootState;
+  }
+>("rewards/fetchAddresses", async (_, thunkAPI) => {
+  const rdt = getRdt();
+  if (!rdt) return;
+  const state = thunkAPI.getState();
+  const newConfig = JSON.parse(JSON.stringify(state.rewardSlice.config));
+
+  //Get the state entity
+  const component: any =
+    await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
+      state.rewardSlice.config.rewardComponent
+    );
+
+  newConfig.rewardNFTAddress = findFieldByName(
+    "account_rewards_nft_manager",
+    component.details?.state.fields
+  ).value;
+
+  newConfig.rewardOrderAddress = findFieldByName(
+    "order_rewards",
+    component.details?.state.fields
+  ).value;
+
+  newConfig.rewardVaultAddress = findFieldByName(
+    "claim_vaults",
+    component.details?.state.fields
+  ).value;
+
+  const serialize = JSON.stringify(newConfig);
   return JSON.parse(serialize);
 });
 
@@ -309,6 +346,15 @@ export const rewardSlice = createSlice({
     updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
       state.rewardData.accountsRewards = action.payload;
     },
+    updateConfigNFTAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardNFTAddress = action.payload;
+    },
+    updateConfigOrderAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardOrderAddress = action.payload;
+    },
+    updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardVaultAddress = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
@@ -323,6 +369,12 @@ export const rewardSlice = createSlice({
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
           state.rewardData.ordersRewards = action.payload;
+        }
+      )
+      .addCase(
+        fetchAddresses.fulfilled,
+        (state, action: PayloadAction<RewardConfig>) => {
+          state.config = action.payload;
         }
       );
     // You can add more cases here

@@ -9,6 +9,7 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
   fetchReciepts,
+  fetchAddresses,
   rewardSlice,
 } from "state/rewardSlice";
 import tokenData from "../data/stokenetTokens.json";
@@ -91,6 +92,7 @@ function RewardsCard() {
   useEffect(() => {
     async function loadRewards() {
       // TODO: ask @fredlieb whether we can fetch all things asynchronously?
+      await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
       await dispatch(fetchOrderRewards());
