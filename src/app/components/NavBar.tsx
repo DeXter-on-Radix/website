@@ -9,25 +9,26 @@ import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
+import { usePathname } from "next/navigation";
 
 // TODO: theme switching
 
 export function Navbar() {
   return (
-    <div className="flex items-center justify-between min-h-16 w-full h-20 p-2">
+    <div className="flex items-center justify-between min-h-16 w-full h-20">
       <Image
         src="/dexter-logo-and-lettering.svg"
         alt="Dexter logo and lettering"
         width={122}
         height={122}
-        className="!my-0 pl-2 mr-3"
+        className="!my-0 pl-2 mx-3 p-2"
         priority={true}
       />
-      <div className="flex items-center flex-1 px-2 mx-2">
+      <div className="flex h-full items-center flex-1 px-2 mx-2 mt-1 z-10">
         <NavbarItem title="Trade" target="/" />
         <NavbarItem title="Rewards" target="/rewards" />
       </div>
-      <div className="flex">
+      <div className="flex p-2">
         <LanguageSelection />
         <radix-connect-button></radix-connect-button>
       </div>
@@ -75,12 +76,18 @@ interface NavbarItemProps {
 }
 
 function NavbarItem({ title, target }: NavbarItemProps) {
+  const active = target === usePathname();
+
   return (
     <Link
-      className="px-5 hover:!no-underline hover:text-accent mb-0"
+      className={`h-full flex items-center px-5 hover:!no-underline hover:text-accent mb-0 ${
+        active ? "border-b-2 border-[#cafc40]" : ""
+      }`}
       href={target}
     >
-      <p className="text-sm">{title}</p>
+      <p className={`text-sm ${active ? "text-[#cafc40]" : "text-white"}`}>
+        {title}
+      </p>
     </Link>
   );
 }
