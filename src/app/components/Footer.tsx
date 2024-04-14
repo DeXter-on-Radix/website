@@ -64,15 +64,14 @@ export function Footer() {
       <div className="flex flex-wrap justify-between">
         <div className="flex flex-wrap">
           <FirstFooterElement />
-          <FooterContentColumn {...contentColumn1} />
-          <FooterContentColumn {...contentColumn2} />
-          <FooterContentColumn {...contentColumn3} />
+          <div className="flex flex-wrap sm:flex-nowrap">
+            <FooterContentColumn {...contentColumn1} />
+            <FooterContentColumn {...contentColumn2} />
+            <FooterContentColumn {...contentColumn3} />
+          </div>
         </div>
         <div className="">
-          <h3
-            style={{ margin: 0, fontSize: "14px" }}
-            className="py-2 text-white font-medium"
-          >
+          <h3 className="py-2 text-white font-medium !my-0 !text-sm">
             {t("our_community")}
           </h3>
           <SocialIcons />
@@ -126,10 +125,7 @@ function FooterContentColumn({
 }: FooterContentColumnProps) {
   return (
     <div className={`pr-8 ${marginBottom}`}>
-      <h3
-        style={{ margin: 0, fontSize: "14px" }}
-        className="py-2 text-secondary-content font-medium"
-      >
+      <h3 className="py-2 text-secondary-content font-medium !my-0 !text-sm">
         {title}
       </h3>
       {links.map((link, i) => (
@@ -178,7 +174,7 @@ function SocialIcons() {
     <div className={`flex flex-wrap ${marginBottom}`}>
       {socials.map(({ id, url }, indx) => (
         <a href={url} key={indx} target="_blank" className="mr-2 mt-2">
-          <img className="w-6 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
+          <img className="w-8 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
         </a>
       ))}
     </div>
