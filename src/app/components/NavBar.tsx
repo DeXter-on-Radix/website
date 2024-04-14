@@ -26,7 +26,7 @@ const NavItems: { path: string; title: string }[] = [
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between min-h-16 w-full h-20">
+    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px]">
       <Image
         src="/dexter-logo-and-lettering.svg"
         alt="Dexter logo and lettering"
@@ -57,7 +57,7 @@ function NavbarContentDesktop() {
           );
         })}
       </div>
-      <div className="hidden sm:flex p-2">
+      <div className="hidden sm:flex p-2 pr-4">
         <LanguageSelection />
         <radix-connect-button></radix-connect-button>
       </div>
@@ -90,7 +90,7 @@ function MobileMenu({
 }) {
   return (
     <div
-      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-transparent overflow-hidden z-30 fixed top-0 left-0 backdrop-blur-lg py-4 ${
+      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-transparent overflow-hidden z-30 fixed top-0 left-0 backdrop-blur-lg py-5 ${
         isMobile() ? "px-6" : "px-10"
       }`}
     >
