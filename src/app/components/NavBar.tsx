@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
@@ -18,10 +17,11 @@ const NavItems: { path: string; title: string }[] = [
     path: "/",
     title: "Trade",
   },
-  {
-    path: "/rewards",
-    title: "Rewards",
-  },
+  // // TODO: comment back in when rewards launch
+  // {
+  //   path: "/rewards",
+  //   title: "Rewards",
+  // },
 ];
 
 export function Navbar() {
@@ -78,41 +78,52 @@ function NavbarContentMobile() {
           className="h-auto color-white"
         />
       </button>
-      {menuOpen && (
-        <div
-          className={`flex flex-col items-end w-[100vw] h-[100vh] bg-transparent overflow-hidden z-30 fixed top-0 left-0 backdrop-blur-lg py-4 ${
-            isMobile() ? "px-6" : "px-10"
-          }`}
-        >
-          <button onClick={() => setMenuOpen(false)}>
-            <Image
-              src="/close-x.svg"
-              alt="menu"
-              width="32"
-              height="32"
-              className="h-auto color-white opacity-70"
+      {menuOpen && <MobileMenu setMenuOpen={setMenuOpen} />}
+    </div>
+  );
+}
+
+function MobileMenu({
+  setMenuOpen,
+}: {
+  setMenuOpen: (newMenuOpen: boolean) => void;
+}) {
+  return (
+    <div
+      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-transparent overflow-hidden z-30 fixed top-0 left-0 backdrop-blur-lg py-4 ${
+        isMobile() ? "px-6" : "px-10"
+      }`}
+    >
+      {/* Close Menu Button */}
+      <button onClick={() => setMenuOpen(false)}>
+        <Image
+          src="/close-x.svg"
+          alt="menu"
+          width="32"
+          height="32"
+          className="h-auto color-white opacity-70"
+        />
+      </button>
+      {/* Navbar Items */}
+      <div className="mt-10 w-full">
+        {NavItems.map((navItem, indx) => {
+          return (
+            <NavbarItemMobile
+              title={navItem.title}
+              target={navItem.path}
+              setMenuOpen={setMenuOpen}
+              key={indx}
             />
-          </button>
-          <div className="mt-10 w-full">
-            {NavItems.map((navItem, indx) => {
-              return (
-                <NavbarItemMobile
-                  title={navItem.title}
-                  target={navItem.path}
-                  setMenuOpen={setMenuOpen}
-                  key={indx}
-                />
-              );
-            })}
-          </div>
-          <div className="w-full flex flex-col items-center justify-center">
-            <h3 className="w-full text-center text-secondary-content font-light text-base">
-              Language Selection
-            </h3>
-            <LanguageSelection />
-          </div>
-        </div>
-      )}
+          );
+        })}
+      </div>
+      {/* Language Selection */}
+      <div className="w-full flex flex-col items-center justify-center">
+        <h3 className="w-full text-center text-secondary-content font-light text-base">
+          Language Selection
+        </h3>
+        <LanguageSelection />
+      </div>
     </div>
   );
 }
