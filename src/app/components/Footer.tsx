@@ -69,10 +69,7 @@ export function Footer() {
           <FooterContentColumn {...contentColumn3} />
         </div>
         <div className="">
-          <h3
-            style={{ margin: 0, fontSize: "14px" }}
-            className="py-2 text-white font-medium"
-          >
+          <h3 className="py-2 text-white font-medium !my-0 !text-sm">
             {t("our_community")}
           </h3>
           <SocialIcons />
@@ -126,10 +123,7 @@ function FooterContentColumn({
 }: FooterContentColumnProps) {
   return (
     <div className={`pr-8 ${marginBottom}`}>
-      <h3
-        style={{ margin: 0, fontSize: "14px" }}
-        className="py-2 text-secondary-content font-medium"
-      >
+      <h3 className="py-2 text-secondary-content font-medium !my-0 !text-sm">
         {title}
       </h3>
       {links.map((link, i) => (

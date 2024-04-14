@@ -7,10 +7,7 @@
     @apply !my-0;
   }
 
-  p,
-  h1,
-  h2,
-  h3 {
+  p {
     @apply !my-0;
   }
 
