@@ -26,6 +26,9 @@ module.exports = {
       },
       colors: {
         "dexter-green": "#A7D22D",
+        "dexter-green-OG": "#CAFC40",
+        "dexter-gradient-green": "#ACF840",
+        "dexter-gradient-blue": "#05CBE6",
         "dexter-red": "#D22D2D",
         "content-dark": "#212A09",
       },

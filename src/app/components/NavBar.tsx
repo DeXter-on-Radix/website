@@ -26,6 +26,7 @@ export function Navbar() {
             width={40}
             height={40}
             className="!my-0"
+            priority={true}
           />
           <span className="ml-6 pt-1 xs:invisible sm:visible hover:text-accent uppercase">
             DeXter
@@ -58,7 +59,7 @@ function LanguageSelection() {
 
   const handleLanguageChange = (lang: string) => {
     dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
-    Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
+    Cookies.set("userLanguage", lang, { expires: 365, partitioned: true }); // Set a cookie for 1 year
   };
 
   return (

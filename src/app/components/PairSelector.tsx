@@ -4,6 +4,7 @@ import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
+import React from "react";
 
 interface PairInfo {
   name: string;
@@ -189,7 +190,7 @@ export function PairSelector() {
           const [pair1, pair2] = getPairs(option["name"]);
 
           return (
-            <>
+            <React.Fragment key={`pair-${index}`}>
               {index === 0 && (
                 <div className="flex justify-between text-sm opacity-40 ml-3 mr-3">
                   <span className="uppercase">{t("pairs")}</span>
@@ -232,7 +233,7 @@ export function PairSelector() {
                   </div>
                 </div>
               </li>
-            </>
+            </React.Fragment>
           );
         })}
         <li
