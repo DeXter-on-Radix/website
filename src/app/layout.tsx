@@ -8,6 +8,15 @@ import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
+import { PromoHeader, PromoHeaderProps } from "components/PromoHeader";
+
+// Configuration for promo banner
+// Once both images and a targetUrl are defined the banner will automatically show
+const promoHeaderConfig: PromoHeaderProps = {
+  imageUrl: "/promo-headers/boilerplate/desktop-1640x128.png",
+  imageUrlMobile: "/promo-headers/boilerplate/mobile-500x128.png",
+  targetUrl: "",
+};
 
 export default function RootLayout({
   children,
@@ -34,6 +43,7 @@ export default function RootLayout({
           >
             <div className="flex flex-col justify-between min-h-[100vh]">
               <Navbar />
+              <PromoHeader {...promoHeaderConfig} />
               {children}
               <Footer />
             </div>
