@@ -1,10 +1,10 @@
 import "react";
 import { useEffect, useState } from "react";
 
-export interface PromoHeaderProps {
+export interface PromoBannerProps {
   imageUrl: string; // 1640 x 128
   imageUrlMobile: string; // 500 x 128
-  targetUrl: string; // target redirect address when banner is clicked
+  redirectUrl: string; // target redirect address when banner is clicked
 }
 
 function isSmallScreen(): boolean {
@@ -16,11 +16,11 @@ function isSmallScreen(): boolean {
 // > 500px  : show large image (1640x128) without scaling, but center content
 // > 1640px : show large image (1640x128) without scaling, and add gradient
 //            colors on left and right side to prevent banner cutoff
-export function PromoHeader({
+export function PromoBanner({
   imageUrl,
   imageUrlMobile,
-  targetUrl,
-}: PromoHeaderProps) {
+  redirectUrl,
+}: PromoBannerProps) {
   // determines which image to show (500x128 vs 1640x128)
   const [showSmallImage, setShowSmallImage] = useState(isSmallScreen());
 
@@ -48,7 +48,7 @@ export function PromoHeader({
         "bg-gradient-to-r from-dexter-gradient-blue from-50% to-dexter-green to-50%"
       }
     >
-      <a href={targetUrl} className="cursor-pointer" target="_blank">
+      <a href={redirectUrl || ""} className="cursor-pointer" target="_blank">
         {showSmallImage ? (
           <img
             src={imageUrlMobile}
