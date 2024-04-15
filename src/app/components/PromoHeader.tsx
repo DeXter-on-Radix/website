@@ -1,19 +1,63 @@
 import "react";
+import { useEffect, useState } from "react";
 
 interface PromoHeaderProps {
   imageUrl: string; // 1640 x 128
   imageUrlMobile: string; // 500 x 128
+  targetUrl: string; // target redirect address when banner is clicked
 }
 
-export function PromoHeader({ imageUrl, imageUrlMobile }: PromoHeaderProps) {
-  const deterministicSize = "w-[1640px] max-[500px]:w-[500px] h-[128px]";
+function isSmallScreen(): boolean {
+  return window.innerWidth <= 500;
+}
+
+// The banner display logic is different depending on screensize:
+// < 500px  : show small image (500x128), and scale down linearly
+// > 500px  : show large image (1640x128) without scaling, but center content
+// > 1640px : show large image (1640x128) without scaling, and add gradient
+//            colors on left and right side to prevent banner cutoff
+export function PromoHeader({
+  imageUrl,
+  imageUrlMobile,
+  targetUrl,
+}: PromoHeaderProps) {
+  // determines which image to show (500x128 vs 1640x128)
+  const [showSmallImage, setShowSmallImage] = useState(isSmallScreen());
+
+  // dynamically handle screen resize
+  useEffect(() => {
+    const handleResize = () => {
+      setShowSmallImage(isSmallScreen());
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className={`${deterministicSize}`}>
-      <img
-        srcSet={`${imageUrlMobile} 500w, ${imageUrl} 1640w`}
-        sizes="(max-width: 500px) 500px, 1640px"
-        alt=""
-      />
+    <div
+      className={
+        "flex justify-center items-center" + //positioning
+        "max-w-[100vw] h-[128px] " + // sizing
+        // add gradient that will be shown for screensizes > 1640px
+        "bg-gradient-to-r from-dexter-gradient-blue from-50% to-dexter-green to-50%"
+      }
+    >
+      <a href={targetUrl} className="cursor-pointer" target="_blank">
+        {showSmallImage ? (
+          <img
+            src={imageUrlMobile}
+            alt="promo header"
+            className="w-[100vw] h-auto"
+          />
+        ) : (
+          <img
+            src={imageUrl}
+            alt="promo header"
+            className="object-cover w-1640px h-[128px]"
+          />
+        )}
+      </a>
     </div>
   );
 }
