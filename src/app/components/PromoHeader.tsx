@@ -1,7 +1,7 @@
 import "react";
 import { useEffect, useState } from "react";
 
-interface PromoHeaderProps {
+export interface PromoHeaderProps {
   imageUrl: string; // 1640 x 128
   imageUrlMobile: string; // 500 x 128
   targetUrl: string; // target redirect address when banner is clicked
@@ -33,6 +33,11 @@ export function PromoHeader({
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Ignore header if image is missing
+  if (imageUrl === "" || imageUrlMobile === "") {
+    return <></>;
+  }
 
   return (
     <div
