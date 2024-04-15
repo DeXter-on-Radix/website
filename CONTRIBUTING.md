@@ -174,14 +174,14 @@ Further reading:
 
 The space on top of the trading page can be used to display promo banners, for example:
 
-![image](https://github.com/DeXter-on-Radix/website/assets/44790691/94d8a722-d809-41cd-adcc-e31cf7d9864e)
+![image](https://github.com/DeXter-on-Radix/website/assets/44790691/670983d6-3233-4685-8c5e-e0b4c06335f6)
 
 ### Add new Banners
 
-To add a new banner, the flow is as follows:
+To add a new banner, follow these steps:
 
-1. Each banner needs to be created in 2 versions: dektop (600x80) and mobile (600x200)
-2. The background for all banners is always a linear gradient from green -> blue (see example for [desktop](https://github.com/DeXter-on-Radix/website/assets/44790691/ec2a489e-3e89-4e4e-a9b8-612d5478f7cb) or [mobile](https://github.com/DeXter-on-Radix/website/assets/44790691/86ade9db-7055-464c-843b-e2298e8980f4))
+1. Each banner needs to be created in 2 versions: dektop (600x80) and mobile (600x200).
+2. The background for all banners is always a linear gradient from green -> blue (see example for [desktop](https://github.com/DeXter-on-Radix/website/assets/44790691/ec2a489e-3e89-4e4e-a9b8-612d5478f7cb) or [mobile](https://github.com/DeXter-on-Radix/website/assets/44790691/86ade9db-7055-464c-843b-e2298e8980f4)) and will be painted by the website.
 3. The content of the header needs to be exported as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg))
-4. Uploaded both files to `/public/promo-banners/`
-5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20)
+4. Upload both files to `/public/promo-banners/`.
+5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20).
