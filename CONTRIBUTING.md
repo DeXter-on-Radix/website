@@ -169,3 +169,19 @@ Further reading:
 - [When should we “TOAST” use the most? — fix UX.](https://bootcamp.uxdesign.cc/when-should-we-toast-use-the-most-fix-ux-353def0e61a5)
 - [Toast notifications Guide](https://design-system.hpe.design/templates/toast-notifications)
 - [A UX designer’s guide to implementing toast notifications](https://blog.logrocket.com/ux-design/toast-notifications/)
+
+## Promo Banners
+
+The space on top of the trading page can be used to display promo banners, for example:
+
+![image](https://github.com/DeXter-on-Radix/website/assets/44790691/94d8a722-d809-41cd-adcc-e31cf7d9864e)
+
+### Add new Banners
+
+To add a new banner, the flow is as follows:
+
+1. Each banner needs to be created in 2 versions: dektop (600x80) and mobile (600x200)
+2. The background for all banners is always a linear gradient from green -> blue (see example for [desktop](https://github.com/DeXter-on-Radix/website/assets/44790691/ec2a489e-3e89-4e4e-a9b8-612d5478f7cb) or [mobile](https://github.com/DeXter-on-Radix/website/assets/44790691/86ade9db-7055-464c-843b-e2298e8980f4))
+3. The content of the header needs to be exported as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg))
+4. Uploaded both files to `/public/promo-banners/`
+5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20)
