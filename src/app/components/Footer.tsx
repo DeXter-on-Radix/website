@@ -2,38 +2,103 @@ import "react";
 import { useTranslations } from "hooks";
 import "../styles/footer.css";
 import Image from "next/image";
-import { AccentLink } from "./AccentLink";
 
-import { FaXTwitter } from "react-icons/fa6";
-import { FaTelegram } from "react-icons/fa6";
-import { FaDiscord } from "react-icons/fa6";
-import { FaGithub } from "react-icons/fa6";
-import { SiGitbook } from "react-icons/si";
+const marginBottom = "mb-8";
 
 export function Footer() {
   const t = useTranslations();
-  return (
-    <footer className="col-span-12 p-4 grid grid-cols-1 grid-rows-5 gap-4 bg-base-300 text-xs text-secondary-content lg:grid-cols-3 lg:grid-rows-3 lg:p-12 lg:gap-8">
-      <div className="row-start-2 row-span-3 grid grid-cols-6 gap-4 text-xs lg:row-start-1">
-        <Image
-          src="/dexter_icon.svg"
-          alt="DeXter icon"
-          width="0"
-          height="0"
-          sizes="100vw"
-          className="w-8 h-auto !my-auto col-start-1 place-self-end"
-        />
-        <Image
-          src="/dexter_name.svg"
-          alt="DeXter"
-          width="0"
-          height="0"
-          sizes="100vw"
-          className="w-24 h-auto !my-auto col-start-2 col-span-5 place-self-start"
-        />
+  const contentColumn1 = {
+    title: t("ecosystem"),
+    links: [
+      {
+        text: t("trade"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/using-dexter/start-trading",
+      },
+      {
+        text: t("provide_liquidity"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
+      },
+      {
+        text: t("tokenomics"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
+      },
+    ],
+  };
+  const contentColumn2 = {
+    title: t("developers"),
+    links: [
+      {
+        text: t("contribute"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
+      },
+      {
+        text: "Github",
+        url: "https://github.com/DeXter-on-Radix",
+      },
+    ],
+  };
+  const contentColumn3 = {
+    title: t("support"),
+    links: [
+      {
+        text: t("talk_to_us"),
+        url: "https://t.me/dexter_discussion",
+      },
+      {
+        text: t("report_bug"),
+        url: "https://t.me/dexter_discussion",
+      },
+      {
+        text: t("report_translation_issue"),
+        url: "https://docs.google.com/document/d/11I9c3XjKPmXgc9V6puznD_mSXA5QCqNKAG1QCcClkRw/edit?usp=sharing",
+      },
+      {
+        text: t("terms_and_conditions"),
+        url: "/terms",
+      },
+    ],
+  };
 
-        <div className="col-start-2 col-span-5">
-          {t("footer_1")} <br /> {t("footer_2")} <br />
+  return (
+    <footer className="bg-base-300 text-xs text-secondary-content px-12 pt-8 pb-16">
+      <div className="flex flex-wrap justify-between">
+        <div className="flex flex-wrap">
+          <FirstFooterElement />
+          <div className="flex flex-wrap sm:flex-nowrap">
+            <FooterContentColumn {...contentColumn1} />
+            <FooterContentColumn {...contentColumn2} />
+            <FooterContentColumn {...contentColumn3} />
+          </div>
+        </div>
+        <div className="">
+          <h3 className="py-2 text-white font-medium !my-0 !text-sm">
+            {t("our_community")}
+          </h3>
+          <SocialIcons />
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FirstFooterElement() {
+  const t = useTranslations();
+  return (
+    <div className={`text-xs flex flex-col pr-10 ${marginBottom}`}>
+      <Image
+        src="/dexter-logo-and-lettering.svg"
+        alt="DeXter icon"
+        width="113"
+        height="22"
+        className="h-auto"
+      />
+
+      <div className="">
+        <p className="truncate pt-4">
+          {t("safe_accurate_intuitive_decentralized")}
+        </p>
+        <p className="truncate pt-2">{t("built_with_passion_by_community")}</p>
+        <p className="truncate">
           {t("runs_on")}{" "}
           <a href="https://www.radixdlt.com/" target="_blank">
             RADIX
@@ -43,75 +108,75 @@ export function Footer() {
             ALPHA DEX
           </a>
           .
-        </div>
-
-        <div className="col-span-11 col-start-2">{t("footer_3")}</div>
-
-        <div className="col-span-11 col-start-2">
-          <a href="https://www.radixdlt.com/" target="_blank">
-            <img
-              width="150"
-              src="runs-on-radix.png"
-              alt="Runs on Radix Button"
-            ></img>
-          </a>
-        </div>
+        </p>
       </div>
+    </div>
+  );
+}
 
-      <div className="flex flex-col space-y-4 px-16 lg:row-span-2">
-        <div className="uppercase">{t("social_media")}</div>
+interface FooterContentColumnProps {
+  title: string;
+  links: { text: string; url: string }[];
+}
 
-        <div className="flex justify-between">
-          <a
-            href="https://twitter.com/DexterOnRadix"
-            target="_blank"
-            className="text-secondary-content hover:text-primary-content"
-          >
-            <FaXTwitter size="1rem" />
-          </a>
+function FooterContentColumn({
+  title = "",
+  links = [],
+}: FooterContentColumnProps) {
+  return (
+    <div className={`pr-8 ${marginBottom}`}>
+      <h3 className="py-2 text-secondary-content font-medium !my-0 !text-sm">
+        {title}
+      </h3>
+      {links.map((link, i) => (
+        <a href={link.url} key={i} target="_blank">
+          <p className="truncate pl-[1px] text-xs py-[2px] cursor-pointer text-white font-normal hover:underline">
+            {link.text}
+          </p>
+        </a>
+      ))}
+    </div>
+  );
+}
 
-          <a
-            href="https://t.me/dexter_discussion"
-            target="_blank"
-            className="text-secondary-content hover:text-primary-content"
-          >
-            <FaTelegram size="1rem" />
-          </a>
-
-          <a
-            href="https://discord.gg/Y44jqe2q2W"
-            target="_blank"
-            className="text-secondary-content hover:text-primary-content"
-          >
-            <FaDiscord size="1rem" />
-          </a>
-
-          <a
-            href="https://github.com/DeXter-on-Radix"
-            target="_blank"
-            className="text-secondary-content hover:text-primary-content"
-          >
-            <FaGithub size="1rem" />
-          </a>
-
-          <a
-            href="https://dexter-on-radix.gitbook.io"
-            target="_blank"
-            className="text-secondary-content hover:text-primary-content"
-          >
-            <SiGitbook size="1rem" />
-          </a>
-        </div>
-      </div>
-
-      <div className="flex justify-end items-center space-x-4 lg:row-start-3 lg:col-start-3 lg:pr-8 uppercase">
-        <AccentLink
-          href="/terms"
-          originalClassName="whitespace-nowrap text-secondary-content"
-        >
-          {t("terms_and_conditions")}
-        </AccentLink>
-      </div>
-    </footer>
+function SocialIcons() {
+  const socials = [
+    {
+      id: "telegram",
+      url: "https://t.me/dexter_discussion",
+    },
+    {
+      id: "discord",
+      url: "https://discord.gg/Y44jqe2q2W",
+    },
+    {
+      id: "github",
+      url: "https://github.com/DeXter-on-Radix",
+    },
+    {
+      id: "x",
+      url: "https://twitter.com/DexterOnRadix",
+    },
+    {
+      id: "instagram",
+      url: "https://www.instagram.com/dexter_on_radix/",
+    },
+    {
+      id: "youtube",
+      url: "https://www.youtube.com/@Dexter_Official_Dex/videos",
+    },
+    {
+      id: "gitbook",
+      url: "https://dexter-on-radix.gitbook.io/dexter",
+    },
+  ];
+  return (
+    <div className={`flex flex-wrap ${marginBottom}`}>
+      {socials.map(({ id, url }, indx) => (
+        <a href={url} key={indx} target="_blank" className="mr-2 mt-2">
+          <img className="w-8 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
+        </a>
+      ))}
+    </div>
   );
 }
