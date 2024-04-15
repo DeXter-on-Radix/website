@@ -1,5 +1,5 @@
 import "react";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface PromoBannerProps {
   imageUrl: string; // 1640 x 128
@@ -7,16 +7,9 @@ export interface PromoBannerProps {
   redirectUrl: string; // target redirect address when banner is clicked
 }
 
-function isSmallScreen(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  return window.innerWidth <= 500;
-}
-
 // The banner display logic is different depending on screensize:
-// < 500px  : show small image (500x128), and scale down linearly
-// > 500px  : show large image (1640x128) without scaling, but center content
+// < 600px  : show small image (500x128), and scale down linearly
+// > 600px  : show large image (1640x128) without scaling, but center content
 // > 1640px : show large image (1640x128) without scaling, and add gradient
 //            colors on left and right side to prevent banner cutoff
 export function PromoBanner({
@@ -24,25 +17,35 @@ export function PromoBanner({
   imageUrlMobile,
   redirectUrl,
 }: PromoBannerProps) {
-  // determines which image to show (500x128 vs 1640x128)
-  const [showSmallImage, setShowSmallImage] = useState(isSmallScreen());
+  const hasRedirectUrl = redirectUrl !== "";
 
-  // dynamically handle screen resize
+  const isSmallScreen = () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.innerWidth <= 600;
+  };
+
+  // Use null initially to not show any image
+  const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
+
   useEffect(() => {
+    // Determine which image to show based on the client's screen size
+    setCurrentImageSrc(isSmallScreen() ? imageUrlMobile : imageUrl);
+
+    // Update image source on window resize
     const handleResize = () => {
-      setShowSmallImage(isSmallScreen());
+      setCurrentImageSrc(isSmallScreen() ? imageUrlMobile : imageUrl);
     };
+
     window.addEventListener("resize", handleResize);
-    handleResize();
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [imageUrl, imageUrlMobile]);
 
   // Ignore header if image is missing
-  if (imageUrl === "" || imageUrlMobile === "") {
-    return <></>;
+  if (currentImageSrc === null || currentImageSrc === "") {
+    return null; // Return null if no image should be shown
   }
-
-  const hasRedirectUrl = redirectUrl !== "";
 
   const handleRedirect = () => {
     if (hasRedirectUrl && typeof window !== "undefined") {
@@ -54,28 +57,21 @@ export function PromoBanner({
     <div
       className={
         "flex justify-center items-center " +
-        "max-w-[100vw] h-[128px] " + // sizing
-        // add gradient that will be shown for screensizes > 1640px
-        "bg-gradient-to-r from-dexter-gradient-blue from-50% to-dexter-green to-50%"
+        `max-w-[100vw] ` + // sizing
+        "bg-gradient-to-r from-dexter-gradient-green from-50% to-dexter-gradient-blue to-50%" // gradient background
       }
     >
       <a
         onClick={handleRedirect}
         className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
       >
-        {showSmallImage ? (
-          <img
-            src={imageUrlMobile}
-            alt="promo header"
-            className="w-[100vw] h-auto"
-          />
-        ) : (
-          <img
-            src={imageUrl}
-            alt="promo header"
-            className="object-cover w-1640px h-[128px]"
-          />
-        )}
+        <img
+          src={currentImageSrc}
+          alt="promo header"
+          className={`w-[100vw] ${
+            isSmallScreen() ? "h-auto " : "h-[90px] w-auto max-w-[1640px]"
+          }`}
+        />
       </a>
     </div>
   );
