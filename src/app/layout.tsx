@@ -13,8 +13,8 @@ import { PromoBanner, PromoBannerProps } from "components/PromoBanner";
 // Configuration for promo banner
 // Once both images and a targetUrl are defined the banner will automatically show
 const promoBannerConfig: PromoBannerProps = {
-  imageUrl: "/promo-banners/boilerplate/desktop-1640x128.png",
-  imageUrlMobile: "/promo-banners/boilerplate/mobile-500x128.png",
+  imageUrl: "",
+  imageUrlMobile: "",
   redirectUrl: "",
 };
 

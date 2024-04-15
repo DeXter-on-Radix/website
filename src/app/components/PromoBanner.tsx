@@ -8,6 +8,9 @@ export interface PromoBannerProps {
 }
 
 function isSmallScreen(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
   return window.innerWidth <= 500;
 }
 
@@ -39,16 +42,27 @@ export function PromoBanner({
     return <></>;
   }
 
+  const hasRedirectUrl = redirectUrl !== "";
+
+  const handleRedirect = () => {
+    if (hasRedirectUrl && typeof window !== "undefined") {
+      window.open(redirectUrl, "_blank");
+    }
+  };
+
   return (
     <div
       className={
-        "flex justify-center items-center" + //positioning
+        "flex justify-center items-center " +
         "max-w-[100vw] h-[128px] " + // sizing
         // add gradient that will be shown for screensizes > 1640px
         "bg-gradient-to-r from-dexter-gradient-blue from-50% to-dexter-green to-50%"
       }
     >
-      <a href={redirectUrl || ""} className="cursor-pointer" target="_blank">
+      <a
+        onClick={handleRedirect}
+        className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
+      >
         {showSmallImage ? (
           <img
             src={imageUrlMobile}
