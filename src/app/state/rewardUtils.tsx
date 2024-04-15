@@ -87,7 +87,7 @@ export function getRewardsByTypeThenToken(
         existingTypeRewardTokens = new Map(existingTypeRewardTokens);
       }
       typeReward.tokenRewards.forEach((tokenReward) => {
-        let existingTokenReward = existingTypeRewardTokens.get(
+        let existingTokenReward = existingTypeRewardTokens!.get(
           tokenReward.address
         );
         if (!existingTokenReward) {
@@ -104,7 +104,7 @@ export function getRewardsByTypeThenToken(
           existingTokenReward = { ...existingTokenReward };
           existingTokenReward.amount += tokenReward.amount;
         }
-        existingTypeRewardTokens.set(
+        existingTypeRewardTokens!.set(
           existingTokenReward.address,
           existingTokenReward
         );
@@ -121,7 +121,7 @@ export function getRewardsByTypeThenToken(
         existingTypeRewardTokens = new Map(existingTypeRewardTokens);
       }
       typeReward.tokenRewards.forEach((tokenReward) => {
-        let existingTokenReward = existingTypeRewardTokens.get(
+        let existingTokenReward = existingTypeRewardTokens!.get(
           tokenReward.address
         );
         if (!existingTokenReward) {
@@ -138,7 +138,7 @@ export function getRewardsByTypeThenToken(
           existingTokenReward = { ...existingTokenReward };
           existingTokenReward.amount += tokenReward.amount;
         }
-        existingTypeRewardTokens.set(
+        existingTypeRewardTokens!.set(
           existingTokenReward.address,
           existingTokenReward
         );
