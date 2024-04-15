@@ -30,9 +30,9 @@ export function Navbar() {
       <Image
         src="/dexter-logo-and-lettering.svg"
         alt="Dexter logo and lettering"
-        width={122}
-        height={122}
-        className="!my-0 pl-2 mx-3 p-2"
+        width={130}
+        height={130}
+        className="!my-0 mx-5"
         priority={true}
       />
       {/* DESKTOP VERSION */}
