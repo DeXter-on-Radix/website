@@ -8,6 +8,16 @@ import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
+import { PromoBanner, PromoBannerProps } from "components/PromoBanner";
+
+// Configuration for promo banner
+// Once both images and a targetUrl are defined the banner will automatically show
+const promoBannerConfig: PromoBannerProps = {
+  imageUrl: "/promo-banners/validator-node-staking/desktop-1640x128.png",
+  imageUrlMobile: "/promo-banners/validator-node-staking/mobile-500x128.png",
+  redirectUrl:
+    "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
+};
 
 export default function RootLayout({
   children,
@@ -32,11 +42,10 @@ export default function RootLayout({
             data-path={path}
             className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
           >
-            <div className="flex flex-col min-h-[100vh]">
-              <div className="grow flex flex-col">
-                <Navbar />
-                {children}
-              </div>
+            <div className="flex flex-col justify-between min-h-[100vh]">
+              <Navbar />
+              <PromoBanner {...promoBannerConfig} />
+              {children}
               <Footer />
             </div>
           </div>

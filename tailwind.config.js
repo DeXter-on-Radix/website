@@ -25,9 +25,10 @@ module.exports = {
         "auto-1fr": "auto 1fr",
       },
       colors: {
-        "dexter-gradient-blue": "#2DB9D2",
-        "dexter-gradient-green": "#CAFC40",
-        // "dexter-gradient-green": "#A7D22D",
+        "dexter-gradient-blue": "#05CBE6",
+        "dexter-gradient-green": "#ACF840",
+        "dexter-green": "#A7D22D",
+        "dexter-green-OG": "#CAFC40",
       },
     },
   },
