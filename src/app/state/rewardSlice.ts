@@ -101,20 +101,15 @@ export const fetchReciepts = createAsyncThunk<
     throw new Error("RDT initialization failed");
   }
 
-  // Question from @dcts: should those be really taken from .env
-  // or are we fetchnig those too with fetchAddresses ?
   const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
-  const resourceAddress = process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD;
   if (!claimComponentAddress) {
     throw new Error("claimComponentAddress missing");
-  }
-  if (!resourceAddress) {
-    throw new Error("resourceAddress missing");
   }
   const walletData = rdt.walletApi.getWalletData();
   // Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
 
+  // get all NFTs from your wallet
   const { items } =
     await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
       stateEntityNonFungiblesPageRequest: {
@@ -126,19 +121,26 @@ export const fetchReciepts = createAsyncThunk<
       },
     });
 
-  const accountReceiptVault =
-    (items.find(
-      // eslint-disable-next-line camelcase
-      ({ resource_address }) => resource_address === resourceAddress
-    ) as NonFungibleResource) || null;
+  // TODO(dcts): loop through all pair addresses here
+  const receipts: string[] = [];
 
-  if (!accountReceiptVault) {
-    throw new Error("accountReceiptVault not found");
-  }
-  if (accountReceiptVault.vaults.items.length === 0) {
-    throw new Error("accountReceiptVault has no vaults.items");
-  }
-  return accountReceiptVault.vaults.items[0].items as string[];
+  items.forEach((item) => {});
+  // const accountReceiptVault =
+  //   (items.find(
+  //     // eslint-disable-next-line camelcase
+  //     ({ resource_address }) => resource_address === resourceAddress
+  //   ) as NonFungibleResource) || null;
+
+  // if (!accountReceiptVault) {
+  //   throw new Error("accountReceiptVault not found");
+  // }
+  // if (accountReceiptVault.vaults.items.length === 0) {
+  //   throw new Error("accountReceiptVault has no vaults.items");
+  // }
+  // TODO(dcts): incorporate all resources addresses into the receipts, so no dictionary is neccessarry
+  // -> ${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}
+  // -> keep array of strings
+  // return accountReceiptVault.vaults.items[0].items as string[];
 });
 
 export const fetchAccountRewards = createAsyncThunk<
@@ -158,15 +160,15 @@ export const fetchAccountRewards = createAsyncThunk<
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
+  // TODO(dcts): make both APIs into one (kindof) -> should return accountsRewards[]
   const accountRewardData = await getAccountsRewardsApiData(
     [accountAddress],
     state.rewardSlice.config.rewardNFTAddress
   );
-  const accountsRewards = await getAccountsRewardsFromApiData(
-    accountRewardData
-  );
-  const serialize = JSON.stringify(accountsRewards);
-  return JSON.parse(serialize);
+  // TODO(dcts): ensure deep copying is not neccessary and doesnt break anything
+  // const accountsRewards = getAccountsRewardsFromApiData(accountRewardData);
+  // const serialize = JSON.stringify(accountsRewards);
+  return getAccountsRewardsFromApiData(accountRewardData);
 });
 
 export const fetchOrderRewards = createAsyncThunk<
@@ -190,12 +192,14 @@ export const fetchOrderRewards = createAsyncThunk<
       (id) =>
         `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
     );
+    // TODO(dcts): simplify into a single call here that returns orderRewards, outsource responsibility
     const orderRewardsData = await getOrdersRewardsApiData(
       state.rewardSlice.config.rewardOrderAddress,
       prefixedReceiptIds
     );
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
+  // TODO(dcts): remove deep copying and test if still works
   const serialize = JSON.stringify(orderRewards);
   return JSON.parse(serialize);
 });
@@ -248,6 +252,7 @@ export const rewardSlice = createSlice({
 
   // synchronous reducers
   reducers: {
+    // TODO(dcts): refactor to asyncThunk
     claimRewards: (state) => {
       const rdt = getRdt();
       if (!rdt) return;

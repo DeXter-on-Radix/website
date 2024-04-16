@@ -12,8 +12,8 @@ import {
   fetchOrderRewards,
   rewardSlice,
 } from "state/rewardSlice";
-import tokenData from "../data/stokenetTokens.json";
-import { TokenInfo } from "alphadex-sdk-js";
+
+import { loadTokenDict, loadOrderReceiptNftAddressDict } from "data/loadData";
 import { useSelector } from "react-redux";
 import {
   TokenReward,
@@ -23,11 +23,6 @@ import {
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
-  // HARDCODED TOKEN INFO FROM RESSOURCE
-  // To get all token info, use the following code snippet inside
-  // pair selector component:
-  // https://gist.github.com/dcts/e92ad3302be703707592761426854dec
-  const tokensDict: Record<string, TokenInfo> = tokenData;
   useEffect(() => {
     initializeSubscriptions(store);
     return () => {
@@ -39,7 +34,7 @@ export default function Rewards() {
     <div className="bg-[#141414] h-full">
       {/* <HeaderComponent /> */}
       <DebugStateLogger />
-      <RewardsCard tokensDict={tokensDict} />
+      <RewardsCard />
       {/* Comment back in for old UI */}
       {/* <div className="flex flex-1 flex-col items-center my-8">
         <Rewards />
@@ -94,11 +89,7 @@ function DexterHeading({ title }: { title: string }) {
   );
 }
 
-function RewardsCard({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function RewardsCard() {
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
   const t = useTranslations();
@@ -128,7 +119,7 @@ function RewardsCard({
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableCoins tokensDict={tokensDict} />
+        <ClaimableCoins />
         <ClaimButton />
         <LearnMore />
         <div>
@@ -141,7 +132,7 @@ function RewardsCard({
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableTypes tokensDict={tokensDict} />
+        <ClaimableTypes />
       </div>
     </div>
   );
@@ -161,11 +152,8 @@ function LearnMore() {
   );
 }
 
-function ClaimableCoins({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function ClaimableCoins() {
+  const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   // const dispatch = useAppDispatch();
@@ -176,17 +164,14 @@ function ClaimableCoins({
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensDict
+    tokenDict
   );
 
   return <TokenList tokenRewards={rewardsByToken} />;
 }
 
-function ClaimableTypes({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function ClaimableTypes() {
+  const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
@@ -198,7 +183,7 @@ function ClaimableTypes({
   const rewardsByTypeThenToken = getRewardsByTypeThenToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensDict
+    tokenDict
   );
 
   return (
