@@ -1,0 +1,26 @@
+{
+  "stokenet": {
+    "resource_tdx_2_1n2at3fhhq5vqqput5wz8tlutkfx42uyxcjhq9zcqypt3pxqw68drsl": true,
+    "resource_tdx_2_1ntu2dfj2as5rkhlwqsrcfk3ffs0xfq0q4st9lh97nq0pz4nnz58hru": true,
+    "resource_tdx_2_1ng32esp95nmay5er9ycmgwwlf4yk8ef9kedfz3ap7myu0mxy3ayahv": true,
+    "resource_tdx_2_1ng6vf9g4d30dw8h6h4t2t6e3mfxrhpw8d0n5dkpzh4xaqzqha57cd2": true
+  },
+  "mainnet": {
+    "resource_rdx1ntyzfqjdlhmfujtnr0wacgwu4almhmn3qx6h269gnwcx7cqq29pvwx": true,
+    "resource_rdx1nfdrqvcp4sqeznw0tcrgqepnylnjmqp258pds6ae0ks5gu689cnz9l": true,
+    "resource_rdx1ntsjtughgyxdjn3t6ddr0luphvzp859yc3pauantqjngm3nqhfq4yc": true,
+    "resource_rdx1ntjfxdj66erumwrnph234vdjdr77ka4uwjwf50amzeskvfqqhev99n": true,
+    "resource_rdx1nt09v7lxpgruvkat3t4fgf58upvd8xxjlpxktx4jxcv2mrvu5memzh": true,
+    "resource_rdx1ngm6vsqt7uus6jd8j3lcywrenjg5g0k98affhlsy5n2arlf5apghat": true,
+    "resource_rdx1n2fzl0ep7zqjk52px9q6ymgvvenejfygjz6c9ag2kz3qscl75j30kf": true,
+    "resource_rdx1n2d8d8xq9kr6mvpmnp6k9r7afrwwyc5w9yc9kzu03keaalgqe0cw4u": true,
+    "resource_rdx1ngu38jq0760nfxew3ga0aujgz5d956punu22ern5w3jk6taqlww9tx": true,
+    "resource_rdx1nft5r8fsg30u9uudejxfpzcldxtlgj55kvudqkuawt0m7y5xp8jmh9": true,
+    "resource_rdx1nfzh5cv8aq0wwa7826u937nqzrunadsxsn9tw6va0z7favjju9scrd": true,
+    "resource_rdx1n2nqrdvmzzancuxqkdw29rhdlqtmdgsu3xuctrtnhs7yan5thn90rh": true,
+    "resource_rdx1ng5syy8v4yjmvrvqadrshk3vwee39gqxphg38qv33ccuu3wpzhg6dr": true,
+    "resource_rdx1ngkwjmqjjq7n28wdddjra0amhtv54mqr36clm9wrlympg0zw2yw3sy": true,
+    "resource_rdx1nfx8jk4na0adel3ekxvlt3sm942jp5cmgekj82a4xazf79mphzf32v": true,
+    "resource_rdx1n2p03a35kez6ysm8updkgt5ssxwvhdz3qgrac48ugk3960wjznqv29": true
+  }
+}
