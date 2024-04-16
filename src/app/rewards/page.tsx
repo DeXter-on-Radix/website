@@ -6,10 +6,10 @@ import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 import { RootState, store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
+  fetchAddresses,
+  fetchReciepts,
   fetchAccountRewards,
   fetchOrderRewards,
-  fetchReciepts,
-  fetchAddresses,
   rewardSlice,
 } from "state/rewardSlice";
 import tokenData from "../data/stokenetTokens.json";
@@ -37,7 +37,8 @@ export default function Rewards() {
 
   return (
     <div className="bg-[#141414] h-full">
-      <HeaderComponent />
+      {/* <HeaderComponent /> */}
+      <DebugStateLogger />
       <RewardsCard tokensDict={tokensDict} />
       {/* Comment back in for old UI */}
       {/* <div className="flex flex-1 flex-col items-center my-8">
@@ -272,5 +273,52 @@ function ClaimButton() {
       //   );
       // }}
     >{`Claim All Rewards`}</button>
+  );
+}
+
+function DebugStateLogger() {
+  const { config, recieptIds } = useAppSelector((state) => state.rewardSlice);
+  // const tartgetToken = useAppSelector(selectTargetToken);
+  let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
+  fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
+  fetchAddresses += `rewardNFTAddress = ${config.rewardNFTAddress}\n`;
+  fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
+  fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
+  let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
+
+  const renderTable = (input: string, title: string) => {
+    return (
+      <>
+        <p>DEBUG {title}</p>
+        <table className="max-w-[500px] m-auto mb-5">
+          <tbody>
+            {input.split("\n").map((line, index) => {
+              const parts = line.split("="); // Split each line by "="
+              return (
+                <tr key={index}>
+                  <td style={{ padding: 0 }} className="w-1/3  text-sm">
+                    {parts[0]}
+                  </td>{" "}
+                  {/* First part of the line */}
+                  <td style={{ padding: 0 }} className="w-2/3  text-sm">
+                    {parts[1]?.includes("@newline@")
+                      ? parts[1].split("@newline@").join("\n")
+                      : parts[1]}
+                  </td>{" "}
+                  {/* Second part of the line */}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </>
+    );
+  };
+  return (
+    <div className="max-w-[800px] m-auto">
+      <strong>STATE DEBUGGER</strong>
+      {renderTable(fetchAddresses, "fetchAddresses")}
+      {renderTable(fetchReciepts, "fetchReciepts")}
+    </div>
   );
 }

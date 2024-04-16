@@ -11,6 +11,7 @@ import {
   OrderRewards,
   createAccountNftId,
 } from "./rewardUtils";
+import { DexterToast } from "components/DexterToaster";
 
 export interface RewardState {
   recieptIds: string[];
@@ -32,8 +33,14 @@ interface RewardConfig {
   };
 }
 
-function findFieldByName(fieldName: string, fields: any[]) {
-  return fields.find((field) => field.field_name === fieldName);
+function findFieldValueByNameOrThrow(fieldName: string, fields: any[]): string {
+  const targetValue = fields.find(
+    (field) => field.field_name === fieldName
+  )?.value;
+  if (targetValue === undefined) {
+    throw new Error("Could not get field value for " + fieldName);
+  }
+  return targetValue;
 }
 
 export interface RewardData {
@@ -83,53 +90,55 @@ type NonFungibleResource = NonFungibleResourcesCollectionItem & {
 // when fetching receipts for rewards, you need to fetch receipts for all pairs (not just the DEXTER/XRD pair).
 // You can use the existing alphadex api endpoint: /account/orders to get the orders for each pair.
 export const fetchReciepts = createAsyncThunk<
-  undefined, // Return type of the payload creator
+  string[], // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
   }
->("rewards/fetchReciepts", async (_, thunkAPI) => {
-  const dispatch = thunkAPI.dispatch;
+>("rewards/fetchReciepts", async () => {
   const rdt = getRdt();
-  if (!rdt) return;
-  const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
-  const resourceAddress = process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD;
-  if (!claimComponentAddress) return;
-  const walletData = rdt.walletApi.getWalletData();
-  //Todo support multiple wallets ids
-  const accountAddress = walletData.accounts[0].address;
-
-  try {
-    const response =
-      await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
-        stateEntityNonFungiblesPageRequest: {
-          address: accountAddress,
-          // eslint-disable-next-line camelcase
-          aggregation_level: "Vault",
-          // eslint-disable-next-line camelcase
-          opt_ins: { non_fungible_include_nfids: true },
-        },
-      });
-    const { items } = response;
-
-    const accountReceiptVault =
-      (items.find(
-        // eslint-disable-next-line camelcase
-        ({ resource_address }) => resource_address === resourceAddress
-      ) as NonFungibleResource) || null;
-
-    if (accountReceiptVault && accountReceiptVault?.vaults.items.length > 0) {
-      dispatch(
-        rewardSlice.actions.updateReciepts(
-          accountReceiptVault?.vaults.items[0].items as string[]
-        )
-      );
-    }
-  } catch (error) {
-    return undefined;
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
   }
 
-  return undefined;
+  // Question from @dcts: should those be really taken from .env
+  // or are we fetchnig those too with fetchAddresses ?
+  const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
+  const resourceAddress = process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD;
+  if (!claimComponentAddress) {
+    throw new Error("claimComponentAddress missing");
+  }
+  if (!resourceAddress) {
+    throw new Error("resourceAddress missing");
+  }
+  const walletData = rdt.walletApi.getWalletData();
+  // Todo support multiple wallets ids
+  const accountAddress = walletData.accounts[0].address;
+
+  const { items } =
+    await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
+      stateEntityNonFungiblesPageRequest: {
+        address: accountAddress,
+        // eslint-disable-next-line camelcase
+        aggregation_level: "Vault",
+        // eslint-disable-next-line camelcase
+        opt_ins: { non_fungible_include_nfids: true },
+      },
+    });
+
+  const accountReceiptVault =
+    (items.find(
+      // eslint-disable-next-line camelcase
+      ({ resource_address }) => resource_address === resourceAddress
+    ) as NonFungibleResource) || null;
+
+  if (!accountReceiptVault) {
+    throw new Error("accountReceiptVault not found");
+  }
+  if (accountReceiptVault.vaults.items.length === 0) {
+    throw new Error("accountReceiptVault has no vaults.items");
+  }
+  return accountReceiptVault.vaults.items[0].items as string[];
 });
 
 export const fetchAccountRewards = createAsyncThunk<
@@ -140,7 +149,9 @@ export const fetchAccountRewards = createAsyncThunk<
   }
 >("rewards/fetchAccountRewards", async (_, thunkAPI) => {
   const rdt = getRdt();
-  if (!rdt) return;
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
+  }
 
   const state = thunkAPI.getState();
 
@@ -166,7 +177,9 @@ export const fetchOrderRewards = createAsyncThunk<
   }
 >("rewards/fetchOrderRewards", async (_, thunkAPI) => {
   const rdt = getRdt();
-  if (!rdt) return;
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
+  }
 
   const state = thunkAPI.getState();
 
@@ -187,41 +200,46 @@ export const fetchOrderRewards = createAsyncThunk<
   return JSON.parse(serialize);
 });
 
+interface FetchAddressesResult {
+  rewardNFTAddress: string;
+  rewardOrderAddress: string;
+  rewardVaultAddress: string;
+}
+
 export const fetchAddresses = createAsyncThunk<
-  RewardConfig, // Return type of the payload creator
+  FetchAddressesResult, // Return type of the payload creator
   undefined, // argument type
   {
     state: RootState;
   }
 >("rewards/fetchAddresses", async (_, thunkAPI) => {
   const rdt = getRdt();
-  if (!rdt) return;
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
+  }
   const state = thunkAPI.getState();
-  const newConfig = JSON.parse(JSON.stringify(state.rewardSlice.config));
 
-  //Get the state entity
+  // Get the state entity
   const component: any =
     await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
       state.rewardSlice.config.rewardComponent
     );
 
-  newConfig.rewardNFTAddress = findFieldByName(
-    "account_rewards_nft_manager",
-    component.details?.state.fields
-  ).value;
-
-  newConfig.rewardOrderAddress = findFieldByName(
-    "order_rewards",
-    component.details?.state.fields
-  ).value;
-
-  newConfig.rewardVaultAddress = findFieldByName(
-    "claim_vaults",
-    component.details?.state.fields
-  ).value;
-
-  const serialize = JSON.stringify(newConfig);
-  return JSON.parse(serialize);
+  // Find relevant fields. Throws an error if field was not found
+  return {
+    rewardNFTAddress: findFieldValueByNameOrThrow(
+      "account_rewards_nft_manager",
+      component.details.state.fields
+    ),
+    rewardOrderAddress: findFieldValueByNameOrThrow(
+      "order_rewards",
+      component.details.state.fields
+    ),
+    rewardVaultAddress: findFieldValueByNameOrThrow(
+      "claim_vaults",
+      component.details.state.fields
+    ),
+  };
 });
 
 export const rewardSlice = createSlice({
@@ -359,24 +377,81 @@ export const rewardSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+      // fetchAddresses
+      .addCase(fetchAddresses.pending, () => {
+        console.log("fetchAddresses is pending...");
+      })
+      .addCase(
+        fetchAddresses.fulfilled,
+        (state, action: PayloadAction<FetchAddressesResult>) => {
+          DexterToast.success("Component addresses fetched");
+          state.config.rewardNFTAddress = action.payload.rewardNFTAddress;
+          state.config.rewardOrderAddress = action.payload.rewardOrderAddress;
+          state.config.rewardVaultAddress = action.payload.rewardVaultAddress;
+        }
+      )
+      .addCase(fetchAddresses.rejected, (state, action) => {
+        DexterToast.error("fetchAddresses rejected: " + action.error?.message);
+        console.log("fetchAddresses was rejected...");
+        console.log(action);
+      })
+
+      // fetchReciepts
+      .addCase(fetchReciepts.pending, () => {
+        console.log("fetchReceipts is pending...");
+      })
+      .addCase(fetchReciepts.fulfilled, (state, action) => {
+        DexterToast.success("fetchReceipts fulfilled");
+        state.recieptIds = action.payload;
+        console.log("fetchReceipts was fulfilled!");
+        console.log(action);
+      })
+      .addCase(fetchReciepts.rejected, (state, action) => {
+        DexterToast.error("fetchReciepts rejected: " + action.error?.message);
+        console.log("fetchReciepts was rejected...");
+        console.log(action);
+      })
+
+      // fetchAccountRewards
+      .addCase(fetchAccountRewards.pending, () => {
+        console.log("fetchAccountRewards pending...");
+      })
       .addCase(
         fetchAccountRewards.fulfilled,
         (state, action: PayloadAction<AccountRewards[]>) => {
+          DexterToast.success("fetchAccountRewards fulfilled");
+          console.log("fetchAccountRewards fulfilled");
           state.rewardData.accountsRewards = action.payload;
         }
       )
+      .addCase(fetchAccountRewards.rejected, (state, action) => {
+        DexterToast.error(
+          "fetchAccountRewards rejected: " + action.error?.message
+        );
+        console.log("fetchAccountRewards rejected");
+        console.log(action);
+      })
+
+      // fetchOrderRewards
+      .addCase(fetchOrderRewards.pending, () => {
+        console.log("fetchOrderRewards pending...");
+      })
       .addCase(
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
+          DexterToast.success("fetchOrderRewards fulfilled");
+          console.log("fetchAccountRewards fulfilled");
+          console.log(action);
           state.rewardData.ordersRewards = action.payload;
         }
       )
-      .addCase(
-        fetchAddresses.fulfilled,
-        (state, action: PayloadAction<RewardConfig>) => {
-          state.config = action.payload;
-        }
-      );
+      .addCase(fetchOrderRewards.rejected, (state, action) => {
+        DexterToast.error(
+          "fetchOrderRewards rejected: " + action.error?.message
+        );
+        console.log("fetchOrderRewards rejected");
+        console.log(action);
+      });
     // You can add more cases here
   },
 });
