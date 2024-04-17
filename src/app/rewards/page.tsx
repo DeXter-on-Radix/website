@@ -32,8 +32,8 @@ export default function Rewards() {
 
   return (
     <div className="bg-[#141414]">
-      {/* <HeaderComponent /> */}
-      <DebugStateLogger />
+      <HeaderComponent />
+      {/* <DebugStateLogger /> */}
       <RewardsCard />
       {/* Comment back in for old UI */}
       {/* <div className="flex flex-1 flex-col items-center my-8">
@@ -43,51 +43,51 @@ export default function Rewards() {
   );
 }
 
-// function HeaderComponent() {
-//   const t = useTranslations();
-//   return (
-//     <div className="max-w-[400px] sm:max-w-[600px] px-5 sm:p-0 m-auto">
-//       <div className="sm:flex sm:justify-center sm:items-center mt-10">
-//         <div className="text-white sm:w-[62%]">
-//           <div className="flex flex-col justify-center h-full">
-//             <DexterHeading title={t("rewards")} />
-//             <DexterParagraph text={t("earn_rewards_by")} />
-//           </div>
-//         </div>
-//         <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
-//           <img
-//             src="/rewards/chest.png"
-//             alt="treasury"
-//             className="w-full"
-//             width={218}
-//           />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+function HeaderComponent() {
+  const t = useTranslations();
+  return (
+    <div className="max-w-[400px] sm:max-w-[600px] px-5 sm:p-0 m-auto">
+      <div className="sm:flex sm:justify-center sm:items-center mt-10">
+        <div className="text-white sm:w-[62%]">
+          <div className="flex flex-col justify-center h-full">
+            <DexterHeading title={t("rewards")} />
+            <DexterParagraph text={t("earn_rewards_by")} />
+          </div>
+        </div>
+        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
+          <img
+            src="/rewards/chest.png"
+            alt="treasury"
+            className="w-full"
+            width={218}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-// function DexterParagraph({ text }: { text: string }) {
-//   return <p className="text-sm tracking-wide py-2">{text}</p>;
-// }
+function DexterParagraph({ text }: { text: string }) {
+  return <p className="text-sm tracking-wide py-2">{text}</p>;
+}
 
-// function DexterHeading({ title }: { title: string }) {
-//   return (
-//     <>
-//       <h2
-//         className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
-//         style={{
-//           margin: 0,
-//           marginBottom: "20px",
-//           marginTop: "0px",
-//           fontSize: "45px",
-//         }}
-//       >
-//         {title}
-//       </h2>
-//     </>
-//   );
-// }
+function DexterHeading({ title }: { title: string }) {
+  return (
+    <>
+      <h2
+        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
+        style={{
+          margin: 0,
+          marginBottom: "20px",
+          marginTop: "0px",
+          fontSize: "45px",
+        }}
+      >
+        {title}
+      </h2>
+    </>
+  );
+}
 
 function RewardsCard() {
   const dispatch = useAppDispatch();
@@ -264,59 +264,59 @@ function ClaimButton() {
   );
 }
 
-function DebugStateLogger() {
-  const { config, recieptIds, rewardData } = useAppSelector(
-    (state) => state.rewardSlice
-  );
-  // const tartgetToken = useAppSelector(selectTargetToken);
-  let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
-  fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
-  fetchAddresses += `rewardNFTAddress = ${config.rewardNFTAddress}\n`;
-  fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
-  fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
-  let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
-  let fetchAccountRewards = `accountRewards = ${rewardData.accountsRewards[0]?.rewards
-    .map((r) => r.rewardType)
-    .join("@newline@")}\n`;
+// function DebugStateLogger() {
+//   const { config, recieptIds, rewardData } = useAppSelector(
+//     (state) => state.rewardSlice
+//   );
+//   // const tartgetToken = useAppSelector(selectTargetToken);
+//   let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
+//   fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
+//   fetchAddresses += `rewardNFTAddress = ${config.rewardNFTAddress}\n`;
+//   fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
+//   fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
+//   let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
+//   let fetchAccountRewards = `accountRewards = ${rewardData.accountsRewards[0]?.rewards
+//     .map((r) => r.rewardType)
+//     .join("@newline@")}\n`;
 
-  console.log("rewardData.accountsRewards");
-  console.log(rewardData.accountsRewards);
-  console.log("rewardData.ordersRewards");
-  console.log(rewardData.ordersRewards);
-  const renderTable = (input: string, title: string) => {
-    return (
-      <>
-        <p>DEBUG {title}</p>
-        <table className="max-w-[500px] m-auto mb-5">
-          <tbody>
-            {input.split("\n").map((line, index) => {
-              const parts = line.split("="); // Split each line by "="
-              return (
-                <tr key={index}>
-                  <td style={{ padding: 0 }} className="w-1/3  text-sm">
-                    {parts[0]}
-                  </td>{" "}
-                  {/* First part of the line */}
-                  <td style={{ padding: 0 }} className="w-2/3  text-sm">
-                    {parts[1]?.includes("@newline@")
-                      ? parts[1].split("@newline@").join("\n")
-                      : parts[1]}
-                  </td>{" "}
-                  {/* Second part of the line */}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </>
-    );
-  };
-  return (
-    <div className="max-w-[800px] m-auto">
-      <strong>STATE DEBUGGER</strong>
-      {renderTable(fetchAddresses, "fetchAddresses")}
-      {renderTable(fetchReciepts, "fetchReciepts")}
-      {renderTable(fetchAccountRewards, "fetchAccountRewards")}
-    </div>
-  );
-}
+//   console.log("rewardData.accountsRewards");
+//   console.log(rewardData.accountsRewards);
+//   console.log("rewardData.ordersRewards");
+//   console.log(rewardData.ordersRewards);
+//   const renderTable = (input: string, title: string) => {
+//     return (
+//       <>
+//         <p>DEBUG {title}</p>
+//         <table className="max-w-[500px] m-auto mb-5">
+//           <tbody>
+//             {input.split("\n").map((line, index) => {
+//               const parts = line.split("="); // Split each line by "="
+//               return (
+//                 <tr key={index}>
+//                   <td style={{ padding: 0 }} className="w-1/3  text-sm">
+//                     {parts[0]}
+//                   </td>{" "}
+//                   {/* First part of the line */}
+//                   <td style={{ padding: 0 }} className="w-2/3  text-sm">
+//                     {parts[1]?.includes("@newline@")
+//                       ? parts[1].split("@newline@").join("\n")
+//                       : parts[1]}
+//                   </td>{" "}
+//                   {/* Second part of the line */}
+//                 </tr>
+//               );
+//             })}
+//           </tbody>
+//         </table>
+//       </>
+//     );
+//   };
+//   return (
+//     <div className="max-w-[800px] m-auto">
+//       <strong>STATE DEBUGGER</strong>
+//       {renderTable(fetchAddresses, "fetchAddresses")}
+//       {renderTable(fetchReciepts, "fetchReciepts")}
+//       {renderTable(fetchAccountRewards, "fetchAccountRewards")}
+//     </div>
+//   );
+// }
