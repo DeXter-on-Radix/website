@@ -12,7 +12,7 @@ import * as adex from "alphadex-sdk-js";
 // import { selectBestBuy, selectBestSell } from "./orderBookSlice";
 // import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
-import { updateIconIfNeeded } from "../utils";
+import { displayNumber, updateIconIfNeeded } from "../utils";
 import { Calculator } from "../services/Calculator";
 import { DexterToast } from "components/DexterToaster";
 
@@ -85,7 +85,7 @@ export interface OrderInputState {
   postOnly: boolean;
   quote?: Quote;
   quoteError?: ErrorMessage;
-  description?: string;
+  quoteDescription?: string;
   transactionInProgress: boolean;
   transactionResult?: string;
 }
@@ -291,9 +291,6 @@ export const fetchQuote = createAsyncThunk<
   if (state.pairSelector.address === "") {
     throw new Error("Pair address is not initilized yet.");
   }
-  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
-    throw new Error("No token was specified");
-  }
   if (
     state.orderInput.type === OrderType.LIMIT &&
     state.orderInput.price <= 0
@@ -305,10 +302,14 @@ export const fetchQuote = createAsyncThunk<
       ? undefined
       : state.orderInput.price;
 
+  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
+    throw new Error("No token was specified");
+  }
   const targetToken = {
     TOKEN_1: () => state.orderInput.token1,
     TOKEN_2: () => state.orderInput.token2,
   }[state.orderInput.specifiedToken]();
+
   const response = await adex.getExchangeOrderQuote(
     state.pairSelector.address,
     toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
@@ -596,7 +597,7 @@ export const orderInputSlice = createSlice({
     // },
     // resetQuote(state) {
     //   state.quote = undefined;
-    //   state.description = undefined;
+    //   state.quoteDescription = undefined;
     // },
     resetNumbersInput(state) {
       state.token1 = { ...initialTokenInput };
@@ -608,7 +609,7 @@ export const orderInputSlice = createSlice({
       state.transactionResult = undefined;
       state.quote = undefined;
       state.quoteError = undefined;
-      state.description = undefined;
+      state.quoteDescription = undefined;
     },
     resetUserInput(state) {
       state.price = -1;
@@ -620,7 +621,7 @@ export const orderInputSlice = createSlice({
       state.validationPrice = { ...initialValidationResult };
       state.quote = undefined;
       state.quoteError = undefined;
-      state.description = undefined;
+      state.quoteDescription = undefined;
       state.specifiedToken = SpecifiedToken.UNSPECIFIED;
     },
     resetState(state) {
@@ -634,7 +635,7 @@ export const orderInputSlice = createSlice({
     builder.addCase(fetchQuote.pending, (state) => {
       state.quote = undefined;
       state.quoteError = undefined;
-      state.description = undefined;
+      state.quoteDescription = undefined;
     });
     builder.addCase(
       fetchQuote.fulfilled,
@@ -658,6 +659,7 @@ export const orderInputSlice = createSlice({
           5: ErrorMessage.INSUFFICIENT_LIQUDITIY,
           2: ErrorMessage.NO_ORDERS,
         }[quote.resultCode];
+        state.quoteDescription = toDescription(quote);
       }
     );
     builder.addCase(fetchQuote.rejected, (state, action) => {
@@ -692,22 +694,22 @@ export const orderInputSlice = createSlice({
 //   });
 // },
 
-// function toDescription(quote: Quote): string {
-//   let description = "";
-//   if (quote.fromAmount > 0 && quote.toAmount > 0) {
-//     description +=
-//       `Sending ${displayNumber(quote.fromAmount, 8)} ${
-//         quote.fromToken.symbol
-//       } ` +
-//       `to receive ${displayNumber(quote.toAmount, 8)} ${
-//         quote.toToken.symbol
-//       }.\n`;
-//   }
-//   if (quote.resultMessageLong) {
-//     description += "\n" + quote.resultMessageLong;
-//   }
-//   return description;
-// }
+function toDescription(quote: Quote): string {
+  let quoteDescription = "";
+  if (quote.fromAmount > 0 && quote.toAmount > 0) {
+    quoteDescription +=
+      `Sending ${displayNumber(quote.fromAmount, 8)} ${
+        quote.fromToken.symbol
+      } ` +
+      `to receive ${displayNumber(quote.toAmount, 8)} ${
+        quote.toToken.symbol
+      }.\n`;
+  }
+  if (quote.resultMessageLong) {
+    quoteDescription += "\n" + quote.resultMessageLong;
+  }
+  return quoteDescription;
+}
 
 /*
  * CREATE TX
