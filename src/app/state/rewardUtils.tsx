@@ -244,14 +244,13 @@ export function getOrdersByRewardType(
   return result;
 }
 
-export async function getAccountsRewardsApiData(
+export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
-): Promise<any> {
+): Promise<AccountRewards[]> {
   const rdt = getRdt();
   if (!rdt) {
-    console.error("Problem RDT");
-    return;
+    throw new Error("RDT initialization failed");
   }
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
@@ -262,15 +261,54 @@ export async function getAccountsRewardsApiData(
       claimNFTResourceAddress,
       accountNftIds
     );
-    return accountRewardsNftResult[0];
+
+    const accountsRewards = getAccountsRewardsFromApiData(
+      accountRewardsNftResult[0]
+    );
+    // TODO(dcts): this deep copying is actually needed as otherwise there
+    // is an error thrown: unserialized data detected
+    const serialize = JSON.stringify(accountsRewards);
+    return JSON.parse(serialize);
   } catch (error) {
     console.error(
       "Problem loading Rewards NFT data for accounts: ",
       accountAddresses,
       accountRewardsNftResult
     );
+    throw new Error(
+      "Problem loading Rewards NFT data for accounts: " +
+        accountAddresses.join(",")
+    );
   }
 }
+
+// export async function getAccountsRewardsApiData(
+//   accountAddresses: string[],
+//   claimNFTResourceAddress: string
+// ): Promise<any> {
+//   const rdt = getRdt();
+//   if (!rdt) {
+//     console.error("Problem RDT");
+//     return;
+//   }
+//   let accountNftIds = accountAddresses.map((accountAddress) =>
+//     createAccountNftId(accountAddress)
+//   );
+//   let accountRewardsNftResult;
+//   try {
+//     accountRewardsNftResult = await rdt.gatewayApi.state.getNonFungibleData(
+//       claimNFTResourceAddress,
+//       accountNftIds
+//     );
+//     return accountRewardsNftResult[0];
+//   } catch (error) {
+//     console.error(
+//       "Problem loading Rewards NFT data for accounts: ",
+//       accountAddresses,
+//       accountRewardsNftResult
+//     );
+//   }
+// }
 
 export function createAccountNftId(
   accountAddress: string,
@@ -370,7 +408,6 @@ export async function getOrdersRewardsApiData(
   orderRewardsKvsAddress: string,
   orderIndices: string[]
 ): Promise<any> {
-  let result;
   const rdt = getRdt();
   let kvsKeysRequest = orderIndices.map((orderIndex) => {
     return {
@@ -382,18 +419,19 @@ export async function getOrdersRewardsApiData(
     };
   });
   try {
-    let orderRewardsResult =
-      await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
-        stateKeyValueStoreDataRequest: {
-          // eslint-disable-next-line camelcase
-          key_value_store_address: orderRewardsKvsAddress,
-          keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
-        },
-      });
-    result = orderRewardsResult;
+    return await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
+      stateKeyValueStoreDataRequest: {
+        // eslint-disable-next-line camelcase
+        key_value_store_address: orderRewardsKvsAddress,
+        keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
+      },
+    });
   } catch (error) {
     console.error(
       "Problem loading Order Rewards data for orderIndices: " + orderIndices
+    );
+    throw new Error(
+      "Problem loading Order Rewards data for orderIndices " + error
     );
   }
   /*
@@ -405,7 +443,6 @@ export async function getOrdersRewardsApiData(
   } else {
     result = orderRewardsResult.data;
   }*/
-  return result;
 }
 
 export function createOrderIndex(

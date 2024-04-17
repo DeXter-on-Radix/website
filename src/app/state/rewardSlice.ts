@@ -10,6 +10,7 @@ import {
   AccountRewards,
   OrderRewards,
   createAccountNftId,
+  getAccountRewards,
 } from "./rewardUtils";
 import { DexterToast } from "components/DexterToaster";
 import { loadOrderReceiptNftAddressDict } from "data/loadData";
@@ -122,7 +123,7 @@ export const fetchReciepts = createAsyncThunk<
   const orderReceiptNftAddressDict = loadOrderReceiptNftAddressDict(
     process.env.NEXT_PUBLIC_NETWORK
   );
-  (items as any[]).forEach((item) => {
+  (items as NonFungibleResource[]).forEach((item) => {
     if (
       orderReceiptNftAddressDict[item.resource_address] &&
       item.vaults &&
@@ -131,9 +132,10 @@ export const fetchReciepts = createAsyncThunk<
       item.vaults.items[0].items &&
       item.vaults.items[0].items.length > 0
     ) {
-      item.vaults.items[0].items.forEach((orderReceiptId: string) => {
+      for (let i = 0; i < item.vaults.items[0].items.length; i++) {
+        const orderReceiptId = item.vaults.items[0].items[i];
         receipts.push(`${item.resource_address}${orderReceiptId}`);
-      });
+      }
     }
   });
   return receipts;
@@ -150,21 +152,14 @@ export const fetchAccountRewards = createAsyncThunk<
   if (!rdt) {
     throw new Error("RDT initialization failed");
   }
-
   const state = thunkAPI.getState();
-
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
-  // TODO(dcts): make both APIs into one (kindof) -> should return accountsRewards[]
-  const accountRewardData = await getAccountsRewardsApiData(
+  return await getAccountRewards(
     [accountAddress],
     state.rewardSlice.config.rewardNFTAddress
   );
-  // TODO(dcts): ensure deep copying is not neccessary and doesnt break anything
-  // const accountsRewards = getAccountsRewardsFromApiData(accountRewardData);
-  // const serialize = JSON.stringify(accountsRewards);
-  return getAccountsRewardsFromApiData(accountRewardData);
 });
 
 export const fetchOrderRewards = createAsyncThunk<
@@ -178,21 +173,16 @@ export const fetchOrderRewards = createAsyncThunk<
   if (!rdt) {
     throw new Error("RDT initialization failed");
   }
-
   const state = thunkAPI.getState();
-
   let recieptIds = state.rewardSlice.recieptIds;
   let orderRewards: OrderRewards[] = [];
   if (recieptIds.length > 0) {
-    const prefixedReceiptIds = recieptIds.map(
-      (id) =>
-        `${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}`
-    );
-    // TODO(dcts): simplify into a single call here that returns orderRewards, outsource responsibility
     const orderRewardsData = await getOrdersRewardsApiData(
       state.rewardSlice.config.rewardOrderAddress,
-      prefixedReceiptIds
+      recieptIds
     );
+    console.log("orderRewardsData inside fetchOrderRewards");
+    console.log(orderRewardsData);
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
   // TODO(dcts): remove deep copying and test if still works
@@ -399,12 +389,12 @@ export const rewardSlice = createSlice({
 
       // fetchReciepts
       .addCase(fetchReciepts.pending, () => {
-        console.log("fetchReceipts is pending...");
+        console.log("fetchReciepts is pending...");
       })
       .addCase(fetchReciepts.fulfilled, (state, action) => {
-        DexterToast.success("fetchReceipts fulfilled");
+        DexterToast.success("fetchReciepts fulfilled");
         state.recieptIds = action.payload;
-        console.log("fetchReceipts was fulfilled!");
+        console.log("fetchReciepts was fulfilled!");
         console.log(action);
       })
       .addCase(fetchReciepts.rejected, (state, action) => {
@@ -441,7 +431,7 @@ export const rewardSlice = createSlice({
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
           DexterToast.success("fetchOrderRewards fulfilled");
-          console.log("fetchAccountRewards fulfilled");
+          console.log("fetchOrderRewards fulfilled");
           console.log(action);
           state.rewardData.ordersRewards = action.payload;
         }

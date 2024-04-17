@@ -102,8 +102,8 @@ function RewardsCard() {
       //         fetchAccountRewards could be asynchronous
       await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
-      // await dispatch(fetchAccountRewards());
-      // await dispatch(fetchOrderRewards());
+      await dispatch(fetchAccountRewards());
+      await dispatch(fetchOrderRewards());
     }
     if (isConnected) {
       loadRewards();
@@ -265,7 +265,9 @@ function ClaimButton() {
 }
 
 function DebugStateLogger() {
-  const { config, recieptIds } = useAppSelector((state) => state.rewardSlice);
+  const { config, recieptIds, rewardData } = useAppSelector(
+    (state) => state.rewardSlice
+  );
   // const tartgetToken = useAppSelector(selectTargetToken);
   let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
   fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
@@ -273,7 +275,14 @@ function DebugStateLogger() {
   fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
   fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
   let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
+  let fetchAccountRewards = `accountRewards = ${rewardData.accountsRewards[0]?.rewards
+    .map((r) => r.rewardType)
+    .join("@newline@")}\n`;
 
+  console.log("rewardData.accountsRewards");
+  console.log(rewardData.accountsRewards);
+  console.log("rewardData.ordersRewards");
+  console.log(rewardData.ordersRewards);
   const renderTable = (input: string, title: string) => {
     return (
       <>
@@ -307,6 +316,7 @@ function DebugStateLogger() {
       <strong>STATE DEBUGGER</strong>
       {renderTable(fetchAddresses, "fetchAddresses")}
       {renderTable(fetchReciepts, "fetchReciepts")}
+      {renderTable(fetchAccountRewards, "fetchAccountRewards")}
     </div>
   );
 }
