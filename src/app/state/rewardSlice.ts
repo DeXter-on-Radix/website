@@ -11,7 +11,8 @@ import {
   getAccountRewards,
 } from "./rewardUtils";
 import { DexterToast } from "components/DexterToaster";
-import { loadOrderReceiptNftAddressDict } from "data/loadData";
+// import { loadOrderReceiptNftAddressDict } from "data/loadData";
+import * as adex from "alphadex-sdk-js";
 
 export interface RewardState {
   recieptIds: string[];
@@ -116,14 +117,18 @@ export const fetchReciepts = createAsyncThunk<
     });
 
   // init result
+  let orderReceiptAddresses: Set<string> = new Set();
+  adex.clientState.pairsList.forEach((pairInfo) =>
+    orderReceiptAddresses.add(pairInfo.orderReceiptAddress)
+  );
   const receipts: string[] = [];
   // loop through all nfts and extract the relevant ones
-  const orderReceiptNftAddressDict = loadOrderReceiptNftAddressDict(
-    process.env.NEXT_PUBLIC_NETWORK
-  );
+  // const orderReceiptNftAddressDict = loadOrderReceiptNftAddressDict(
+  //   process.env.NEXT_PUBLIC_NETWORK
+  // );
   (items as NonFungibleResource[]).forEach((item) => {
     if (
-      orderReceiptNftAddressDict[item.resource_address] &&
+      orderReceiptAddresses.has(item.resource_address) &&
       item.vaults &&
       item.vaults.items &&
       item.vaults.items.length > 0 &&

@@ -13,13 +13,15 @@ import {
   rewardSlice,
 } from "state/rewardSlice";
 
-import { loadTokenDict } from "data/loadData";
+// import { loadTokenDict } from "data/loadData";
 import { useSelector } from "react-redux";
 import {
   TokenReward,
   getRewardsByToken,
   getRewardsByTypeThenToken,
 } from "state/rewardUtils";
+
+import * as adex from "alphadex-sdk-js";
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
@@ -156,9 +158,10 @@ function LearnMore() {
 }
 
 function ClaimableCoins() {
-  const tokenDict = loadTokenDict();
+  // const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const tokensMap = adex.clientState.tokensMap;
   // const dispatch = useAppDispatch();
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
@@ -167,15 +170,17 @@ function ClaimableCoins() {
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokenDict
+    tokensMap
   );
 
   return <TokenList tokenRewards={rewardsByToken} />;
 }
 
 function ClaimableTypes() {
-  const tokenDict = loadTokenDict();
+  const tokensMap = adex.clientState.tokensMap;
+  // const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
+
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
   // const dispatch = useAppDispatch();
@@ -186,7 +191,7 @@ function ClaimableTypes() {
   const rewardsByTypeThenToken = getRewardsByTypeThenToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokenDict
+    tokensMap
   );
 
   return (
