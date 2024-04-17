@@ -13,7 +13,7 @@ import {
   rewardSlice,
 } from "state/rewardSlice";
 
-import { loadTokenDict, loadOrderReceiptNftAddressDict } from "data/loadData";
+import { loadTokenDict } from "data/loadData";
 import { useSelector } from "react-redux";
 import {
   TokenReward,
@@ -99,8 +99,8 @@ function RewardsCard() {
       // TODO: ask @fredlieb whether we can fetch all things asynchronously?
       await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
-      await dispatch(fetchAccountRewards());
-      await dispatch(fetchOrderRewards());
+      // await dispatch(fetchAccountRewards());
+      // await dispatch(fetchOrderRewards());
     }
     if (isConnected) {
       loadRewards();
