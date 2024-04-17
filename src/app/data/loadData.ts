@@ -1,6 +1,7 @@
 // load all files
 import tokenDataJson from "./tokenInfo.json";
 import orderReceiptNftAddressesJson from "./orderReceiptNftAddresses.json";
+import claimComponentAddressJson from "./claimComponentAddress.json";
 
 // load dependencies
 import { TokenInfo } from "alphadex-sdk-js";
@@ -26,4 +27,13 @@ export function loadOrderReceiptNftAddressDict(
     };
   };
   return orderReceiptNftAddresses[network];
+}
+
+export function loadClaimComponentAddress(
+  network: string = defaultNetwork
+): string {
+  const claimComponentAddressDict = claimComponentAddressJson as {
+    [networkKey: string]: string;
+  };
+  return claimComponentAddressDict[network];
 }
