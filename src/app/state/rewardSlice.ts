@@ -3,8 +3,6 @@ import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
 import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 import {
-  getAccountsRewardsApiData,
-  getAccountsRewardsFromApiData,
   getOrdersRewardsApiData,
   getOrderRewardsFromApiData,
   AccountRewards,
@@ -243,109 +241,130 @@ export const rewardSlice = createSlice({
       const rdt = getRdt();
       if (!rdt) return;
 
-      const recieptIds = state.recieptIds;
-      if (recieptIds === null) return;
-      if (recieptIds.length === 0) return;
-
       const walletData = rdt.walletApi.getWalletData();
       const accountAddress = walletData.accounts[0].address;
-      const resourceAddress =
-        process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD;
 
-      //   const nonfungibleLocalId = accountAddress.replace(
-      //   new RegExp(state.config.resourcePrefix, "g"),
-      //   ""
-      // );
+      const rewardOrdersMap: Map<string, number[]> = new Map();
+      state.rewardData.ordersRewards.forEach((orderRewardData) => {
+        let existingOrderIds = rewardOrdersMap.get(
+          orderRewardData.orderReceiptAddress
+        );
+        if (!existingOrderIds) {
+          existingOrderIds = [];
+        }
+        existingOrderIds.push(orderRewardData.orderId);
+        rewardOrdersMap.set(
+          orderRewardData.orderReceiptAddress,
+          existingOrderIds
+        );
+      });
 
-      const nftArray = recieptIds
-        .map((id) => `NonFungibleLocalId("${id}")`)
-        .join(",");
-
-      const claimManifest = `
+      let claimRewardsManifest = "";
+      // create a manifest to create a proof of all accountRewardNfts
+      const createAccountRewardNftProofManifest = `
         CALL_METHOD 
-          Address("${accountAddress}") 
-          "create_proof_of_non_fungibles" 
-          Address("${state.config.rewardNFTAddress}") 
-          Array<NonFungibleLocalId>(NonFungibleLocalId("${createAccountNftId(
-            accountAddress
-          )}")); 
+        Address("${accountAddress}") 
+        "create_proof_of_non_fungibles" 
+        Address("${state.config.rewardNFTAddress}") 
+        Array<NonFungibleLocalId>(NonFungibleLocalId("${createAccountNftId(
+          accountAddress
+        )}")); 
         POP_FROM_AUTH_ZONE 
-          Proof("account_proof_1");
+          Proof("account_reward_nft_proof");
+      `;
+      claimRewardsManifest =
+        claimRewardsManifest + createAccountRewardNftProofManifest;
+
+      // create a manifest to create a proof for all orderReceipts (that have claimable rewards)
+      let pairOrdersProofsNames: string[] = [];
+      let index = 0;
+      rewardOrdersMap.forEach((pairOrderIds, pairOrderReceiptAddress) => {
+        index++;
+        const pairOrdersProofName = "pair_orders_proof_" + index;
+        pairOrdersProofsNames.push('Proof("' + pairOrdersProofName + '")');
+        const pairOrderIdsString = pairOrderIds
+          .map((orderId) => 'NonFungibleLocalId("#' + orderId + '#")')
+          .join();
+        const createPairOrderRewardsProofManifest = `
           CALL_METHOD Address("${accountAddress}") 
           "create_proof_of_non_fungibles" 
-          Address("${resourceAddress}") 
-          Array<NonFungibleLocalId>(${nftArray}); 
-        CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL 
-          Address("${
-            state.config.resourceAddresses.DEXTERXRD.resourceAddress
-          }")   
-          Proof("proof_1");
+          Address("${pairOrderReceiptAddress}") 
+          Array<NonFungibleLocalId>(${pairOrderIdsString});
+          POP_FROM_AUTH_ZONE 
+            Proof("${pairOrdersProofName}");
+        `;
+        claimRewardsManifest =
+          claimRewardsManifest + createPairOrderRewardsProofManifest;
+      });
+      claimRewardsManifest =
+        claimRewardsManifest +
+        `
         CALL_METHOD 
           Address("${state.config.rewardComponent}") 
           "claim_rewards" 
-          Array<Proof>(Proof("account_proof_1")) 
-          Array<Proof>(Proof("proof_1"));
+          Array<Proof>(Proof("account_reward_nft_proof")) 
+          Array<Proof>(${pairOrdersProofsNames.join()});
         CALL_METHOD 
           Address("${accountAddress}") 
           "deposit_batch" 
           Expression("ENTIRE_WORKTOP");
         `;
-
+      console.log("Calling claim rewards tx manifest: ", claimRewardsManifest);
       rdt.walletApi.sendTransaction({
-        transactionManifest: claimManifest,
+        transactionManifest: claimRewardsManifest,
       });
     },
-    getEarnedRewards: (state) => {
-      const rdt = getRdt();
-      if (!rdt) return;
+    // getEarnedRewards: (state) => {
+    //   const rdt = getRdt();
+    //   if (!rdt) return;
 
-      const recieptIds = state.recieptIds;
-      if (recieptIds === null) return;
-      if (recieptIds.length === 0) return;
+    //   const recieptIds = state.recieptIds;
+    //   if (recieptIds === null) return;
+    //   if (recieptIds.length === 0) return;
 
-      const walletData = rdt.walletApi.getWalletData();
-      const accountAddress = walletData.accounts[0].address;
-      const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
-      const resourcePrefix = process.env.NEXT_PUBLIC_RESOURCE_PREFIX;
-      if (!resourcePrefix) return;
-      const nonfungibleLocalId = accountAddress.replace(
-        new RegExp(resourcePrefix, "g"),
-        ""
-      );
-      const nftArray = recieptIds
-        .map((id) => `NonFungibleLocalId("${id}")`)
-        .join(",");
+    //   const walletData = rdt.walletApi.getWalletData();
+    //   const accountAddress = walletData.accounts[0].address;
+    //   const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
+    //   const resourcePrefix = process.env.NEXT_PUBLIC_RESOURCE_PREFIX;
+    //   if (!resourcePrefix) return;
+    //   const nonfungibleLocalId = accountAddress.replace(
+    //     new RegExp(resourcePrefix, "g"),
+    //     ""
+    //   );
+    //   const nftArray = recieptIds
+    //     .map((id) => `NonFungibleLocalId("${id}")`)
+    //     .join(",");
 
-      const claimManifest = `
-        CALL_METHOD 
-          Address("${accountAddress}") 
-          "create_proof_of_non_fungibles" 
-          Address("${claimNFTAddress}") 
-          Array<NonFungibleLocalId>(NonFungibleLocalId("<${nonfungibleLocalId}>")); 
-        POP_FROM_AUTH_ZONE 
-          Proof("account_proof_1");
-          CALL_METHOD Address("${accountAddress}") 
-          "create_proof_of_non_fungibles" 
-          Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}") 
-          Array<NonFungibleLocalId>(${nftArray}); 
-        CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL 
-          Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")  
-          Proof("proof_1");
-        CALL_METHOD 
-          Address("${state.config.rewardComponent}") 
-          "claim_rewards" 
-          Array<Proof>(Proof("account_proof_1")) 
-          Array<Proof>(Proof("proof_1"));
-        CALL_METHOD 
-          Address("${accountAddress}") 
-          "deposit_batch" 
-          Expression("ENTIRE_WORKTOP");
-        `;
+    //   const claimManifest = `
+    //     CALL_METHOD
+    //       Address("${accountAddress}")
+    //       "create_proof_of_non_fungibles"
+    //       Address("${claimNFTAddress}")
+    //       Array<NonFungibleLocalId>(NonFungibleLocalId("<${nonfungibleLocalId}>"));
+    //     POP_FROM_AUTH_ZONE
+    //       Proof("account_proof_1");
+    //       CALL_METHOD Address("${accountAddress}")
+    //       "create_proof_of_non_fungibles"
+    //       Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")
+    //       Array<NonFungibleLocalId>(${nftArray});
+    //     CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL
+    //       Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")
+    //       Proof("proof_1");
+    //     CALL_METHOD
+    //       Address("${state.config.rewardComponent}")
+    //       "claim_rewards"
+    //       Array<Proof>(Proof("account_proof_1"))
+    //       Array<Proof>(Proof("proof_1"));
+    //     CALL_METHOD
+    //       Address("${accountAddress}")
+    //       "deposit_batch"
+    //       Expression("ENTIRE_WORKTOP");
+    //     `;
 
-      rdt.walletApi.sendTransaction({
-        transactionManifest: claimManifest,
-      });
-    },
+    //   rdt.walletApi.sendTransaction({
+    //     transactionManifest: claimManifest,
+    //   });
+    // },
     updateReciepts: (state, action: PayloadAction<string[]>) => {
       state.recieptIds = action.payload;
     },

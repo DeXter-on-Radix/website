@@ -471,7 +471,7 @@ export function fromOrderIndex(orderIndex: string): {
 
 export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
   let ordersRewards: OrderRewards[] = [];
-  if (apiData.entries && apiData.entries.length > 0) {
+  if (apiData.entries) {
     for (const orderData of apiData.entries) {
       let orderRewards = new OrderRewards();
 
