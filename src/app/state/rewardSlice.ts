@@ -314,57 +314,6 @@ export const rewardSlice = createSlice({
         transactionManifest: claimRewardsManifest,
       });
     },
-    // getEarnedRewards: (state) => {
-    //   const rdt = getRdt();
-    //   if (!rdt) return;
-
-    //   const recieptIds = state.recieptIds;
-    //   if (recieptIds === null) return;
-    //   if (recieptIds.length === 0) return;
-
-    //   const walletData = rdt.walletApi.getWalletData();
-    //   const accountAddress = walletData.accounts[0].address;
-    //   const claimNFTAddress = process.env.NEXT_PUBLIC_CLAIM_NFT_ADDRESS;
-    //   const resourcePrefix = process.env.NEXT_PUBLIC_RESOURCE_PREFIX;
-    //   if (!resourcePrefix) return;
-    //   const nonfungibleLocalId = accountAddress.replace(
-    //     new RegExp(resourcePrefix, "g"),
-    //     ""
-    //   );
-    //   const nftArray = recieptIds
-    //     .map((id) => `NonFungibleLocalId("${id}")`)
-    //     .join(",");
-
-    //   const claimManifest = `
-    //     CALL_METHOD
-    //       Address("${accountAddress}")
-    //       "create_proof_of_non_fungibles"
-    //       Address("${claimNFTAddress}")
-    //       Array<NonFungibleLocalId>(NonFungibleLocalId("<${nonfungibleLocalId}>"));
-    //     POP_FROM_AUTH_ZONE
-    //       Proof("account_proof_1");
-    //       CALL_METHOD Address("${accountAddress}")
-    //       "create_proof_of_non_fungibles"
-    //       Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")
-    //       Array<NonFungibleLocalId>(${nftArray});
-    //     CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL
-    //       Address("${state.config.resourceAddresses.DEXTERXRD.resourceAddress}")
-    //       Proof("proof_1");
-    //     CALL_METHOD
-    //       Address("${state.config.rewardComponent}")
-    //       "claim_rewards"
-    //       Array<Proof>(Proof("account_proof_1"))
-    //       Array<Proof>(Proof("proof_1"));
-    //     CALL_METHOD
-    //       Address("${accountAddress}")
-    //       "deposit_batch"
-    //       Expression("ENTIRE_WORKTOP");
-    //     `;
-
-    //   rdt.walletApi.sendTransaction({
-    //     transactionManifest: claimManifest,
-    //   });
-    // },
     updateReciepts: (state, action: PayloadAction<string[]>) => {
       state.recieptIds = action.payload;
     },
