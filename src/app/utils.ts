@@ -27,18 +27,18 @@ export function getLocaleSeparators(): {
 
 export function displayNumber(
   x: number,
-  noDigits: number = 6,
+  nbrOfDigits: number = 6,
   fixedDecimals: number = -1
 ): string {
-  if (noDigits < 4) {
-    return "ERROR: displayAmount cannot work with noDigits less than 4";
+  if (nbrOfDigits < 4) {
+    return "ERROR: displayAmount cannot work with nbrOfDigits less than 4";
   }
 
   const { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
 
   if (x < 1) {
-    let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
-    if (fixedDecimals >= 0 && fixedDecimals <= noDigits - 2) {
+    let roundedNumber = roundTo(x, nbrOfDigits - 2, RoundType.DOWN);
+    if (fixedDecimals >= 0 && fixedDecimals <= nbrOfDigits - 2) {
       return roundedNumber.toFixed(fixedDecimals);
     } else {
       return roundedNumber.toString();
@@ -63,13 +63,13 @@ export function displayNumber(
     // console.log("WholeNumberStr: " + wholeNumberStr);
   }
   if (
-    wholeNumberStr.length === noDigits ||
-    wholeNumberStr.length === noDigits - 1
+    wholeNumberStr.length === nbrOfDigits ||
+    wholeNumberStr.length === nbrOfDigits - 1
   ) {
     return wholeNumberStr;
   } else {
-    if (wholeNumberStr.length < noDigits) {
-      const noDecimals = noDigits - wholeNumberStr.length;
+    if (wholeNumberStr.length < nbrOfDigits) {
+      const noDecimals = nbrOfDigits - wholeNumberStr.length;
 
       let decimalsStr = numberStr.split(decimalSeparator)[1];
       decimalsStr = decimalsStr
@@ -91,10 +91,10 @@ export function displayNumber(
       }
       return wholeNumberStr + decimalsStr;
     } else {
-      let excessLength = wholeNumberStr.length - noDigits + 1;
+      let excessLength = wholeNumberStr.length - nbrOfDigits + 1;
       let excessRemainder = excessLength % 4;
       let excessMultiple = Math.trunc(excessLength / 4);
-      let displayStr = wholeNumberStr.slice(0, noDigits - 1);
+      let displayStr = wholeNumberStr.slice(0, nbrOfDigits - 1);
       switch (excessRemainder) {
         case 0:
           if (excessMultiple > 0) {
