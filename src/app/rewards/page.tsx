@@ -97,6 +97,9 @@ function RewardsCard() {
   useEffect(() => {
     async function loadRewards() {
       // TODO: ask @fredlieb whether we can fetch all things asynchronously?
+      // answer: fetchAddresses is needed for all actions
+      //         fetchReceipts ahs to happen before fetchorderRewards
+      //         fetchAccountRewards could be asynchronous
       await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
       // await dispatch(fetchAccountRewards());
