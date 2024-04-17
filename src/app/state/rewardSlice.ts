@@ -12,6 +12,7 @@ import {
   createAccountNftId,
 } from "./rewardUtils";
 import { DexterToast } from "components/DexterToaster";
+import { loadOrderReceiptNftAddressDict } from "data/loadData";
 
 export interface RewardState {
   recieptIds: string[];
@@ -100,15 +101,9 @@ export const fetchReciepts = createAsyncThunk<
   if (!rdt) {
     throw new Error("RDT initialization failed");
   }
-
-  const claimComponentAddress = process.env.NEXT_PUBLIC_CLAIM_COMPONENT;
-  if (!claimComponentAddress) {
-    throw new Error("claimComponentAddress missing");
-  }
   const walletData = rdt.walletApi.getWalletData();
   // Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
-
   // get all NFTs from your wallet
   const { items } =
     await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
@@ -121,26 +116,27 @@ export const fetchReciepts = createAsyncThunk<
       },
     });
 
-  // TODO(dcts): loop through all pair addresses here
+  // init result
   const receipts: string[] = [];
-
-  items.forEach((item) => {});
-  // const accountReceiptVault =
-  //   (items.find(
-  //     // eslint-disable-next-line camelcase
-  //     ({ resource_address }) => resource_address === resourceAddress
-  //   ) as NonFungibleResource) || null;
-
-  // if (!accountReceiptVault) {
-  //   throw new Error("accountReceiptVault not found");
-  // }
-  // if (accountReceiptVault.vaults.items.length === 0) {
-  //   throw new Error("accountReceiptVault has no vaults.items");
-  // }
-  // TODO(dcts): incorporate all resources addresses into the receipts, so no dictionary is neccessarry
-  // -> ${state.rewardSlice.config.resourceAddresses.DEXTERXRD.resourceAddress}${id}
-  // -> keep array of strings
-  // return accountReceiptVault.vaults.items[0].items as string[];
+  // loop through all nfts and extract the relevant ones
+  const orderReceiptNftAddressDict = loadOrderReceiptNftAddressDict(
+    process.env.NEXT_PUBLIC_NETWORK
+  );
+  (items as any[]).forEach((item) => {
+    if (
+      orderReceiptNftAddressDict[item.resource_address] &&
+      item.vaults &&
+      item.vaults.items &&
+      item.vaults.items.length > 0 &&
+      item.vaults.items[0].items &&
+      item.vaults.items[0].items.length > 0
+    ) {
+      item.vaults.items[0].items.forEach((orderReceiptId: string) => {
+        receipts.push(`${item.resource_address}${orderReceiptId}`);
+      });
+    }
+  });
+  return receipts;
 });
 
 export const fetchAccountRewards = createAsyncThunk<
