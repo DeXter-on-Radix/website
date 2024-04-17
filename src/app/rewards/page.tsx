@@ -6,14 +6,14 @@ import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 import { RootState, store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
+  fetchAddresses,
+  fetchReciepts,
   fetchAccountRewards,
   fetchOrderRewards,
-  fetchReciepts,
-  fetchAddresses,
   rewardSlice,
 } from "state/rewardSlice";
-import tokenData from "../data/stokenetTokens.json";
-import { TokenInfo } from "alphadex-sdk-js";
+
+import { loadTokenDict } from "data/loadData";
 import { useSelector } from "react-redux";
 import {
   TokenReward,
@@ -23,11 +23,6 @@ import {
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
-  // HARDCODED TOKEN INFO FROM RESSOURCE
-  // To get all token info, use the following code snippet inside
-  // pair selector component:
-  // https://gist.github.com/dcts/e92ad3302be703707592761426854dec
-  const tokensDict: Record<string, TokenInfo> = tokenData;
   useEffect(() => {
     initializeSubscriptions(store);
     return () => {
@@ -36,9 +31,10 @@ export default function Rewards() {
   }, []);
 
   return (
-    <div className="bg-[#141414] h-full">
-      <HeaderComponent />
-      <RewardsCard tokensDict={tokensDict} />
+    <div className="bg-[#141414]">
+      {/* <HeaderComponent /> */}
+      <DebugStateLogger />
+      <RewardsCard />
       {/* Comment back in for old UI */}
       {/* <div className="flex flex-1 flex-col items-center my-8">
         <Rewards />
@@ -93,11 +89,7 @@ function DexterHeading({ title }: { title: string }) {
   );
 }
 
-function RewardsCard({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function RewardsCard() {
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
   const t = useTranslations();
@@ -105,6 +97,9 @@ function RewardsCard({
   useEffect(() => {
     async function loadRewards() {
       // TODO: ask @fredlieb whether we can fetch all things asynchronously?
+      // answer: fetchAddresses is needed for all actions
+      //         fetchReceipts ahs to happen before fetchorderRewards
+      //         fetchAccountRewards could be asynchronous
       await dispatch(fetchAddresses());
       await dispatch(fetchReciepts());
       await dispatch(fetchAccountRewards());
@@ -127,7 +122,7 @@ function RewardsCard({
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableCoins tokensDict={tokensDict} />
+        <ClaimableCoins />
         <ClaimButton />
         <LearnMore />
         <div>
@@ -140,7 +135,7 @@ function RewardsCard({
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableTypes tokensDict={tokensDict} />
+        <ClaimableTypes />
       </div>
     </div>
   );
@@ -160,11 +155,8 @@ function LearnMore() {
   );
 }
 
-function ClaimableCoins({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function ClaimableCoins() {
+  const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   // const dispatch = useAppDispatch();
@@ -175,17 +167,14 @@ function ClaimableCoins({
   const rewardsByToken = getRewardsByToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensDict
+    tokenDict
   );
 
   return <TokenList tokenRewards={rewardsByToken} />;
 }
 
-function ClaimableTypes({
-  tokensDict,
-}: {
-  tokensDict: Record<string, TokenInfo>;
-}) {
+function ClaimableTypes() {
+  const tokenDict = loadTokenDict();
   // TODO: replace hardcoded coins with fetched coins to claim
   // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
@@ -197,7 +186,7 @@ function ClaimableTypes({
   const rewardsByTypeThenToken = getRewardsByTypeThenToken(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensDict
+    tokenDict
   );
 
   return (
@@ -272,5 +261,62 @@ function ClaimButton() {
       //   );
       // }}
     >{`Claim All Rewards`}</button>
+  );
+}
+
+function DebugStateLogger() {
+  const { config, recieptIds, rewardData } = useAppSelector(
+    (state) => state.rewardSlice
+  );
+  // const tartgetToken = useAppSelector(selectTargetToken);
+  let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
+  fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
+  fetchAddresses += `rewardNFTAddress = ${config.rewardNFTAddress}\n`;
+  fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
+  fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
+  let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
+  let fetchAccountRewards = `accountRewards = ${rewardData.accountsRewards[0]?.rewards
+    .map((r) => r.rewardType)
+    .join("@newline@")}\n`;
+
+  console.log("rewardData.accountsRewards");
+  console.log(rewardData.accountsRewards);
+  console.log("rewardData.ordersRewards");
+  console.log(rewardData.ordersRewards);
+  const renderTable = (input: string, title: string) => {
+    return (
+      <>
+        <p>DEBUG {title}</p>
+        <table className="max-w-[500px] m-auto mb-5">
+          <tbody>
+            {input.split("\n").map((line, index) => {
+              const parts = line.split("="); // Split each line by "="
+              return (
+                <tr key={index}>
+                  <td style={{ padding: 0 }} className="w-1/3  text-sm">
+                    {parts[0]}
+                  </td>{" "}
+                  {/* First part of the line */}
+                  <td style={{ padding: 0 }} className="w-2/3  text-sm">
+                    {parts[1]?.includes("@newline@")
+                      ? parts[1].split("@newline@").join("\n")
+                      : parts[1]}
+                  </td>{" "}
+                  {/* Second part of the line */}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </>
+    );
+  };
+  return (
+    <div className="max-w-[800px] m-auto">
+      <strong>STATE DEBUGGER</strong>
+      {renderTable(fetchAddresses, "fetchAddresses")}
+      {renderTable(fetchReciepts, "fetchReciepts")}
+      {renderTable(fetchAccountRewards, "fetchAccountRewards")}
+    </div>
   );
 }
