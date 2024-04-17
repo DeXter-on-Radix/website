@@ -651,6 +651,8 @@ export const orderInputSlice = createSlice({
           DexterToast.error("Could not fetch quote. Try again later");
           return;
         }
+        console.log("quote");
+        console.log(quote);
         state.quoteError = {
           100: undefined, // success
           101: undefined, // success

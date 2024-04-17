@@ -243,7 +243,9 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
 }
 
 function EstimatedTotalOrQuantity() {
-  const { quote } = useAppSelector((state) => state.orderInput);
+  const { quote, quoteDescription } = useAppSelector(
+    (state) => state.orderInput
+  );
   const amount = quote?.toAmount;
   const symbol = quote?.toToken?.symbol;
   return (
@@ -252,10 +254,31 @@ function EstimatedTotalOrQuantity() {
         <>
           <p className="grow text-left">Total:</p>
           <p className="">
-            ~ {amount} {symbol}
+            ~ {amount.toFixed(2)} {symbol}
           </p>
+          <InfoTooltip content={quoteDescription} />
         </>
       )}
+    </div>
+  );
+}
+
+function InfoTooltip({
+  content,
+  iconColor = "text-white",
+}: {
+  iconColor?: string;
+  content?: string;
+}) {
+  if (!content) {
+    return <></>;
+  }
+  return (
+    <div
+      className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
+      data-tip={content}
+    >
+      <AiOutlineInfoCircle className={`${iconColor} text-sm`} />
     </div>
   );
 }
@@ -275,7 +298,8 @@ function FeesDisclaimer() {
   return (
     <div className="">
       <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
-        Fees are paid in received currency. Total received amount already
+        Fees are paid in received currency and are estimates. Negative fee
+        amounts represent rewards to earn. Total received amount already
         discounts fees.
       </p>
     </div>
@@ -307,7 +331,7 @@ function FeesTable() {
           key={indx}
         >
           <p className="text-xs text-left grow">
-            {capitalizeFirstLetter(key)} fee:
+            {capitalizeFirstLetter(key)} fee (estimate):
           </p>
           <p className="text-xs">
             {value} {currency}{" "}
@@ -323,7 +347,7 @@ function PostOnlyCheckbox() {
   const { postOnly } = useAppSelector((state) => state.orderInput);
 
   return (
-    <div className="flex justify-center ">
+    <div className="flex justify-center">
       <input
         checked={postOnly}
         type="checkbox"
@@ -337,7 +361,7 @@ function PostOnlyCheckbox() {
         POST ONLY
       </span>
       <div
-        className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
+        className="my-auto ml-2 tooltip text-3xl font-normal before:bg-base-300 z-10"
         data-tip={POST_ONLY_TOOLTIP}
       >
         <AiOutlineInfoCircle className="text-white text-sm" />
@@ -347,18 +371,19 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const { side, type, token1, quote, quoteError } = useAppSelector(
-    (state) => state.orderInput
-  );
+  const { side, type, token1, quote, quoteDescription, quoteError } =
+    useAppSelector((state) => state.orderInput);
   const handleSubmit = () => {
     alert("TODO");
   };
   const hasQuote = quote !== undefined;
   const hasQuoteError = quoteError !== undefined;
+  const isLimitOrder = type === OrderType.LIMIT;
+  const isBuyOrder = side === OrderSide.BUY;
   const disabled = !hasQuote || hasQuoteError;
   return (
     <button
-      className={`w-full font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 rounded ${
+      className={`w-full min-h-[44px] p-3 my-6 rounded ${
         disabled
           ? "bg-[#232629] text-[#474D52] opacity-50"
           : side === "BUY"
@@ -366,7 +391,15 @@ function SubmitButton() {
           : "bg-dexter-red text-white opacity-100"
       }`}
       onClick={handleSubmit}
-    >{`${type} ${side} ${token1.symbol}`}</button>
+    >
+      <span className="font-bold text-sm tracking-[.1px] ">{`${type} ${side} ${token1.symbol}`}</span>
+      {isLimitOrder && (
+        <InfoTooltip
+          iconColor={isBuyOrder ? "text-black" : "text-white"}
+          content={quoteDescription || undefined}
+        />
+      )}
+    </button>
   );
 }
 
