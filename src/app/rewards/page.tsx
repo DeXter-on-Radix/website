@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 "use client";
 
 import { useEffect } from "react";
@@ -10,7 +9,6 @@ import {
   fetchReciepts,
   fetchAccountRewards,
   fetchOrderRewards,
-  rewardSlice,
   claimRewards,
 } from "state/rewardSlice";
 
@@ -24,7 +22,6 @@ import {
 
 import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "components/DexterToaster";
-// import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
   useEffect(() => {
@@ -39,10 +36,6 @@ export default function Rewards() {
       <HeaderComponent />
       {/* <DebugStateLogger /> */}
       <RewardsCard />
-      {/* Comment back in for old UI */}
-      {/* <div className="flex flex-1 flex-col items-center my-8">
-        <Rewards />
-      </div> */}
     </div>
   );
 }
