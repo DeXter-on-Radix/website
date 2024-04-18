@@ -11,7 +11,6 @@ import {
   getAccountRewards,
 } from "./rewardUtils";
 import { DexterToast } from "components/DexterToaster";
-// import { loadOrderReceiptNftAddressDict } from "data/loadData";
 import * as adex from "alphadex-sdk-js";
 
 export interface RewardState {
@@ -88,10 +87,10 @@ type NonFungibleResource = NonFungibleResourcesCollectionItem & {
   };
 };
 
-// when fetching receipts for rewards, you need to fetch receipts for all pairs (not just the DEXTER/XRD pair).
-// You can use the existing alphadex api endpoint: /account/orders to get the orders for each pair.
+// Fetches user's NFTs and uses all order receipt NFT addresses from the Adex API
+// to filter out relevant NFTs, returning an array of receiptIdentifiers.
 export const fetchReciepts = createAsyncThunk<
-  string[], // Return type of the payload creator
+  string[], // array of receipt identifiers, e.g. "resource_tdx...ayahv#72#"
   undefined, // argument type
   {
     state: RootState;
@@ -115,17 +114,13 @@ export const fetchReciepts = createAsyncThunk<
         opt_ins: { non_fungible_include_nfids: true },
       },
     });
-
-  // init result
+  // load set of orderreceiptAddresses from adex
   let orderReceiptAddresses: Set<string> = new Set();
   adex.clientState.pairsList.forEach((pairInfo) =>
     orderReceiptAddresses.add(pairInfo.orderReceiptAddress)
   );
+  // iterate through all receipts and extract receiptIdentifier
   const receipts: string[] = [];
-  // loop through all nfts and extract the relevant ones
-  // const orderReceiptNftAddressDict = loadOrderReceiptNftAddressDict(
-  //   process.env.NEXT_PUBLIC_NETWORK
-  // );
   (items as NonFungibleResource[]).forEach((item) => {
     if (
       orderReceiptAddresses.has(item.resource_address) &&
