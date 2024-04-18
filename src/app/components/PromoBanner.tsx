@@ -2,16 +2,14 @@ import "react";
 import { useState, useEffect } from "react";
 
 export interface PromoBannerProps {
-  imageUrl: string; // 1640 x 128
-  imageUrlMobile: string; // 500 x 128
+  imageUrl: string; // 600x80
+  imageUrlMobile: string; // 600x200
   redirectUrl: string; // target redirect address when banner is clicked
 }
 
 // The banner display logic is different depending on screensize:
-// < 600px  : show small image (500x128), and scale down linearly
-// > 600px  : show large image (1640x128) without scaling, but center content
-// > 1640px : show large image (1640x128) without scaling, and add gradient
-//            colors on left and right side to prevent banner cutoff
+// < 600px  : show mobile banner (600x200), and scale down linearly
+// > 600px  : show desktop banner (600x80) without scaling, center content
 export function PromoBanner({
   imageUrl,
   imageUrlMobile,
@@ -26,18 +24,17 @@ export function PromoBanner({
     return window.innerWidth <= 600;
   };
 
-  // Use null initially to not show any image
+  // Use null initially to not show any image and prevent react error
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     // Determine which image to show based on the client's screen size
     setCurrentImageSrc(isSmallScreen() ? imageUrlMobile : imageUrl);
-
     // Update image source on window resize
     const handleResize = () => {
       setCurrentImageSrc(isSmallScreen() ? imageUrlMobile : imageUrl);
     };
-
+    // Attach and remove event listener
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [imageUrl, imageUrlMobile]);
@@ -56,9 +53,9 @@ export function PromoBanner({
   return (
     <div
       className={
-        "flex justify-center items-center " +
+        "flex justify-center items-center " + // positioning
         `max-w-[100vw] ` + // sizing
-        "bg-gradient-to-r from-dexter-gradient-green from-50% to-dexter-gradient-blue to-50%" // gradient background
+        "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%" // gradient background
       }
     >
       <a
@@ -69,7 +66,7 @@ export function PromoBanner({
           src={currentImageSrc}
           alt="promo header"
           className={`w-[100vw] ${
-            isSmallScreen() ? "h-auto " : "h-[90px] w-auto max-w-[1640px]"
+            isSmallScreen() ? "h-auto " : "h-[80px] w-auto"
           }`}
         />
       </a>
