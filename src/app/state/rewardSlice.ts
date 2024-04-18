@@ -1,10 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { getRdt } from "../subscriptions";
+import { getRdtOrThrow } from "../subscriptions";
 import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 import {
-  getOrdersRewardsApiData,
-  getOrderRewardsFromApiData,
   AccountRewards,
   OrderRewards,
   createAccountNftId,
@@ -97,10 +95,7 @@ export const fetchReciepts = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchReciepts", async () => {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
+  const rdt = getRdtOrThrow();
   const walletData = rdt.walletApi.getWalletData();
   // Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
@@ -147,10 +142,7 @@ export const fetchAccountRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAccountRewards", async (_, thunkAPI) => {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
+  const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardNFTAddress) {
     throw new Error("Missing rewardNFTAddress");
@@ -171,10 +163,6 @@ export const fetchOrderRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchOrderRewards", async (_, thunkAPI) => {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardOrderAddress) {
     throw new Error("Missing rewardOrderAddress");
@@ -204,10 +192,7 @@ export const fetchAddresses = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAddresses", async (_, thunkAPI) => {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
+  const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardComponent) {
     throw new Error("Missing rewardComponent address");
@@ -243,8 +228,7 @@ export const rewardSlice = createSlice({
   reducers: {
     // TODO(dcts): refactor to asyncThunk
     claimRewards: (state) => {
-      const rdt = getRdt();
-      if (!rdt) return;
+      const rdt = getRdtOrThrow();
 
       const walletData = rdt.walletApi.getWalletData();
       const accountAddress = walletData.accounts[0].address;

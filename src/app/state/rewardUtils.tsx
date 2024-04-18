@@ -1,6 +1,6 @@
 //import { getRadixApiValue } from "./api-functions";
 import { TokenInfo } from "alphadex-sdk-js";
-import { getRdt } from "../subscriptions";
+import { getRdtOrThrow } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
 export class ClaimComponent {
@@ -283,10 +283,7 @@ export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
 ): Promise<AccountRewards[]> {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
+  const rdt = getRdtOrThrow();
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
   );
@@ -319,11 +316,7 @@ export async function getAccountRewards(
 //   accountAddresses: string[],
 //   claimNFTResourceAddress: string
 // ): Promise<any> {
-//   const rdt = getRdt();
-//   if (!rdt) {
-//     console.error("Problem RDT");
-//     return;
-//   }
+//   const rdt = getRdtOrThrow();
 //   let accountNftIds = accountAddresses.map((accountAddress) =>
 //     createAccountNftId(accountAddress)
 //   );
@@ -441,7 +434,7 @@ export async function getOrderRewards(
   orderRewardsKvsAddress: string,
   orderIndices: string[]
 ): Promise<OrderRewards[]> {
-  const rdt = getRdt();
+  const rdt = getRdtOrThrow();
   let kvsKeysRequest = orderIndices.map((orderIndex) => {
     return {
       // eslint-disable-next-line camelcase
@@ -453,7 +446,7 @@ export async function getOrderRewards(
   });
   try {
     const orderRewardsApiData =
-      await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
+      await rdt.gatewayApi.state.innerClient.keyValueStoreData({
         stateKeyValueStoreDataRequest: {
           // eslint-disable-next-line camelcase
           key_value_store_address: orderRewardsKvsAddress,
