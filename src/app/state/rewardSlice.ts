@@ -326,79 +326,55 @@ export const rewardSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // fetchAddresses
-      .addCase(fetchAddresses.pending, () => {
-        console.log("fetchAddresses is pending...");
-      })
+      .addCase(fetchAddresses.pending, () => {})
       .addCase(
         fetchAddresses.fulfilled,
         (state, action: PayloadAction<FetchAddressesResult>) => {
-          DexterToast.success("Component addresses fetched");
           state.config.rewardNFTAddress = action.payload.rewardNFTAddress;
           state.config.rewardOrderAddress = action.payload.rewardOrderAddress;
           state.config.rewardVaultAddress = action.payload.rewardVaultAddress;
         }
       )
       .addCase(fetchAddresses.rejected, (state, action) => {
-        DexterToast.error("fetchAddresses rejected: " + action.error?.message);
-        console.log("fetchAddresses was rejected...");
-        console.log(action);
+        DexterToast.error("Error fetching claim component addresses");
+        console.error(action.error);
       })
 
       // fetchReciepts
-      .addCase(fetchReciepts.pending, () => {
-        console.log("fetchReciepts is pending...");
+      .addCase(fetchReciepts.pending, (state) => {
+        state.recieptIds = [];
       })
       .addCase(fetchReciepts.fulfilled, (state, action) => {
-        DexterToast.success("fetchReciepts fulfilled");
         state.recieptIds = action.payload;
-        console.log("fetchReciepts was fulfilled!");
-        console.log(action);
       })
-      .addCase(fetchReciepts.rejected, (state, action) => {
-        DexterToast.error("fetchReciepts rejected: " + action.error?.message);
-        console.log("fetchReciepts was rejected...");
-        console.log(action);
+      .addCase(fetchReciepts.rejected, (_, action) => {
+        DexterToast.error("Error fetching order receipts");
+        console.error(action.error);
       })
 
       // fetchAccountRewards
-      .addCase(fetchAccountRewards.pending, () => {
-        console.log("fetchAccountRewards pending...");
-      })
+      .addCase(fetchAccountRewards.pending, () => {})
       .addCase(
         fetchAccountRewards.fulfilled,
         (state, action: PayloadAction<AccountRewards[]>) => {
-          DexterToast.success("fetchAccountRewards fulfilled");
-          console.log("fetchAccountRewards fulfilled");
           state.rewardData.accountsRewards = action.payload;
         }
       )
-      .addCase(fetchAccountRewards.rejected, (state, action) => {
-        DexterToast.error(
-          "fetchAccountRewards rejected: " + action.error?.message
-        );
-        console.log("fetchAccountRewards rejected");
-        console.log(action);
+      .addCase(fetchAccountRewards.rejected, () => {
+        DexterToast.error("Error fetching account rewards");
       })
 
       // fetchOrderRewards
-      .addCase(fetchOrderRewards.pending, () => {
-        console.log("fetchOrderRewards pending...");
-      })
+      .addCase(fetchOrderRewards.pending, () => {})
       .addCase(
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
-          DexterToast.success("fetchOrderRewards fulfilled");
-          console.log("fetchOrderRewards fulfilled");
-          console.log(action);
           state.rewardData.ordersRewards = action.payload;
         }
       )
       .addCase(fetchOrderRewards.rejected, (state, action) => {
-        DexterToast.error(
-          "fetchOrderRewards rejected: " + action.error?.message
-        );
-        console.log("fetchOrderRewards rejected");
-        console.log(action);
+        DexterToast.error("Error fetching order rewards ");
+        console.error(action.error);
       });
     // You can add more cases here
   },
