@@ -455,49 +455,53 @@ export function fromOrderIndex(orderIndex: string): {
 
 export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
   let ordersRewards: OrderRewards[] = [];
-  if (apiData.entries) {
-    for (const orderData of apiData.entries) {
-      let orderRewards = new OrderRewards();
-
-      if (!orderData.value.programmatic_json.fields) {
-        console.error(
-          "Could not find order reward data fields in apiData",
-          orderData
-        );
-        return ordersRewards;
-      }
-      let orderDataFields = orderData.value.programmatic_json.fields;
-      for (const orderDataField of orderDataFields) {
-        switch (orderDataField.field_name) {
-          case "order_id": {
-            orderRewards.orderIndex = orderDataField.value;
-            let orderInfo = fromOrderIndex(orderRewards.orderIndex);
-            orderRewards.orderReceiptAddress = orderInfo.orderReceiptAddress;
-            orderRewards.orderId = orderInfo.orderId;
-            break;
-          }
-          case "rewards": {
-            let rewardTypesData = orderDataField.entries;
-            for (const rewardTypeData of rewardTypesData) {
-              let typeRewards = new TypeRewards();
-              typeRewards.rewardType = rewardTypeData.key.value;
-              let tokensRewardData = rewardTypeData.value.entries;
-              for (const tokenRewardData of tokensRewardData) {
-                let tokenReward = new TokenReward();
-                tokenReward.address = tokenRewardData.key.value;
-                tokenReward.amount = Number(tokenRewardData.value.value);
-                typeRewards.tokenRewards.push(tokenReward);
-              }
-              orderRewards.rewards.push(typeRewards);
-            }
-            break;
-          }
-        }
-      }
-      ordersRewards.push(orderRewards);
-    }
-  } else {
-    console.error("Could not find field entries in api data.", apiData);
+  // Invalid api response
+  if (apiData.entries === undefined) {
+    throw new Error("Entries not specified in orderRewards apiData.");
+  }
+  // Account has no orderRewards
+  if (apiData.entries.length === 0) {
+    return ordersRewards;
+  }
+  // Iterate over all entries and extract orderRewards
+  for (const orderData of apiData.entries) {
+    ordersRewards.push(extractOrderRewardsFromOrderData(orderData));
   }
   return ordersRewards;
+}
+
+function extractOrderRewardsFromOrderData(orderData: any): OrderRewards {
+  let orderRewards = new OrderRewards();
+  if (!orderData.value.programmatic_json.fields) {
+    throw new Error("Could not find programmatic_json.fields from orderData");
+  }
+  let orderDataFields = orderData.value.programmatic_json.fields;
+  for (const orderDataField of orderDataFields) {
+    switch (orderDataField.field_name) {
+      case "order_id": {
+        orderRewards.orderIndex = orderDataField.value;
+        let orderInfo = fromOrderIndex(orderRewards.orderIndex);
+        orderRewards.orderReceiptAddress = orderInfo.orderReceiptAddress;
+        orderRewards.orderId = orderInfo.orderId;
+        break;
+      }
+      case "rewards": {
+        let rewardTypesData = orderDataField.entries;
+        for (const rewardTypeData of rewardTypesData) {
+          let typeRewards = new TypeRewards();
+          typeRewards.rewardType = rewardTypeData.key.value;
+          let tokensRewardData = rewardTypeData.value.entries;
+          for (const tokenRewardData of tokensRewardData) {
+            let tokenReward = new TokenReward();
+            tokenReward.address = tokenRewardData.key.value;
+            tokenReward.amount = Number(tokenRewardData.value.value);
+            typeRewards.tokenRewards.push(tokenReward);
+          }
+          orderRewards.rewards.push(typeRewards);
+        }
+        break;
+      }
+    }
+  }
+  return orderRewards;
 }
