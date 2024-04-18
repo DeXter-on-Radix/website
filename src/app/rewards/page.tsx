@@ -12,7 +12,6 @@ import {
   claimRewards,
 } from "state/rewardSlice";
 
-// import { loadTokenDict } from "data/loadData";
 import { useSelector } from "react-redux";
 import {
   TokenReward,
@@ -149,11 +148,7 @@ function LearnMore() {
 }
 
 function ClaimableCoins() {
-  // const tokenDict = loadTokenDict();
-  // TODO: replace hardcoded coins with fetched coins to claim
-  // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const tokensMap = adex.clientState.tokensMap;
-  // const dispatch = useAppDispatch();
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
   );
@@ -169,12 +164,7 @@ function ClaimableCoins() {
 
 function ClaimableTypes() {
   const tokensMap = adex.clientState.tokensMap;
-  // const tokenDict = loadTokenDict();
-  // TODO: replace hardcoded coins with fetched coins to claim
-
-  // const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const { isConnected } = useAppSelector((state) => state.radix);
-  // const dispatch = useAppDispatch();
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
   );
