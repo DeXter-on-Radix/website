@@ -11,6 +11,7 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
   rewardSlice,
+  claimRewards,
 } from "state/rewardSlice";
 
 // import { loadTokenDict } from "data/loadData";
@@ -22,6 +23,7 @@ import {
 } from "state/rewardUtils";
 
 import * as adex from "alphadex-sdk-js";
+import { DexterToast } from "components/DexterToaster";
 // import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
@@ -233,13 +235,9 @@ function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
 }
 
 function ClaimButton() {
+  const t = useTranslations();
   const { isConnected } = useAppSelector((state) => state.radix);
   const dispatch = useAppDispatch();
-  const handleClaim = async () => {
-    await dispatch(fetchReciepts()); //Get all users reciepts already exists
-    await dispatch(rewardSlice.actions.claimRewards());
-  };
-  // const t = useTranslations();
   return (
     <button
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
@@ -247,20 +245,24 @@ function ClaimButton() {
           ? "bg-dexter-gradient-green text-black"
           : "bg-[#232629] text-[#474D52] opacity-50"
       }`}
-      onClick={handleClaim}
-      // // TODO: make claimRewards an async function using createAsyncThunk<>
-      // // then comment the below code back in:
-      // onClick={async (e) => {
-      //   e.stopPropagation();
-      //   DexterToast.promise(
-      //     async () => {
-      //       handleClaim();
-      //     },
-      //     t("claiming_rewards_loading"),
-      //     t("claiming_rewards_success"),
-      //     t("claiming_rewards_fail")
-      //   );
-      // }}
+      onClick={async (e) => {
+        e.stopPropagation();
+        DexterToast.promise(
+          async () => {
+            const action = await dispatch(claimRewards());
+            if (!action.type.endsWith("fulfilled")) {
+              // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+              throw new Error("Transaction failed due to user action.");
+            } else if ((action.payload as any)?.status === "ERROR") {
+              // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+              throw new Error("Transaction failed onledger");
+            }
+          },
+          t("claiming_rewards_loading"),
+          t("claiming_rewards_success"),
+          t("claiming_rewards_fail")
+        );
+      }}
     >{`Claim All Rewards`}</button>
   );
 }

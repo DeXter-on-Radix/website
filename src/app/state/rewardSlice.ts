@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdtOrThrow } from "../subscriptions";
-import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
+import {
+  NonFungibleResourcesCollectionItem,
+  SendTransactionResult,
+} from "@radixdlt/radix-dapp-toolkit";
 import {
   AccountRewards,
   OrderRewards,
@@ -17,6 +20,7 @@ export interface RewardState {
   rewardsTotal: number;
   rewardData: RewardData;
   config: RewardConfig;
+  showSuccessUi: boolean;
 }
 
 interface RewardConfig {
@@ -74,6 +78,7 @@ const initialState: RewardState = {
       },
     },
   },
+  showSuccessUi: false,
 };
 
 type NonFungibleResource = NonFungibleResourcesCollectionItem & {
@@ -220,37 +225,34 @@ export const fetchAddresses = createAsyncThunk<
   };
 });
 
-export const rewardSlice = createSlice({
-  name: "reward",
-  initialState,
+export const claimRewards = createAsyncThunk<
+  boolean, // returns true if successfull, throws on error, should never return false
+  undefined, // argument type
+  {
+    state: RootState;
+  }
+>("rewards/claimRewards", async (_, thunkAPI) => {
+  const rdt = getRdtOrThrow();
+  const state = thunkAPI.getState().rewardSlice;
 
-  // synchronous reducers
-  reducers: {
-    // TODO(dcts): refactor to asyncThunk
-    claimRewards: (state) => {
-      const rdt = getRdtOrThrow();
+  const walletData = rdt.walletApi.getWalletData();
+  const accountAddress = walletData.accounts[0].address;
 
-      const walletData = rdt.walletApi.getWalletData();
-      const accountAddress = walletData.accounts[0].address;
+  const rewardOrdersMap: Map<string, number[]> = new Map();
+  state.rewardData.ordersRewards.forEach((orderRewardData) => {
+    let existingOrderIds = rewardOrdersMap.get(
+      orderRewardData.orderReceiptAddress
+    );
+    if (!existingOrderIds) {
+      existingOrderIds = [];
+    }
+    existingOrderIds.push(orderRewardData.orderId);
+    rewardOrdersMap.set(orderRewardData.orderReceiptAddress, existingOrderIds);
+  });
 
-      const rewardOrdersMap: Map<string, number[]> = new Map();
-      state.rewardData.ordersRewards.forEach((orderRewardData) => {
-        let existingOrderIds = rewardOrdersMap.get(
-          orderRewardData.orderReceiptAddress
-        );
-        if (!existingOrderIds) {
-          existingOrderIds = [];
-        }
-        existingOrderIds.push(orderRewardData.orderId);
-        rewardOrdersMap.set(
-          orderRewardData.orderReceiptAddress,
-          existingOrderIds
-        );
-      });
-
-      let claimRewardsManifest = "";
-      // create a manifest to create a proof of all accountRewardNfts
-      const createAccountRewardNftProofManifest = `
+  let claimRewardsManifest = "";
+  // create a manifest to create a proof of all accountRewardNfts
+  const createAccountRewardNftProofManifest = `
         CALL_METHOD 
         Address("${accountAddress}") 
         "create_proof_of_non_fungibles" 
@@ -261,20 +263,20 @@ export const rewardSlice = createSlice({
         POP_FROM_AUTH_ZONE 
           Proof("account_reward_nft_proof");
       `;
-      claimRewardsManifest =
-        claimRewardsManifest + createAccountRewardNftProofManifest;
+  claimRewardsManifest =
+    claimRewardsManifest + createAccountRewardNftProofManifest;
 
-      // create a manifest to create a proof for all orderReceipts (that have claimable rewards)
-      let pairOrdersProofsNames: string[] = [];
-      let index = 0;
-      rewardOrdersMap.forEach((pairOrderIds, pairOrderReceiptAddress) => {
-        index++;
-        const pairOrdersProofName = "pair_orders_proof_" + index;
-        pairOrdersProofsNames.push('Proof("' + pairOrdersProofName + '")');
-        const pairOrderIdsString = pairOrderIds
-          .map((orderId) => 'NonFungibleLocalId("#' + orderId + '#")')
-          .join();
-        const createPairOrderRewardsProofManifest = `
+  // create a manifest to create a proof for all orderReceipts (that have claimable rewards)
+  let pairOrdersProofsNames: string[] = [];
+  let index = 0;
+  rewardOrdersMap.forEach((pairOrderIds, pairOrderReceiptAddress) => {
+    index++;
+    const pairOrdersProofName = "pair_orders_proof_" + index;
+    pairOrdersProofsNames.push('Proof("' + pairOrdersProofName + '")');
+    const pairOrderIdsString = pairOrderIds
+      .map((orderId) => 'NonFungibleLocalId("#' + orderId + '#")')
+      .join();
+    const createPairOrderRewardsProofManifest = `
           CALL_METHOD Address("${accountAddress}") 
           "create_proof_of_non_fungibles" 
           Address("${pairOrderReceiptAddress}") 
@@ -282,12 +284,12 @@ export const rewardSlice = createSlice({
           POP_FROM_AUTH_ZONE 
             Proof("${pairOrdersProofName}");
         `;
-        claimRewardsManifest =
-          claimRewardsManifest + createPairOrderRewardsProofManifest;
-      });
-      claimRewardsManifest =
-        claimRewardsManifest +
-        `
+    claimRewardsManifest =
+      claimRewardsManifest + createPairOrderRewardsProofManifest;
+  });
+  claimRewardsManifest =
+    claimRewardsManifest +
+    `
         CALL_METHOD 
           Address("${state.config.rewardComponent}") 
           "claim_rewards" 
@@ -298,11 +300,21 @@ export const rewardSlice = createSlice({
           "deposit_batch" 
           Expression("ENTIRE_WORKTOP");
         `;
-      console.log("Calling claim rewards tx manifest: ", claimRewardsManifest);
-      rdt.walletApi.sendTransaction({
-        transactionManifest: claimRewardsManifest,
-      });
-    },
+  const transactionResult = await rdt.walletApi.sendTransaction({
+    transactionManifest: claimRewardsManifest,
+  });
+  if (!transactionResult.isOk()) {
+    throw new Error("Transaction failed");
+  }
+  return true;
+});
+
+export const rewardSlice = createSlice({
+  name: "reward",
+  initialState,
+
+  // synchronous reducers
+  reducers: {
     updateReciepts: (state, action: PayloadAction<string[]>) => {
       state.recieptIds = action.payload;
     },
@@ -375,6 +387,17 @@ export const rewardSlice = createSlice({
       .addCase(fetchOrderRewards.rejected, (state, action) => {
         DexterToast.error("Error fetching order rewards ");
         console.error(action.error);
+      })
+
+      // claimRewards
+      .addCase(claimRewards.pending, (state) => {
+        state.showSuccessUi = false;
+      })
+      .addCase(claimRewards.fulfilled, (state, action) => {
+        state.showSuccessUi = action.payload;
+      })
+      .addCase(claimRewards.rejected, (state) => {
+        state.showSuccessUi = false;
       });
     // You can add more cases here
   },
