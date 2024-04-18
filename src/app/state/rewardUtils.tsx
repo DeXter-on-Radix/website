@@ -356,71 +356,11 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
   let accountsRewards: AccountRewards[] = [];
   if (apiData.non_fungible_ids && apiData.non_fungible_ids.length > 0) {
     for (const nftData of apiData.non_fungible_ids) {
-      let accountRewards = new AccountRewards();
-      if (!nftData.data.programmatic_json.fields) {
-        console.error("Could not find NFT data fields in NFT apiData", nftData);
-        return accountsRewards;
-      }
-      let nftDataFields = nftData.data.programmatic_json.fields;
-      for (const nftDataField of nftDataFields) {
-        switch (nftDataField.field_name) {
-          case "account_address": {
-            accountRewards.accountAddress = nftDataField.value;
-            break;
-          }
-          case "rewards": {
-            let rewardTypesData = nftDataField.entries;
-            for (const rewardTypeData of rewardTypesData) {
-              let typeRewards = new TypeRewards();
-              typeRewards.rewardType = rewardTypeData.key.value;
-              let tokensRewardData = rewardTypeData.value.entries;
-              for (const tokenRewardData of tokensRewardData) {
-                let tokenReward = new TokenReward();
-                tokenReward.address = tokenRewardData.key.value;
-                tokenReward.amount = Number(tokenRewardData.value.value);
-                typeRewards.tokenRewards.push(tokenReward);
-              }
-              accountRewards.rewards.push(typeRewards);
-            }
-            break;
-          }
-        }
-      }
-      accountsRewards.push(accountRewards);
+      accountsRewards.push(getAccountRewardsFromNftData(nftData));
     }
   } else if (apiData.non_fungible_id) {
     const nftData = apiData;
-    let accountRewards = new AccountRewards();
-    if (!nftData.data.programmatic_json.fields) {
-      console.error("Could not find NFT data fields in NFT apiData", nftData);
-      return accountsRewards;
-    }
-    let nftDataFields = nftData.data.programmatic_json.fields;
-    for (const nftDataField of nftDataFields) {
-      switch (nftDataField.field_name) {
-        case "account_address": {
-          accountRewards.accountAddress = nftDataField.value;
-          break;
-        }
-        case "rewards": {
-          let rewardTypesData = nftDataField.entries;
-          for (const rewardTypeData of rewardTypesData) {
-            let typeRewards = new TypeRewards();
-            typeRewards.rewardType = rewardTypeData.key.value;
-            let tokensRewardData = rewardTypeData.value.entries;
-            for (const tokenRewardData of tokensRewardData) {
-              let tokenReward = new TokenReward();
-              tokenReward.address = tokenRewardData.key.value;
-              tokenReward.amount = Number(tokenRewardData.value.value);
-              typeRewards.tokenRewards.push(tokenReward);
-            }
-            accountRewards.rewards.push(typeRewards);
-          }
-          break;
-        }
-      }
-    }
-    accountsRewards.push(accountRewards);
+    accountsRewards.push(getAccountRewardsFromNftData(nftData));
   } else {
     console.error(
       "Could not find field non_fungible_ids in api data.",
@@ -428,6 +368,39 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
     );
   }
   return accountsRewards;
+}
+
+function getAccountRewardsFromNftData(nftData: any): AccountRewards {
+  let accountRewards = new AccountRewards();
+  if (!nftData.data.programmatic_json.fields) {
+    throw new Error("Could not find NFT data fields in NFT apiData");
+  }
+  let nftDataFields = nftData.data.programmatic_json.fields;
+  for (const nftDataField of nftDataFields) {
+    switch (nftDataField.field_name) {
+      case "account_address": {
+        accountRewards.accountAddress = nftDataField.value;
+        break;
+      }
+      case "rewards": {
+        let rewardTypesData = nftDataField.entries;
+        for (const rewardTypeData of rewardTypesData) {
+          let typeRewards = new TypeRewards();
+          typeRewards.rewardType = rewardTypeData.key.value;
+          let tokensRewardData = rewardTypeData.value.entries;
+          for (const tokenRewardData of tokensRewardData) {
+            let tokenReward = new TokenReward();
+            tokenReward.address = tokenRewardData.key.value;
+            tokenReward.amount = Number(tokenRewardData.value.value);
+            typeRewards.tokenRewards.push(tokenReward);
+          }
+          accountRewards.rewards.push(typeRewards);
+        }
+        break;
+      }
+    }
+  }
+  return accountRewards;
 }
 
 export async function getOrderRewards(
