@@ -1,10 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdtOrThrow } from "../subscriptions";
-import {
-  NonFungibleResourcesCollectionItem,
-  SendTransactionResult,
-} from "@radixdlt/radix-dapp-toolkit";
+import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 import {
   AccountRewards,
   OrderRewards,
@@ -17,7 +14,6 @@ import * as adex from "alphadex-sdk-js";
 
 export interface RewardState {
   recieptIds: string[];
-  rewardsTotal: number;
   rewardData: RewardData;
   config: RewardConfig;
   showSuccessUi: boolean;
@@ -54,7 +50,6 @@ export interface RewardData {
 //State will default to stokenet values if not provided
 const initialState: RewardState = {
   recieptIds: [],
-  rewardsTotal: 0,
   rewardData: {
     accountsRewards: [],
     ordersRewards: [],
@@ -317,9 +312,6 @@ export const rewardSlice = createSlice({
   reducers: {
     updateReciepts: (state, action: PayloadAction<string[]>) => {
       state.recieptIds = action.payload;
-    },
-    updateRewardsTotal: (state, action: PayloadAction<number>) => {
-      state.rewardsTotal = action.payload;
     },
     updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
       state.rewardData.accountsRewards = action.payload;
