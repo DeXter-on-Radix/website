@@ -353,19 +353,20 @@ export function createAccountNftId(
 }
 
 export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
+  // init account rewards
   let accountsRewards: AccountRewards[] = [];
-  if (apiData.non_fungible_ids && apiData.non_fungible_ids.length > 0) {
-    for (const nftData of apiData.non_fungible_ids) {
-      accountsRewards.push(getAccountRewardsFromNftData(nftData));
-    }
-  } else if (apiData.non_fungible_id) {
-    const nftData = apiData;
+  // extract nftDatas from apiData
+  const nonFungibleIds = apiData.non_fungible_ids;
+  const nonFungibleId = apiData.non_fungible_id;
+  const nftDatas =
+    nonFungibleIds && nonFungibleIds.length > 0 // usecase1: multiple nftDatas
+      ? nonFungibleIds
+      : nonFungibleId // usecase2: apiData returns single nftData
+      ? [apiData]
+      : []; // usecase3: account has no rewards
+  // Iterate over nftDatas and extract accountRewards
+  for (const nftData of nftDatas) {
     accountsRewards.push(getAccountRewardsFromNftData(nftData));
-  } else {
-    console.error(
-      "Could not find field non_fungible_ids in api data.",
-      apiData
-    );
   }
   return accountsRewards;
 }
