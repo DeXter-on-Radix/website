@@ -437,10 +437,10 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
   return accountsRewards;
 }
 
-export async function getOrdersRewardsApiData(
+export async function getOrderRewards(
   orderRewardsKvsAddress: string,
   orderIndices: string[]
-): Promise<any> {
+): Promise<OrderRewards[]> {
   const rdt = getRdt();
   let kvsKeysRequest = orderIndices.map((orderIndex) => {
     return {
@@ -452,13 +452,15 @@ export async function getOrdersRewardsApiData(
     };
   });
   try {
-    return await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
-      stateKeyValueStoreDataRequest: {
-        // eslint-disable-next-line camelcase
-        key_value_store_address: orderRewardsKvsAddress,
-        keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
-      },
-    });
+    const orderRewardsApiData =
+      await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
+        stateKeyValueStoreDataRequest: {
+          // eslint-disable-next-line camelcase
+          key_value_store_address: orderRewardsKvsAddress,
+          keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
+        },
+      });
+    return getOrderRewardsFromApiData(orderRewardsApiData);
   } catch (error) {
     console.error(
       "Problem loading Order Rewards data for orderIndices: " + orderIndices
@@ -467,15 +469,6 @@ export async function getOrdersRewardsApiData(
       "Problem loading Order Rewards data for orderIndices " + error
     );
   }
-  /*
-  if (orderRewardsResult.status != 200) {
-    console.error(
-      "Problem loading Order Rewards data for orderIndices: " + orderIndices,
-      orderRewardsResult
-    );
-  } else {
-    result = orderRewardsResult.data;
-  }*/
 }
 
 export function createOrderIndex(

@@ -9,6 +9,7 @@ import {
   OrderRewards,
   createAccountNftId,
   getAccountRewards,
+  getOrderRewards,
 } from "./rewardUtils";
 import { DexterToast } from "components/DexterToaster";
 import * as adex from "alphadex-sdk-js";
@@ -181,11 +182,10 @@ export const fetchOrderRewards = createAsyncThunk<
   let recieptIds = state.rewardSlice.recieptIds;
   let orderRewards: OrderRewards[] = [];
   if (recieptIds.length > 0) {
-    const orderRewardsData = await getOrdersRewardsApiData(
+    orderRewards = await getOrderRewards(
       state.rewardSlice.config.rewardOrderAddress,
       recieptIds
     );
-    orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
   // Deep copying is needed to prevent "A non-serializable value was detected" error
   return JSON.parse(JSON.stringify(orderRewards));
