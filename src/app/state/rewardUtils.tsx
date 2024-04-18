@@ -432,36 +432,27 @@ export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
 
 export async function getOrderRewards(
   orderRewardsKvsAddress: string,
-  orderIndices: string[]
+  recieptIds: string[]
 ): Promise<OrderRewards[]> {
   const rdt = getRdtOrThrow();
-  let kvsKeysRequest = orderIndices.map((orderIndex) => {
+  let kvsKeysRequest = recieptIds.map((recieptId) => {
     return {
       // eslint-disable-next-line camelcase
       key_json: {
         kind: "String",
-        value: orderIndex,
+        value: recieptId,
       },
     };
   });
-  try {
-    const orderRewardsApiData =
-      await rdt.gatewayApi.state.innerClient.keyValueStoreData({
-        stateKeyValueStoreDataRequest: {
-          // eslint-disable-next-line camelcase
-          key_value_store_address: orderRewardsKvsAddress,
-          keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
-        },
-      });
-    return getOrderRewardsFromApiData(orderRewardsApiData);
-  } catch (error) {
-    console.error(
-      "Problem loading Order Rewards data for orderIndices: " + orderIndices
-    );
-    throw new Error(
-      "Problem loading Order Rewards data for orderIndices " + error
-    );
-  }
+  const orderRewardsApiData =
+    await rdt.gatewayApi.state.innerClient.keyValueStoreData({
+      stateKeyValueStoreDataRequest: {
+        // eslint-disable-next-line camelcase
+        key_value_store_address: orderRewardsKvsAddress,
+        keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
+      },
+    });
+  return getOrderRewardsFromApiData(orderRewardsApiData);
 }
 
 export function createOrderIndex(
