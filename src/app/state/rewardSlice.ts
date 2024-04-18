@@ -192,9 +192,8 @@ export const fetchOrderRewards = createAsyncThunk<
     );
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
-  // TODO(dcts): remove deep copying and test if still works
-  const serialize = JSON.stringify(orderRewards);
-  return JSON.parse(serialize);
+  // Deep copying is needed to prevent "A non-serializable value was detected" error
+  return JSON.parse(JSON.stringify(orderRewards));
 });
 
 interface FetchAddressesResult {

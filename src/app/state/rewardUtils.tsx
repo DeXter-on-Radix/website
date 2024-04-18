@@ -300,10 +300,8 @@ export async function getAccountRewards(
     const accountsRewards = getAccountsRewardsFromApiData(
       accountRewardsNftResult[0]
     );
-    // TODO(dcts): this deep copying is actually needed as otherwise there
-    // is an error thrown: unserialized data detected
-    const serialize = JSON.stringify(accountsRewards);
-    return JSON.parse(serialize);
+    // Deep copying is needed to prevent "A non-serializable value was detected" error
+    return JSON.parse(JSON.stringify(accountsRewards));
   } catch (error) {
     console.error(
       "Problem loading Rewards NFT data for accounts: ",
