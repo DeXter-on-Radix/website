@@ -156,6 +156,9 @@ export const fetchAccountRewards = createAsyncThunk<
     throw new Error("RDT initialization failed");
   }
   const state = thunkAPI.getState();
+  if (!state.rewardSlice.config.rewardNFTAddress) {
+    throw new Error("Missing rewardNFTAddress");
+  }
   const walletData = rdt.walletApi.getWalletData();
   //Todo support multiple wallets ids
   const accountAddress = walletData.accounts[0].address;
@@ -177,6 +180,9 @@ export const fetchOrderRewards = createAsyncThunk<
     throw new Error("RDT initialization failed");
   }
   const state = thunkAPI.getState();
+  if (!state.rewardSlice.config.rewardOrderAddress) {
+    throw new Error("Missing rewardOrderAddress");
+  }
   let recieptIds = state.rewardSlice.recieptIds;
   let orderRewards: OrderRewards[] = [];
   if (recieptIds.length > 0) {
@@ -184,8 +190,6 @@ export const fetchOrderRewards = createAsyncThunk<
       state.rewardSlice.config.rewardOrderAddress,
       recieptIds
     );
-    console.log("orderRewardsData inside fetchOrderRewards");
-    console.log(orderRewardsData);
     orderRewards = await getOrderRewardsFromApiData(orderRewardsData);
   }
   // TODO(dcts): remove deep copying and test if still works
@@ -211,7 +215,9 @@ export const fetchAddresses = createAsyncThunk<
     throw new Error("RDT initialization failed");
   }
   const state = thunkAPI.getState();
-
+  if (!state.rewardSlice.config.rewardComponent) {
+    throw new Error("Missing rewardComponent address");
+  }
   // Get the state entity
   const component: any =
     await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
