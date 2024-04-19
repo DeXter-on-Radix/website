@@ -128,6 +128,12 @@ function RewardsCard() {
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
   const t = useTranslations();
+  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const userHasAccountRewards = rewardData.accountsRewards.some(
+    (accountRewards) => accountRewards.rewards.length > 0
+  );
+  const userHasRewards =
+    userHasAccountRewards || rewardData.ordersRewards.length > 0;
 
   useEffect(() => {
     async function loadRewards() {
@@ -146,20 +152,24 @@ function RewardsCard() {
         <div>
           <h4
             style={{ margin: 0, marginBottom: 12 }}
-            className={isConnected ? "" : "opacity-50 text-center"}
+            className={
+              !isConnected || !userHasRewards ? "opacity-50 text-center" : ""
+            }
           >
-            {isConnected
+            {!isConnected
+              ? t("connect_wallet_to_claim_rewards")
+              : userHasRewards
               ? t("total_rewards") + ":"
-              : t("connect_wallet_to_claim_rewards")}
+              : t("no_rewards_to_claim")}
           </h4>
         </div>
         <ClaimableCoins />
-        <ClaimButton />
+        <ClaimButton disabled={!isConnected || !userHasRewards} />
         <SecondaryAction
           textIdentifier="learn_more_about_rewards"
           targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
         />
-        <div>
+        {/* <div>
           <h4
             style={{ margin: 0, marginBottom: 12 }}
             className={isConnected ? "" : "opacity-50 text-center"}
@@ -169,7 +179,7 @@ function RewardsCard() {
               : t("connect_wallet_to_claim_rewards")}
           </h4>
         </div>
-        <ClaimableTypes />
+        <ClaimableTypes /> */}
       </div>
     </div>
   );
@@ -258,14 +268,13 @@ function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
   );
 }
 
-function ClaimButton() {
+function ClaimButton({ disabled = false }: { disabled: boolean }) {
   const t = useTranslations();
-  const { isConnected } = useAppSelector((state) => state.radix);
   const dispatch = useAppDispatch();
   return (
     <button
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
-        isConnected
+        !disabled
           ? "bg-dexter-gradient-green text-black"
           : "bg-[#232629] text-[#474D52] opacity-50"
       }`}
