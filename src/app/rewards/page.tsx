@@ -10,6 +10,7 @@ import {
   fetchAccountRewards,
   fetchOrderRewards,
   claimRewards,
+  rewardSlice,
 } from "state/rewardSlice";
 
 import { useSelector } from "react-redux";
@@ -30,11 +31,49 @@ export default function Rewards() {
     };
   }, []);
 
+  const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
     <div className="bg-[#141414]">
       <HeaderComponent />
       {/* <DebugStateLogger /> */}
-      <RewardsCard />
+      {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
+    </div>
+  );
+}
+
+function SuccessUi() {
+  const t = useTranslations();
+  const dispatch = useAppDispatch();
+  return (
+    <div className="max-w-[400px] sm:max-w-[600px] rounded-2xl w-full px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D]">
+      <div className="flex flex-col items-center pb-6">
+        <div>
+          <h4 className="font-bold text-center text-3xl !m-0 !my-5">
+            {t("rewards_claimed")} 🎉
+          </h4>
+        </div>
+        <div>
+          <p className="text-base text-center px-2">
+            {t("continue_trading_to_earn_more")}
+          </p>
+        </div>
+        <div>
+          <button
+            className={`min-w-[210px] uppercase w-full min-h-[44px] px-4 my-6 mt-8 rounded bg-dexter-green text-black opacity-100`}
+            onClick={() => dispatch(rewardSlice.actions.resetRewardState())}
+          >
+            <span className="font-bold text-sm tracking-[.1px] ">
+              {t("go_back")}
+            </span>
+          </button>
+        </div>
+        <div>
+          <SecondaryAction
+            textIdentifier="how_did_everything_go"
+            targetUrl="https://t.me/dexter_discussion"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -116,7 +155,10 @@ function RewardsCard() {
         </div>
         <ClaimableCoins />
         <ClaimButton />
-        <LearnMore />
+        <SecondaryAction
+          textIdentifier="learn_more_about_rewards"
+          targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
+        />
         <div>
           <h4
             style={{ margin: 0, marginBottom: 12 }}
@@ -133,16 +175,15 @@ function RewardsCard() {
   );
 }
 
-function LearnMore() {
+interface SecondaryActionProps {
+  textIdentifier: string;
+  targetUrl: string;
+}
+function SecondaryAction({ textIdentifier, targetUrl }: SecondaryActionProps) {
   const t = useTranslations();
   return (
-    <a
-      target="_blank"
-      href="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
-    >
-      <p className="text-xs opacity-60 text-center">
-        {t("learn_more_about_rewards")}
-      </p>
+    <a target="_blank" href={targetUrl}>
+      <p className="text-xs opacity-60 text-center">{t(textIdentifier)}</p>
     </a>
   );
 }
