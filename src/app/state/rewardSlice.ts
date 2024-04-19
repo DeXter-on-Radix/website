@@ -73,7 +73,7 @@ const initialState: RewardState = {
       },
     },
   },
-  showSuccessUi: false,
+  showSuccessUi: true,
 };
 
 type NonFungibleResource = NonFungibleResourcesCollectionItem & {
@@ -324,6 +324,14 @@ export const rewardSlice = createSlice({
     },
     updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
       state.config.rewardVaultAddress = action.payload;
+    },
+    resetRewardState: (state) => {
+      state.recieptIds = [];
+      state.rewardData = {
+        accountsRewards: [],
+        ordersRewards: [],
+      };
+      state.showSuccessUi = false;
     },
   },
 
