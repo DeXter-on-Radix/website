@@ -8,5 +8,9 @@
   "learn_more_about_rewards": "Saiba mais sobre a recompensas",
   "claiming_rewards_loading": "Reivindicando recompensas...",
   "claiming_rewards_success": "Recompensas reivindicadas",
-  "claiming_rewards_fail": "Erro ao reivindicar recompensas"
+  "claiming_rewards_fail": "Erro ao reivindicar recompensas",
+  "how_did_everything_go": "Como tudo ocorreu? Envie um feedback",
+  "rewards_claimed": "Recompensas Resgatadas",
+  "continue_trading_to_earn_more": "Continue negociando ou fazendo staking para ganhar mais e volte mais tarde.",
+  "go_back": "Voltar"
 }
