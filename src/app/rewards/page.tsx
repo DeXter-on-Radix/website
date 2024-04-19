@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import {
   TokenReward,
   getRewardsByToken,
-  getRewardsByTypeThenToken,
+  // getRewardsByTypeThenToken,
 } from "state/rewardUtils";
 
 import * as adex from "alphadex-sdk-js";
@@ -213,37 +213,37 @@ function ClaimableCoins() {
   return <TokenList tokenRewards={rewardsByToken} />;
 }
 
-function ClaimableTypes() {
-  const tokensMap = adex.clientState.tokensMap;
-  const { isConnected } = useAppSelector((state) => state.radix);
-  const rewardData = useSelector(
-    (state: RootState) => state.rewardSlice.rewardData
-  );
+// function ClaimableTypes() {
+//   const tokensMap = adex.clientState.tokensMap;
+//   const { isConnected } = useAppSelector((state) => state.radix);
+//   const rewardData = useSelector(
+//     (state: RootState) => state.rewardSlice.rewardData
+//   );
 
-  const rewardsByTypeThenToken = getRewardsByTypeThenToken(
-    rewardData.accountsRewards,
-    rewardData.ordersRewards,
-    tokensMap
-  );
+//   const rewardsByTypeThenToken = getRewardsByTypeThenToken(
+//     rewardData.accountsRewards,
+//     rewardData.ordersRewards,
+//     tokensMap
+//   );
 
-  return (
-    <div>
-      {rewardsByTypeThenToken.map((typeReward, indx) => (
-        <div key={indx}>
-          <h6
-            style={{ margin: 0, marginBottom: 12 }}
-            className={isConnected ? "text-white" : "opacity-50 text-center"}
-          >
-            {isConnected
-              ? typeReward.rewardType + ":"
-              : "connect_wallet_to_claim_rewards"}
-          </h6>
-          <TokenList tokenRewards={typeReward.tokenRewards} />
-        </div>
-      ))}
-    </div>
-  );
-}
+//   return (
+//     <div>
+//       {rewardsByTypeThenToken.map((typeReward, indx) => (
+//         <div key={indx}>
+//           <h6
+//             style={{ margin: 0, marginBottom: 12 }}
+//             className={isConnected ? "text-white" : "opacity-50 text-center"}
+//           >
+//             {isConnected
+//               ? typeReward.rewardType + ":"
+//               : "connect_wallet_to_claim_rewards"}
+//           </h6>
+//           <TokenList tokenRewards={typeReward.tokenRewards} />
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
 
 function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
   return (
