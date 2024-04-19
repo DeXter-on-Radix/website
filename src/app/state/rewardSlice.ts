@@ -73,7 +73,7 @@ const initialState: RewardState = {
       },
     },
   },
-  showSuccessUi: true,
+  showSuccessUi: false,
 };
 
 type NonFungibleResource = NonFungibleResourcesCollectionItem & {
