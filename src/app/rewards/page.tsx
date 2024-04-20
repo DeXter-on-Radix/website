@@ -126,7 +126,8 @@ function DexterHeading({ title }: { title: string }) {
 
 function RewardsCard() {
   const dispatch = useAppDispatch();
-  const { isConnected } = useAppSelector((state) => state.radix);
+  const { isConnected, walletData } = useAppSelector((state) => state.radix);
+  const account = walletData.accounts[0]?.address;
   const t = useTranslations();
   const { rewardData } = useAppSelector((state) => state.rewardSlice);
   const userHasAccountRewards = rewardData.accountsRewards.some(
@@ -145,7 +146,7 @@ function RewardsCard() {
     if (isConnected) {
       loadRewards();
     }
-  }, [dispatch, isConnected]);
+  }, [dispatch, isConnected, account]);
   return (
     <div className="max-w-[400px] sm:max-w-[600px] w-full px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D]">
       <div className="flex flex-col">
