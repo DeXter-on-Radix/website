@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 interface PairInfo {
   name: string;
@@ -44,6 +45,7 @@ export function PairSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
+  const router = useRouter();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,8 +73,9 @@ export function PairSelector() {
     setQuery(() => "");
     dispatch(orderInputSlice.actions.resetNumbersInput());
     dispatch(selectPairAddress(option["address"]));
+    router.push(`/trade/${option["name"].replace("/", "-")}`);
     setIsOpen((isOpen) => !isOpen);
-  }, [dispatch, highlightedIndex, filteredOptions]);
+  }, [dispatch, router, highlightedIndex, filteredOptions]);
 
   const getDisplayValue = () => {
     if (isOpen) return displayName(query);
