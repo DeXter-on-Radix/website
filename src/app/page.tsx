@@ -20,7 +20,6 @@ import { i18nSlice } from "./state/i18nSlice";
 import Cookies from "js-cookie";
 import { PromoBanner, PromoBannerProps } from "components/PromoBanner";
 
-// Configuration for promo banner
 // Once both images and a targetUrl are defined the banner will automatically show
 const promoBannerConfig: PromoBannerProps = {
   imageUrl: "/promo-banners/validator-node-staking/desktop-600x80.svg",
