@@ -18,6 +18,7 @@ import { detectBrowserLanguage } from "../utils";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export interface TradeProps {
   tokenPair: string;
@@ -29,14 +30,18 @@ export default function Trade({ tokenPair }: TradeProps) {
   const pairsList = useAppSelector(
     (state: RootState) => state.pairSelector.pairsList
   );
+  const router = useRouter();
 
   useEffect(() => {
     if (pairsList.length > 0) {
-      //go through the pairlList and check if one of the entries has a name === tokenpair
       const pair = pairsList.find((pair) => pair.name === tokenPair);
-      dispatch(selectPairAddress(pair ? pair.address : pairsList[0].address));
+      if (pair) {
+        dispatch(selectPairAddress(pair.address));
+      } else {
+        router.push(`/404`);
+      }
     }
-  });
+  }, [router, pairsList, tokenPair, dispatch]);
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {

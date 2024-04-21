@@ -7,7 +7,7 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/trade/DEXTR/XRD");
+    router.replace("/trade/DEXTR-XRD");
   }, [router]);
 
   // Render nothing since we are redirecting for now without a home page
