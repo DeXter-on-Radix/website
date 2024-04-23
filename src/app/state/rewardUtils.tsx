@@ -1,6 +1,6 @@
 //import { getRadixApiValue } from "./api-functions";
 import { TokenInfo } from "alphadex-sdk-js";
-import { getRdt } from "../subscriptions";
+import { getRdtOrThrow } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
 export class ClaimComponent {
@@ -283,10 +283,7 @@ export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
 ): Promise<AccountRewards[]> {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
+  const rdt = getRdtOrThrow();
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
   );
@@ -300,10 +297,8 @@ export async function getAccountRewards(
     const accountsRewards = getAccountsRewardsFromApiData(
       accountRewardsNftResult[0]
     );
-    // TODO(dcts): this deep copying is actually needed as otherwise there
-    // is an error thrown: unserialized data detected
-    const serialize = JSON.stringify(accountsRewards);
-    return JSON.parse(serialize);
+    // Deep copying is needed to prevent "A non-serializable value was detected" error
+    return JSON.parse(JSON.stringify(accountsRewards));
   } catch (error) {
     console.error(
       "Problem loading Rewards NFT data for accounts: ",
@@ -321,11 +316,7 @@ export async function getAccountRewards(
 //   accountAddresses: string[],
 //   claimNFTResourceAddress: string
 // ): Promise<any> {
-//   const rdt = getRdt();
-//   if (!rdt) {
-//     console.error("Problem RDT");
-//     return;
-//   }
+//   const rdt = getRdtOrThrow();
 //   let accountNftIds = accountAddresses.map((accountAddress) =>
 //     createAccountNftId(accountAddress)
 //   );
@@ -362,122 +353,80 @@ export function createAccountNftId(
 }
 
 export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
+  // init account rewards
   let accountsRewards: AccountRewards[] = [];
-  if (apiData.non_fungible_ids && apiData.non_fungible_ids.length > 0) {
-    for (const nftData of apiData.non_fungible_ids) {
-      let accountRewards = new AccountRewards();
-      if (!nftData.data.programmatic_json.fields) {
-        console.error("Could not find NFT data fields in NFT apiData", nftData);
-        return accountsRewards;
-      }
-      let nftDataFields = nftData.data.programmatic_json.fields;
-      for (const nftDataField of nftDataFields) {
-        switch (nftDataField.field_name) {
-          case "account_address": {
-            accountRewards.accountAddress = nftDataField.value;
-            break;
-          }
-          case "rewards": {
-            let rewardTypesData = nftDataField.entries;
-            for (const rewardTypeData of rewardTypesData) {
-              let typeRewards = new TypeRewards();
-              typeRewards.rewardType = rewardTypeData.key.value;
-              let tokensRewardData = rewardTypeData.value.entries;
-              for (const tokenRewardData of tokensRewardData) {
-                let tokenReward = new TokenReward();
-                tokenReward.address = tokenRewardData.key.value;
-                tokenReward.amount = Number(tokenRewardData.value.value);
-                typeRewards.tokenRewards.push(tokenReward);
-              }
-              accountRewards.rewards.push(typeRewards);
-            }
-            break;
-          }
-        }
-      }
-      accountsRewards.push(accountRewards);
-    }
-  } else if (apiData.non_fungible_id) {
-    const nftData = apiData;
-    let accountRewards = new AccountRewards();
-    if (!nftData.data.programmatic_json.fields) {
-      console.error("Could not find NFT data fields in NFT apiData", nftData);
-      return accountsRewards;
-    }
-    let nftDataFields = nftData.data.programmatic_json.fields;
-    for (const nftDataField of nftDataFields) {
-      switch (nftDataField.field_name) {
-        case "account_address": {
-          accountRewards.accountAddress = nftDataField.value;
-          break;
-        }
-        case "rewards": {
-          let rewardTypesData = nftDataField.entries;
-          for (const rewardTypeData of rewardTypesData) {
-            let typeRewards = new TypeRewards();
-            typeRewards.rewardType = rewardTypeData.key.value;
-            let tokensRewardData = rewardTypeData.value.entries;
-            for (const tokenRewardData of tokensRewardData) {
-              let tokenReward = new TokenReward();
-              tokenReward.address = tokenRewardData.key.value;
-              tokenReward.amount = Number(tokenRewardData.value.value);
-              typeRewards.tokenRewards.push(tokenReward);
-            }
-            accountRewards.rewards.push(typeRewards);
-          }
-          break;
-        }
-      }
-    }
-    accountsRewards.push(accountRewards);
-  } else {
-    console.error(
-      "Could not find field non_fungible_ids in api data.",
-      apiData
-    );
+  // extract nftDatas from apiData
+  const nonFungibleIds = apiData.non_fungible_ids;
+  const nonFungibleId = apiData.non_fungible_id;
+  const nftDatas =
+    nonFungibleIds && nonFungibleIds.length > 0 // usecase1: multiple nftDatas
+      ? nonFungibleIds
+      : nonFungibleId // usecase2: apiData returns single nftData
+      ? [apiData]
+      : []; // usecase3: account has no rewards
+  // Iterate over nftDatas and extract accountRewards
+  for (const nftData of nftDatas) {
+    accountsRewards.push(getAccountRewardsFromNftData(nftData));
   }
   return accountsRewards;
 }
 
-export async function getOrdersRewardsApiData(
+function getAccountRewardsFromNftData(nftData: any): AccountRewards {
+  let accountRewards = new AccountRewards();
+  if (!nftData.data.programmatic_json.fields) {
+    throw new Error("Could not find NFT data fields in NFT apiData");
+  }
+  let nftDataFields = nftData.data.programmatic_json.fields;
+  for (const nftDataField of nftDataFields) {
+    switch (nftDataField.field_name) {
+      case "account_address": {
+        accountRewards.accountAddress = nftDataField.value;
+        break;
+      }
+      case "rewards": {
+        let rewardTypesData = nftDataField.entries;
+        for (const rewardTypeData of rewardTypesData) {
+          let typeRewards = new TypeRewards();
+          typeRewards.rewardType = rewardTypeData.key.value;
+          let tokensRewardData = rewardTypeData.value.entries;
+          for (const tokenRewardData of tokensRewardData) {
+            let tokenReward = new TokenReward();
+            tokenReward.address = tokenRewardData.key.value;
+            tokenReward.amount = Number(tokenRewardData.value.value);
+            typeRewards.tokenRewards.push(tokenReward);
+          }
+          accountRewards.rewards.push(typeRewards);
+        }
+        break;
+      }
+    }
+  }
+  return accountRewards;
+}
+
+export async function getOrderRewards(
   orderRewardsKvsAddress: string,
-  orderIndices: string[]
-): Promise<any> {
-  const rdt = getRdt();
-  let kvsKeysRequest = orderIndices.map((orderIndex) => {
+  recieptIds: string[]
+): Promise<OrderRewards[]> {
+  const rdt = getRdtOrThrow();
+  let kvsKeysRequest = recieptIds.map((recieptId) => {
     return {
       // eslint-disable-next-line camelcase
       key_json: {
         kind: "String",
-        value: orderIndex,
+        value: recieptId,
       },
     };
   });
-  try {
-    return await rdt?.gatewayApi.state.innerClient.keyValueStoreData({
+  const orderRewardsApiData =
+    await rdt.gatewayApi.state.innerClient.keyValueStoreData({
       stateKeyValueStoreDataRequest: {
         // eslint-disable-next-line camelcase
         key_value_store_address: orderRewardsKvsAddress,
         keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
       },
     });
-  } catch (error) {
-    console.error(
-      "Problem loading Order Rewards data for orderIndices: " + orderIndices
-    );
-    throw new Error(
-      "Problem loading Order Rewards data for orderIndices " + error
-    );
-  }
-  /*
-  if (orderRewardsResult.status != 200) {
-    console.error(
-      "Problem loading Order Rewards data for orderIndices: " + orderIndices,
-      orderRewardsResult
-    );
-  } else {
-    result = orderRewardsResult.data;
-  }*/
+  return getOrderRewardsFromApiData(orderRewardsApiData);
 }
 
 export function createOrderIndex(
@@ -506,49 +455,53 @@ export function fromOrderIndex(orderIndex: string): {
 
 export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
   let ordersRewards: OrderRewards[] = [];
-  if (apiData.entries) {
-    for (const orderData of apiData.entries) {
-      let orderRewards = new OrderRewards();
-
-      if (!orderData.value.programmatic_json.fields) {
-        console.error(
-          "Could not find order reward data fields in apiData",
-          orderData
-        );
-        return ordersRewards;
-      }
-      let orderDataFields = orderData.value.programmatic_json.fields;
-      for (const orderDataField of orderDataFields) {
-        switch (orderDataField.field_name) {
-          case "order_id": {
-            orderRewards.orderIndex = orderDataField.value;
-            let orderInfo = fromOrderIndex(orderRewards.orderIndex);
-            orderRewards.orderReceiptAddress = orderInfo.orderReceiptAddress;
-            orderRewards.orderId = orderInfo.orderId;
-            break;
-          }
-          case "rewards": {
-            let rewardTypesData = orderDataField.entries;
-            for (const rewardTypeData of rewardTypesData) {
-              let typeRewards = new TypeRewards();
-              typeRewards.rewardType = rewardTypeData.key.value;
-              let tokensRewardData = rewardTypeData.value.entries;
-              for (const tokenRewardData of tokensRewardData) {
-                let tokenReward = new TokenReward();
-                tokenReward.address = tokenRewardData.key.value;
-                tokenReward.amount = Number(tokenRewardData.value.value);
-                typeRewards.tokenRewards.push(tokenReward);
-              }
-              orderRewards.rewards.push(typeRewards);
-            }
-            break;
-          }
-        }
-      }
-      ordersRewards.push(orderRewards);
-    }
-  } else {
-    console.error("Could not find field entries in api data.", apiData);
+  // Invalid api response
+  if (apiData.entries === undefined) {
+    throw new Error("Entries not specified in orderRewards apiData.");
+  }
+  // Account has no orderRewards
+  if (apiData.entries.length === 0) {
+    return ordersRewards;
+  }
+  // Iterate over all entries and extract orderRewards
+  for (const orderData of apiData.entries) {
+    ordersRewards.push(extractOrderRewardsFromOrderData(orderData));
   }
   return ordersRewards;
+}
+
+function extractOrderRewardsFromOrderData(orderData: any): OrderRewards {
+  let orderRewards = new OrderRewards();
+  if (!orderData.value.programmatic_json.fields) {
+    throw new Error("Could not find programmatic_json.fields from orderData");
+  }
+  let orderDataFields = orderData.value.programmatic_json.fields;
+  for (const orderDataField of orderDataFields) {
+    switch (orderDataField.field_name) {
+      case "order_id": {
+        orderRewards.orderIndex = orderDataField.value;
+        let orderInfo = fromOrderIndex(orderRewards.orderIndex);
+        orderRewards.orderReceiptAddress = orderInfo.orderReceiptAddress;
+        orderRewards.orderId = orderInfo.orderId;
+        break;
+      }
+      case "rewards": {
+        let rewardTypesData = orderDataField.entries;
+        for (const rewardTypeData of rewardTypesData) {
+          let typeRewards = new TypeRewards();
+          typeRewards.rewardType = rewardTypeData.key.value;
+          let tokensRewardData = rewardTypeData.value.entries;
+          for (const tokenRewardData of tokensRewardData) {
+            let tokenReward = new TokenReward();
+            tokenReward.address = tokenRewardData.key.value;
+            tokenReward.amount = Number(tokenRewardData.value.value);
+            typeRewards.tokenRewards.push(tokenReward);
+          }
+          orderRewards.rewards.push(typeRewards);
+        }
+        break;
+      }
+    }
+  }
+  return orderRewards;
 }
