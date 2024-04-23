@@ -8,5 +8,10 @@
   "learn_more_about_rewards": "Learn more about rewards",
   "claiming_rewards_loading": "Claiming rewards...",
   "claiming_rewards_success": "Rewards claimed",
-  "claiming_rewards_fail": "Failed to claim rewards"
+  "claiming_rewards_fail": "Failed to claim rewards",
+  "how_did_everything_go": "How did everything go? Send feedback",
+  "rewards_claimed": "Rewards Claimed",
+  "continue_trading_to_earn_more": "Continue trading or staking to earn more and come back later.",
+  "go_back": "Go Back",
+  "no_rewards_to_claim": "No rewards to claim"
 }

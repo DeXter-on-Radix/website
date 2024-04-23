@@ -21,6 +21,13 @@ let rdtInstance: null | RDT = null;
 export function getRdt() {
   return rdtInstance;
 }
+export function getRdtOrThrow() {
+  const rdt = getRdt();
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
+  }
+  return rdt;
+}
 function setRdt(rdt: RDT) {
   rdtInstance = rdt;
 }
