@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
 import { RootState, store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
@@ -11,14 +11,11 @@ import {
   fetchOrderRewards,
   claimRewards,
   rewardSlice,
+  getUserHasRewards,
 } from "state/rewardSlice";
 
 import { useSelector } from "react-redux";
-import {
-  TokenReward,
-  getRewardsByToken,
-  // getRewardsByTypeThenToken,
-} from "state/rewardUtils";
+import { getTokenRewards, getTypeRewards } from "state/rewardUtils";
 
 import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "components/DexterToaster";
@@ -35,7 +32,6 @@ export default function Rewards() {
   return (
     <div className="bg-[#141414]">
       <HeaderComponent />
-      {/* <DebugStateLogger /> */}
       {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
     </div>
   );
@@ -47,32 +43,31 @@ function SuccessUi() {
   return (
     <div className="max-w-[400px] sm:max-w-[600px] rounded-2xl w-full px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D]">
       <div className="flex flex-col items-center pb-6">
-        <div>
-          <h4 className="font-bold text-center text-3xl !m-0 !my-5">
-            {t("rewards_claimed")} 🎉
-          </h4>
-        </div>
-        <div>
-          <p className="text-base text-center px-2">
-            {t("continue_trading_to_earn_more")}
-          </p>
-        </div>
-        <div>
-          <button
-            className={`min-w-[210px] uppercase w-full min-h-[44px] px-4 my-6 mt-8 rounded bg-dexter-green text-black opacity-100`}
-            onClick={() => dispatch(rewardSlice.actions.resetRewardState())}
-          >
-            <span className="font-bold text-sm tracking-[.1px] ">
-              {t("go_back")}
-            </span>
-          </button>
-        </div>
-        <div>
-          <SecondaryAction
-            textIdentifier="how_did_everything_go"
-            targetUrl="https://t.me/dexter_discussion"
-          />
-        </div>
+        {/* Title */}
+        <h4 className="font-bold text-center text-3xl !m-0 !my-5">
+          {t("rewards_claimed")} 🎉
+        </h4>
+
+        {/* Subtitle */}
+        <p className="text-base text-center px-2">
+          {t("continue_trading_to_earn_more")}
+        </p>
+
+        {/* "Go Back" button */}
+        <button
+          className={`max-w-[220px] min-h-[44px] uppercase w-full px-4 my-6 mt-8 rounded bg-dexter-green text-black opacity-100`}
+          onClick={() => dispatch(rewardSlice.actions.resetRewardState())}
+        >
+          <span className="font-bold text-sm tracking-[.1px] ">
+            {t("go_back")}
+          </span>
+        </button>
+
+        {/* Send feedback secondary action */}
+        <SecondaryAction
+          textIdentifier="how_did_everything_go"
+          targetUrl="https://t.me/dexter_discussion"
+        />
       </div>
     </div>
   );
@@ -102,39 +97,13 @@ function HeaderComponent() {
   );
 }
 
-function DexterParagraph({ text }: { text: string }) {
-  return <p className="text-sm tracking-wide py-2">{text}</p>;
-}
-
-function DexterHeading({ title }: { title: string }) {
-  return (
-    <>
-      <h2
-        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
-        style={{
-          margin: 0,
-          marginBottom: "20px",
-          marginTop: "0px",
-          fontSize: "45px",
-        }}
-      >
-        {title}
-      </h2>
-    </>
-  );
-}
-
 function RewardsCard() {
   const dispatch = useAppDispatch();
   const { isConnected, walletData } = useAppSelector((state) => state.radix);
   const account = walletData.accounts[0]?.address;
   const t = useTranslations();
   const { rewardData } = useAppSelector((state) => state.rewardSlice);
-  const userHasAccountRewards = rewardData.accountsRewards.some(
-    (accountRewards) => accountRewards.rewards.length > 0
-  );
-  const userHasRewards =
-    userHasAccountRewards || rewardData.ordersRewards.length > 0;
+  const userHasRewards = getUserHasRewards(rewardData);
 
   useEffect(() => {
     async function loadRewards() {
@@ -160,27 +129,17 @@ function RewardsCard() {
             {!isConnected
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
-              ? t("total_rewards") + ":"
+              ? t("total_rewards")
               : t("no_rewards_to_claim")}
           </h4>
         </div>
-        <ClaimableCoins />
-        <ClaimButton disabled={!isConnected || !userHasRewards} />
+        <RewardsOverview />
+        <ClaimButton />
         <SecondaryAction
           textIdentifier="learn_more_about_rewards"
           targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
         />
-        {/* <div>
-          <h4
-            style={{ margin: 0, marginBottom: 12 }}
-            className={isConnected ? "" : "opacity-50 text-center"}
-          >
-            {isConnected
-              ? t("Reward Details") + ":"
-              : t("connect_wallet_to_claim_rewards")}
-          </h4>
-        </div>
-        <ClaimableTypes /> */}
+        <RewardsDetails />
       </div>
     </div>
   );
@@ -199,69 +158,33 @@ function SecondaryAction({ textIdentifier, targetUrl }: SecondaryActionProps) {
   );
 }
 
-function ClaimableCoins() {
+function RewardsOverview() {
   const tokensMap = adex.clientState.tokensMap;
   const rewardData = useSelector(
     (state: RootState) => state.rewardSlice.rewardData
   );
 
-  const rewardsByToken = getRewardsByToken(
+  const tokenRewards = getTokenRewards(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
     tokensMap
   );
 
-  return <TokenList tokenRewards={rewardsByToken} />;
-}
-
-// function ClaimableTypes() {
-//   const tokensMap = adex.clientState.tokensMap;
-//   const { isConnected } = useAppSelector((state) => state.radix);
-//   const rewardData = useSelector(
-//     (state: RootState) => state.rewardSlice.rewardData
-//   );
-
-//   const rewardsByTypeThenToken = getRewardsByTypeThenToken(
-//     rewardData.accountsRewards,
-//     rewardData.ordersRewards,
-//     tokensMap
-//   );
-
-//   return (
-//     <div>
-//       {rewardsByTypeThenToken.map((typeReward, indx) => (
-//         <div key={indx}>
-//           <h6
-//             style={{ margin: 0, marginBottom: 12 }}
-//             className={isConnected ? "text-white" : "opacity-50 text-center"}
-//           >
-//             {isConnected
-//               ? typeReward.rewardType + ":"
-//               : "connect_wallet_to_claim_rewards"}
-//           </h6>
-//           <TokenList tokenRewards={typeReward.tokenRewards} />
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
   return (
     <div>
-      {tokenRewards.map((val, indx) => (
+      {tokenRewards.map((rewardToken, indx) => (
         <div
           className="flex justify-between items-center w-full text-base p-3 my-2 bg-[#232629] rounded"
           key={indx}
         >
           <img
-            src={val.iconUrl}
-            alt={val.name}
+            src={rewardToken.iconUrl}
+            alt={rewardToken.name}
             className="w-7 h-7 rounded-full mr-3"
           ></img>
-          <span className="flex-1 truncate">{val.name}</span>
+          <span className="flex-1 truncate">{rewardToken.name}</span>
           <span className="uppercase">
-            {val.amount} {val.symbol}
+            {rewardToken.amount} {rewardToken.symbol}
           </span>
         </div>
       ))}
@@ -269,9 +192,14 @@ function TokenList({ tokenRewards }: { tokenRewards: TokenReward[] }) {
   );
 }
 
-function ClaimButton({ disabled = false }: { disabled: boolean }) {
+function ClaimButton() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
+  const { isConnected } = useAppSelector((state) => state.radix);
+  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const userHasRewards = getUserHasRewards(rewardData);
+  const disabled = !isConnected || !userHasRewards;
+
   return (
     <button
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
@@ -297,63 +225,97 @@ function ClaimButton({ disabled = false }: { disabled: boolean }) {
           t("claiming_rewards_fail")
         );
       }}
-    >{`Claim All Rewards`}</button>
+    >
+      {t("claim_all_rewards")}
+    </button>
   );
 }
 
-// function DebugStateLogger() {
-//   const { config, recieptIds, rewardData } = useAppSelector(
-//     (state) => state.rewardSlice
-//   );
-//   // const tartgetToken = useAppSelector(selectTargetToken);
-//   let fetchAddresses = `resourcePrefix = ${config.resourcePrefix}\n`;
-//   fetchAddresses += `rewardComponent = ${config.rewardComponent}\n`;
-//   fetchAddresses += `rewardNFTAddress = ${config.rewardNFTAddress}\n`;
-//   fetchAddresses += `rewardOrderAddress = ${config.rewardOrderAddress}\n`;
-//   fetchAddresses += `rewardVaultAddress = ${config.rewardVaultAddress}\n`;
-//   let fetchReciepts = `recieptIds = ${recieptIds.join("@newline@")}\n`;
-//   let fetchAccountRewards = `accountRewards = ${rewardData.accountsRewards[0]?.rewards
-//     .map((r) => r.rewardType)
-//     .join("@newline@")}\n`;
+function RewardsDetails() {
+  const tokensMap = adex.clientState.tokensMap;
+  const { isConnected } = useAppSelector((state) => state.radix);
+  const [isOpen, setIsOpen] = useState(true);
 
-//   console.log("rewardData.accountsRewards");
-//   console.log(rewardData.accountsRewards);
-//   console.log("rewardData.ordersRewards");
-//   console.log(rewardData.ordersRewards);
-//   const renderTable = (input: string, title: string) => {
-//     return (
-//       <>
-//         <p>DEBUG {title}</p>
-//         <table className="max-w-[500px] m-auto mb-5">
-//           <tbody>
-//             {input.split("\n").map((line, index) => {
-//               const parts = line.split("="); // Split each line by "="
-//               return (
-//                 <tr key={index}>
-//                   <td style={{ padding: 0 }} className="w-1/3  text-sm">
-//                     {parts[0]}
-//                   </td>{" "}
-//                   {/* First part of the line */}
-//                   <td style={{ padding: 0 }} className="w-2/3  text-sm">
-//                     {parts[1]?.includes("@newline@")
-//                       ? parts[1].split("@newline@").join("\n")
-//                       : parts[1]}
-//                   </td>{" "}
-//                   {/* Second part of the line */}
-//                 </tr>
-//               );
-//             })}
-//           </tbody>
-//         </table>
-//       </>
-//     );
-//   };
-//   return (
-//     <div className="max-w-[800px] m-auto">
-//       <strong>STATE DEBUGGER</strong>
-//       {renderTable(fetchAddresses, "fetchAddresses")}
-//       {renderTable(fetchReciepts, "fetchReciepts")}
-//       {renderTable(fetchAccountRewards, "fetchAccountRewards")}
-//     </div>
-//   );
-// }
+  useEffect(() => {
+    if (!isConnected) {
+      setIsOpen(false);
+    }
+  }, [isConnected]);
+
+  const rewardData = useSelector(
+    (state: RootState) => state.rewardSlice.rewardData
+  );
+
+  const typeRewards = getTypeRewards(
+    rewardData.accountsRewards,
+    rewardData.ordersRewards,
+    tokensMap
+  );
+
+  return (
+    <div className="mt-10">
+      <div
+        className="border-b-2 border-b-[#232629] flex align-center pb-1 cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <img
+          src="/triangle.svg"
+          alt="triangle icon"
+          className={"mr-2 cursor-pointer " + (!isOpen ? "rotate-180" : "")}
+        />
+        <p className="text-base select-none">Details</p>
+      </div>
+      {isOpen && (
+        <>
+          {typeRewards.map((typeReward, indx) => (
+            <div key={indx}>
+              <h6 className={"!m-0 !my-3  text-white text-sm"}>
+                {typeReward.rewardType}
+              </h6>
+              {typeReward.tokenRewards.map((tokenReward, indx2) => (
+                <>
+                  <div
+                    className="flex justify-between items-center w-full text-xs px-3 my-1 bg-[#232629] rounded h-[33px]"
+                    key={indx2}
+                  >
+                    <img
+                      src={tokenReward.iconUrl}
+                      alt={tokenReward.name}
+                      className="w-4 h-4 rounded-full mr-2"
+                    ></img>
+                    <span className="flex-1 truncate">{tokenReward.name}</span>
+                    <span className="uppercase">
+                      {tokenReward.amount} {tokenReward.symbol}
+                    </span>
+                  </div>
+                </>
+              ))}
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+function DexterParagraph({ text }: { text: string }) {
+  return <p className="text-sm tracking-wide py-2">{text}</p>;
+}
+
+function DexterHeading({ title }: { title: string }) {
+  return (
+    <>
+      <h2
+        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
+        style={{
+          margin: 0,
+          marginBottom: "20px",
+          marginTop: "0px",
+          fontSize: "45px",
+        }}
+      >
+        {title}
+      </h2>
+    </>
+  );
+}
