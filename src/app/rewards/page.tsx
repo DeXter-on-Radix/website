@@ -275,22 +275,20 @@ function RewardsDetails() {
                 {typeReward.rewardType}
               </h6>
               {typeReward.tokenRewards.map((tokenReward, indx2) => (
-                <>
-                  <div
-                    className="flex justify-between items-center w-full text-xs px-3 my-1 bg-[#232629] rounded h-[33px]"
-                    key={indx2}
-                  >
-                    <img
-                      src={tokenReward.iconUrl}
-                      alt={tokenReward.name}
-                      className="w-4 h-4 rounded-full mr-2"
-                    ></img>
-                    <span className="flex-1 truncate">{tokenReward.name}</span>
-                    <span className="uppercase">
-                      {tokenReward.amount} {tokenReward.symbol}
-                    </span>
-                  </div>
-                </>
+                <div
+                  className="flex justify-between items-center w-full text-xs px-3 my-1 bg-[#232629] rounded h-[33px]"
+                  key={indx2}
+                >
+                  <img
+                    src={tokenReward.iconUrl}
+                    alt={tokenReward.name}
+                    className="w-4 h-4 rounded-full mr-2"
+                  ></img>
+                  <span className="flex-1 truncate">{tokenReward.name}</span>
+                  <span className="uppercase">
+                    {tokenReward.amount} {tokenReward.symbol}
+                  </span>
+                </div>
               ))}
             </div>
           ))}
