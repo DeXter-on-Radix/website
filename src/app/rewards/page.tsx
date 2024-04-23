@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
-import { RootState, store } from "../state/store";
+import { store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   fetchAddresses,
@@ -14,10 +14,10 @@ import {
   getUserHasRewards,
 } from "state/rewardSlice";
 
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import { getTokenRewards, getTypeRewards } from "state/rewardUtils";
 
-import * as adex from "alphadex-sdk-js";
+// import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "components/DexterToaster";
 
 export default function Rewards() {
@@ -159,15 +159,17 @@ function SecondaryAction({ textIdentifier, targetUrl }: SecondaryActionProps) {
 }
 
 function RewardsOverview() {
-  const tokensMap = adex.clientState.tokensMap;
-  const rewardData = useSelector(
-    (state: RootState) => state.rewardSlice.rewardData
+  const { rewardData, tokensList } = useAppSelector(
+    (state) => state.rewardSlice
   );
+  // const rewardData = useSelector(
+  //   (state: RootState) => state.rewardSlice.rewardData
+  // );
 
   const tokenRewards = getTokenRewards(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensMap
+    tokensList
   );
 
   return (
@@ -232,10 +234,11 @@ function ClaimButton() {
 }
 
 function RewardsDetails() {
-  const tokensMap = adex.clientState.tokensMap;
   const [isOpen, setIsOpen] = useState(true);
   const { isConnected } = useAppSelector((state) => state.radix);
-  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const { rewardData, tokensList } = useAppSelector(
+    (state) => state.rewardSlice
+  );
   const userHasRewards = getUserHasRewards(rewardData);
 
   useEffect(() => {
@@ -251,7 +254,7 @@ function RewardsDetails() {
   const typeRewards = getTypeRewards(
     rewardData.accountsRewards,
     rewardData.ordersRewards,
-    tokensMap
+    tokensList
   );
 
   return (

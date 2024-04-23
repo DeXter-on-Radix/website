@@ -75,8 +75,12 @@ export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
 export function getTypeRewards(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[],
-  tokensMap: Map<string, TokenInfo>
+  tokensList: TokenInfo[]
 ): TypeRewards[] {
+  let tokensMap: Map<string, TokenInfo> = new Map();
+  tokensList.forEach((tokenInfo) =>
+    tokensMap.set(tokenInfo.address, tokenInfo)
+  );
   let typeRewardsMap: Map<string, Map<string, TokenReward>> = new Map();
   accountsRewards.forEach((accountReward) => {
     accountReward.rewards.forEach((typeReward) => {
@@ -161,8 +165,12 @@ export function getTypeRewards(
 export function getTokenRewards(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[],
-  tokensMap: Map<string, TokenInfo>
+  tokensList: TokenInfo[]
 ): TokenReward[] {
+  let tokensMap: Map<string, TokenInfo> = new Map();
+  tokensList.forEach((tokenInfo) =>
+    tokensMap.set(tokenInfo.address, tokenInfo)
+  );
   let tokenRewardsMap: Map<string, TokenReward> = new Map();
   accountsRewards.forEach((accountReward) => {
     accountReward.rewards.forEach((typeReward) => {

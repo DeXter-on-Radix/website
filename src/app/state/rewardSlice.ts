@@ -15,6 +15,7 @@ import * as adex from "alphadex-sdk-js";
 export interface RewardState {
   recieptIds: string[];
   rewardData: RewardData;
+  tokensList: adex.TokenInfo[];
   config: RewardConfig;
   showSuccessUi: boolean;
 }
@@ -64,6 +65,7 @@ const initialState: RewardState = {
     accountsRewards: [],
     ordersRewards: [],
   },
+  tokensList: [],
   config: {
     resourcePrefix:
       process.env.NEXT_PUBLIC_RESOURCE_PREFIX || "account_tdx_2_1",
@@ -334,6 +336,9 @@ export const rewardSlice = createSlice({
     },
     updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
       state.config.rewardVaultAddress = action.payload;
+    },
+    updateTokensList: (state, action: PayloadAction<adex.TokenInfo[]>) => {
+      state.tokensList = action.payload;
     },
     resetRewardState: (state) => {
       state.recieptIds = [];
