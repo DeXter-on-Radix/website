@@ -12,13 +12,13 @@ import {
   claimRewards,
   rewardSlice,
   getUserHasRewards,
-} from "state/rewardSlice";
+} from "../state/rewardSlice";
 
 // import { useSelector } from "react-redux";
-import { getTokenRewards, getTypeRewards } from "state/rewardUtils";
+import { getTokenRewards, getTypeRewards } from "../state/rewardUtils";
 
 // import * as adex from "alphadex-sdk-js";
-import { DexterToast } from "components/DexterToaster";
+import { DexterToast } from "../components/DexterToaster";
 
 export default function Rewards() {
   useEffect(() => {
