@@ -233,8 +233,10 @@ function ClaimButton() {
 
 function RewardsDetails() {
   const tokensMap = adex.clientState.tokensMap;
-  const { isConnected } = useAppSelector((state) => state.radix);
   const [isOpen, setIsOpen] = useState(true);
+  const { isConnected } = useAppSelector((state) => state.radix);
+  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const userHasRewards = getUserHasRewards(rewardData);
 
   useEffect(() => {
     if (!isConnected) {
@@ -242,9 +244,9 @@ function RewardsDetails() {
     }
   }, [isConnected]);
 
-  const rewardData = useSelector(
-    (state: RootState) => state.rewardSlice.rewardData
-  );
+  if (!isConnected || !userHasRewards) {
+    return <></>;
+  }
 
   const typeRewards = getTypeRewards(
     rewardData.accountsRewards,
