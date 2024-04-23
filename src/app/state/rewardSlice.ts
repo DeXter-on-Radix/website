@@ -42,6 +42,16 @@ function findFieldValueByNameOrThrow(fieldName: string, fields: any[]): string {
   return targetValue;
 }
 
+// Helper function to determine whether the user has rewards to claim
+export function getUserHasRewards(rewardData: RewardData): boolean {
+  const hasAccountRewards = rewardData.accountsRewards.some(
+    (accountRewards) => accountRewards.rewards.length > 0
+  );
+  const hasOrderRewards = rewardData.ordersRewards.length > 0;
+  const userHasRewards = hasAccountRewards || hasOrderRewards;
+  return userHasRewards;
+}
+
 export interface RewardData {
   accountsRewards: AccountRewards[];
   ordersRewards: OrderRewards[];

@@ -72,7 +72,7 @@ export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
   return claimComponent;
 }
 
-export function getRewardsByTypeThenToken(
+export function getTypeRewards(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[],
   tokensMap: Map<string, TokenInfo>
@@ -100,14 +100,6 @@ export function getRewardsByTypeThenToken(
               "/unknown-token-icon.svg"
             );
           }
-          // let tokenInfo = tokensDict[tokenReward.address]
-          //   ? tokensDict[tokenReward.address]
-          //   : {
-          //       address: tokenReward.address,
-          //       name: "Unknown Token",
-          //       symbol: "?",
-          //       iconUrl: "/unknown-token-icon.svg",
-          //     };
           existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
@@ -143,14 +135,6 @@ export function getRewardsByTypeThenToken(
               "/unknown-token-icon.svg"
             );
           }
-          // let tokenInfo = tokensDict[tokenReward.address]
-          //   ? tokensDict[tokenReward.address]
-          //   : {
-          //       address: tokenReward.address,
-          //       name: "Unknown Token",
-          //       symbol: "?",
-          //       iconUrl: "/unknown-token-icon.svg",
-          //     };
           existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
@@ -174,7 +158,7 @@ export function getRewardsByTypeThenToken(
   return result;
 }
 
-export function getRewardsByToken(
+export function getTokenRewards(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[],
   tokensMap: Map<string, TokenInfo>
@@ -194,13 +178,6 @@ export function getRewardsByToken(
               "/unknown-token-icon.svg"
             );
           }
-          // ? tokensDict[tokenReward.address]
-          // : {
-          //     address: tokenReward.address,
-          //     name: "Unknown Token",
-          //     symbol: "?",
-          //     iconUrl: "/unknown-token-icon.svg",
-          //   };
           existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
@@ -224,14 +201,6 @@ export function getRewardsByToken(
               "/unknown-token-icon.svg"
             );
           }
-          // let tokenInfo = tokensDict[tokenReward.address]
-          //   ? tokensDict[tokenReward.address]
-          //   : {
-          //       address: tokenReward.address,
-          //       name: "Unknown Token",
-          //       symbol: "?",
-          //       iconUrl: "/unknown-token-icon.svg",
-          //     };
           existingTokenReward = { ...tokenInfo, amount: tokenReward.amount };
         } else {
           existingTokenReward = { ...existingTokenReward };
