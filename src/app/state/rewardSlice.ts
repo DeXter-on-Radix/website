@@ -9,7 +9,7 @@ import {
   getAccountRewards,
   getOrderRewards,
 } from "./rewardUtils";
-import { DexterToast } from "components/DexterToaster";
+import { DexterToast } from "../components/DexterToaster";
 import * as adex from "alphadex-sdk-js";
 
 export interface RewardState {
