@@ -25,11 +25,6 @@ interface RewardConfig {
   rewardNFTAddress: string;
   rewardOrderAddress: string;
   rewardVaultAddress: string;
-  // resourceAddresses: {
-  //   [key: string]: {
-  //     resourceAddress: string;
-  //   };
-  // };
 }
 
 function findFieldValueByNameOrThrow(fieldName: string, fields: any[]): string {
@@ -73,13 +68,6 @@ const initialState: RewardState = {
     rewardNFTAddress: "",
     rewardOrderAddress: "",
     rewardVaultAddress: "",
-    // resourceAddresses: {
-    //   DEXTERXRD: {
-    //     resourceAddress:
-    //       process.env.NEXT_PUBLIC_RESOURCE_ADDRESS_DEXTERXRD ||
-    //       "resource_tdx_2_1ng6vf9g4d30dw8h6h4t2t6e3mfxrhpw8d0n5dkpzh4xaqzqha57cd2",
-    //   },
-    // },
   },
   showSuccessUi: false,
 };
