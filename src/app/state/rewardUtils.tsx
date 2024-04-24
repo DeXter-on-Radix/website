@@ -358,15 +358,16 @@ function getAccountRewardsFromNftData(nftData: any): AccountRewards {
 
 export async function getOrderRewards(
   orderRewardsKvsAddress: string,
-  recieptIds: string[]
+  receiptIds: string[]
 ): Promise<OrderRewards[]> {
   const rdt = getRdtOrThrow();
-  let kvsKeysRequest = recieptIds.map((recieptId) => {
+  console.log("Getting OrderRewards for receiptIds: ", receiptIds);
+  let kvsKeysRequest = receiptIds.map((receiptId) => {
     return {
       // eslint-disable-next-line camelcase
       key_json: {
         kind: "String",
-        value: recieptId,
+        value: receiptId,
       },
     };
   });

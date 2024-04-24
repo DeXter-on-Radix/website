@@ -96,6 +96,9 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(
         rewardSlice.actions.updateTokensList(serializedState.tokensList)
       );
+      store.dispatch(
+        rewardSlice.actions.updatePairsList(serializedState.pairsList)
+      );
     })
   );
 }
