@@ -371,8 +371,9 @@ export const rewardSlice = createSlice({
           state.rewardData.accountsRewards = action.payload;
         }
       )
-      .addCase(fetchAccountRewards.rejected, () => {
+      .addCase(fetchAccountRewards.rejected, (_, action) => {
         DexterToast.error("Error fetching account rewards");
+        console.error(action.error);
       })
 
       // fetchOrderRewards
