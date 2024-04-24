@@ -12,6 +12,14 @@ import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
 
+interface NavbarItemProps {
+  title: string;
+  target: string;
+}
+interface NavbarItemMobileProps extends NavbarItemProps {
+  setMenuOpen: (newMenuOpenState: boolean) => void;
+}
+
 const NavItems: { path: string; title: string }[] = [
   {
     path: "/",
@@ -27,26 +35,54 @@ const NavItems: { path: string; title: string }[] = [
 export function Navbar() {
   return (
     <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px]">
+      <div className="flex h-full">
+        <Logo />
+        <NavbarItemsDesktop />
+      </div>
+      <div className="flex items-center content-center">
+        <div className="flex pr-4">
+          <HideOnSmallScreens>
+            <LanguageSelection />
+          </HideOnSmallScreens>
+          {/* ensure radix connect button is only initialized once */}
+          <radix-connect-button></radix-connect-button>
+        </div>
+        <HamburgerMenu />
+      </div>
+    </nav>
+  );
+}
+
+// Responsive logo component for the navbar
+//  > 420px : show full logo and lettering
+// <= 420px : show only logo
+function Logo() {
+  return (
+    <>
       <Image
         src="/dexter-logo-and-lettering.svg"
         alt="Dexter logo and lettering"
         width={130}
         height={130}
-        className="!my-0 mx-5"
+        className="!my-0 mx-5 hidden min-[420px]:block"
         priority={true}
       />
-      {/* DESKTOP VERSION */}
-      <NavbarContentDesktop />
-      {/* MOBILE VERSION (with hamburger menu) */}
-      <NavbarContentMobile />
-    </nav>
+      <Image
+        src="/dexter-logo.svg"
+        alt="Dexter logo and lettering"
+        width={30}
+        height={30}
+        className="!my-0 mx-5 min-[420px]:hidden"
+        priority={true}
+      />
+    </>
   );
 }
 
-function NavbarContentDesktop() {
+function NavbarItemsDesktop() {
   return (
     <>
-      <div className="hidden sm:flex h-full items-center flex-1 px-2 mx-2 mt-1 z-10">
+      <div className="hidden sm:flex h-full items-center flex-1 px-2 mx-2 z-10">
         {NavItems.map((navItem, indx) => {
           return (
             <NavbarItemDesktop
@@ -57,18 +93,14 @@ function NavbarContentDesktop() {
           );
         })}
       </div>
-      <div className="hidden sm:flex p-2 pr-4">
-        <LanguageSelection />
-        <radix-connect-button></radix-connect-button>
-      </div>
     </>
   );
 }
 
-function NavbarContentMobile() {
+function HamburgerMenu() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="sm:hidden flex justify-center items-center mr-6">
+    <div className="sm:hidden flex justify-center items-center mr-6 ml-4">
       <button onClick={() => setMenuOpen(true)}>
         <Image
           src="/hamburger-icon.svg"
@@ -90,7 +122,7 @@ function MobileMenu({
 }) {
   return (
     <div
-      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-transparent overflow-hidden z-30 fixed top-0 left-0 backdrop-blur-lg py-5 ${
+      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-[rgba(0,0,0,0.8)] overflow-hidden z-[1000] fixed top-0 left-0 backdrop-blur-lg py-5 ${
         isMobile() ? "px-6" : "px-10"
       }`}
     >
@@ -126,14 +158,6 @@ function MobileMenu({
       </div>
     </div>
   );
-}
-
-interface NavbarItemProps {
-  title: string;
-  target: string;
-}
-interface NavbarItemMobileProps extends NavbarItemProps {
-  setMenuOpen: (newMenuOpenState: boolean) => void;
 }
 
 function NavbarItemDesktop({ title, target }: NavbarItemProps) {
@@ -201,4 +225,8 @@ function LanguageSelection() {
       ))}
     </div>
   );
+}
+
+function HideOnSmallScreens({ children }: { children: React.ReactNode }) {
+  return <div className="hidden sm:flex">{children}</div>;
 }
