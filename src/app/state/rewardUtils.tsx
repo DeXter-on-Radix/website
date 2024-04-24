@@ -1,4 +1,3 @@
-//import { getRadixApiValue } from "./api-functions";
 import { TokenInfo } from "alphadex-sdk-js";
 import { getRdtOrThrow } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
@@ -288,30 +287,6 @@ export async function getAccountRewards(
     );
   }
 }
-
-// export async function getAccountsRewardsApiData(
-//   accountAddresses: string[],
-//   claimNFTResourceAddress: string
-// ): Promise<any> {
-//   const rdt = getRdtOrThrow();
-//   let accountNftIds = accountAddresses.map((accountAddress) =>
-//     createAccountNftId(accountAddress)
-//   );
-//   let accountRewardsNftResult;
-//   try {
-//     accountRewardsNftResult = await rdt.gatewayApi.state.getNonFungibleData(
-//       claimNFTResourceAddress,
-//       accountNftIds
-//     );
-//     return accountRewardsNftResult[0];
-//   } catch (error) {
-//     console.error(
-//       "Problem loading Rewards NFT data for accounts: ",
-//       accountAddresses,
-//       accountRewardsNftResult
-//     );
-//   }
-// }
 
 export function createAccountNftId(
   accountAddress: string,

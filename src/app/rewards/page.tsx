@@ -162,9 +162,6 @@ function RewardsOverview() {
   const { rewardData, tokensList } = useAppSelector(
     (state) => state.rewardSlice
   );
-  // const rewardData = useSelector(
-  //   (state: RootState) => state.rewardSlice.rewardData
-  // );
 
   const tokenRewards = getTokenRewards(
     rewardData.accountsRewards,
