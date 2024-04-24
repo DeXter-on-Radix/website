@@ -21,6 +21,9 @@ import {
   ValidationResult,
   fetchQuote,
   noValidationErrors,
+  pairAddressIsSet,
+  priceIsSetOnLimitOrders,
+  tokenIsSpecified,
   // submitOrder,
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
@@ -141,8 +144,27 @@ export function OrderInput() {
   // }, [token1amount, token2amount]);
 
   useEffect(() => {
-    dispatch(fetchQuote());
-  }, [dispatch, specifiedToken, token1, token2, price, side, type]);
+    if (
+      noValidationErrors(validationPrice, validationToken1, validationToken2) &&
+      pairAddressIsSet(pairAddress) &&
+      priceIsSetOnLimitOrders(price, type) &&
+      tokenIsSpecified(specifiedToken)
+    ) {
+      dispatch(fetchQuote());
+    }
+  }, [
+    dispatch,
+    specifiedToken,
+    token1,
+    token2,
+    price,
+    side,
+    type,
+    validationPrice,
+    validationToken1,
+    validationToken2,
+    pairAddress,
+  ]);
 
   return (
     <div className="h-full flex flex-col text-base justify-center items-center">

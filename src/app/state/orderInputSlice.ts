@@ -205,6 +205,21 @@ export function noValidationErrors(
   );
 }
 
+export function pairAddressIsSet(pairAddress: string): boolean {
+  return pairAddress !== "";
+}
+
+export function priceIsSetOnLimitOrders(
+  price: number,
+  type: OrderType
+): boolean {
+  return type === OrderType.LIMIT && price > 0;
+}
+
+export function tokenIsSpecified(specifiedToken: SpecifiedToken): boolean {
+  return specifiedToken !== SpecifiedToken.UNSPECIFIED;
+}
+
 // export const selectTargetToken = (state: RootState) => {
 //   if (state.orderInput.type === OrderType.MARKET) {
 //     if (state.orderInput.side === OrderSide.SELL) {
@@ -288,13 +303,10 @@ export const fetchQuote = createAsyncThunk<
   ) {
     throw new Error("Validation errors found");
   }
-  if (state.pairSelector.address === "") {
+  if (!pairAddressSet(state.pairSelector.address)) {
     throw new Error("Pair address is not initilized yet.");
   }
-  if (
-    state.orderInput.type === OrderType.LIMIT &&
-    state.orderInput.price <= 0
-  ) {
+  if (!priceIsSetOnLimitOrders(state.orderInput.price, state.orderInput.type)) {
     throw new Error("Price must be set on LIMIT orders");
   }
   let priceToSend =
@@ -590,15 +602,6 @@ export const orderInputSlice = createSlice({
         }
       }
     },
-    // resetValidation(state) {
-    //   state.validationToken1 = { ...initialValidationResult };
-    //   state.validationToken2 = { ...initialValidationResult };
-    //   state.quote = undefined;
-    // },
-    // resetQuote(state) {
-    //   state.quote = undefined;
-    //   state.quoteDescription = undefined;
-    // },
     resetNumbersInput(state) {
       state.token1 = { ...initialTokenInput };
       state.token2 = { ...initialTokenInput };
@@ -641,6 +644,7 @@ export const orderInputSlice = createSlice({
       fetchQuote.fulfilled,
       (
         state,
+        // TODO(dcts): remove if not needed
         // action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
         action: PayloadAction<Quote | undefined>
       ) => {
@@ -651,8 +655,6 @@ export const orderInputSlice = createSlice({
           DexterToast.error("Could not fetch quote. Try again later");
           return;
         }
-        console.log("quote");
-        console.log(quote);
         state.quoteError = {
           100: undefined, // success
           101: undefined, // success
@@ -665,18 +667,9 @@ export const orderInputSlice = createSlice({
       }
     );
     builder.addCase(fetchQuote.rejected, (state, action) => {
-      // if (state.type === OrderType.MARKET) {
-      //   if (state.side === OrderSide.SELL) {
-      //     state.token2.amount = "";
-      //     state.validationToken2.valid = false;
-      //     state.validationToken2.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-      //   } else {
-      //     state.token1.amount = "";
-      //     state.validationToken1.valid = false;
-      //     state.validationToken1.message = ErrorMessage.COULD_NOT_GET_QUOTE;
-      //   }
-      // }
       state.quote = undefined;
+      state.quoteError = undefined;
+      state.quoteDescription = undefined;
       console.error("fetchQuote rejected:", action.error.message);
     });
   },
