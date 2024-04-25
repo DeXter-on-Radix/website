@@ -98,7 +98,6 @@ export function OrderInput() {
     token2,
     price,
     specifiedToken,
-    postOnly,
     validationPrice,
     validationToken1,
     validationToken2,
