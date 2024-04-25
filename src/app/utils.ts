@@ -433,3 +433,23 @@ export function truncateWithPrecision(num: number, precision: number): number {
   const [part1, part2] = split;
   return Number(`${part1}.${part2.substring(0, precision)}`);
 }
+
+// Detects mobile devices
+export function isMobile(): boolean {
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (
+    userAgent.match(/Android/i) ||
+    userAgent.match(/webOS/i) ||
+    userAgent.match(/avantgo/i) ||
+    userAgent.match(/iPhone/i) ||
+    userAgent.match(/iPad/i) ||
+    userAgent.match(/iPod/i) ||
+    userAgent.match(/BlackBerry/i) ||
+    userAgent.match(/bolt/i) ||
+    userAgent.match(/Windows Phone/i) ||
+    userAgent.match(/Phone/i)
+  ) {
+    return true;
+  }
+  return false;
+}
