@@ -578,7 +578,7 @@ function CurrencyInputGroupSettings(
   return configMap[userAction];
 }
 
-// Container with labels (left + right) and input field
+// Container with main label (top left), secondary label (top right) and input field
 function CurrencyInputGroup({
   disabled = false,
   userAction,
@@ -628,7 +628,7 @@ function Label({ label }: LabelProps): JSX.Element | null {
 }
 
 // Right Label: e.g. "Best Buy/Sell Price" or "Available Balance".
-// Can be empty/disabled (e.g. Market Price)
+// Can be empty/disabled (for example for Market Price)
 function SecondaryLabel({
   disabled,
   label,
