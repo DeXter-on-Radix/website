@@ -361,7 +361,7 @@ export async function getOrderRewards(
   receiptIds: string[]
 ): Promise<OrderRewards[]> {
   const rdt = getRdtOrThrow();
-  console.log("Getting OrderRewards for receiptIds: ", receiptIds);
+  // console.log("Getting OrderRewards for receiptIds: ", receiptIds);
   let kvsKeysRequest = receiptIds.map((receiptId) => {
     return {
       // eslint-disable-next-line camelcase

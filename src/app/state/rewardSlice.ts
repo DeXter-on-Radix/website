@@ -84,20 +84,127 @@ type NonFungibleResource = NonFungibleResourcesCollectionItem & {
   };
 };
 
+export const rewardSlice = createSlice({
+  name: "reward",
+  initialState,
+
+  // synchronous reducers
+  reducers: {
+    updateReciepts: (state, action: PayloadAction<string[]>) => {
+      state.recieptIds = action.payload;
+    },
+    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
+      state.rewardData.accountsRewards = action.payload;
+    },
+    updateConfigNFTAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardNFTAddress = action.payload;
+    },
+    updateConfigOrderAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardOrderAddress = action.payload;
+    },
+    updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
+      state.config.rewardVaultAddress = action.payload;
+    },
+    updateTokensList: (state, action: PayloadAction<adex.TokenInfo[]>) => {
+      state.tokensList = action.payload;
+    },
+    updatePairsList: (state, action: PayloadAction<adex.PairInfo[]>) => {
+      state.pairsList = action.payload;
+    },
+    resetRewardState: (state) => {
+      state.recieptIds = [];
+      state.rewardData = {
+        accountsRewards: [],
+        ordersRewards: [],
+      };
+      state.showSuccessUi = false;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      // fetchAddresses
+      .addCase(fetchAddresses.pending, () => {})
+      .addCase(
+        fetchAddresses.fulfilled,
+        (state, action: PayloadAction<FetchAddressesResult>) => {
+          state.config.rewardNFTAddress = action.payload.rewardNFTAddress;
+          state.config.rewardOrderAddress = action.payload.rewardOrderAddress;
+          state.config.rewardVaultAddress = action.payload.rewardVaultAddress;
+        }
+      )
+      .addCase(fetchAddresses.rejected, (state, action) => {
+        DexterToast.error("Error fetching claim component addresses");
+        console.error(action.error);
+      })
+
+      // fetchReciepts
+      .addCase(fetchReciepts.pending, (state) => {
+        state.recieptIds = [];
+      })
+      .addCase(fetchReciepts.fulfilled, (state, action) => {
+        state.recieptIds = action.payload;
+      })
+      .addCase(fetchReciepts.rejected, (_, action) => {
+        DexterToast.error("Error fetching order receipts");
+        console.error(action.error);
+      })
+
+      // fetchAccountRewards
+      .addCase(fetchAccountRewards.pending, () => {})
+      .addCase(
+        fetchAccountRewards.fulfilled,
+        (state, action: PayloadAction<AccountRewards[]>) => {
+          state.rewardData.accountsRewards = action.payload;
+        }
+      )
+      .addCase(fetchAccountRewards.rejected, (_, action) => {
+        DexterToast.error("Error fetching account rewards");
+        console.error(action.error);
+      })
+
+      // fetchOrderRewards
+      .addCase(fetchOrderRewards.pending, () => {})
+      .addCase(
+        fetchOrderRewards.fulfilled,
+        (state, action: PayloadAction<OrderRewards[]>) => {
+          state.rewardData.ordersRewards = action.payload;
+        }
+      )
+      .addCase(fetchOrderRewards.rejected, (state, action) => {
+        DexterToast.error("Error fetching order rewards ");
+        console.error(action.error);
+      })
+
+      // claimRewards
+      .addCase(claimRewards.pending, (state) => {
+        state.showSuccessUi = false;
+      })
+      .addCase(claimRewards.fulfilled, (state, action) => {
+        state.showSuccessUi = action.payload;
+      })
+      .addCase(claimRewards.rejected, (state) => {
+        state.showSuccessUi = false;
+      });
+    // You can add more cases here
+  },
+});
+
 // Fetches user's NFTs and uses all order receipt NFT addresses from the Adex API
 // to filter out relevant NFTs, returning an array of receiptIdentifiers.
 export const fetchReciepts = createAsyncThunk<
   string[], // array of receipt identifiers, e.g. "resource_tdx...ayahv#72#"
-  undefined, // argument type
+  adex.PairInfo[], // argument type
   {
     state: RootState;
   }
->("rewards/fetchReciepts", async (_, thunkAPI) => {
+>("rewards/fetchReciepts", async (pairsList, thunkAPI) => {
   const rdt = getRdtOrThrow();
-  const walletData = rdt.walletApi.getWalletData();
+  // const walletData = rdt.walletApi.getWalletData();
   const state = thunkAPI.getState();
+  const accounts = state.radix.walletData.accounts;
   // Todo support multiple wallets ids
-  const accountAddress = walletData.accounts[0].address;
+  const accountAddress = accounts[0].address;
   // get all NFTs from your wallet
   const { items } =
     await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
@@ -109,9 +216,10 @@ export const fetchReciepts = createAsyncThunk<
         opt_ins: { non_fungible_include_nfids: true },
       },
     });
+  // console.log("Receipt items: ", items);
   // load set of orderreceiptAddresses from adex
   let orderReceiptAddresses: Set<string> = new Set();
-  state.rewardSlice.pairsList.forEach((pairInfo) =>
+  pairsList.forEach((pairInfo) =>
     orderReceiptAddresses.add(pairInfo.orderReceiptAddress)
   );
   // iterate through all receipts and extract receiptIdentifier
@@ -142,14 +250,18 @@ export const fetchAccountRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAccountRewards", async (_, thunkAPI) => {
-  const rdt = getRdtOrThrow();
+  // const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardNFTAddress) {
     throw new Error("Missing rewardNFTAddress");
   }
-  const walletData = rdt.walletApi.getWalletData();
+  // const walletData = rdt.walletApi.getWalletData();
+  const accounts = state.radix.walletData.accounts;
+  if (accounts.length == 0) {
+    throw new Error("No accounts connected");
+  }
   //Todo support multiple wallets ids
-  const accountAddress = walletData.accounts[0].address;
+  const accountAddress = accounts[0].address;
   return await getAccountRewards(
     [accountAddress],
     state.rewardSlice.config.rewardNFTAddress
@@ -158,21 +270,22 @@ export const fetchAccountRewards = createAsyncThunk<
 
 export const fetchOrderRewards = createAsyncThunk<
   OrderRewards[], // Return type of the payload creator
-  undefined, // argument type
+  string[], // argument type
   {
     state: RootState;
   }
->("rewards/fetchOrderRewards", async (_, thunkAPI) => {
+>("rewards/fetchOrderRewards", async (receiptIds, thunkAPI) => {
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardOrderAddress) {
     throw new Error("Missing rewardOrderAddress");
   }
-  let recieptIds = state.rewardSlice.recieptIds;
+  // let recieptIds = state.rewardSlice.recieptIds;
+  console.log("Fetching order rewards for receipt ids: ", receiptIds);
   let orderRewards: OrderRewards[] = [];
-  if (recieptIds.length > 0) {
+  if (receiptIds.length > 0) {
     orderRewards = await getOrderRewards(
       state.rewardSlice.config.rewardOrderAddress,
-      recieptIds
+      receiptIds
     );
   }
   // Deep copying is needed to prevent "A non-serializable value was detected" error
@@ -313,110 +426,4 @@ export const claimRewards = createAsyncThunk<
     throw new Error("Transaction failed");
   }
   return true;
-});
-
-export const rewardSlice = createSlice({
-  name: "reward",
-  initialState,
-
-  // synchronous reducers
-  reducers: {
-    updateReciepts: (state, action: PayloadAction<string[]>) => {
-      state.recieptIds = action.payload;
-    },
-    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
-      state.rewardData.accountsRewards = action.payload;
-    },
-    updateConfigNFTAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardNFTAddress = action.payload;
-    },
-    updateConfigOrderAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardOrderAddress = action.payload;
-    },
-    updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardVaultAddress = action.payload;
-    },
-    updateTokensList: (state, action: PayloadAction<adex.TokenInfo[]>) => {
-      state.tokensList = action.payload;
-    },
-    updatePairsList: (state, action: PayloadAction<adex.PairInfo[]>) => {
-      state.pairsList = action.payload;
-    },
-    resetRewardState: (state) => {
-      state.recieptIds = [];
-      state.rewardData = {
-        accountsRewards: [],
-        ordersRewards: [],
-      };
-      state.showSuccessUi = false;
-    },
-  },
-
-  extraReducers: (builder) => {
-    builder
-      // fetchAddresses
-      .addCase(fetchAddresses.pending, () => {})
-      .addCase(
-        fetchAddresses.fulfilled,
-        (state, action: PayloadAction<FetchAddressesResult>) => {
-          state.config.rewardNFTAddress = action.payload.rewardNFTAddress;
-          state.config.rewardOrderAddress = action.payload.rewardOrderAddress;
-          state.config.rewardVaultAddress = action.payload.rewardVaultAddress;
-        }
-      )
-      .addCase(fetchAddresses.rejected, (state, action) => {
-        DexterToast.error("Error fetching claim component addresses");
-        console.error(action.error);
-      })
-
-      // fetchReciepts
-      .addCase(fetchReciepts.pending, (state) => {
-        state.recieptIds = [];
-      })
-      .addCase(fetchReciepts.fulfilled, (state, action) => {
-        state.recieptIds = action.payload;
-      })
-      .addCase(fetchReciepts.rejected, (_, action) => {
-        DexterToast.error("Error fetching order receipts");
-        console.error(action.error);
-      })
-
-      // fetchAccountRewards
-      .addCase(fetchAccountRewards.pending, () => {})
-      .addCase(
-        fetchAccountRewards.fulfilled,
-        (state, action: PayloadAction<AccountRewards[]>) => {
-          state.rewardData.accountsRewards = action.payload;
-        }
-      )
-      .addCase(fetchAccountRewards.rejected, (_, action) => {
-        DexterToast.error("Error fetching account rewards");
-        console.error(action.error);
-      })
-
-      // fetchOrderRewards
-      .addCase(fetchOrderRewards.pending, () => {})
-      .addCase(
-        fetchOrderRewards.fulfilled,
-        (state, action: PayloadAction<OrderRewards[]>) => {
-          state.rewardData.ordersRewards = action.payload;
-        }
-      )
-      .addCase(fetchOrderRewards.rejected, (state, action) => {
-        DexterToast.error("Error fetching order rewards ");
-        console.error(action.error);
-      })
-
-      // claimRewards
-      .addCase(claimRewards.pending, (state) => {
-        state.showSuccessUi = false;
-      })
-      .addCase(claimRewards.fulfilled, (state, action) => {
-        state.showSuccessUi = action.payload;
-      })
-      .addCase(claimRewards.rejected, (state) => {
-        state.showSuccessUi = false;
-      });
-    // You can add more cases here
-  },
 });
