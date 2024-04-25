@@ -14,7 +14,6 @@ import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { RootState } from "./store";
 import { displayNumber, updateIconIfNeeded } from "../utils";
 import { Calculator } from "../services/Calculator";
-import { DexterToast } from "components/DexterToaster";
 import { fetchBalances } from "./pairSelectorSlice";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { RDT, getRdtOrThrow } from "subscriptions";
