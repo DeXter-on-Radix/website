@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,45 +9,193 @@ import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
+import { usePathname } from "next/navigation";
+import { isMobile } from "../utils";
 
-// TODO: theme switching
+interface NavbarItemProps {
+  title: string;
+  target: string;
+}
+interface NavbarItemMobileProps extends NavbarItemProps {
+  setMenuOpen: (newMenuOpenState: boolean) => void;
+}
+
+const NavItems: { path: string; title: string }[] = [
+  {
+    path: "/",
+    title: "Trade",
+  },
+  // // TODO: comment back in when rewards launch
+  // {
+  //   path: "/rewards",
+  //   title: "Rewards",
+  // },
+];
 
 export function Navbar() {
   return (
-    <div className="col-span-12 !py-0 px-3 navbar h-20">
-      <div className="flex-none">
-        <Link
-          href="/"
-          className="btn btn-ghost hover:bg-transparent no-underline hover:!no-underline text-xl join-item px-3"
-        >
-          <Image
-            src="/logo_icon.svg"
-            alt="Dexter Logo"
-            width={40}
-            height={40}
-            className="!my-0"
-            priority={true}
-          />
-          <span className="ml-6 pt-1 xs:invisible sm:visible hover:text-accent uppercase">
-            DeXter
-          </span>
-        </Link>
+    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px]">
+      <div className="flex h-full">
+        <Logo />
+        <NavbarItemsDesktop />
       </div>
-      <div className="flex-1 px-2 mx-2">
-        {/* <div className="items-stretch hidden lg:flex">
-          <Link
-            className="btn btn-lg h-20 btn-ghost hover:!no-underline pt-2 border-t-0 border-x-0 border-b-4 border-transparent hover:border-accent hover:text-accent uppercase"
-            href="/"
-          >
-            Trade
-          </Link>
-        </div> */}
+      <div className="flex items-center content-center">
+        <div className="flex pr-4">
+          <HideOnSmallScreens>
+            <LanguageSelection />
+          </HideOnSmallScreens>
+          {/* ensure radix connect button is only initialized once */}
+          <radix-connect-button></radix-connect-button>
+        </div>
+        <HamburgerMenu />
       </div>
-      <div className="navbar-end">
+    </nav>
+  );
+}
+
+// Responsive logo component for the navbar
+//  > 420px : show full logo and lettering
+// <= 420px : show only logo
+function Logo() {
+  return (
+    <>
+      <Image
+        src="/dexter-logo-and-lettering.svg"
+        alt="Dexter logo and lettering"
+        width={130}
+        height={130}
+        className="!my-0 mx-5 hidden min-[420px]:block"
+        priority={true}
+      />
+      <Image
+        src="/dexter-logo.svg"
+        alt="Dexter logo and lettering"
+        width={30}
+        height={30}
+        className="!my-0 mx-5 min-[420px]:hidden"
+        priority={true}
+      />
+    </>
+  );
+}
+
+function NavbarItemsDesktop() {
+  return (
+    <>
+      <div className="hidden sm:flex h-full items-center flex-1 px-2 mx-2 z-10">
+        {NavItems.map((navItem, indx) => {
+          return (
+            <NavbarItemDesktop
+              title={navItem.title}
+              target={navItem.path}
+              key={indx}
+            />
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function HamburgerMenu() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  return (
+    <div className="sm:hidden flex justify-center items-center mr-6 ml-4">
+      <button onClick={() => setMenuOpen(true)}>
+        <Image
+          src="/hamburger-icon.svg"
+          alt="menu"
+          width="32"
+          height="32"
+          className="h-auto color-white"
+        />
+      </button>
+      {menuOpen && <MobileMenu setMenuOpen={setMenuOpen} />}
+    </div>
+  );
+}
+
+function MobileMenu({
+  setMenuOpen,
+}: {
+  setMenuOpen: (newMenuOpen: boolean) => void;
+}) {
+  return (
+    <div
+      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-[rgba(0,0,0,0.8)] overflow-hidden z-[1000] fixed top-0 left-0 backdrop-blur-lg py-5 ${
+        isMobile() ? "px-6" : "px-10"
+      }`}
+    >
+      {/* Close Menu Button */}
+      <button onClick={() => setMenuOpen(false)}>
+        <Image
+          src="/close-x.svg"
+          alt="menu"
+          width="32"
+          height="32"
+          className="h-auto color-white opacity-70"
+        />
+      </button>
+      {/* Navbar Items */}
+      <div className="mt-10 w-full">
+        {NavItems.map((navItem, indx) => {
+          return (
+            <NavbarItemMobile
+              title={navItem.title}
+              target={navItem.path}
+              setMenuOpen={setMenuOpen}
+              key={indx}
+            />
+          );
+        })}
+      </div>
+      {/* Language Selection */}
+      <div className="w-full flex flex-col items-center justify-center">
+        <h3 className="w-full text-center text-secondary-content font-light text-base">
+          Language Selection
+        </h3>
         <LanguageSelection />
-        <radix-connect-button></radix-connect-button>
       </div>
     </div>
+  );
+}
+
+function NavbarItemDesktop({ title, target }: NavbarItemProps) {
+  const active = target === usePathname();
+  return (
+    <Link
+      className={`h-full flex items-center px-5 hover:!no-underline hover:text-accent mb-0 ${
+        active ? "border-b-2 border-[#cafc40]" : ""
+      }`}
+      href={target}
+    >
+      <p className={`text-sm ${active ? "text-[#cafc40]" : "text-white"}`}>
+        {title}
+      </p>
+    </Link>
+  );
+}
+
+function NavbarItemMobile({
+  title,
+  target,
+  setMenuOpen,
+}: NavbarItemMobileProps) {
+  const active = target === usePathname();
+  return (
+    <Link
+      className={`my-2 hover:!no-underline`}
+      href={target}
+      onClick={() => setMenuOpen(false)}
+    >
+      <p
+        className={`text-2xl text-center py-4 ${
+          active ? "text-[#cafc40]" : "text-white"
+        }`}
+      >
+        {title}
+      </p>
+    </Link>
   );
 }
 
@@ -66,7 +214,7 @@ function LanguageSelection() {
     <div className="mr-4 flex">
       {supportedLanguages.map((lang) => (
         <button
-          className={`uppercase text-sm px-1 ${
+          className={`uppercase py-2 px-2 sm:px-1 text-xl sm:text-sm ${
             language === lang ? "font-extrabold" : "font-extralight"
           }`}
           key={lang}
@@ -77,4 +225,8 @@ function LanguageSelection() {
       ))}
     </div>
   );
+}
+
+function HideOnSmallScreens({ children }: { children: React.ReactNode }) {
+  return <div className="hidden sm:flex">{children}</div>;
 }
