@@ -22,11 +22,12 @@ import {
   fetchQuote,
   noValidationErrors,
   pairAddressIsSet,
-  priceIsSetOnLimitOrders,
+  priceIsValid,
   tokenIsSpecified,
-  // submitOrder,
+  submitOrder,
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
+import { DexterToast } from "components/DexterToaster";
 
 const POST_ONLY_TOOLTIP =
   "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
@@ -117,37 +118,11 @@ export function OrderInput() {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
 
-  // // Couple price/quantity/total for limit orders
-  // const token1amount = token1.amount;
-  // const token2amount = token2.amount;
-  // useEffect(() => {
-  //   if (
-  //     isLimitOrder &&
-  //     priceIsNull &&
-  //     (token1amount !== 0 || token2amount !== 0)
-  //   ) {
-  //     dispatch(orderInputSlice.actions.setPrice(lastPrice));
-  //   }
-  //   //   - set PRICE
-  //   //   - set total:
-  //   //     - if BUY: quantity should be set
-  //   //     - if SELL: quantity should be set + WARN if not enough
-  //   //   - set quantity:
-  //   //     - if BUY: total should be set + WARN if not enough
-  //   //     - if SELL: total should be set
-  //   // - once all is set
-  //   //   - set price:
-  //   //     - if quantity (token1) was specified -> adapt total (token2)
-  //   //     - if total (token2) was specified -> adapt quantity (token1)
-  //   //   - set quantity (token1) -> same as "set PRICE -> set quantity"
-  //   //   - set total (token2) -> same as "set PRICE -> set total"
-  // }, [token1amount, token2amount]);
-
   useEffect(() => {
     if (
       noValidationErrors(validationPrice, validationToken1, validationToken2) &&
       pairAddressIsSet(pairAddress) &&
-      priceIsSetOnLimitOrders(price, type) &&
+      priceIsValid(price, type) &&
       tokenIsSpecified(specifiedToken)
     ) {
       dispatch(fetchQuote());
@@ -393,11 +368,10 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
+  const t = useTranslations();
+  const dispatch = useAppDispatch();
   const { side, type, token1, quote, quoteDescription, quoteError } =
     useAppSelector((state) => state.orderInput);
-  const handleSubmit = () => {
-    alert("TODO");
-  };
   const hasQuote = quote !== undefined;
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
@@ -412,7 +386,28 @@ function SubmitButton() {
           ? "bg-dexter-green text-black opacity-100"
           : "bg-dexter-red text-white opacity-100"
       }`}
-      onClick={handleSubmit}
+      onClick={async (e) => {
+        e.stopPropagation();
+        DexterToast.promise(
+          // Function input, with following state-to-toast mapping
+          // -> pending: loading toast
+          // -> rejceted: error toast
+          // -> resolved: success toast
+          async () => {
+            const action = await dispatch(submitOrder());
+            if (!action.type.endsWith("fulfilled")) {
+              // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+              throw new Error("Transaction failed due to user action.");
+            } else if ((action.payload as any)?.status === "ERROR") {
+              // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+              throw new Error("Transaction failed onledger");
+            }
+          },
+          t("submitting_order"), // Loading message
+          t("order_submitted"), // success message
+          t("failed_to_submit_order") // error message
+        );
+      }}
     >
       <span className="font-bold text-sm tracking-[.1px] ">{`${type} ${side} ${token1.symbol}`}</span>
       {isLimitOrder && (

@@ -5,7 +5,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
-// import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 // import { RDT, getRdt } from "../subscriptions";
 // import { RoundType, displayNumber, roundTo } from "../utils";
 // import { fetchAccountHistory } from "./accountHistorySlice";
@@ -15,6 +15,9 @@ import { RootState } from "./store";
 import { displayNumber, updateIconIfNeeded } from "../utils";
 import { Calculator } from "../services/Calculator";
 import { DexterToast } from "components/DexterToaster";
+import { fetchBalances } from "./pairSelectorSlice";
+import { fetchAccountHistory } from "./accountHistorySlice";
+import { RDT, getRdtOrThrow } from "subscriptions";
 
 export enum OrderType {
   MARKET = "MARKET",
@@ -209,11 +212,10 @@ export function pairAddressIsSet(pairAddress: string): boolean {
   return pairAddress !== "";
 }
 
-export function priceIsSetOnLimitOrders(
-  price: number,
-  type: OrderType
-): boolean {
-  return type === OrderType.LIMIT && price > 0;
+export function priceIsValid(price: number, type: OrderType): boolean {
+  const isMarketOrder = type === OrderType.MARKET;
+  const isValidLimitOrder = type === OrderType.LIMIT && price > 0;
+  return isMarketOrder || isValidLimitOrder;
 }
 
 export function tokenIsSpecified(specifiedToken: SpecifiedToken): boolean {
@@ -289,7 +291,7 @@ export const selectBalanceByAddress = createSelector(
  * FETCH QUOTE
  */
 export const fetchQuote = createAsyncThunk<
-  Quote | undefined, // Return type of the payload creator
+  Quote,
   undefined, // set to undefined if the thunk doesn't expect any arguments
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
@@ -303,10 +305,10 @@ export const fetchQuote = createAsyncThunk<
   ) {
     throw new Error("Validation errors found");
   }
-  if (!pairAddressSet(state.pairSelector.address)) {
+  if (!pairAddressIsSet(state.pairSelector.address)) {
     throw new Error("Pair address is not initilized yet.");
   }
-  if (!priceIsSetOnLimitOrders(state.orderInput.price, state.orderInput.type)) {
+  if (!priceIsValid(state.orderInput.price, state.orderInput.type)) {
     throw new Error("Price must be set on LIMIT orders");
   }
   let priceToSend =
@@ -340,23 +342,23 @@ export const fetchQuote = createAsyncThunk<
 /*
  * SUBMIT ORDER
  */
-// export const submitOrder = createAsyncThunk<
-//   SdkResult,
-//   undefined,
-//   { state: RootState }
-// >("orderInput/submitOrder", async (_arg, thunkAPI) => {
-//   const state = thunkAPI.getState();
-//   const dispatch = thunkAPI.dispatch;
-//   const rdt = getRdt();
-//   if (!rdt) {
-//     throw new Error("RDT is not initialized yet.");
-//   }
-//   const result = await createTx(state, rdt);
-//   //Updates account history + balances
-//   dispatch(fetchBalances());
-//   dispatch(fetchAccountHistory());
-//   return result;
-// });
+export const submitOrder = createAsyncThunk<
+  SdkResult,
+  undefined,
+  { state: RootState }
+>("orderInput/submitOrder", async (_arg, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const dispatch = thunkAPI.dispatch;
+  const rdt = getRdtOrThrow();
+  const result = await createTx(state, rdt);
+  // Asynchronously update balances + account history
+  await Promise.all([
+    dispatch(fetchBalances()),
+    dispatch(fetchAccountHistory()),
+  ]);
+  // Deep copying is needed to prevent "non-serializable value" error
+  return JSON.parse(JSON.stringify(result));
+});
 
 interface SetTokenAmountPayload {
   amount: number;
@@ -642,19 +644,9 @@ export const orderInputSlice = createSlice({
     });
     builder.addCase(
       fetchQuote.fulfilled,
-      (
-        state,
-        // TODO(dcts): remove if not needed
-        // action: PayloadAction<QuoteWithPriceTokenAddress | undefined>
-        action: PayloadAction<Quote | undefined>
-      ) => {
+      (state, action: PayloadAction<Quote>) => {
         const quote = action.payload;
         state.quote = quote;
-        if (!quote) {
-          console.debug("quote not valid", quote);
-          DexterToast.error("Could not fetch quote. Try again later");
-          return;
-        }
         state.quoteError = {
           100: undefined, // success
           101: undefined, // success
@@ -670,24 +662,25 @@ export const orderInputSlice = createSlice({
       state.quote = undefined;
       state.quoteError = undefined;
       state.quoteDescription = undefined;
-      console.error("fetchQuote rejected:", action.error.message);
+      console.error(action.error);
+    });
+
+    // submitOrder
+    builder.addCase(submitOrder.pending, (state) => {
+      state.transactionInProgress = true;
+      state.transactionResult = undefined;
+    });
+    builder.addCase(submitOrder.fulfilled, (state, action) => {
+      state.transactionInProgress = false;
+      state.transactionResult = action.payload.message;
+    });
+    builder.addCase(submitOrder.rejected, (state, action) => {
+      state.transactionInProgress = false;
+      state.transactionResult = action.error.message;
+      console.error(action.error);
     });
   },
 });
-//   // submitOrder
-//   builder.addCase(submitOrder.pending, (state) => {
-//     state.transactionInProgress = true;
-//     state.transactionResult = undefined;
-//   });
-//   builder.addCase(submitOrder.fulfilled, (state, action) => {
-//     state.transactionInProgress = false;
-//     state.transactionResult = action.payload.message;
-//   });
-//   builder.addCase(submitOrder.rejected, (state, action) => {
-//     state.transactionInProgress = false;
-//     state.transactionResult = action.error.message;
-//   });
-// },
 
 function toDescription(quote: Quote): string {
   let quoteDescription = "";
@@ -706,45 +699,39 @@ function toDescription(quote: Quote): string {
   return quoteDescription;
 }
 
+function getSlippage(type: OrderType): number {
+  return type === OrderType.MARKET ? 9999999 : -1; // acceppt unlimeted slippage on market orders
+}
+
 /*
  * CREATE TX
  */
-// async function createTx(state: RootState, rdt: RDT) {
-//   const type = state.orderInput.type;
-//   const targetToken = selectTargetToken(state);
-//   let slippage = -1;
-//   let price = -1;
-//   if (type === OrderType.MARKET && state.orderInput.slippage !== "") {
-//     slippage = state.orderInput.slippage;
-//   } else if (type === OrderType.LIMIT && state.orderInput.price !== "") {
-//     price = state.orderInput.price;
-//   }
-//   if (!targetToken?.amount) {
-//     throw new Error("No amount specified when creating transaction.");
-//   }
-//   //Adex creates the transaction manifest
-//   const createOrderResponse = await adex.createExchangeOrderTx(
-//     state.pairSelector.address,
-//     adexOrderType(state.orderInput),
-//     state.orderInput.side,
-//     targetToken.address,
-//     targetToken.amount,
-//     price,
-//     slippage,
-//     PLATFORM_BADGE_ID,
-//     state.radix?.walletData.accounts[0]?.address || "",
-//     state.radix?.walletData.accounts[0]?.address || ""
-//   );
-//   //Then submits the order to the wallet
-//   let submitTransactionResponse = await adex.submitTransaction(
-//     createOrderResponse.data,
-//     rdt
-//   );
-//   submitTransactionResponse = JSON.parse(
-//     JSON.stringify(submitTransactionResponse)
-//   );
-//   return submitTransactionResponse;
-// }
+async function createTx(state: RootState, rdt: RDT) {
+  if (state.orderInput.specifiedToken === SpecifiedToken.UNSPECIFIED) {
+    throw new Error("No token was specified");
+  }
+  const targetToken = {
+    TOKEN_1: () => state.orderInput.token1,
+    TOKEN_2: () => state.orderInput.token2,
+  }[state.orderInput.specifiedToken]();
+  const isMarketOrder = state.orderInput.type === OrderType.MARKET;
+  const price = isMarketOrder ? -1 : state.orderInput.price;
+  // Adex creates the transaction manifest
+  const createOrderResponse = await adex.createExchangeOrderTx(
+    state.pairSelector.address,
+    toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
+    toAdexOrderSide(state.orderInput.side, state.orderInput.specifiedToken),
+    targetToken.address,
+    targetToken.amount,
+    price,
+    getSlippage(state.orderInput.type),
+    PLATFORM_BADGE_ID,
+    state.radix?.walletData.accounts[0]?.address || "", // submit account
+    state.radix?.walletData.accounts[0]?.address || "" // settle account
+  );
+  // Then submits the order to the wallet
+  return await adex.submitTransaction(createOrderResponse.data, rdt);
+}
 
 // export const validateSlippageInput = createSelector(
 //   [selectSlippage],
