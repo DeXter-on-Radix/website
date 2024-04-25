@@ -3,10 +3,10 @@ import { displayNumber, truncateWithPrecision } from "./utils";
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
 describe("displayAmount", () => {
-  it("sends error message if noDigits is less than 4", () => {
+  it("sends error message if nbrOfDigits is less than 4", () => {
     let digits = 3;
     const inputs: [number, string][] = [
-      [1234, "ERROR: displayAmount cannot work with noDigits less than 4"],
+      [1234, "ERROR: displayAmount cannot work with nbrOfDigits less than 4"],
     ];
 
     inputs.forEach(([input, expected]) => {

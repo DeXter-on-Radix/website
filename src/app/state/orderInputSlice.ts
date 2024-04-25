@@ -5,18 +5,13 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
-import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-// import { RDT, getRdt } from "../subscriptions";
-// import { RoundType, displayNumber, roundTo } from "../utils";
-// import { fetchAccountHistory } from "./accountHistorySlice";
-// import { selectBestBuy, selectBestSell } from "./orderBookSlice";
-// import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
+import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { RDT, getRdtOrThrow } from "../subscriptions";
+import { fetchAccountHistory } from "./accountHistorySlice";
+import { fetchBalances } from "./pairSelectorSlice";
 import { displayNumber, updateIconIfNeeded } from "../utils";
 import { Calculator } from "../services/Calculator";
-import { fetchBalances } from "./pairSelectorSlice";
-import { fetchAccountHistory } from "./accountHistorySlice";
-import { RDT, getRdtOrThrow } from "subscriptions";
 
 export enum OrderType {
   MARKET = "MARKET",
