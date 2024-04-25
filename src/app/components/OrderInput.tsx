@@ -102,12 +102,10 @@ export function OrderInput() {
     validationToken1,
     validationToken2,
   } = useAppSelector((state) => state.orderInput);
-  // const { lastPrice } = useAppSelector((state) => state.priceInfo);
 
   // for better readibility
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
-  // const priceIsNull = price === 0;
 
   useEffect(() => {
     dispatch(fetchBalances());

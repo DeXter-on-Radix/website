@@ -383,6 +383,9 @@ export const orderInputSlice = createSlice({
         state.specifiedToken = SpecifiedToken.UNSPECIFIED;
         state.token1.amount = -1;
         state.token2.amount = -1;
+        state.quote = undefined;
+        state.quoteDescription = undefined;
+        state.quoteError = undefined;
         return;
       }
 
