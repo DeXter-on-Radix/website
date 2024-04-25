@@ -7,7 +7,7 @@ import {
   getLocaleSeparators,
   formatNumericString,
   truncateWithPrecision,
-} from "../../utils";
+} from "../utils";
 
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";

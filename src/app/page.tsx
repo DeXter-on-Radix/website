@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import { OrderBook } from "components/OrderBook";
-import { OrderInput } from "components/order_input_2/OrderInput";
+import { OrderInput } from "components/OrderInput";
 import { PairSelector } from "components/PairSelector";
 import { PriceChart } from "components/PriceChart";
 import { AccountHistory } from "components/AccountHistory";
