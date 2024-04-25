@@ -33,7 +33,6 @@ export enum SpecifiedToken {
 }
 
 export enum ErrorMessage {
-  // NONE = "NONE", // default state, use when there is no error
   NONZERO_PRICE = "NONZERO_PRICE",
   NONZERO_AMOUNT = "NONZERO_AMOUNT",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
@@ -43,14 +42,10 @@ export enum ErrorMessage {
 }
 
 export const PLATFORM_BADGE_ID = 4; //TODO: Get this data from the platform badge
-export const PLATFORM_FEE = 0.001; //TODO: Get this data from the platform badge
 
 export const OrderSide = adex.OrderSide;
 export type OrderSide = adex.OrderSide;
 export type Quote = adex.Quote;
-// interface QuoteWithPriceTokenAddress extends Quote {
-//   priceTokenAddress: string;
-// }
 
 export interface TokenInfo extends adex.TokenInfo {
   decimals?: number;
@@ -140,7 +135,7 @@ export function toAdexOrderType(
 
 export function toDexterOrderType(adexOrderType: adex.OrderType): OrderType {
   if (adexOrderType === adex.OrderType.MARKETPARTIAL) {
-    throw new Error("Unimplemented"); // TODO(dcts): decide whether this usecase is even needed (for TradeHistory table)
+    throw new Error("Unimplemented");
   }
   return {
     MARKET: OrderType.MARKET,
@@ -216,52 +211,9 @@ export function tokenIsSpecified(specifiedToken: SpecifiedToken): boolean {
   return specifiedToken !== SpecifiedToken.UNSPECIFIED;
 }
 
-// export const selectTargetToken = (state: RootState) => {
-//   if (state.orderInput.type === OrderType.MARKET) {
-//     if (state.orderInput.side === OrderSide.SELL) {
-//       return state.orderInput.token1;
-//     } else {
-//       return state.orderInput.token2;
-//     }
-//   } else {
-//     return state.orderInput.token1;
-//   }
-// };
-// const selectSlippage = (state: RootState) => state.orderInput.slippage;
-// const selectPrice = (state: RootState) => state.orderInput.price;
-// const selectSide = (state: RootState) => state.orderInput.side;
-// const selectToken1MaxDecimals = (state: RootState) => {
-//   return state.pairSelector.token1.decimals;
-// };
-// const selectToken2MaxDecimals = (state: RootState) => {
-//   return state.pairSelector.token2.decimals;
-// };
-
-// // TODO: find out if it's possible to do the same with less boilerplate
-// const selectToken1 = (state: RootState) => state.orderInput.token1;
-// const selectToken2 = (state: RootState) => state.orderInput.token2;
-// export const selectValidationToken1 = (state: RootState) =>
-//   state.orderInput.validationToken1;
-// export const selectValidationToken2 = (state: RootState) =>
-//   state.orderInput.validationToken2;
-// export const selectValidationByAddress = createSelector(
-//   [
-//     selectToken1,
-//     selectToken2,
-//     selectValidationToken1,
-//     selectValidationToken2,
-//     (state: RootState, address: string) => address,
-//   ],
-//   (token1, token2, validationToken1, validationToken2, address) => {
-//     if (token1.address === address) {
-//       return validationToken1;
-//     } else {
-//       return validationToken2;
-//     }
-//   }
-// );
-
 // for getting balances out of pairSelector slice
+// TODO(dcts): ask @chaotic whether this can live inside pairSelector now that
+// the orderInputState seems not to be needed anymore.
 const selectInfoToken1 = (state: RootState) => state.pairSelector.token1;
 const selectInfoToken2 = (state: RootState) => state.pairSelector.token2;
 export const selectBalanceByAddress = createSelector(
@@ -330,7 +282,6 @@ export const fetchQuote = createAsyncThunk<
   );
   const quote: Quote = JSON.parse(JSON.stringify(response.data));
   return quote;
-  // return { ...quote, priceTokenAddress: state.pairSelector.token2.address };
 });
 
 /*
@@ -370,15 +321,6 @@ export const orderInputSlice = createSlice({
   // synchronous reducers
   reducers: {
     updateAdex(state, action: PayloadAction<adex.StaticState>) {
-      //This clears up any validation when switching pairs
-      /*
-      state.validationToken1 = initialValidationResult;
-      state.validationToken2 = initialValidationResult;
-
-      //Clear up any previous inputs
-      state.token1 = initialTokenInput;
-      state.token2 = initialTokenInput;
-      */
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(action.payload)
       );
@@ -726,132 +668,3 @@ async function createTx(state: RootState, rdt: RDT) {
   // Then submits the order to the wallet
   return await adex.submitTransaction(createOrderResponse.data, rdt);
 }
-
-// export const validateSlippageInput = createSelector(
-//   [selectSlippage],
-//   (slippage) => {
-//     if (slippage === "") {
-//       return { valid: false, message: ErrorMessage.UNSPECIFIED_SLIPPAGE };
-//     }
-//     if (slippage < 0) {
-//       return { valid: false, message: ErrorMessage.NEGATIVE_SLIPPAGE };
-//     }
-//     if (slippage >= 0.05) {
-//       return { valid: true, message: ErrorMessage.HIGH_SLIPPAGE };
-//     }
-//     return { valid: true, message: "" };
-//   }
-// );
-
-// export const validatePriceInput = createSelector(
-//   [
-//     selectPrice,
-//     selectToken1MaxDecimals,
-//     selectToken2MaxDecimals,
-//     selectBestBuy,
-//     selectBestSell,
-//     selectSide,
-//   ],
-//   (
-//     price,
-//     selectToken1MaxDecimals,
-//     selectToken2MaxDecimals,
-//     bestBuy,
-//     bestSell,
-//     side
-//   ) => {
-//     if (price === "") {
-//       return { valid: false, message: ErrorMessage.UNSPECIFIED_PRICE };
-//     }
-//     if (price <= 0) {
-//       return { valid: false, message: ErrorMessage.NONZERO_PRICE };
-//     }
-//     if (selectToken1MaxDecimals !== undefined)
-//       if (price.toString().split(".")[1]?.length > selectToken1MaxDecimals) {
-//         return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
-//       }
-//     if (selectToken2MaxDecimals !== undefined)
-//       if (price.toString().split(".")[1]?.length > selectToken2MaxDecimals) {
-//         return { valid: false, message: ErrorMessage.EXCESSIVE_DECIMALS };
-//       }
-//     if (bestSell) {
-//       if (side === OrderSide.BUY && price > bestSell * 1.05) {
-//         return {
-//           valid: true,
-//           message: ErrorMessage.HIGH_PRICE,
-//         };
-//       }
-//     }
-//     if (bestBuy) {
-//       if (side === OrderSide.SELL && price < bestBuy * 0.95) {
-//         return {
-//           valid: true,
-//           message: ErrorMessage.LOW_PRICE,
-//         };
-//       }
-//     }
-//     return { valid: true, message: "" };
-//   }
-// );
-
-// function _validateAmount(amount: number | ""): ValidationResult {
-//   let valid = true;
-//   let message = "";
-//   if (amount === "" || amount === undefined) {
-//     return { valid, message };
-//   }
-//   /*
-//   if (amount.toString().split(".")[1]?.length > decimals) {
-//     console.log(amount.toString().split(".")[1]?.length, " vs ", decimals);
-//     valid = false;
-//     message = ErrorMessage.EXCESSIVE_DECIMALS;
-//   }
-// */
-//   if (amount <= 0) {
-//     valid = false;
-//     message = ErrorMessage.NONZERO_AMOUNT;
-//   }
-
-//   return { valid, message };
-// }
-
-// function _validateAmountWithBalance({
-//   amount,
-//   balance,
-// }: {
-//   amount: number | "";
-//   balance: number;
-//   decimals: number | 0;
-// }): ValidationResult {
-//   if ((balance || 0) < (amount || 0)) {
-//     return { valid: false, message: ErrorMessage.INSUFFICIENT_FUNDS };
-//   } else {
-//     return _validateAmount(amount);
-//   }
-// }
-
-// export function calculateCost(
-//   token1: { amount: number | ""; address: string },
-//   price: number | "",
-//   priceTokenAddress: string
-// ): number | "" {
-//   if (token1.amount === "" || token1.amount === 0) {
-//     return token1.amount;
-//   }
-//   if (price === "" || price === 0) {
-//     return "";
-//   }
-//   const amountToken1 = Number(token1.amount);
-//   if (isNaN(amountToken1)) {
-//     console.error("Invalid amount:", token1.amount);
-//     return "";
-//   }
-//   let cost;
-//   if (token1.address === priceTokenAddress) {
-//     cost = amountToken1 / price;
-//   } else {
-//     cost = amountToken1 * price;
-//   }
-//   cost = roundTo(cost, adex.AMOUNT_MAX_DECIMALS, RoundType.NEAREST);
-//   return cost;
-// }
