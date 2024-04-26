@@ -8,6 +8,7 @@ import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
+import { initializeSubscriptions } from "subscriptions";
 
 export default function RootLayout({
   children,
@@ -15,6 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const path = usePathname();
+  initializeSubscriptions(store);
 
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO

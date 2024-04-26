@@ -14,71 +14,51 @@ import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
+import { fetchSelectedAccountBalances, userSlice } from "state/userSlice";
+import { setInterval } from "timers";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
-
-let rdtInstance: null | RDT = null;
+export const rdt = RadixDappToolkit({
+  dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS || "",
+  networkId:
+    process.env.NEXT_PUBLIC_NETWORK == "mainnet"
+      ? RadixNetwork.Mainnet
+      : RadixNetwork.Stokenet,
+});
+// TODO: "black" on the light theme
+rdt.buttonApi.setTheme("white");
 export function getRdt() {
-  return rdtInstance;
-}
-function setRdt(rdt: RDT) {
-  rdtInstance = rdt;
+  return rdt;
 }
 
 let subs: Subscription[] = [];
+let shortInterval: NodeJS.Timer;
 
 export function initializeSubscriptions(store: AppStore) {
-  let networkId;
-  switch (process.env.NEXT_PUBLIC_NETWORK) {
-    case "mainnet":
-      networkId = RadixNetwork.Mainnet;
-      break;
-    case "stokenet":
-      networkId = RadixNetwork.Stokenet;
-      break;
-    default:
-      networkId = RadixNetwork.Stokenet;
-  }
-  rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      : "",
-    networkId,
-  });
-  rdtInstance.walletApi.setRequestData(
-    DataRequestBuilder.accounts().exactly(1)
-  );
+  rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
   subs.push(
-    rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
+    rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
+      store.dispatch(userSlice.actions.setConnectedAccounts(data.accounts));
+      if (data.accounts.length > 0) {
+        store.dispatch(userSlice.actions.setSelectedAccount(data.accounts[0]));
+        store.dispatch(fetchSelectedAccountBalances());
+      } else {
+        store.dispatch(userSlice.actions.setSelectedAccount(undefined));
+      }
 
       // TODO: can we subscribe to balances from somewhere?
       store.dispatch(fetchBalances());
     })
   );
-  setRdt(rdtInstance);
-  // TODO: "black" on the light theme
-  rdtInstance.buttonApi.setTheme("white");
-  let network;
-  switch (process.env.NEXT_PUBLIC_NETWORK) {
-    case "mainnet":
-      network = adex.ApiNetworkOptions.indexOf("mainnet");
-      break;
-    case "stokenet":
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-      break;
-    default:
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-  }
 
-  adex.init(adex.ApiNetworkOptions[network]);
+  adex.init((process.env.NEXT_PUBLIC_NETWORK || "stokenet") as adex.ApiNetwork);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
         JSON.stringify(newState)
       );
-
       store.dispatch(pairSelectorSlice.actions.updateAdex(serializedState));
       store.dispatch(orderBookSlice.actions.updateAdex(serializedState));
       store.dispatch(updateCandles(serializedState.currentPairCandlesList));
@@ -87,6 +67,10 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
     })
   );
+
+  shortInterval = setInterval(() => {
+    store.dispatch(fetchSelectedAccountBalances());
+  }, 5000);
 }
 
 export function unsubscribeAll() {
@@ -94,4 +78,7 @@ export function unsubscribeAll() {
     sub.unsubscribe();
   });
   subs = [];
+  if (shortInterval) {
+    clearInterval(shortInterval);
+  }
 }
