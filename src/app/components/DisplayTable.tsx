@@ -19,7 +19,6 @@ interface TableProps {
 
 import "../styles/table.css";
 import { DexterToast } from "./DexterToaster";
-import { OrderType } from "alphadex-sdk-js";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
@@ -227,7 +226,7 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {getPriceSymbol(order)}
         </td>
         <td>
-          {order.orderType === OrderType.MARKET
+          {order.orderType === "MARKET"
             ? "-"
             : `${order.price} ${getPriceSymbol(order)}`}
         </td>
@@ -257,7 +256,7 @@ const TradeHistoryTable = ({ data }: TableProps) => {
           {t(displayOrderSide(order.side).text)}
         </td>
         <td>
-          {order.orderType === OrderType.MARKET
+          {order.orderType === "MARKET"
             ? "-"
             : `${order.price} ${getPriceSymbol(order)}`}
         </td>
