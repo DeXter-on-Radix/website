@@ -184,7 +184,14 @@ const OrderHistoryRows = ({ data }: TableProps) => {
   const t = useTranslations();
   return data.length ? (
     data.map((order) => (
-      <tr key={order.id} className="">
+      <tr
+        key={order.id}
+        className={
+          order.status === "CANCELLED" && order.completedPerc === 0
+            ? "opacity-30"
+            : ""
+        }
+      >
         <td>{order.pairName}</td>
         <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
