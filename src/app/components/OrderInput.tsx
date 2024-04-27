@@ -105,7 +105,6 @@ export function OrderInput() {
 
   // for better readibility
   const isMarketOrder = type === "MARKET";
-  const isLimitOrder = type === "LIMIT";
 
   useEffect(() => {
     dispatch(fetchBalances());
