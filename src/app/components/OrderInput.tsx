@@ -2,7 +2,6 @@ import { useEffect, useState, ChangeEvent } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import {
-  capitalizeFirstLetter,
   getPrecision,
   getLocaleSeparators,
   formatNumericString,
@@ -28,11 +27,6 @@ import {
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
-
-const POST_ONLY_TOOLTIP =
-  "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. " +
-  "If the order can be matched immediately, it will not be created. " +
-  "This option helps ensure you receive the maker rebate.";
 
 interface OrderTypeTabProps {
   orderType: OrderType;
