@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initializeSubscriptions, unsubscribeAll } from "../subscriptions";
-import { store } from "../state/store";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   fetchAddresses,
@@ -21,13 +19,6 @@ import { getTokenRewards, getTypeRewards } from "../state/rewardUtils";
 import { DexterToast } from "../components/DexterToaster";
 
 export default function Rewards() {
-  useEffect(() => {
-    initializeSubscriptions(store);
-    return () => {
-      unsubscribeAll();
-    };
-  }, []);
-
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
     <div className="bg-[#141414]">
