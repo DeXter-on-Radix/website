@@ -152,7 +152,6 @@ export function OrderInput() {
             <MarketOrderDisclaimer />
           </>
         )}
-        {isLimitOrder && <PostOnlyCheckbox />}
         <FeesTable />
         <FeesDisclaimer />
       </div>
@@ -341,7 +340,7 @@ function PostOnlyCheckbox() {
   const { postOnly } = useAppSelector((state) => state.orderInput);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center mt-6">
       <input
         checked={postOnly}
         type="checkbox"
@@ -448,6 +447,7 @@ function UserInputContainer() {
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           <PercentageSlider />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
+          {isLimitOrder && <PostOnlyCheckbox />}
         </>
       )}
     </div>
