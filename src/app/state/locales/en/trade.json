@@ -73,5 +73,6 @@
   "failed_to_cancel_order": "Failed to cancel order",
   "submitting_order": "Submitting order...",
   "order_submitted": "Order submitted",
-  "failed_to_submit_order": "Failed to submit order"
+  "failed_to_submit_order": "Failed to submit order",
+  "connect_wallet_to_trade": "Connect wallet to trade"
 }

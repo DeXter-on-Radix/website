@@ -368,11 +368,15 @@ function SubmitButton() {
   const dispatch = useAppDispatch();
   const { side, type, token1, quote, quoteDescription, quoteError } =
     useAppSelector((state) => state.orderInput);
+  const { isConnected } = useAppSelector((state) => state.radix);
   const hasQuote = quote !== undefined;
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
   const isBuyOrder = side === OrderSide.BUY;
-  const disabled = !hasQuote || hasQuoteError;
+  const disabled = !hasQuote || hasQuoteError || !isConnected;
+  const buttonText = !isConnected
+    ? t("connect_wallet_to_trade")
+    : `${type} ${side} ${token1.symbol}`;
   return (
     <button
       className={`w-full min-h-[44px] p-3 my-6 rounded ${
@@ -383,6 +387,13 @@ function SubmitButton() {
           : "bg-dexter-red text-white opacity-100"
       }`}
       onClick={async (e) => {
+        if (!isConnected) {
+          alert(t("connect_wallet_to_trade"));
+          return;
+        }
+        if (disabled) {
+          return;
+        }
         e.stopPropagation();
         DexterToast.promise(
           // Function input, with following state-to-toast mapping
@@ -405,7 +416,7 @@ function SubmitButton() {
         );
       }}
     >
-      <span className="font-bold text-sm tracking-[.1px] ">{`${type} ${side} ${token1.symbol}`}</span>
+      <span className="font-bold text-sm tracking-[.1px] ">{buttonText}</span>
       {isLimitOrder && (
         <InfoTooltip
           iconColor={isBuyOrder ? "text-black" : "text-white"}

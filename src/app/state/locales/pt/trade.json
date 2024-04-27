@@ -73,5 +73,6 @@
   "failed_to_cancel_order": "Erro ao cancelar a ordem",
   "submitting_order": "Enviando a ordem...",
   "order_submitted": "Ordem enviada",
-  "failed_to_submit_order": "Erro ao enviar a ordem"
+  "failed_to_submit_order": "Erro ao enviar a ordem",
+  "connect_wallet_to_trade": "Conectar carteira para negociar"
 }
