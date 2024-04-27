@@ -376,7 +376,10 @@ function SubmitButton() {
   const disabled = !hasQuote || hasQuoteError || !isConnected;
   const buttonText = !isConnected
     ? t("connect_wallet_to_trade")
-    : `${type} ${side} ${token1.symbol}`;
+    : t("market_action_token")
+        .replaceAll("<$ORDER_TYPE>", type)
+        .replaceAll("<$SIDE>", side)
+        .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
   return (
     <button
       className={`w-full min-h-[44px] p-3 my-6 rounded ${
@@ -416,8 +419,10 @@ function SubmitButton() {
         );
       }}
     >
-      <span className="font-bold text-sm tracking-[.1px] ">{buttonText}</span>
-      {isLimitOrder && (
+      <span className="font-bold text-sm tracking-[.1px] uppercase">
+        {buttonText}
+      </span>
+      {isLimitOrder && isConnected && (
         <InfoTooltip
           iconColor={isBuyOrder ? "text-black" : "text-white"}
           content={quoteDescription || undefined}
