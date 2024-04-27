@@ -172,6 +172,7 @@ function OrderSideTabs() {
 }
 
 function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
+  const t = useTranslations();
   const side = useAppSelector((state) => state.orderInput.side);
   const dispatch = useAppDispatch();
 
@@ -189,8 +190,8 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
         dispatch(orderInputSlice.actions.setSide(orderSide));
       }}
     >
-      <p className="font-bold text-sm tracking-[.1px] select-none">
-        {orderSide}
+      <p className="font-bold text-sm tracking-[.1px] select-none uppercase">
+        {t(orderSide)}
       </p>
     </div>
   );
@@ -213,6 +214,7 @@ function OrderTypeTabs() {
 }
 
 function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
+  const t = useTranslations();
   const type = useAppSelector((state) => state.orderInput.type);
   const dispatch = useAppDispatch();
 
@@ -228,7 +230,7 @@ function OrderTypeTab({ orderType }: OrderTypeTabProps): JSX.Element | null {
       }}
     >
       <p className="uppercase font-medium text-sm tracking-[.1px] select-none">
-        {orderType}
+        {t(orderType)}
       </p>
     </div>
   );
@@ -276,29 +278,29 @@ function InfoTooltip({
 }
 
 function MarketOrderDisclaimer() {
+  const t = useTranslations();
   return (
     <div className="">
       <p className="text-xs tracking-[0.5px] opacity-70 pb-6 border-b-[1px] border-b-[rgba(255,255,255,0.2)]">
-        Displayed value is exact at quote time, may change on button press due
-        market changes.
+        {t("displayed_value_is_exact_at")}
       </p>
     </div>
   );
 }
 
 function FeesDisclaimer() {
+  const t = useTranslations();
   return (
     <div className="">
       <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
-        Fees are paid in received currency and are estimates. Negative fee
-        amounts represent rewards to earn. Total received amount already
-        discounts fees.
+        {t("fees_are_paid_in_received")}
       </p>
     </div>
   );
 }
 
 function FeesTable() {
+  const t = useTranslations();
   const { side, token1, token2, quote } = useAppSelector(
     (state) => state.orderInput
   );
@@ -323,7 +325,7 @@ function FeesTable() {
           key={indx}
         >
           <p className="text-xs text-left grow">
-            {capitalizeFirstLetter(key)} fee (estimate):
+            {t(`${key}_fee`)} ({t("estimate").toLowerCase()}):
           </p>
           <p className="text-xs">
             {value} {currency}{" "}
@@ -335,6 +337,7 @@ function FeesTable() {
 }
 
 function PostOnlyCheckbox() {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
   const { postOnly } = useAppSelector((state) => state.orderInput);
 
@@ -347,14 +350,14 @@ function PostOnlyCheckbox() {
         onChange={() => dispatch(orderInputSlice.actions.togglePostOnly())}
       />
       <span
-        className="my-auto text-white text-xs cursor-pointer"
+        className="my-auto text-white text-xs cursor-pointer uppercase"
         onClick={() => dispatch(orderInputSlice.actions.togglePostOnly())}
       >
-        POST ONLY
+        {t("post_only")}
       </span>
       <div
         className="my-auto ml-2 tooltip text-3xl font-normal before:bg-base-300 z-10"
-        data-tip={POST_ONLY_TOOLTIP}
+        data-tip={t("post_only_tooltip")}
       >
         <AiOutlineInfoCircle className="text-white text-sm" />
       </div>
@@ -376,8 +379,8 @@ function SubmitButton() {
   const buttonText = !isConnected
     ? t("connect_wallet_to_trade")
     : t("market_action_token")
-        .replaceAll("<$ORDER_TYPE>", type)
-        .replaceAll("<$SIDE>", side)
+        .replaceAll("<$ORDER_TYPE>", t(type))
+        .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
   return (
     <button
@@ -475,6 +478,7 @@ function CurrencyInputGroupSettings(
   userAction: UserAction,
   currencyInputGroupDisabled: boolean
 ): CurrencyInputGroupConfig {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
   const {
     side,
@@ -547,42 +551,42 @@ function CurrencyInputGroupSettings(
 
   const configMap: { [key in UserAction]: CurrencyInputGroupConfig } = {
     SET_TOKEN_1: {
-      label: "Quantity",
+      label: t("quantity"),
       currency: token1.symbol,
       value: token1amount,
       updateValue: updateToken1,
       inputValidation: validationToken1,
       secondaryLabelProps: {
         disabled: side === "BUY", // hide token1 balance for BUY
-        label: "Available",
+        label: t("available"),
         currency: token1.symbol,
         value: truncateWithPrecision(balanceToken1, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken1,
       },
     },
     SET_TOKEN_2: {
-      label: "Total",
+      label: t("total"),
       currency: token2.symbol,
       value: token2amount,
       updateValue: updateToken2,
       inputValidation: validationToken2,
       secondaryLabelProps: {
         disabled: side === "SELL", // hide token2 balance for SELL
-        label: "Available",
+        label: t("available"),
         currency: token2.symbol,
         value: truncateWithPrecision(balanceToken2, 8), // TODO(dcts): use coin-decimals
         updateValue: updateToken2,
       },
     },
     UPDATE_PRICE: {
-      label: "Price",
+      label: t("price"),
       currency: token2.symbol,
       value: price,
       updateValue: updatePrice,
       inputValidation: validationPrice,
       secondaryLabelProps: {
         disabled: currencyInputGroupDisabled, // hide if currencyInput is disabled (e.g. for market price)
-        label: `Best ${side.toLowerCase()}`,
+        label: side === "BUY" ? t("best_buy") : t("best_sell"),
         currency: token2.symbol,
         value: truncateWithPrecision(side === "BUY" ? bestBuy : bestSell, 8), // TODO(dcts): use coin-decimals
         updateValue: updatePrice,
@@ -598,6 +602,7 @@ function CurrencyInputGroup({
   disabled = false,
   userAction,
 }: CurrencyInputGroupProps): JSX.Element | null {
+  const t = useTranslations();
   const { type } = useAppSelector((state) => state.orderInput);
   const {
     label,
@@ -621,7 +626,7 @@ function CurrencyInputGroup({
       </div>
       {/* conditionally show disabled MARKET price label */}
       {isMarketOrder && isUserActionUpdatePrice ? (
-        <DisabledInputField label="MARKET" />
+        <DisabledInputField label={t("market")} />
       ) : (
         <CurrencyInput
           currency={currency}
@@ -669,7 +674,7 @@ function DisabledInputField({
 }: DisabledInputFieldProps): JSX.Element | null {
   return (
     <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
-      <div className="text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
+      <div className="uppercase text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
         {label}
       </div>
     </div>

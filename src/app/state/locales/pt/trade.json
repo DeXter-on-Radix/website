@@ -13,6 +13,7 @@
   "exchange_fee": "Taxa de Troca",
   "platform_fee": "Taxa da Plataforma",
   "liquidity_fee": "Taxa de Liquidez",
+  "estimate": "Estimativa",
   "buy": "Comprar",
   "sell": "Vender",
   "post_only_tooltip": "Selecione 'SOMENTE POSTAR' quando quiser que sua ordem seja adicionada ao livro de ordens sem corresponder a ordens existentes. Se a ordem puder ser correspondida imediatamente, ela não será criada. Essa opção ajuda você a garantir que receba o reembolso da ordem.",
@@ -74,5 +75,9 @@
   "submitting_order": "Enviando a ordem...",
   "order_submitted": "Ordem enviada",
   "failed_to_submit_order": "Erro ao enviar a ordem",
-  "connect_wallet_to_trade": "Conectar carteira para negociar"
+  "connect_wallet_to_trade": "Conectar carteira para negociar",
+  "quantity": "Quantidade",
+  "available": "Disponível",
+  "displayed_value_is_exact_at": "O valor exibido é exato no momento da cotação, podendo ser alterado ao pressionar o botão devido a mudanças no mercado.",
+  "fees_are_paid_in_received": "As taxas são pagas na moeda recebida e são estimativas. Valores negativos de taxas representam recompensas a receber. O valor total recebido já inclui o desconto das taxas."
 }
