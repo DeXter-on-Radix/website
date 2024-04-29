@@ -639,7 +639,7 @@ function toDescription(quote: Quote): string {
 }
 
 function getSlippage(type: OrderType): number {
-  return type === OrderType.MARKET ? 9999999 : -1; // acceppt unlimeted slippage on market orders
+  return type === OrderType.MARKET ? 9999 : -1; // acceppt unlimeted slippage on market orders
 }
 
 /*
