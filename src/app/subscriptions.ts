@@ -14,8 +14,9 @@ import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
-import { fetchSelectedAccountBalances, userSlice } from "state/userSlice";
+import { userSlice } from "state/userSlice";
 import { setInterval } from "timers";
+import { fetchSelectedAccountBalances } from "state/userThunks";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 export const rdt = RadixDappToolkit({
