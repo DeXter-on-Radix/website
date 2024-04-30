@@ -240,4 +240,8 @@ describe("OrderInputSlice", () => {
     testTypeConversions(OrderType.LIMIT, false, adex.OrderType.LIMIT);
     testTypeConversions(OrderType.LIMIT, true, adex.OrderType.POSTONLY);
   });
+
+  it("Reserves 3 XRD from 100% specified amount for fees", () => {});
+
+  it("Ignores 3 XRD fee reserve for amounts ≤ 3 XRD", () => {});
 });
