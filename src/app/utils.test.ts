@@ -1,4 +1,8 @@
-import { displayNumber, truncateWithPrecision } from "./utils";
+import {
+  displayNumber,
+  formatNumericString,
+  truncateWithPrecision,
+} from "./utils";
 
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
@@ -224,5 +228,48 @@ describe("truncateWithPrecision", () => {
   it("doesnt round", () => {
     expect(truncateWithPrecision(1.1216, 3)).toBe(1.121);
     expect(truncateWithPrecision(1.1211, 3)).toBe(1.121);
+  });
+});
+
+describe("formatNumericString", () => {
+  it("doesnt apply any change to integers", () => {
+    {
+      const result = formatNumericString("1234567890", ".", 2);
+      expect(result).toBe("1234567890");
+    }
+    {
+      const result = formatNumericString("12", ",", 10);
+      expect(result).toBe("12");
+    }
+  });
+
+  it("allows a trailing separator (to ensure user can input comma separated values)", () => {
+    expect(formatNumericString("1234.", ".", 2)).toBe("1234.");
+    expect(formatNumericString("1234,", ",", 0)).toBe("1234,");
+  });
+
+  it("allows single separator as input (so the user can input '.1' to express '0.1')", () => {
+    const result = formatNumericString(".", ".", 2);
+    expect(result).toBe(".");
+  });
+
+  it("removes extra separators and enforces scale", () => {
+    const result = formatNumericString("1234.5678.", ".", 2);
+    expect(result).toBe("1234.56");
+  });
+
+  it("does NOT add trailing zeros", () => {
+    const result = formatNumericString("432.23", ".", 6);
+    expect(result).toBe("432.23");
+  });
+
+  it("filters out invalid characters", () => {
+    const result = formatNumericString("1a2b3c4d5e", ",", 3);
+    expect(result).toBe("12345");
+  });
+
+  it("enforces scale limits correctly without rounding", () => {
+    expect(formatNumericString("1234.56789", ".", 3)).toBe("1234.567");
+    expect(formatNumericString("1234,5678901234", ",", 1)).toBe("1234,5");
   });
 });
