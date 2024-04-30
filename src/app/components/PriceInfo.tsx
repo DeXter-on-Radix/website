@@ -13,7 +13,8 @@ export function PriceInfo() {
   const low = displayNumber(priceInfo.low24h, noDigits, fixedDecimals);
   const volume = displayNumber(priceInfo.value24h, noDigits, fixedDecimals);
   const isNegativeOrZero = priceInfo.isNegativeOrZero;
-  const basePair = "XRD";
+  const pairSelector = useAppSelector((state) => state.pairSelector);
+  const basePair = pairSelector.token2.symbol;
 
   return (
     <div className="flex justify-between py-2 h-full ">

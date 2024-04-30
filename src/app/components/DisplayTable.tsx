@@ -146,7 +146,7 @@ export function DisplayTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra table-xs !mt-0">
+      <table className="table table-zebra table-xs !mt-0 mb-16">
         <thead>
           <tr>
             {tableToShow.headers.map((header, i) => (

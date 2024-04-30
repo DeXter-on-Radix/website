@@ -24,6 +24,12 @@ module.exports = {
       gridTemplateRows: {
         "auto-1fr": "auto 1fr",
       },
+      colors: {
+        "dexter-gradient-blue": "#05CBE6",
+        "dexter-gradient-green": "#ACF840",
+        "dexter-green": "#A7D22D",
+        "dexter-green-OG": "#CAFC40",
+      },
     },
   },
   daisyui: {
