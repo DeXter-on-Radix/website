@@ -7,7 +7,7 @@ import { accountHistorySlice } from "./accountHistorySlice";
 import { radixSlice } from "./radixSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 import { i18nSlice } from "./i18nSlice";
-import { userSlice } from "./userSlice";
+import { userSlice } from "./user/userSlice";
 
 export const store = configureStore({
   reducer: {

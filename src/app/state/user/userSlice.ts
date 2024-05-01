@@ -1,13 +1,16 @@
 import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import { RootState } from "../store";
 import { OrderSide, OrderStatus, OrderType } from "alphadex-sdk-js";
 import {
   fetchSelectedAccountBalances,
-  fetchSelectedAccountOrders,
+  fetchSelectedAccountNewOrders,
+  setConnectedAccountsAndUpdate,
+  setSelectedAccountAndUpdate,
 } from "./userThunks";
 
-// define all the types and interfaces unique to the slice
+// ### define all the types and interfaces used in the slice
+
 export type AccountData = WalletDataStateAccount;
 export type LoadingStatus = "NOT_STARTED" | "LOADING" | "FINISHED";
 export interface TokenBalance {
@@ -62,7 +65,7 @@ export interface OrderVaultsAndIdsResult {
   stateVersion?: number;
 }
 
-// define the state for the slice
+// ### define the state for the slice
 export interface UserState {
   connectedAccounts: AccountData[];
   selectedAccount: AccountData | undefined;
@@ -71,7 +74,7 @@ export interface UserState {
   balancesLoadingStatus: LoadingStatus;
   ordersLoadingStatus: LoadingStatus;
 }
-// set the initial state values for the slice
+// ### set the initial state values for the slice
 const initialState: UserState = {
   connectedAccounts: [],
   selectedAccount: undefined,
@@ -81,19 +84,23 @@ const initialState: UserState = {
   ordersLoadingStatus: "NOT_STARTED",
 };
 
-// create the slice
+// ### create the slice
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     setConnectedAccounts: (state, action: PayloadAction<AccountData[]>) => {
       state.connectedAccounts = action.payload;
+      console.debug("Connected accounts changed: ", state.connectedAccounts);
     },
     setSelectedAccount: (
       state,
       action: PayloadAction<AccountData | undefined>
     ) => {
       state.selectedAccount = action.payload;
+      if (!state.selectedAccount) {
+        state.selectedAccountOrders = [];
+      }
       console.debug("Selected account changed: ", state.selectedAccount);
     },
     setSelectedAccountBalances: (
@@ -114,11 +121,11 @@ export const userSlice = createSlice({
         state.balancesLoadingStatus = "FINISHED";
       }
     );
-    builder.addCase(fetchSelectedAccountOrders.pending, (state) => {
+    builder.addCase(fetchSelectedAccountNewOrders.pending, (state) => {
       state.ordersLoadingStatus = "LOADING";
     });
     builder.addCase(
-      fetchSelectedAccountOrders.fulfilled,
+      fetchSelectedAccountNewOrders.fulfilled,
       (state, action: PayloadAction<OrderData[]>) => {
         state.selectedAccountOrders = [
           ...state.selectedAccountOrders,
@@ -130,7 +137,14 @@ export const userSlice = createSlice({
   },
 });
 
-// set commmon selectors for the slice
+export const userActions = {
+  setConnectedAccountsAndUpdate,
+  setSelectedAccountAndUpdate,
+  fetchSelectedAccountBalances,
+  fetchSelectedAccountNewOrders,
+};
+
+// ### set commmon selectors for the slice
 export const connectedAccounts = (state: RootState) =>
   state.user.connectedAccounts;
 export const selectedAccount = (state: RootState) => state.user.selectedAccount;

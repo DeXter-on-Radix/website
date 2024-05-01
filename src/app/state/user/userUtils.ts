@@ -3,118 +3,10 @@ import {
   StateEntityNonFungibleIdsPageRequest,
   StateEntityNonFungiblesPageRequest,
 } from "@radixdlt/radix-dapp-toolkit";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { OrderData, OrderVaultsAndIdsResult, TokenBalance } from "./userSlice";
+import { getPairOrders, OrderReceipt } from "alphadex-sdk-js";
 import { rdt } from "subscriptions";
-import { RootState } from "./store";
-import {
-  OrderData,
-  OrderVaultsAndIdsResult,
-  TokenBalance,
-  userSlice,
-} from "./userSlice";
-import { OrderReceipt, OrderStatus, getPairOrders } from "alphadex-sdk-js";
 
-export const fetchSelectedAccountBalances = createAsyncThunk<
-  TokenBalance[], // Return type of the payload creator
-  undefined, // argument type
-  { state: RootState }
->("user/fetchSelectedAccountBalances", async (_, thunkAPI) => {
-  const dispatch = thunkAPI.dispatch;
-  const state: RootState = thunkAPI.getState();
-
-  if (!state.user.selectedAccount || !state.user.selectedAccount.address) {
-    dispatch(userSlice.actions.setSelectedAccountBalances([]));
-    throw new Error(
-      "Error fetching selected account balances. No account selected."
-    );
-  }
-  console.debug(
-    "Starting to fetch account balances for account: ",
-    state.user.selectedAccount
-  );
-  let tokenBalances = await fetchAccountBalances(
-    state.user.selectedAccount.address
-  );
-  console.debug("Token balances fetched: ", tokenBalances);
-  return tokenBalances;
-});
-
-export const fetchSelectedAccountOrders = createAsyncThunk<
-  OrderData[],
-  undefined,
-  { state: RootState }
->("user/fetchSelectedAccountOrders", async (_, thunkApi) => {
-  let updatedOrderData: OrderData[] = [];
-  const state: RootState = thunkApi.getState();
-  if (state.user.selectedAccount) {
-    let pairAddressReceiptMap: Map<string, string> = new Map();
-    let pairsReceiptAddresses: string[] = [];
-    state.pairSelector.pairsList.forEach((pairInfo) => {
-      pairAddressReceiptMap.set(pairInfo.address, pairInfo.orderReceiptAddress);
-      pairsReceiptAddresses.push(pairInfo.orderReceiptAddress);
-    });
-    let orderIdsToUpdate: Set<string> = new Set();
-    state.user.selectedAccountOrders.forEach((orderData) => {
-      if (orderData.status == OrderStatus.PENDING) {
-        orderIdsToUpdate.add(orderData.uniqueId);
-      }
-    });
-    let initialOrderVaultsAndIds = await fetchAccountOrdersVaultsAndIds(
-      state.user.selectedAccount.address,
-      pairsReceiptAddresses
-    );
-    for (const orderVaultData of initialOrderVaultsAndIds) {
-      let existingOrderFound = false;
-      for (const orderIdString of orderVaultData.orderIds) {
-        let uniqueId = orderVaultData.receiptAddress + orderIdString;
-        let existingOrder = state.user.selectedAccountOrders.find(
-          (orderData) => orderData.uniqueId == uniqueId
-        );
-        if (!existingOrder) {
-          orderIdsToUpdate.add(uniqueId);
-        } else {
-          existingOrderFound = true;
-          if (existingOrder.status != OrderStatus.PENDING) {
-            break; // once an id is already in the existing orders, all remaining ids in the vault should also be in existing orders.
-          }
-        }
-      }
-      if (!existingOrderFound && orderVaultData.cursor) {
-        console.debug(
-          "Loading overflow orders for orderReceipt: " +
-            orderVaultData.receiptAddress
-        );
-        let additionalOrderIds = await fetchAccountOrderIdsByVault(
-          state.user.selectedAccount.address,
-          orderVaultData.vaultAddress,
-          orderVaultData.receiptAddress,
-          orderVaultData.cursor,
-          orderVaultData.stateVersion
-        );
-        for (const uniqueId of additionalOrderIds) {
-          let existingOrder = state.user.selectedAccountOrders.find(
-            (orderData) => orderData.uniqueId == uniqueId
-          );
-          if (!existingOrder) {
-            orderIdsToUpdate.add(uniqueId);
-          } else {
-            existingOrderFound = true;
-            if (existingOrder.status != OrderStatus.PENDING) {
-              break; // once an id is already in the existing orders, all remaining ids in the vault should also be in existing orders.
-            }
-          }
-        }
-      }
-    }
-    updatedOrderData = await fetchOrdersDetails(
-      Array.from(orderIdsToUpdate),
-      pairAddressReceiptMap
-    );
-  }
-  return updatedOrderData;
-});
-
-// utility functions
 export async function fetchAccountBalances(
   accountAddress: string
 ): Promise<TokenBalance[]> {
@@ -362,14 +254,6 @@ export function createOrderUniqueId(
   return result;
 }
 
-export function createOrderIdString(orderId: number): string {
-  return "#" + orderId + "#";
-}
-
-export function createOrderIdNumber(orderIdString: string): number {
-  return Number(orderIdString.slice(1, -1));
-}
-
 export function splitOrderUniqueId(orderUniqueId: string): {
   orderIdString: string;
   receiptAddress: string;
@@ -379,4 +263,12 @@ export function splitOrderUniqueId(orderUniqueId: string): {
     orderIdString: orderUniqueId.slice(orderIdStart),
     receiptAddress: orderUniqueId.slice(0, orderIdStart),
   };
+}
+
+export function createOrderIdString(orderId: number): string {
+  return "#" + orderId + "#";
+}
+
+export function createOrderIdNumber(orderIdString: string): number {
+  return Number(orderIdString.slice(1, -1));
 }

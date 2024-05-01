@@ -14,9 +14,8 @@ import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
-import { userSlice } from "state/userSlice";
+import { userActions } from "state/user/userSlice";
 import { setInterval } from "timers";
-import { fetchSelectedAccountBalances } from "state/userThunks";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 export const rdt = RadixDappToolkit({
@@ -41,14 +40,7 @@ export function initializeSubscriptions(store: AppStore) {
     rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
-      store.dispatch(userSlice.actions.setConnectedAccounts(data.accounts));
-      if (data.accounts.length > 0) {
-        store.dispatch(userSlice.actions.setSelectedAccount(data.accounts[0]));
-        store.dispatch(fetchSelectedAccountBalances());
-      } else {
-        store.dispatch(userSlice.actions.setSelectedAccount(undefined));
-      }
-
+      store.dispatch(userActions.setConnectedAccountsAndUpdate(data.accounts));
       // TODO: can we subscribe to balances from somewhere?
       store.dispatch(fetchBalances());
     })
@@ -70,7 +62,7 @@ export function initializeSubscriptions(store: AppStore) {
   );
 
   shortInterval = setInterval(() => {
-    store.dispatch(fetchSelectedAccountBalances());
+    store.dispatch(userActions.fetchSelectedAccountBalances());
   }, 5000);
 }
 
