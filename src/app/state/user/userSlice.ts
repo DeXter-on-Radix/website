@@ -123,15 +123,29 @@ export const userSlice = createSlice({
     );
     builder.addCase(fetchSelectedAccountNewOrders.pending, (state) => {
       state.ordersLoadingStatus = "LOADING";
+      console.debug(
+        "Fetching selected account new orders. ",
+        state.selectedAccountOrders
+      );
     });
     builder.addCase(
       fetchSelectedAccountNewOrders.fulfilled,
       (state, action: PayloadAction<OrderData[]>) => {
-        state.selectedAccountOrders = [
-          ...state.selectedAccountOrders,
-          ...action.payload,
-        ];
+        if (action.payload.length > 0) {
+          let ordersMap: Map<string, OrderData> = new Map();
+          state.selectedAccountOrders.forEach((orderData) => {
+            ordersMap.set(orderData.uniqueId, orderData);
+          });
+          action.payload.forEach((orderData) => {
+            ordersMap.set(orderData.uniqueId, orderData);
+          });
+          state.selectedAccountOrders = Array.from(ordersMap.values());
+        }
         state.ordersLoadingStatus = "FINISHED";
+        console.debug(
+          "Finished fetching selected account new orders. ",
+          state.selectedAccountOrders
+        );
       }
     );
   },

@@ -120,6 +120,7 @@ export async function fetchAccountOrdersVaultsAndIds(
   } catch (error) {
     throw new Error("Error fetching NFT Ids for account: " + accountAddress);
   }
+  console.debug("account ordersVaultsAndIds: ", result);
   return result;
 }
 
@@ -232,7 +233,7 @@ export async function fetchOrdersDetails(
       });
       batchStart += batchSize;
     }
-    console.debug("Pair resultfor pair: " + pairAddress, pairResult);
+    console.debug("Pair result for pair: " + pairAddress, pairResult);
     result = [...result, ...pairResult];
   }
   return result;

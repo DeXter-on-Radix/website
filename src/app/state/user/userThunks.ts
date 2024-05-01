@@ -126,6 +126,7 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
             orderIdsToUpdate.add(uniqueId);
           } else {
             existingOrderFound = true;
+            console.log("Found existing order " + existingOrder.uniqueId);
             if (existingOrder.status != OrderStatus.PENDING) {
               break; // once an id is already in the existing orders, all remaining ids in the vault should also be in existing orders.
             }
