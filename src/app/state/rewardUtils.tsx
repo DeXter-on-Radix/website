@@ -269,10 +269,12 @@ export async function getAccountRewards(
       claimNFTResourceAddress,
       accountNftIds
     );
-
-    const accountsRewards = getAccountsRewardsFromApiData(
-      accountRewardsNftResult[0]
-    );
+    let accountsRewards: AccountRewards[] = [];
+    if (accountRewardsNftResult && accountRewardsNftResult.length > 0) {
+      accountsRewards = getAccountsRewardsFromApiData(
+        accountRewardsNftResult[0]
+      );
+    }
     // Deep copying is needed to prevent "A non-serializable value was detected" error
     return JSON.parse(JSON.stringify(accountsRewards));
   } catch (error) {
