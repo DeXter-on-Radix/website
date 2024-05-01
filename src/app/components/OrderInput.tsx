@@ -27,6 +27,7 @@ import {
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
+import { fetchAccountHistory } from "state/accountHistorySlice";
 
 interface OrderTypeTabProps {
   orderType: OrderType;
@@ -87,6 +88,7 @@ interface DisabledInputFieldProps {
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const { walletData } = useAppSelector((state) => state.radix);
   const {
     type,
     side,
@@ -109,6 +111,11 @@ export function OrderInput() {
   useEffect(() => {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
+
+  useEffect(() => {
+    dispatch(fetchBalances());
+    dispatch(orderInputSlice.actions.resetUserInput());
+  }, [dispatch, walletData]);
 
   useEffect(() => {
     if (
@@ -410,6 +417,8 @@ function SubmitButton() {
               // Transaction was fulfilled but failed (e.g. submitted onchain failure)
               throw new Error("Transaction failed onledger");
             }
+            dispatch(orderInputSlice.actions.resetUserInput());
+            dispatch(fetchBalances());
           },
           t("submitting_order"), // Loading message
           t("order_submitted"), // success message
