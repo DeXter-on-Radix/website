@@ -362,26 +362,38 @@ export async function getOrderRewards(
   orderRewardsKvsAddress: string,
   receiptIds: string[]
 ): Promise<OrderRewards[]> {
+  let result: OrderRewards[] = [];
   const rdt = getRdtOrThrow();
   // console.log("Getting OrderRewards for receiptIds: ", receiptIds);
-  let kvsKeysRequest = receiptIds.map((receiptId) => {
-    return {
-      // eslint-disable-next-line camelcase
-      key_json: {
-        kind: "String",
-        value: receiptId,
-      },
-    };
-  });
-  const orderRewardsApiData =
-    await rdt.gatewayApi.state.innerClient.keyValueStoreData({
-      stateKeyValueStoreDataRequest: {
+  const maxBatchSize = 100;
+  let batchStart = 0;
+  do {
+    let batchReceiptIds = receiptIds.slice(
+      batchStart,
+      batchStart + maxBatchSize
+    );
+    let kvsKeysRequest = batchReceiptIds.map((receiptId) => {
+      return {
         // eslint-disable-next-line camelcase
-        key_value_store_address: orderRewardsKvsAddress,
-        keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
-      },
+        key_json: {
+          kind: "String",
+          value: receiptId,
+        },
+      };
     });
-  return getOrderRewardsFromApiData(orderRewardsApiData);
+    const orderRewardsApiData =
+      await rdt.gatewayApi.state.innerClient.keyValueStoreData({
+        stateKeyValueStoreDataRequest: {
+          // eslint-disable-next-line camelcase
+          key_value_store_address: orderRewardsKvsAddress,
+          keys: kvsKeysRequest as StateKeyValueStoreDataRequestKeyItem[],
+        },
+      });
+    let batchOrderRewards = getOrderRewardsFromApiData(orderRewardsApiData);
+    result = [...result, ...batchOrderRewards];
+    batchStart = batchStart + maxBatchSize;
+  } while (batchStart < receiptIds.length);
+  return result;
 }
 
 export function createOrderIndex(
