@@ -27,7 +27,6 @@ import {
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
-import { fetchAccountHistory } from "state/accountHistorySlice";
 
 interface OrderTypeTabProps {
   orderType: OrderType;
