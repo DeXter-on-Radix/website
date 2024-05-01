@@ -47,10 +47,13 @@ export function initializeSubscriptions(store: AppStore) {
     default:
       networkId = RadixNetwork.Stokenet;
   }
+  networkId = RadixNetwork.Mainnet; // override values read from .env to always be mainnet (for testing only)
   rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      : "",
+    // dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+    //   ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+    //   : "",
+    dAppDefinitionAddress:
+      "account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5", // override values read from .env to always be mainnet (for testing only)
     networkId,
   });
   rdtInstance.walletApi.setRequestData(
@@ -79,7 +82,7 @@ export function initializeSubscriptions(store: AppStore) {
     default:
       network = adex.ApiNetworkOptions.indexOf("stokenet");
   }
-
+  network = adex.ApiNetworkOptions.indexOf("mainnet"); // override values read from .env to always be mainnet (for testing only)
   adex.init(adex.ApiNetworkOptions[network]);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {

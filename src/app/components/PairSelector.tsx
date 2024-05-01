@@ -60,8 +60,13 @@ export function PairSelector() {
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS != "") {
+      // dispatch(
+      //   selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS || "")
+      // );
       dispatch(
-        selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS || "")
+        selectPairAddress(
+          "component_rdx1czgjmu4ed5hp0vn97ngsf6mevq9tl0v8rrh2yq0f4dnpndggk7j9pu"
+        )
       );
     }
   }, [dispatch]);
