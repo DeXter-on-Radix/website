@@ -96,6 +96,10 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
   if (state.user.selectedAccount) {
     let pairAddressReceiptMap: Map<string, string> = new Map();
     let pairsReceiptAddresses: string[] = [];
+    console.debug(
+      "Fetch orders pairsList: ",
+      state.pairSelector.pairsList.length
+    );
     state.pairSelector.pairsList.forEach((pairInfo) => {
       pairAddressReceiptMap.set(pairInfo.address, pairInfo.orderReceiptAddress);
       pairsReceiptAddresses.push(pairInfo.orderReceiptAddress);
@@ -154,6 +158,7 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
           }
         }
       }
+      console.debug("Order Ids to update: ", orderIdsToUpdate);
       updatedOrderData = await fetchOrdersDetails(
         Array.from(orderIdsToUpdate),
         pairAddressReceiptMap

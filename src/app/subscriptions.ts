@@ -63,6 +63,7 @@ export function initializeSubscriptions(store: AppStore) {
 
   shortInterval = setInterval(() => {
     store.dispatch(userActions.fetchSelectedAccountBalances());
+    store.dispatch(userActions.fetchSelectedAccountNewOrders());
   }, 5000);
 }
 

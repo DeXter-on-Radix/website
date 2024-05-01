@@ -199,8 +199,11 @@ export async function fetchOrdersDetails(
     existingReceiptOrdersList.push(createOrderIdNumber(orderIdString));
     receiptOrdersMap.set(receiptAddress, existingReceiptOrdersList);
   });
+  console.debug("ReceiptOrdersMap: ", receiptOrdersMap);
   for (const [receiptAddress, orderIds] of receiptOrdersMap.entries()) {
+    let pairResult: OrderData[] = [];
     const pairAddress = receiptAddressPairMap.get(receiptAddress);
+    console.debug("Fetching orders for pair: " + pairAddress, orderIds);
     if (!pairAddress) {
       throw new Error(
         "Could not find pair address for receipt: " + receiptAddress
@@ -211,6 +214,7 @@ export async function fetchOrdersDetails(
     while (batchStart < orderIds.length) {
       let batchIds = orderIds.slice(batchStart, batchStart + batchSize);
       let sdkResult = await getPairOrders(pairAddress, orderIds);
+      console.debug("Pair Orders SDK result: ", sdkResult);
       if (sdkResult.status != "SUCCESS") {
         throw new Error(
           "Problem fetching order data for pair: " +
@@ -219,15 +223,17 @@ export async function fetchOrdersDetails(
             batchIds.toString()
         );
       }
-      sdkResult.data.forEach((orderReceiptData: OrderReceipt) => {
+      sdkResult.data.orders.forEach((orderReceiptData: OrderReceipt) => {
         let newOrderData = orderDataFromReceipt(
           orderReceiptData,
           receiptAddress
         );
-        result.push(newOrderData);
+        pairResult.push(newOrderData);
       });
       batchStart += batchSize;
     }
+    console.debug("Pair resultfor pair: " + pairAddress, pairResult);
+    result = [...result, ...pairResult];
   }
   return result;
 }
