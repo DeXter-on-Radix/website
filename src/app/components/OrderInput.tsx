@@ -27,6 +27,7 @@ import {
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
+import { fetchAccountHistory } from "state/accountHistorySlice";
 
 interface OrderTypeTabProps {
   orderType: OrderType;
@@ -75,7 +76,9 @@ interface SecondaryLabelProps {
   label: string;
   currency: string;
   value: number;
-  updateValue: (value: number) => void;
+  userAction: UserAction;
+  updateValue?: (value: number) => void;
+  setPercentageValue?: (percentage: number, isXRD: boolean) => void;
 }
 
 interface DisabledInputFieldProps {
@@ -85,6 +88,7 @@ interface DisabledInputFieldProps {
 export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const { walletData } = useAppSelector((state) => state.radix);
   const {
     type,
     side,
@@ -107,6 +111,11 @@ export function OrderInput() {
   useEffect(() => {
     dispatch(orderInputSlice.actions.resetUserInput());
   }, [dispatch, side, type]);
+
+  useEffect(() => {
+    dispatch(fetchBalances());
+    dispatch(orderInputSlice.actions.resetUserInput());
+  }, [dispatch, walletData]);
 
   useEffect(() => {
     if (
@@ -408,6 +417,8 @@ function SubmitButton() {
               // Transaction was fulfilled but failed (e.g. submitted onchain failure)
               throw new Error("Transaction failed onledger");
             }
+            dispatch(orderInputSlice.actions.resetUserInput());
+            dispatch(fetchBalances());
           },
           t("submitting_order"), // Loading message
           t("order_submitted"), // success message
@@ -520,6 +531,46 @@ function CurrencyInputGroupSettings(
     );
   };
 
+  const setPercentageAmountToken1 = (percentage: number, isXRD: boolean) => {
+    if (balanceToken1 <= 0 || percentage < 0 || percentage > 100) {
+      return;
+    }
+    const targetAmount = Math.min(
+      isXRD ? balanceToken1 - 3 : balanceToken1,
+      Calculator.divide(Calculator.multiply(balanceToken1, percentage), 100)
+    );
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount: targetAmount,
+        bestBuy,
+        bestSell,
+        balanceToken1: balanceToken1,
+        balanceToken2: balanceToken2,
+        specifiedToken: SpecifiedToken.TOKEN_1,
+      })
+    );
+  };
+
+  const setPercentageAmountToken2 = (percentage: number, isXRD: boolean) => {
+    if (balanceToken2 <= 0 || percentage < 0 || percentage > 100) {
+      return;
+    }
+    const targetAmount = Math.min(
+      isXRD ? balanceToken2 - 3 : balanceToken2,
+      Calculator.divide(Calculator.multiply(balanceToken2, percentage), 100)
+    );
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount: targetAmount,
+        bestBuy,
+        bestSell,
+        balanceToken1: balanceToken1,
+        balanceToken2: balanceToken2,
+        specifiedToken: SpecifiedToken.TOKEN_2,
+      })
+    );
+  };
+
   const updatePrice = (value: number) => {
     dispatch(
       orderInputSlice.actions.setPrice({
@@ -555,7 +606,8 @@ function CurrencyInputGroupSettings(
         label: t("available"),
         currency: token1.symbol,
         value: truncateWithPrecision(balanceToken1, 8), // TODO(dcts): use coin-decimals
-        updateValue: updateToken1,
+        setPercentageValue: setPercentageAmountToken1,
+        userAction: UserAction.SET_TOKEN_1,
       },
     },
     SET_TOKEN_2: {
@@ -569,7 +621,8 @@ function CurrencyInputGroupSettings(
         label: t("available"),
         currency: token2.symbol,
         value: truncateWithPrecision(balanceToken2, 8), // TODO(dcts): use coin-decimals
-        updateValue: updateToken2,
+        setPercentageValue: setPercentageAmountToken2,
+        userAction: UserAction.SET_TOKEN_2,
       },
     },
     UPDATE_PRICE: {
@@ -584,6 +637,7 @@ function CurrencyInputGroupSettings(
         currency: token2.symbol,
         value: truncateWithPrecision(side === "BUY" ? bestBuy : bestSell, 8), // TODO(dcts): use coin-decimals
         updateValue: updatePrice,
+        userAction: UserAction.UPDATE_PRICE,
       },
     },
   };
@@ -649,13 +703,21 @@ function SecondaryLabel({
   currency,
   value,
   updateValue,
+  setPercentageValue,
+  userAction,
 }: SecondaryLabelProps): JSX.Element | null {
   return disabled ? (
     <></>
   ) : (
     <p
       className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
-      onClick={() => updateValue(value)}
+      onClick={
+        userAction === UserAction.UPDATE_PRICE && updateValue
+          ? () => updateValue(value)
+          : setPercentageValue
+          ? () => setPercentageValue(100, currency === "XRD")
+          : () => {}
+      }
     >
       {label}: {value === 0 ? 0 : value.toFixed(getPrecision(currency))}{" "}
       {currency}
