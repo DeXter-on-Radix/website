@@ -9,5 +9,7 @@
   "COULD_NOT_GET_QUOTE": "Could not get quote",
   "UNSPECIFIED_SLIPPAGE": "Slippage must be specified",
   "NEGATIVE_SLIPPAGE": "Slippage must be positive",
-  "HIGH_SLIPPAGE": "High slippage entered"
+  "HIGH_SLIPPAGE": "High slippage entered",
+  "NO_ORDERS": "Orderbook is empty. Please create a limit order instead",
+  "INSUFFICIENT_LIQUDITIY": "Not enough liquidiy in orderbook, please lower amount"
 }
