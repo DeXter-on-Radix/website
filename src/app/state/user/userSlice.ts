@@ -123,10 +123,10 @@ export const userSlice = createSlice({
     );
     builder.addCase(fetchSelectedAccountNewOrders.pending, (state) => {
       state.ordersLoadingStatus = "LOADING";
-      console.debug(
-        "Fetching selected account new orders. ",
-        state.selectedAccountOrders
-      );
+      // console.debug(
+      //   "Fetching selected account new orders. ",
+      //   state.selectedAccountOrders
+      // );
     });
     builder.addCase(
       fetchSelectedAccountNewOrders.fulfilled,
@@ -142,10 +142,10 @@ export const userSlice = createSlice({
           state.selectedAccountOrders = Array.from(ordersMap.values());
         }
         state.ordersLoadingStatus = "FINISHED";
-        console.debug(
-          "Finished fetching selected account new orders. ",
-          state.selectedAccountOrders
-        );
+        // console.debug(
+        //   "Finished fetching selected account new orders. ",
+        //   state.selectedAccountOrders
+        // );
       }
     );
   },
@@ -162,3 +162,13 @@ export const userActions = {
 export const connectedAccounts = (state: RootState) =>
   state.user.connectedAccounts;
 export const selectedAccount = (state: RootState) => state.user.selectedAccount;
+export const allAccountOrders = (state: RootState) =>
+  state.user.selectedAccountOrders;
+export const openAccountOrders = (state: RootState) =>
+  state.user.selectedAccountOrders.filter(
+    (orderData) => orderData.status == OrderStatus.PENDING
+  );
+export const closedAccountOrders = (state: RootState) =>
+  state.user.selectedAccountOrders.filter(
+    (orderData) => orderData.status != OrderStatus.PENDING
+  );
