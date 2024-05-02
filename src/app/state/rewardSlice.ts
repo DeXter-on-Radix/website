@@ -239,7 +239,10 @@ export const fetchReciepts = createAsyncThunk<
       }
     }
   });
-  console.log("Fetched all receipts for account: " + accountAddress, receipts);
+  console.log(
+    "Fetched all receipts for account: " + accountAddress,
+    receipts.length
+  );
   return receipts;
 });
 
@@ -280,7 +283,7 @@ export const fetchOrderRewards = createAsyncThunk<
     throw new Error("Missing rewardOrderAddress");
   }
   // let recieptIds = state.rewardSlice.recieptIds;
-  console.log("Fetching order rewards for receipt ids: ", receiptIds);
+  console.log("Fetching order rewards for receipt ids: ", receiptIds.length);
   let orderRewards: OrderRewards[] = [];
   if (receiptIds.length > 0) {
     orderRewards = await getOrderRewards(
