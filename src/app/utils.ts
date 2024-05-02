@@ -27,18 +27,18 @@ export function getLocaleSeparators(): {
 
 export function displayNumber(
   x: number,
-  noDigits: number = 6,
+  nbrOfDigits: number = 6,
   fixedDecimals: number = -1
 ): string {
-  if (noDigits < 4) {
-    return "ERROR: displayAmount cannot work with noDigits less than 4";
+  if (nbrOfDigits < 4) {
+    return "ERROR: displayAmount cannot work with nbrOfDigits less than 4";
   }
 
   const { decimalSeparator, thousandsSeparator } = getLocaleSeparators();
 
   if (x < 1) {
-    let roundedNumber = roundTo(x, noDigits - 2, RoundType.DOWN);
-    if (fixedDecimals >= 0 && fixedDecimals <= noDigits - 2) {
+    let roundedNumber = roundTo(x, nbrOfDigits - 2, RoundType.DOWN);
+    if (fixedDecimals >= 0 && fixedDecimals <= nbrOfDigits - 2) {
       return roundedNumber.toFixed(fixedDecimals);
     } else {
       return roundedNumber.toString();
@@ -63,13 +63,13 @@ export function displayNumber(
     // console.log("WholeNumberStr: " + wholeNumberStr);
   }
   if (
-    wholeNumberStr.length === noDigits ||
-    wholeNumberStr.length === noDigits - 1
+    wholeNumberStr.length === nbrOfDigits ||
+    wholeNumberStr.length === nbrOfDigits - 1
   ) {
     return wholeNumberStr;
   } else {
-    if (wholeNumberStr.length < noDigits) {
-      const noDecimals = noDigits - wholeNumberStr.length;
+    if (wholeNumberStr.length < nbrOfDigits) {
+      const noDecimals = nbrOfDigits - wholeNumberStr.length;
 
       let decimalsStr = numberStr.split(decimalSeparator)[1];
       decimalsStr = decimalsStr
@@ -91,10 +91,10 @@ export function displayNumber(
       }
       return wholeNumberStr + decimalsStr;
     } else {
-      let excessLength = wholeNumberStr.length - noDigits + 1;
+      let excessLength = wholeNumberStr.length - nbrOfDigits + 1;
       let excessRemainder = excessLength % 4;
       let excessMultiple = Math.trunc(excessLength / 4);
-      let displayStr = wholeNumberStr.slice(0, noDigits - 1);
+      let displayStr = wholeNumberStr.slice(0, nbrOfDigits - 1);
       switch (excessRemainder) {
         case 0:
           if (excessMultiple > 0) {
@@ -319,6 +319,10 @@ export function getPriceSymbol(order: OrderReceipt): string {
   return order.pairName.split("/")[1];
 }
 
+export function capitalizeFirstLetter(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1);
+}
+
 export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   // Helper function to extract first 2 chars and ensure its lowercased.
   const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
@@ -347,6 +351,55 @@ export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
   return defaultLanguage;
 }
 
+// Gets amount precision for each token traded on dexteronradix.
+// Note: precision for price is different.
+export function getPrecision(input: string): number {
+  return (
+    {
+      XRD: 2,
+      DEXTR: 2,
+      CASSIE: 0,
+      CAVIAR: 2,
+      DFP2: 2,
+      DGC: 0,
+      FLOOP: 5,
+      HUG: 0,
+      MNI: 0,
+      OCI: 2,
+      PLANET: 0,
+      RDK: 0,
+      WEFT: 2,
+      XRAW: 0,
+      XUSDC: 2,
+    }[input.toUpperCase()] || 2
+  );
+}
+
+export function formatNumericString(
+  value: string,
+  separator: string,
+  scale: number
+): string {
+  const regex = separator === "." ? /[^\d.-]/g : /[^\d,-]/g;
+  let formattedValue = value.replace(regex, "");
+  // Ensure only the first occurrence of the separator is allowed
+  const parts = formattedValue.split(separator);
+  if (parts.length > 2) {
+    // Rejoin with a single separator, discarding additional separators
+    formattedValue = parts[0] + separator + parts.slice(1).join("");
+  }
+  // Allow a trailing separator for user input
+  if (formattedValue.endsWith(separator)) {
+    return formattedValue;
+  }
+  // Split and limit fraction scale as before
+  let [whole, fraction] = formattedValue.split(separator);
+  if (fraction && fraction.length > scale) {
+    fraction = fraction.substring(0, scale);
+  }
+  return fraction ? `${whole}${separator}${fraction}` : whole;
+}
+
 // Define an enum for the operating system types
 export enum OperatingSystem {
   MAC = "MAC",
@@ -370,6 +423,15 @@ export function detectOperatingSystem(): OperatingSystem {
   } else {
     return OperatingSystem.UNKNOWN;
   }
+}
+
+export function truncateWithPrecision(num: number, precision: number): number {
+  const split = num.toString().split(".");
+  if (split.length !== 2) {
+    return num;
+  }
+  const [part1, part2] = split;
+  return Number(`${part1}.${part2.substring(0, precision)}`);
 }
 
 // Detects mobile devices

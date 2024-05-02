@@ -4,7 +4,7 @@
   "BUY": "Comprar",
   "SELL": "Vender",
   "PENDING": "Pendente",
-  "COMPLETED": "Concluído",
+  "COMPLETED": "Executado",
   "CANCELLED": "Cancelado",
   "POSTONLY": "Apenas Postagem",
   "MARKETPARTIAL": "Mercado (Parcial)",
