@@ -90,21 +90,6 @@ export const rewardSlice = createSlice({
 
   // synchronous reducers
   reducers: {
-    updateReciepts: (state, action: PayloadAction<string[]>) => {
-      state.recieptIds = action.payload;
-    },
-    updateAccountRewards: (state, action: PayloadAction<AccountRewards[]>) => {
-      state.rewardData.accountsRewards = action.payload;
-    },
-    updateConfigNFTAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardNFTAddress = action.payload;
-    },
-    updateConfigOrderAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardOrderAddress = action.payload;
-    },
-    updateConfigVaultAddress: (state, action: PayloadAction<string>) => {
-      state.config.rewardVaultAddress = action.payload;
-    },
     updateTokensList: (state, action: PayloadAction<adex.TokenInfo[]>) => {
       state.tokensList = action.payload;
     },
@@ -216,7 +201,6 @@ export const fetchReciepts = createAsyncThunk<
         opt_ins: { non_fungible_include_nfids: true },
       },
     });
-  // console.log("Receipt items: ", items);
   // load set of orderreceiptAddresses from adex
   let orderReceiptAddresses: Set<string> = new Set();
   pairsList.forEach((pairInfo) =>

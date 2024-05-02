@@ -39,38 +39,6 @@ export interface OrderTokenReward {
   amount: number;
 }
 
-export function getClaimComponentFromApiData(apiData: any): ClaimComponent {
-  let claimComponent = new ClaimComponent();
-  if (apiData && apiData.items && apiData.items.length > 0) {
-    let componentApiData = apiData.items[0];
-    if (componentApiData.address && componentApiData.details?.state?.fields) {
-      claimComponent.address = componentApiData.address;
-      let stateFields = componentApiData.details.state.fields;
-      for (const fieldData of stateFields) {
-        switch (fieldData.field_name) {
-          case "dextr_token_address": {
-            claimComponent.dextrTokenAddress = fieldData.value;
-            break;
-          }
-          case "admin_token_address": {
-            claimComponent.adminTokenAddress = fieldData.value;
-            break;
-          }
-          case "account_rewards_nft_manager": {
-            claimComponent.accountRewardsNftAddress = fieldData.value;
-            break;
-          }
-          case "order_rewards": {
-            claimComponent.orderRewardsKvsAddress = fieldData.value;
-            break;
-          }
-        }
-      }
-    }
-  }
-  return claimComponent;
-}
-
 export function getTypeRewards(
   accountsRewards: AccountRewards[],
   ordersRewards: OrderRewards[],
@@ -220,41 +188,6 @@ export function getTokenRewards(
   return Array.from(tokenRewardsMap.values());
 }
 
-export function getOrdersByRewardType(
-  ordersRewards: OrderRewards[] | null
-): OrdersByTypeRewards {
-  let result: OrdersByTypeRewards = new Map();
-  if (ordersRewards) {
-    ordersRewards.forEach((orderRewardData) => {
-      orderRewardData.rewards.forEach((typeReward) => {
-        let existingTypeRewards = result.get(typeReward.rewardType);
-        if (!existingTypeRewards) {
-          existingTypeRewards = new Map();
-        }
-        typeReward.tokenRewards.forEach((tokenReward) => {
-          let orderTokenReward: OrderTokenReward = {
-            orderReceiptAddress: orderRewardData.orderReceiptAddress,
-            orderId: orderRewardData.orderId,
-            orderIndex: orderRewardData.orderIndex,
-            amount: tokenReward.amount,
-          };
-          let existingTokenRewards = existingTypeRewards!.get(
-            tokenReward.address
-          );
-          if (!existingTokenRewards) {
-            existingTokenRewards = [orderTokenReward];
-          } else {
-            existingTokenRewards.push(orderTokenReward);
-          }
-          existingTypeRewards!.set(tokenReward.address, existingTokenRewards);
-        });
-        result.set(typeReward.rewardType, existingTypeRewards!);
-      });
-    });
-  }
-  return result;
-}
-
 export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
@@ -306,7 +239,7 @@ export function createAccountNftId(
   return result;
 }
 
-export function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
+function getAccountsRewardsFromApiData(apiData: any): AccountRewards[] {
   // init account rewards
   let accountsRewards: AccountRewards[] = [];
   // extract nftDatas from apiData
@@ -396,15 +329,7 @@ export async function getOrderRewards(
   return result;
 }
 
-export function createOrderIndex(
-  orderReceiptAddress: string,
-  orderId: number
-): string {
-  let result = orderReceiptAddress + "#" + orderId + "#";
-  return result;
-}
-
-export function fromOrderIndex(orderIndex: string): {
+function fromOrderIndex(orderIndex: string): {
   orderReceiptAddress: string;
   orderId: number;
 } {
@@ -420,7 +345,7 @@ export function fromOrderIndex(orderIndex: string): {
   return result;
 }
 
-export function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
+function getOrderRewardsFromApiData(apiData: any): OrderRewards[] {
   let ordersRewards: OrderRewards[] = [];
   // Invalid api response
   if (apiData.entries === undefined) {
