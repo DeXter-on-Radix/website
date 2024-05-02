@@ -126,7 +126,6 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
             orderIdsToUpdate.add(uniqueId);
           } else {
             existingOrderFound = true;
-            console.log("Found existing order " + existingOrder.uniqueId);
             if (existingOrder.status != OrderStatus.PENDING) {
               break; // once an id is already in the existing orders, all remaining ids in the vault should also be in existing orders.
             }
@@ -144,6 +143,7 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
             orderVaultData.cursor,
             orderVaultData.stateVersion
           );
+          console.debug("Overflow ids: ", additionalOrderIds);
           for (const uniqueId of additionalOrderIds) {
             let existingOrder = state.user.selectedAccountOrders.find(
               (orderData) => orderData.uniqueId == uniqueId
@@ -166,6 +166,6 @@ export const fetchSelectedAccountNewOrders = createAsyncThunk<
       );
     }
   }
-  console.debug("Updated orders fetched: ", updatedOrderData);
+  // console.debug("Updated orders fetched: ", updatedOrderData);
   return updatedOrderData;
 });

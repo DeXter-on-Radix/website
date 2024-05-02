@@ -120,7 +120,7 @@ export async function fetchAccountOrdersVaultsAndIds(
   } catch (error) {
     throw new Error("Error fetching NFT Ids for account: " + accountAddress);
   }
-  console.debug("account ordersVaultsAndIds: ", result);
+  // console.debug("account ordersVaultsAndIds: ", result);
   return result;
 }
 
@@ -200,11 +200,11 @@ export async function fetchOrdersDetails(
     existingReceiptOrdersList.push(createOrderIdNumber(orderIdString));
     receiptOrdersMap.set(receiptAddress, existingReceiptOrdersList);
   });
-  console.debug("ReceiptOrdersMap: ", receiptOrdersMap);
+  // console.debug("ReceiptOrdersMap: ", receiptOrdersMap);
   for (const [receiptAddress, orderIds] of receiptOrdersMap.entries()) {
     let pairResult: OrderData[] = [];
     const pairAddress = receiptAddressPairMap.get(receiptAddress);
-    console.debug("Fetching orders for pair: " + pairAddress, orderIds);
+    // console.debug("Fetching orders for pair: " + pairAddress, orderIds);
     if (!pairAddress) {
       throw new Error(
         "Could not find pair address for receipt: " + receiptAddress
@@ -215,7 +215,7 @@ export async function fetchOrdersDetails(
     while (batchStart < orderIds.length) {
       let batchIds = orderIds.slice(batchStart, batchStart + batchSize);
       let sdkResult = await getPairOrders(pairAddress, orderIds);
-      console.debug("Pair Orders SDK result: ", sdkResult);
+      // console.debug("Pair Orders SDK result: ", sdkResult);
       if (sdkResult.status != "SUCCESS") {
         throw new Error(
           "Problem fetching order data for pair: " +
@@ -233,7 +233,7 @@ export async function fetchOrdersDetails(
       });
       batchStart += batchSize;
     }
-    console.debug("Pair result for pair: " + pairAddress, pairResult);
+    // console.debug("Pair result for pair: " + pairAddress, pairResult);
     result = [...result, ...pairResult];
   }
   return result;
