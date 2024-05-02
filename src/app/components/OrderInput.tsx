@@ -28,6 +28,9 @@ import {
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
 
+// XRD reserved for transaction fees
+const XRD_FEE_ALLOWANCE = 3;
+
 interface OrderTypeTabProps {
   orderType: OrderType;
 }
@@ -530,12 +533,15 @@ function CurrencyInputGroupSettings(
     );
   };
 
+  // Specifies the amount in % of available balance; If the token to specify is
+  // XRD we substract a fee allowance to ensure the user has enough XRD left
+  // to pay for transaction fees.
   const setPercentageAmountToken1 = (percentage: number, isXRD: boolean) => {
     if (balanceToken1 <= 0 || percentage < 0 || percentage > 100) {
       return;
     }
     const targetAmount = Math.min(
-      isXRD ? balanceToken1 - 3 : balanceToken1,
+      isXRD ? balanceToken1 - XRD_FEE_ALLOWANCE : balanceToken1,
       Calculator.divide(Calculator.multiply(balanceToken1, percentage), 100)
     );
     dispatch(
@@ -550,12 +556,15 @@ function CurrencyInputGroupSettings(
     );
   };
 
+  // Specifies the amount in % of available balance; If the token to specify is
+  // XRD we substract a fee allowance to ensure the user has enough XRD left
+  // to pay for transaction fees.
   const setPercentageAmountToken2 = (percentage: number, isXRD: boolean) => {
     if (balanceToken2 <= 0 || percentage < 0 || percentage > 100) {
       return;
     }
     const targetAmount = Math.min(
-      isXRD ? balanceToken2 - 3 : balanceToken2,
+      isXRD ? balanceToken2 - XRD_FEE_ALLOWANCE : balanceToken2,
       Calculator.divide(Calculator.multiply(balanceToken2, percentage), 100)
     );
     dispatch(
