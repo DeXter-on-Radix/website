@@ -9,5 +9,7 @@
   "COULD_NOT_GET_QUOTE": "Não foi possível obter cotação",
   "UNSPECIFIED_SLIPPAGE": "Escorregamento deve ser especificado",
   "NEGATIVE_SLIPPAGE": "Escorregamento deve ser positivo",
-  "HIGH_SLIPPAGE": "Alto escorregamento inserido"
+  "HIGH_SLIPPAGE": "Alto escorregamento inserido",
+  "NO_ORDERS": "Orderbook vazio. Crie uma ordem limit em vez disso",
+  "INSUFFICIENT_LIQUDITIY": "Liquidez insuficiente no livro de ordens, reduza o valor"
 }

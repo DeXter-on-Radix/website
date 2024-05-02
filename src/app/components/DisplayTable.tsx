@@ -10,7 +10,7 @@ import {
 import {
   cancelOrder,
   selectOpenOrders,
-  selectTradeHistory,
+  selectOrderHistory,
 } from "../state/accountHistorySlice";
 import { AccountHistoryState, Tables } from "../state/accountHistorySlice";
 interface TableProps {
@@ -45,16 +45,6 @@ const headers = {
     "order_price",
     "order_fee",
     "time_ordered",
-    "action",
-  ],
-  [Tables.TRADE_HISTORY]: [
-    "pair",
-    "direction",
-    "order_price",
-    "avg_filled_price",
-    "filled_qty",
-    "order_fee",
-    "time_completed",
   ],
 };
 
@@ -111,10 +101,7 @@ export function DisplayTable() {
     (state) => state.accountHistory.selectedTable
   );
   const openOrders = useAppSelector(selectOpenOrders);
-  const orderHistory = useAppSelector(
-    (state) => state.accountHistory.orderHistory
-  );
-  const tradeHistory = useAppSelector(selectTradeHistory);
+  const orderHistory = useAppSelector(selectOrderHistory);
 
   const tableToShow = useMemo(() => {
     switch (selectedTable) {
@@ -130,19 +117,13 @@ export function DisplayTable() {
           rows: <OrderHistoryRows data={orderHistory} />,
         };
 
-      case Tables.TRADE_HISTORY:
-        return {
-          headers: headers[Tables.TRADE_HISTORY],
-          rows: <TradeHistoryTable data={tradeHistory} />,
-        };
-
       default:
         return {
           headers: [],
           rows: <></>,
         };
     }
-  }, [openOrders, orderHistory, selectedTable, tradeHistory]);
+  }, [openOrders, orderHistory, selectedTable]);
 
   return (
     <div className="overflow-x-auto">
@@ -203,7 +184,14 @@ const OrderHistoryRows = ({ data }: TableProps) => {
   const t = useTranslations();
   return data.length ? (
     data.map((order) => (
-      <tr key={order.id} className="">
+      <tr
+        key={order.id}
+        className={
+          order.status === "CANCELLED" && order.completedPerc === 0
+            ? "opacity-30"
+            : ""
+        }
+      >
         <td>{order.pairName}</td>
         <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
@@ -232,47 +220,11 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
-        <td>
-          <ActionButton order={order} />
-        </td>
       </tr>
     ))
   ) : (
     <tr>
       <td colSpan={7}>{t("no_order_history")}</td>
-    </tr>
-  );
-};
-
-const TradeHistoryTable = ({ data }: TableProps) => {
-  const t = useTranslations();
-  return data.length ? (
-    data.map((order) => (
-      <tr key={order.id} className="">
-        <td>{order.pairName}</td>
-        <td className={displayOrderSide(order.side).className}>
-          {t(displayOrderSide(order.side).text)}
-        </td>
-        <td>
-          {order.price} {getPriceSymbol(order)}
-        </td>
-        <td>
-          {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
-          {getPriceSymbol(order)}
-        </td>
-        <td>
-          {/* Filled Qty (since the order is filled, the full amount was filled) */}
-          {order.amount} {order.specifiedToken.symbol}
-        </td>
-        <td>
-          {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-        </td>
-        <td>{displayTime(order.timeCompleted, "full")}</td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan={7}>{t("no_trade_history")}</td>
     </tr>
   );
 };
