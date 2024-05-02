@@ -40,9 +40,10 @@ export function initializeSubscriptions(store: AppStore) {
     rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
-      store.dispatch(userActions.setConnectedAccountsAndUpdate(data.accounts));
       // TODO: can we subscribe to balances from somewhere?
       store.dispatch(fetchBalances());
+      // new state
+      store.dispatch(userActions.setConnectedAccountsAndUpdate(data.accounts));
     })
   );
 
