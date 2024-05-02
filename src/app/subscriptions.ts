@@ -33,13 +33,6 @@ export function getRdtOrThrow() {
 function setRdt(rdt: RDT) {
   rdtInstance = rdt;
 }
-export function getRdtOrThrow() {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT is not initialized yet.");
-  }
-  return rdt;
-}
 
 let subs: Subscription[] = [];
 
