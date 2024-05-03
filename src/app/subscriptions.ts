@@ -14,6 +14,7 @@ import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
+import { rewardSlice } from "./state/rewardSlice";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
@@ -21,15 +22,16 @@ let rdtInstance: null | RDT = null;
 export function getRdt() {
   return rdtInstance;
 }
-function setRdt(rdt: RDT) {
-  rdtInstance = rdt;
-}
+
 export function getRdtOrThrow() {
   const rdt = getRdt();
   if (!rdt) {
-    throw new Error("RDT is not initialized yet.");
+    throw new Error("RDT initialization failed");
   }
   return rdt;
+}
+function setRdt(rdt: RDT) {
+  rdtInstance = rdt;
 }
 
 let subs: Subscription[] = [];
@@ -92,6 +94,12 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
       store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
+      store.dispatch(
+        rewardSlice.actions.updateTokensList(serializedState.tokensList)
+      );
+      store.dispatch(
+        rewardSlice.actions.updatePairsList(serializedState.pairsList)
+      );
     })
   );
 }
