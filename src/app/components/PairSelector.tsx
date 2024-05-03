@@ -59,11 +59,7 @@ export function PairSelector() {
   const id = "pairOption";
 
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS != "") {
-      dispatch(
-        selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS || "")
-      );
-    }
+    dispatch(selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS!));
   }, [dispatch]);
 
   const selectOption = useCallback(() => {

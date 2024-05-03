@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env ENV_FILE=.env.testnet next dev",
+    "dev-mainnet": "cross-env ENV_FILE=.env.mainnet next dev",
     "build": "next build",
-    "start": "next start",
+    "serve-testnet": "cross-env ENV_FILE=.env.testnet npm run build && serve out",
+    "serve-mainnet": "cross-env ENV_FILE=.env.mainnet npm run build && serve out",
     "lint": "next lint",
-    "test": "vitest"
+    "test": "vitest",
+    "test-integration": "playwright test"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.0",
@@ -45,13 +48,15 @@
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "@vitejs/plugin-react": "^4.2.1",
+    "cross-env": "^7.0.3",
     "daisyui": "^3.1.7",
+    "dotenv": "^16.4.5",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jsdom": "^24.0.0",
     "prettier": "2.8.8",
-    "serve": "^14.2.1",
+    "serve": "^14.2.3",
     "vitest": "^1.4.0"
   },
   "engines": {

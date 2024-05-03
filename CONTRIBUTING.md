@@ -26,23 +26,15 @@ If you happen to use VS Code, install the recommended extensions to get automati
 
 ## Env setup
 
-By default `npm run dev` uses the testnet (stokenet), but it can be set to mainnet by creating a `.env` file in the root project dir with the following content:
+Environment variables are set up in `.env.testnet` and `.env.mainnet` files. If you need to add new variables do **NOT** use fallbacks in the code (like `process.env.REACT_APP_MY_VAR || 'default'`)
+anywhere other than in `next.config.js`,
+so that the app will crash and you will be reminded to set it correctly for both environments early.
 
-### Mainnet
+Refer to package.json to see what env files are used with which command.
 
-```
-NEXT_PUBLIC_NETWORK=mainnet # Options: mainnet or stokenet
-NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5
-NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_rdx1czgjmu4ed5hp0vn97ngsf6mevq9tl0v8rrh2yq0f4dnpndggk7j9pu
-```
+If you have an `.env` file it will take precedence over the `.env.testnet` and `.env.mainnet` files.
 
-### Testnet (default)
-
-```
-NEXT_PUBLIC_NETWORK=stokenet # Options: mainnet or stokenet
-NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=account_tdx_2_129kev9w27tsl7qjg0dlyze70kxnlzycs8v2c85kzec40gg8mt73f7y
-NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS=component_tdx_2_1crs8ud8rr680krgtlskauye7qnns5zdawdlspvcqceder6tysu884p
-```
+Do not run build command wihtout ENV_FILE variable set beforehand, (it's not already set in package.json for deployment purposes).
 
 ## Testnet Wallet Setup
 
