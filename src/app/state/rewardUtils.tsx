@@ -298,7 +298,7 @@ export async function getOrderRewards(
   let result: OrderRewards[] = [];
   const rdt = getRdtOrThrow();
   // console.log("Getting OrderRewards for receiptIds: ", receiptIds);
-  const maxBatchSize = 100;
+  const maxBatchSize = 90;
   let batchStart = 0;
   do {
     let batchReceiptIds = receiptIds.slice(
