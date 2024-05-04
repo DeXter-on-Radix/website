@@ -15,7 +15,21 @@ export default function Landing() {
 function HeaderSection() {
   return (
     <div className={`bg-[url('/landing/background-nolights.png')]`}>
-      <div className={`${containerWidthAndPadding} h-[1100px]`}>Header</div>
+      <div className={`${containerWidthAndPadding} h-[1100px]`}>
+        {/* Hero Section */}
+        <div className="flex mt-28">
+          <div className="flex flex-col items-start justify-center max-w-[60%]">
+            <h1 className="!m-0">Decentralized Order Book Exchange on Radix</h1>
+            <button>TRADE NOW</button>
+          </div>
+          <img
+            src="/landing/dexter-mascotte.png"
+            alt="Dexter Mascotte"
+            className="w-[300px]"
+          />
+        </div>
+        {/* Icons */}
+      </div>
     </div>
   );
 }
