@@ -33,7 +33,7 @@ const NavItems: { path: string; title: string }[] = [
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px]">
+    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px] z-30">
       <div className="flex h-full">
         <Logo />
         <NavbarItemsDesktop />

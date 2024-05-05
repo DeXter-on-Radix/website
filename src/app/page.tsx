@@ -20,7 +20,9 @@ function HeaderSection() {
     <div
     // className={`bg-[url('/landing/background-nolights.png')] bg-contain bg-no-repeat`}
     >
-      <div className={`${containerWidthAndPadding} h-[1100px]`}>
+      <div
+        className={`${containerWidthAndPadding} min-h-[800px] h-[calc(100vh-74px)]`}
+      >
         {/* Hero Section */}
         <div className="flex justify-center mt-28 relative">
           <img
@@ -88,7 +90,6 @@ function DexterButton({ title, targetUrl }: DexterButtonProps) {
     <a href={targetUrl} className="z-50 w-full max-w-[220px]">
       <button
         className={`max-w-[220px] min-h-[44px] uppercase w-full px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black opacity-100 cursor-pointer`}
-        // onClick={handleClick}
       >
         <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
       </button>
