@@ -18,19 +18,36 @@ export default function Landing() {
 function HeaderSection() {
   return (
     <div
-      className={`bg-[url('/landing/background-nolights.png')] bg-contain bg-no-repeat`}
+    // className={`bg-[url('/landing/background-nolights.png')] bg-contain bg-no-repeat`}
     >
       <div className={`${containerWidthAndPadding} h-[1100px]`}>
         {/* Hero Section */}
-        <div className="flex mt-28">
+        <div className="flex justify-center mt-28 relative">
+          <img
+            src="/landing/blue-light.png"
+            alt="blue light"
+            className="absolute top-[-218px] right-[-411px] z-20"
+          />
+          <img
+            src="/landing/green-light.png"
+            alt="green light"
+            className="absolute top-[-485px] right-[-112px] z-20"
+          />
+          <img
+            src="/landing/background-structures.png"
+            alt="background structures"
+            className="absolute w-[700px] opacity-10 z-10 top-[-213px] right-[-112px]"
+          />
           <div className="flex flex-col items-start justify-center max-w-[60%]">
-            <h1 className="!m-0">Decentralized Order Book Exchange on Radix</h1>
-            <DexterButton title="TRADE NOW" />
+            <h1 className="!m-0 z-30">
+              Decentralized Order Book Exchange on Radix
+            </h1>
+            <DexterButton title="TRADE NOW" targetUrl="/trade" />
           </div>
           <img
             src="/landing/dexter-mascotte.png"
             alt="Dexter Mascotte"
-            className="w-[300px]"
+            className="w-[300px] z-30"
           />
         </div>
         {/* Icons */}
@@ -63,16 +80,19 @@ function EarnByContributing() {
 
 interface DexterButtonProps {
   title: string;
+  targetUrl?: string;
 }
 
-function DexterButton({ title }: DexterButtonProps) {
+function DexterButton({ title, targetUrl }: DexterButtonProps) {
   return (
-    <button
-      className={`max-w-[220px] min-h-[44px] uppercase w-full px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black opacity-100`}
-      onClick={() => alert("Not implemented yet!")}
-    >
-      <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
-    </button>
+    <a href={targetUrl} className="z-50 w-full max-w-[220px]">
+      <button
+        className={`max-w-[220px] min-h-[44px] uppercase w-full px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black opacity-100 cursor-pointer`}
+        // onClick={handleClick}
+      >
+        <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
+      </button>
+    </a>
   );
 }
 
