@@ -31,3 +31,5 @@ export const radixSlice = createSlice({
     },
   },
 });
+
+export const selectAccounts = (state: RadixState) => state.walletData.accounts;

@@ -1,1 +1,17 @@
-{}
+{
+  "rewards": "Rewards",
+  "connect_wallet_to_claim_rewards": "Connect wallet to claim rewards",
+  "earn_rewards_by": "Earn rewards by opening buy and sell positions close to the market price, or by executing market orders. The rewards are distributed every two weeks.",
+  "next_distribution": "Next Distribution",
+  "total_rewards": "Total Rewards",
+  "claim_all_rewards": "Claim All Rewards",
+  "learn_more_about_rewards": "Learn more about rewards",
+  "claiming_rewards_loading": "Claiming rewards...",
+  "claiming_rewards_success": "Rewards claimed",
+  "claiming_rewards_fail": "Failed to claim rewards",
+  "how_did_everything_go": "How did everything go? Send feedback",
+  "rewards_claimed": "Rewards Claimed",
+  "continue_trading_to_earn_more": "Continue trading or staking to earn more and come back later.",
+  "go_back": "Go Back",
+  "no_rewards_to_claim": "No rewards to claim"
+}

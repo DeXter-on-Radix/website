@@ -13,6 +13,7 @@
   "exchange_fee": "Exchange Fee",
   "platform_fee": "Platform Fee",
   "liquidity_fee": "Liquidity Fee",
+  "estimate": "Estimate",
   "buy": "Buy",
   "sell": "Sell",
   "post_only_tooltip": "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. If the order can be matched immediately, it will not be created. This option helps ensure you receive the maker rebate.",
@@ -73,5 +74,10 @@
   "failed_to_cancel_order": "Failed to cancel order",
   "submitting_order": "Submitting order...",
   "order_submitted": "Order submitted",
-  "failed_to_submit_order": "Failed to submit order"
+  "failed_to_submit_order": "Failed to submit order",
+  "connect_wallet_to_trade": "Connect wallet to trade",
+  "quantity": "Quantity",
+  "available": "Available",
+  "displayed_value_is_exact_at": "Displayed value is exact at quote time, may change on button press due market changes.",
+  "fees_are_paid_in_received": "Fees are paid in received currency and are estimates. Negative fee amounts represent rewards to earn. Total received amount already discounts fees."
 }

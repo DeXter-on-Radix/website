@@ -4,16 +4,26 @@ import "./styles/globals.css";
 
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/NavBar";
-import { store } from "./state/store";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
+import { useEffect } from "react";
+import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
+import { store } from "./state/store";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Initialize store
+  useEffect(() => {
+    initializeSubscriptions(store);
+    return () => {
+      unsubscribeAll();
+    };
+  }, []);
+
   const path = usePathname();
 
   // TODO: after MVP remove "use client", fix all as many Components as possible

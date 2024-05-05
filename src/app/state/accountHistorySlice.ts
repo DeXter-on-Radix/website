@@ -13,7 +13,6 @@ import { getRdt, RDT } from "../subscriptions";
 export enum Tables {
   OPEN_ORDERS = "OPEN_ORDERS",
   ORDER_HISTORY = "ORDER_HISTORY",
-  TRADE_HISTORY = "TRADE_HISTORY",
 }
 export interface AccountHistoryState {
   trades: adex.Trade[];
@@ -128,6 +127,7 @@ export const accountHistorySlice = createSlice({
 // SELECTORS
 export const { setSelectedTable } = accountHistorySlice.actions;
 
+// TODO: possibly remove, as this selector seems to not be used anywhere in the code
 export const selectFilteredData = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
   (state: RootState) => state.accountHistory.selectedTable,
@@ -137,8 +137,6 @@ export const selectFilteredData = createSelector(
         return orderHistory.filter((order) => order.status === "PENDING");
       case Tables.ORDER_HISTORY:
         return orderHistory;
-      case Tables.TRADE_HISTORY:
-        return orderHistory.filter((order) => order.status === "COMPLETED");
       default:
         return orderHistory;
     }
@@ -150,9 +148,9 @@ export const selectOpenOrders = createSelector(
   (orderHistory) => orderHistory.filter((order) => order.status === "PENDING")
 );
 
-export const selectTradeHistory = createSelector(
+export const selectOrderHistory = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
-  (orderHistory) => orderHistory.filter((order) => order.status === "COMPLETED")
+  (orderHistory) => orderHistory.filter((order) => order.status !== "PENDING")
 );
 
 export const selectTables = (state: RootState) => state.accountHistory.tables;

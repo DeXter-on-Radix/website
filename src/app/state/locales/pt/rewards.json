@@ -1,1 +1,17 @@
-{}
+{
+  "rewards": "Recompensas",
+  "connect_wallet_to_claim_rewards": "Conecte a carteira para resgatar recompensas",
+  "earn_rewards_by": "Ganhe recompensas abrindo posições de compra e venda próximas ao preço de mercado ou executando ordens a mercado. As recompensas são distribuídas a cada duas semanas.",
+  "next_distribution": "Próxima Distribuição",
+  "total_rewards": "Total de Recompensas",
+  "claim_all_rewards": "Reivindicar Todas",
+  "learn_more_about_rewards": "Saiba mais sobre a recompensas",
+  "claiming_rewards_loading": "Reivindicando recompensas...",
+  "claiming_rewards_success": "Recompensas reivindicadas",
+  "claiming_rewards_fail": "Erro ao reivindicar recompensas",
+  "how_did_everything_go": "Como tudo ocorreu? Envie um feedback",
+  "rewards_claimed": "Recompensas Resgatadas",
+  "continue_trading_to_earn_more": "Continue negociando ou fazendo staking para ganhar mais e volte mais tarde.",
+  "go_back": "Voltar",
+  "no_rewards_to_claim": "Sem recompensas para reivindica"
+}
