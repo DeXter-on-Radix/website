@@ -1,6 +1,6 @@
 "use client";
 
-const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-4 ";
+const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-6 ";
 
 export default function Landing() {
   return (
@@ -25,22 +25,8 @@ function HeaderSection() {
       >
         {/* Hero Section */}
         <div className="flex justify-center mt-28 relative">
-          <img
-            src="/landing/blue-light.png"
-            alt="blue light"
-            className="absolute top-[-218px] right-[-411px] z-20"
-          />
-          <img
-            src="/landing/green-light.png"
-            alt="green light"
-            className="absolute top-[-485px] right-[-112px] z-20"
-          />
-          <img
-            src="/landing/background-structures.png"
-            alt="background structures"
-            className="absolute w-[700px] opacity-10 z-10 top-[-213px] right-[-112px]"
-          />
-          <div className="flex flex-col items-start justify-center max-w-[60%]">
+          <BackgroundLightsAndStructures />
+          <div className="flex flex-col items-start justify-center min-[800px]:max-w-[60%] max-w-[min(90vw, 400px)]">
             <h1 className="!m-0 z-30">
               Decentralized Order Book Exchange on Radix
             </h1>
@@ -49,12 +35,33 @@ function HeaderSection() {
           <img
             src="/landing/dexter-mascotte.png"
             alt="Dexter Mascotte"
-            className="w-[300px] z-30"
+            className="w-[300px] z-30 max-[800px]:hidden"
           />
         </div>
         {/* Icons */}
       </div>
     </div>
+  );
+}
+function BackgroundLightsAndStructures() {
+  return (
+    <>
+      <img
+        src="/landing/blue-light.png"
+        alt="blue light"
+        className="absolute top-[-218px] right-[-411px] z-20"
+      />
+      <img
+        src="/landing/green-light.png"
+        alt="green light"
+        className="absolute top-[-485px] right-[-112px] z-20"
+      />
+      <img
+        src="/landing/background-structures.png"
+        alt="background structures"
+        className="absolute w-[700px] opacity-10 z-10 top-[-213px] right-[-112px]"
+      />
+    </>
   );
 }
 function Tokenomics() {
