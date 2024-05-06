@@ -18,15 +18,7 @@ import { userActions } from "state/user/userSlice";
 import { setInterval } from "timers";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
-export const rdt = RadixDappToolkit({
-  dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS || "",
-  networkId:
-    process.env.NEXT_PUBLIC_NETWORK == "mainnet"
-      ? RadixNetwork.Mainnet
-      : RadixNetwork.Stokenet,
-});
-// TODO: "black" on the light theme
-rdt.buttonApi.setTheme("white");
+export let rdt: RDT;
 export function getRdt() {
   return rdt;
 }
@@ -35,6 +27,16 @@ let subs: Subscription[] = [];
 let shortInterval: NodeJS.Timer;
 
 export function initializeSubscriptions(store: AppStore) {
+  rdt = RadixDappToolkit({
+    dAppDefinitionAddress:
+      process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS || "",
+    networkId:
+      process.env.NEXT_PUBLIC_NETWORK == "mainnet"
+        ? RadixNetwork.Mainnet
+        : RadixNetwork.Stokenet,
+  });
+  // TODO: "black" on the light theme
+  rdt.buttonApi.setTheme("white");
   rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
   subs.push(
     rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
