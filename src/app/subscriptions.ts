@@ -17,10 +17,10 @@ import { AppStore } from "./state/store";
 import { rewardSlice } from "./state/rewardSlice";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
+export let rdt: RDT;
 
-let rdtInstance: null | RDT = null;
 export function getRdt() {
-  return rdtInstance;
+  return rdt;
 }
 
 export function getRdtOrThrow() {
@@ -30,33 +30,23 @@ export function getRdtOrThrow() {
   }
   return rdt;
 }
-function setRdt(rdt: RDT) {
-  rdtInstance = rdt;
-}
 
 let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
-  let networkId;
-  switch (process.env.NEXT_PUBLIC_NETWORK!) {
-    case "mainnet":
-      networkId = RadixNetwork.Mainnet;
-      break;
-    case "stokenet":
-      networkId = RadixNetwork.Stokenet;
-      break;
-    default:
-      networkId = RadixNetwork.Stokenet;
-  }
-  rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
-    networkId,
+  rdt = RadixDappToolkit({
+    dAppDefinitionAddress:
+      process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS || "",
+    networkId:
+      process.env.NEXT_PUBLIC_NETWORK == "mainnet"
+        ? RadixNetwork.Mainnet
+        : RadixNetwork.Stokenet,
   });
-  rdtInstance.walletApi.setRequestData(
-    DataRequestBuilder.accounts().exactly(1)
-  );
+  // TODO: "black" on the light theme
+  rdt.buttonApi.setTheme("white");
+  rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
   subs.push(
-    rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
+    rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
 
@@ -64,9 +54,6 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(fetchBalances());
     })
   );
-  setRdt(rdtInstance);
-  // TODO: "black" on the light theme
-  rdtInstance.buttonApi.setTheme("white");
   let network;
   switch (process.env.NEXT_PUBLIC_NETWORK!) {
     case "mainnet":
