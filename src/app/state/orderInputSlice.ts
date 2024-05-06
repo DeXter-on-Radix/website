@@ -10,7 +10,11 @@ import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
 import { RDT, rdt } from "../subscriptions";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
-import { displayNumber, updateIconIfNeeded } from "../utils";
+import {
+  getPrecision,
+  truncateWithPrecision,
+  updateIconIfNeeded,
+} from "../utils";
 import { Calculator } from "../services/Calculator";
 
 export enum OrderType {
@@ -623,13 +627,19 @@ export const orderInputSlice = createSlice({
 function toDescription(quote: Quote): string {
   let quoteDescription = "";
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
+    const fromAmount = truncateWithPrecision(
+      quote.fromAmount,
+      getPrecision(quote.fromToken.symbol)
+    );
+    const toAmount = truncateWithPrecision(
+      quote.toAmount,
+      getPrecision(quote.toToken.symbol)
+    );
+    const toTokenSymbol = quote.toToken.symbol;
+    const fromTokenSymbol = quote.fromToken.symbol;
     quoteDescription +=
-      `Sending ${displayNumber(quote.fromAmount, 8)} ${
-        quote.fromToken.symbol
-      } ` +
-      `to receive ${displayNumber(quote.toAmount, 8)} ${
-        quote.toToken.symbol
-      }.\n`;
+      `Sending ${fromAmount} ${fromTokenSymbol} ` +
+      `to receive ${toAmount} ${toTokenSymbol}.\n`;
   }
   if (quote.resultMessageLong) {
     quoteDescription += "\n" + quote.resultMessageLong;
