@@ -1,5 +1,5 @@
 import { TokenInfo } from "alphadex-sdk-js";
-import { getRdtOrThrow } from "../subscriptions";
+import { rdt } from "../subscriptions";
 import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
 
 export class ClaimComponent {
@@ -192,7 +192,6 @@ export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
 ): Promise<AccountRewards[]> {
-  const rdt = getRdtOrThrow();
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
   );
@@ -296,7 +295,6 @@ export async function getOrderRewards(
   receiptIds: string[]
 ): Promise<OrderRewards[]> {
   let result: OrderRewards[] = [];
-  const rdt = getRdtOrThrow();
   // console.log("Getting OrderRewards for receiptIds: ", receiptIds);
   const maxBatchSize = 90;
   let batchStart = 0;

@@ -7,7 +7,7 @@ import {
 import { RootState, AppDispatch } from "./store";
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-import { getRdt, RDT } from "../subscriptions";
+import { rdt, RDT } from "../subscriptions";
 
 // TYPES AND INTERFACES
 export enum Tables {
@@ -58,7 +58,6 @@ export const cancelOrder = createAsyncThunk<
   { state: RootState }
 >("accountHistory/cancelOrder", async (payload, thunkAPI) => {
   const state = thunkAPI.getState();
-  const rdt = getRdt();
 
   if (!rdt) {
     throw new Error("RDT is not initialized yet.");

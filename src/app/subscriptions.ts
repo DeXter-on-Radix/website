@@ -19,24 +19,12 @@ import { rewardSlice } from "./state/rewardSlice";
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 export let rdt: RDT;
 
-export function getRdt() {
-  return rdt;
-}
-
-export function getRdtOrThrow() {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
-  return rdt;
-}
-
 let subs: Subscription[] = [];
+let shortInterval: NodeJS.Timer;
 
 export function initializeSubscriptions(store: AppStore) {
   rdt = RadixDappToolkit({
-    dAppDefinitionAddress:
-      process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS || "",
+    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
     networkId:
       process.env.NEXT_PUBLIC_NETWORK == "mainnet"
         ? RadixNetwork.Mainnet
@@ -45,6 +33,7 @@ export function initializeSubscriptions(store: AppStore) {
   // TODO: "black" on the light theme
   rdt.buttonApi.setTheme("white");
   rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
+
   subs.push(
     rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
@@ -54,19 +43,9 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(fetchBalances());
     })
   );
-  let network;
-  switch (process.env.NEXT_PUBLIC_NETWORK!) {
-    case "mainnet":
-      network = adex.ApiNetworkOptions.indexOf("mainnet");
-      break;
-    case "stokenet":
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-      break;
-    default:
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-  }
 
-  adex.init(adex.ApiNetworkOptions[network]);
+  adex.init(process.env.NEXT_PUBLIC_NETWORK as adex.ApiNetwork);
+
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
@@ -87,6 +66,10 @@ export function initializeSubscriptions(store: AppStore) {
       );
     })
   );
+
+  shortInterval = setInterval(() => {
+    // interval for regualr actions - empty for now but just adding it here so people know where to add app scope intervals
+  }, 5000);
 }
 
 export function unsubscribeAll() {
@@ -94,4 +77,7 @@ export function unsubscribeAll() {
     sub.unsubscribe();
   });
   subs = [];
+  if (shortInterval) {
+    clearInterval(shortInterval);
+  }
 }

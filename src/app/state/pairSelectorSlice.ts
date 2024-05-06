@@ -1,7 +1,7 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { getRdt } from "../subscriptions";
+import { rdt } from "../subscriptions";
 import { updateIconIfNeeded } from "../utils";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
@@ -49,7 +49,6 @@ export const fetchBalances = createAsyncThunk<
     return undefined;
   }
 
-  const rdt = getRdt();
   if (rdt && state.radix.walletData.accounts.length > 0) {
     const tokens = [state.pairSelector.token1, state.pairSelector.token2];
 
