@@ -14,12 +14,21 @@ import { updatePriceInfo } from "./state/priceInfoSlice";
 import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
+import { rewardSlice } from "./state/rewardSlice";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
 let rdtInstance: null | RDT = null;
 export function getRdt() {
   return rdtInstance;
+}
+
+export function getRdtOrThrow() {
+  const rdt = getRdt();
+  if (!rdt) {
+    throw new Error("RDT initialization failed");
+  }
+  return rdt;
 }
 function setRdt(rdt: RDT) {
   rdtInstance = rdt;
@@ -29,7 +38,7 @@ let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
   let networkId;
-  switch (process.env.NEXT_PUBLIC_NETWORK) {
+  switch (process.env.NEXT_PUBLIC_NETWORK!) {
     case "mainnet":
       networkId = RadixNetwork.Mainnet;
       break;
@@ -40,9 +49,7 @@ export function initializeSubscriptions(store: AppStore) {
       networkId = RadixNetwork.Stokenet;
   }
   rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      ? process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
-      : "",
+    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
     networkId,
   });
   rdtInstance.walletApi.setRequestData(
@@ -61,7 +68,7 @@ export function initializeSubscriptions(store: AppStore) {
   // TODO: "black" on the light theme
   rdtInstance.buttonApi.setTheme("white");
   let network;
-  switch (process.env.NEXT_PUBLIC_NETWORK) {
+  switch (process.env.NEXT_PUBLIC_NETWORK!) {
     case "mainnet":
       network = adex.ApiNetworkOptions.indexOf("mainnet");
       break;
@@ -85,6 +92,12 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(updatePriceInfo(serializedState));
       store.dispatch(accountHistorySlice.actions.updateAdex(serializedState));
       store.dispatch(orderInputSlice.actions.updateAdex(serializedState));
+      store.dispatch(
+        rewardSlice.actions.updateTokensList(serializedState.tokensList)
+      );
+      store.dispatch(
+        rewardSlice.actions.updatePairsList(serializedState.pairsList)
+      );
     })
   );
 }

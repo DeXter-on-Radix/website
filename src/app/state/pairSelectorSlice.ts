@@ -56,16 +56,19 @@ export const fetchBalances = createAsyncThunk<
     for (let token of tokens) {
       // separate balance fetching try/catch for each token
       try {
-        const response =
-          await rdt.gatewayApi.state.innerClient.entityFungibleResourceVaultPage(
-            {
-              stateEntityFungibleResourceVaultsPageRequest: {
-                address: state.radix.walletData.accounts[0].address,
-                // eslint-disable-next-line camelcase
-                resource_address: token.address,
-              },
-            }
-          );
+        let response;
+        if (token.address) {
+          response =
+            await rdt.gatewayApi.state.innerClient.entityFungibleResourceVaultPage(
+              {
+                stateEntityFungibleResourceVaultsPageRequest: {
+                  address: state.radix.walletData.accounts[0].address,
+                  // eslint-disable-next-line camelcase
+                  resource_address: token.address,
+                },
+              }
+            );
+        }
         // if there are no items in response, set the balance to 0
         const balance = parseFloat(response?.items[0]?.amount || "0");
         dispatch(pairSelectorSlice.actions.setBalance({ balance, token }));

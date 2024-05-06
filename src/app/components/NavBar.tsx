@@ -25,11 +25,10 @@ const NavItems: { path: string; title: string }[] = [
     path: "/",
     title: "Trade",
   },
-  // // TODO: comment back in when rewards launch
-  // {
-  //   path: "/rewards",
-  //   title: "Rewards",
-  // },
+  {
+    path: "/rewards",
+    title: "Rewards",
+  },
 ];
 
 export function Navbar() {
