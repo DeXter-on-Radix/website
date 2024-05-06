@@ -11,7 +11,6 @@ import { RDT, getRdtOrThrow } from "../subscriptions";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import {
-  displayNumber,
   getPrecision,
   truncateWithPrecision,
   updateIconIfNeeded,
