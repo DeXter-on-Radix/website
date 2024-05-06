@@ -21,18 +21,18 @@ function HeaderSection() {
     // className={`bg-[url('/landing/background-nolights.png')] bg-contain bg-no-repeat`}
     >
       <div
-        className={`${containerWidthAndPadding} min-h-[800px] h-[calc(100vh-74px)]`}
+        className={`${containerWidthAndPadding} min-h-[830px] h-[calc(100vh-74px)]`}
       >
         {/* Hero Section */}
         <div className="flex justify-center mt-28 relative">
           <BackgroundLightsAndStructures />
-          <div className="flex flex-col items-start justify-center min-[800px]:max-w-[60%] max-[800px]:items-center max-[800px]:text-center">
+          <div className="flex flex-col items-start justify-center min-[830px]:max-w-[60%] max-[830px]:items-center max-[830px]:text-center">
             <img
               src="/dexter-logo-and-lettering.svg"
               alt="dexter logo and lettering"
               className="pb-4 min-[420px]:hidden"
             />
-            <h1 className="!m-0 z-30 max-[800px]:max-w-[600px]">
+            <h1 className="!m-0 z-30 max-[830px]:max-w-[600px]">
               Decentralized Order Book Exchange on Radix
             </h1>
             <DexterButton title="TRADE NOW" targetUrl="/trade" />
@@ -40,7 +40,7 @@ function HeaderSection() {
           <img
             src="/landing/dexter-mascotte.png"
             alt="Dexter Mascotte"
-            className="w-[300px] z-30 max-[800px]:hidden"
+            className="w-[300px] z-30 max-[830px]:hidden"
           />
         </div>
         {/* Icons */}
