@@ -17,46 +17,23 @@ import { AppStore } from "./state/store";
 import { rewardSlice } from "./state/rewardSlice";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
-
-let rdtInstance: null | RDT = null;
-export function getRdt() {
-  return rdtInstance;
-}
-
-export function getRdtOrThrow() {
-  const rdt = getRdt();
-  if (!rdt) {
-    throw new Error("RDT initialization failed");
-  }
-  return rdt;
-}
-function setRdt(rdt: RDT) {
-  rdtInstance = rdt;
-}
+export const rdt = RadixDappToolkit({
+  dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
+  networkId:
+    process.env.NEXT_PUBLIC_NETWORK == "mainnet"
+      ? RadixNetwork.Mainnet
+      : RadixNetwork.Stokenet,
+});
+// TODO: "black" on the light theme
+rdt.buttonApi.setTheme("white");
 
 let subs: Subscription[] = [];
 
 export function initializeSubscriptions(store: AppStore) {
-  let networkId;
-  switch (process.env.NEXT_PUBLIC_NETWORK!) {
-    case "mainnet":
-      networkId = RadixNetwork.Mainnet;
-      break;
-    case "stokenet":
-      networkId = RadixNetwork.Stokenet;
-      break;
-    default:
-      networkId = RadixNetwork.Stokenet;
-  }
-  rdtInstance = RadixDappToolkit({
-    dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
-    networkId,
-  });
-  rdtInstance.walletApi.setRequestData(
-    DataRequestBuilder.accounts().exactly(1)
-  );
+  rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
+
   subs.push(
-    rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
+    rdt.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
 
@@ -64,22 +41,7 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(fetchBalances());
     })
   );
-  setRdt(rdtInstance);
-  // TODO: "black" on the light theme
-  rdtInstance.buttonApi.setTheme("white");
-  let network;
-  switch (process.env.NEXT_PUBLIC_NETWORK!) {
-    case "mainnet":
-      network = adex.ApiNetworkOptions.indexOf("mainnet");
-      break;
-    case "stokenet":
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-      break;
-    default:
-      network = adex.ApiNetworkOptions.indexOf("stokenet");
-  }
-
-  adex.init(adex.ApiNetworkOptions[network]);
+  adex.init(process.env.NEXT_PUBLIC_NETWORK! as adex.ApiNetwork);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
