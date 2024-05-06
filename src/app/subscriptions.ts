@@ -28,6 +28,7 @@ export const rdt = RadixDappToolkit({
 rdt.buttonApi.setTheme("white");
 
 let subs: Subscription[] = [];
+let shortInterval: NodeJS.Timer;
 
 export function initializeSubscriptions(store: AppStore) {
   rdt.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
@@ -62,6 +63,10 @@ export function initializeSubscriptions(store: AppStore) {
       );
     })
   );
+
+  shortInterval = setInterval(() => {
+    // place functions that need to be called often in this interval
+  }, 5000);
 }
 
 export function unsubscribeAll() {
@@ -69,4 +74,7 @@ export function unsubscribeAll() {
     sub.unsubscribe();
   });
   subs = [];
+  if (shortInterval) {
+    clearInterval(shortInterval);
+  }
 }
