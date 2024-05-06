@@ -214,7 +214,9 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {getPriceSymbol(order)}
         </td>
         <td>
-          {order.price} {getPriceSymbol(order)}
+          {order.orderType === "MARKET"
+            ? "-"
+            : `${order.price} ${getPriceSymbol(order)}`}
         </td>
         <td>
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
