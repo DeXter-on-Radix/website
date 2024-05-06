@@ -48,13 +48,6 @@ export default function Home() {
     }
   }, [dispatch]);
 
-  // useEffect(() => {
-  // initializeSubscriptions(store);
-  // return () => {
-  //   unsubscribeAll();
-  // };
-  // }, []);
-
   useEffect(() => {
     const intervalId = setInterval(() => {
       dispatch(fetchBalances());
