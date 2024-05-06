@@ -253,7 +253,7 @@ function EstimatedTotalOrQuantity() {
         <>
           <p className="grow text-left">Total:</p>
           <p className="">
-            ~ {amount.toFixed(2)} {symbol}
+            ~ {truncateWithPrecision(amount, 2)} {symbol}
           </p>
           <InfoTooltip content={quoteDescription} />
         </>
@@ -544,9 +544,11 @@ function CurrencyInputGroupSettings(
       isXRD ? balanceToken1 - XRD_FEE_ALLOWANCE : balanceToken1,
       Calculator.divide(Calculator.multiply(balanceToken1, percentage), 100)
     );
+    // TODO: revert truncating to 8th decimal once adex has fixed adex.createExchangeOrderTx bug
+    const targetAmountTruncated = truncateWithPrecision(targetAmount, 8);
     dispatch(
       orderInputSlice.actions.setTokenAmount({
-        amount: targetAmount,
+        amount: targetAmountTruncated,
         bestBuy,
         bestSell,
         balanceToken1: balanceToken1,
@@ -567,9 +569,11 @@ function CurrencyInputGroupSettings(
       isXRD ? balanceToken2 - XRD_FEE_ALLOWANCE : balanceToken2,
       Calculator.divide(Calculator.multiply(balanceToken2, percentage), 100)
     );
+    // TODO: revert truncating to 8th decimal once adex has fixed adex.createExchangeOrderTx bug
+    const targetAmountTruncated = truncateWithPrecision(targetAmount, 8);
     dispatch(
       orderInputSlice.actions.setTokenAmount({
-        amount: targetAmount,
+        amount: targetAmountTruncated,
         bestBuy,
         bestSell,
         balanceToken1: balanceToken1,
@@ -727,7 +731,8 @@ function SecondaryLabel({
           : () => {}
       }
     >
-      {label}: {value === 0 ? 0 : value.toFixed(getPrecision(currency))}{" "}
+      {label}:{" "}
+      {value === 0 ? 0 : truncateWithPrecision(value, getPrecision(currency))}{" "}
       {currency}
     </p>
   );
