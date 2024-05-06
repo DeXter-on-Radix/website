@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { getRdtOrThrow } from "../subscriptions";
+import { rdt } from "../subscriptions";
 import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
 import {
   AccountRewards,
@@ -181,7 +181,6 @@ export const fetchReciepts = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchReciepts", async (pairsList, thunkAPI) => {
-  const rdt = getRdtOrThrow();
   // const walletData = rdt.walletApi.getWalletData();
   const state = thunkAPI.getState();
   const accounts = state.radix.walletData.accounts;
@@ -289,7 +288,6 @@ export const fetchAddresses = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAddresses", async (_, thunkAPI) => {
-  const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardComponent) {
     throw new Error("Missing rewardComponent address");
@@ -324,7 +322,6 @@ export const claimRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/claimRewards", async (_, thunkAPI) => {
-  const rdt = getRdtOrThrow();
   const state = thunkAPI.getState().rewardSlice;
 
   console.log("Claiming rewards. Rewards data: ", state.rewardData);

@@ -7,7 +7,7 @@ import {
 import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-import { RDT, getRdtOrThrow } from "../subscriptions";
+import { rdt, RDT } from "../subscriptions";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import { displayNumber, updateIconIfNeeded } from "../utils";
@@ -294,7 +294,6 @@ export const submitOrder = createAsyncThunk<
 >("orderInput/submitOrder", async (_arg, thunkAPI) => {
   const state = thunkAPI.getState();
   const dispatch = thunkAPI.dispatch;
-  const rdt = getRdtOrThrow();
   const result = await createTx(state, rdt);
   // Asynchronously update balances + account history
   await Promise.all([
