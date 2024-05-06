@@ -1,6 +1,6 @@
 "use client";
 
-const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-6 ";
+const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   return (
@@ -26,8 +26,13 @@ function HeaderSection() {
         {/* Hero Section */}
         <div className="flex justify-center mt-28 relative">
           <BackgroundLightsAndStructures />
-          <div className="flex flex-col items-start justify-center min-[800px]:max-w-[60%] max-w-[min(90vw, 400px)]">
-            <h1 className="!m-0 z-30">
+          <div className="flex flex-col items-start justify-center min-[800px]:max-w-[60%] max-[800px]:items-center max-[800px]:text-center">
+            <img
+              src="/dexter-logo-and-lettering.svg"
+              alt="dexter logo and lettering"
+              className="pb-4 min-[420px]:hidden"
+            />
+            <h1 className="!m-0 z-30 max-[800px]:max-w-[600px]">
               Decentralized Order Book Exchange on Radix
             </h1>
             <DexterButton title="TRADE NOW" targetUrl="/trade" />
