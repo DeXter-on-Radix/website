@@ -26,11 +26,13 @@ export interface AccountHistoryState {
 const initialState: AccountHistoryState = {
   trades: [],
   orderHistory: [],
+  // these tables are component specific and should not be in app state
   selectedTable: Tables.OPEN_ORDERS,
   tables: Object.values(Tables),
 };
 
 // ASYNC THUNKS
+// thunks should change state or call other functions that change state. This is just a normal async function that fetches data.
 export const fetchAccountHistory = createAsyncThunk<
   SdkResult,
   undefined,
@@ -53,6 +55,7 @@ export const fetchAccountHistory = createAsyncThunk<
   }
 });
 
+// this is just a normal async function and should not be a thunk.
 export const cancelOrder = createAsyncThunk<
   SdkResult,
   { orderId: number; pairAddress: string },
@@ -105,6 +108,7 @@ async function createCancelTx(
 }
 
 // SLICE
+// the slice creation function should follow directly after the initialState definition
 export const accountHistorySlice = createSlice({
   name: "accountHistory",
   initialState,
