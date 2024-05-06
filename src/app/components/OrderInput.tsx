@@ -542,14 +542,12 @@ function CurrencyInputGroupSettings(
     }
     const targetAmount = Math.min(
       isXRD ? balanceToken1 - XRD_FEE_ALLOWANCE : balanceToken1,
-      Calculator.divide(
-        Calculator.multiply(balanceToken1, percentage - 0.001),
-        100
-      )
+      Calculator.divide(Calculator.multiply(balanceToken1, percentage), 100)
     );
+    const targetAmountRounded = truncateWithPrecision(targetAmount, 8);
     dispatch(
       orderInputSlice.actions.setTokenAmount({
-        amount: targetAmount,
+        amount: targetAmountRounded,
         bestBuy,
         bestSell,
         balanceToken1: balanceToken1,
@@ -568,14 +566,12 @@ function CurrencyInputGroupSettings(
     }
     const targetAmount = Math.min(
       isXRD ? balanceToken2 - XRD_FEE_ALLOWANCE : balanceToken2,
-      Calculator.divide(
-        Calculator.multiply(balanceToken2, percentage - 0.001),
-        100
-      )
+      Calculator.divide(Calculator.multiply(balanceToken2, percentage), 100)
     );
+    const targetAmountRounded = truncateWithPrecision(targetAmount, 8);
     dispatch(
       orderInputSlice.actions.setTokenAmount({
-        amount: targetAmount,
+        amount: targetAmountRounded,
         bestBuy,
         bestSell,
         balanceToken1: balanceToken1,
