@@ -253,7 +253,7 @@ function EstimatedTotalOrQuantity() {
         <>
           <p className="grow text-left">Total:</p>
           <p className="">
-            ~ {amount.toFixed(2)} {symbol}
+            ~ {truncateWithPrecision(amount, 2)} {symbol}
           </p>
           <InfoTooltip content={quoteDescription} />
         </>
@@ -542,7 +542,10 @@ function CurrencyInputGroupSettings(
     }
     const targetAmount = Math.min(
       isXRD ? balanceToken1 - XRD_FEE_ALLOWANCE : balanceToken1,
-      Calculator.divide(Calculator.multiply(balanceToken1, percentage), 100)
+      Calculator.divide(
+        Calculator.multiply(balanceToken1, percentage - 0.001),
+        100
+      )
     );
     dispatch(
       orderInputSlice.actions.setTokenAmount({
@@ -565,7 +568,10 @@ function CurrencyInputGroupSettings(
     }
     const targetAmount = Math.min(
       isXRD ? balanceToken2 - XRD_FEE_ALLOWANCE : balanceToken2,
-      Calculator.divide(Calculator.multiply(balanceToken2, percentage), 100)
+      Calculator.divide(
+        Calculator.multiply(balanceToken2, percentage - 0.001),
+        100
+      )
     );
     dispatch(
       orderInputSlice.actions.setTokenAmount({
@@ -727,7 +733,8 @@ function SecondaryLabel({
           : () => {}
       }
     >
-      {label}: {value === 0 ? 0 : value.toFixed(getPrecision(currency))}{" "}
+      {label}:{" "}
+      {value === 0 ? 0 : truncateWithPrecision(value, getPrecision(currency))}{" "}
       {currency}
     </p>
   );
