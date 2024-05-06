@@ -123,6 +123,7 @@ export function toOrderBookRowProps(
   return props;
 }
 
+// slice creation function should follow directly after initial state definition
 export const orderBookSlice = createSlice({
   name: "orderBook",
   initialState,
