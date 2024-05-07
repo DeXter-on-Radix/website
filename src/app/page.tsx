@@ -176,7 +176,7 @@ function BackgroundLights({ type }: { type: Device }) {
         <img
           src="/landing/background-structures.png"
           alt="background structures"
-          className="absolute opacity-5 scale-[3] top-[-200%] right-[-50%] z-[-20] "
+          className="absolute opacity-5 scale-[3] top-[-150%] right-[-0%] z-[-20] "
         />
       </div>
     );
