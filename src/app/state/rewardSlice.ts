@@ -63,10 +63,7 @@ const initialState: RewardState = {
   tokensList: [],
   pairsList: [],
   config: {
-    // this is the only address that will be specified in the .env file. All the other variables should be read from the component state variables
-    rewardComponent:
-      process.env.NEXT_PUBLIC_CLAIM_COMPONENT ||
-      "component_tdx_2_1czkh6sd66gnn9d79qa5clrv5kfvp85hmkx6jwg52f0w93amgy0msuk",
+    rewardComponent: process.env.NEXT_PUBLIC_CLAIM_COMPONENT!,
     rewardNFTAddress: "",
     rewardOrderAddress: "",
     rewardVaultAddress: "",

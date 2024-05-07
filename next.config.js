@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const withMDX = require("@next/mdx")();
 
+const dotenv = require("dotenv");
+const path = require("path");
+
+const envPath = path.join(__dirname, process.env.ENV_FILE || ".env.testnet");
+dotenv.config({ path: envPath });
+
 const nextConfig = {
   output: "export",
 
