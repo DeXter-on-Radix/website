@@ -206,7 +206,7 @@ function TopicSection({
         >
           <div className="">
             <DexterHeading title={title} />
-            <p>{body}</p>
+            {body}
             <DexterButton title={buttonText} targetUrl={buttonUrl} />
           </div>
           <img src={imageUrl} alt={title} className="w-[300px]" />
