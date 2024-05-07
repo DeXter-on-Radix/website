@@ -199,18 +199,22 @@ function TopicSection({
   } = x;
   return (
     <div className={`${backgroundColor} py-20`}>
-      <div className={`${containerWidthAndPadding} `}>
+      <div className={`${containerWidthAndPadding} max-[820px]:w-full`}>
         <div
-          className={`flex items-center justify-center ${
+          className={`flex items-center max-[820px]:items-start justify-center ${
             reversed ? "flex-row-reverse" : ""
-          }`}
+          } max-[820px]:flex-col-reverse`}
         >
-          <div className="w-2/3 max-w-[520px]">
+          <div className="w-full min-[821px]:max-w-[520px]">
             <DexterHeading title={title} />
             {body}
             <DexterButton title={buttonText} targetUrl={buttonUrl} />
           </div>
-          <img src={imageUrl} alt={title} className="w-[400px] px-8" />
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-[400px] min-[821px]:px-8 max-[820px]:max-w-[300px]"
+          />
         </div>
       </div>
     </div>
