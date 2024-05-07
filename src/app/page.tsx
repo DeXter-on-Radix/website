@@ -5,16 +5,95 @@ enum Device {
   DESKTOP = "DESKTOP",
 }
 
+enum TopicSectionEnum {
+  TOKENOMICS = "TOKENOMICS",
+  TRADE = "TRADE",
+  STAKE = "STAKE",
+  CONTRIBUTE = "CONTRIBUTE",
+}
+
+interface TopicSectionProps {
+  backgroundColor: string;
+  title: string;
+  body?: JSX.Element;
+  imageUrl: string;
+  buttonText: string;
+  buttonUrl: string;
+  reversed: boolean;
+}
+
+function getTopicSectionBody(topicSection: TopicSectionEnum): JSX.Element {
+  return {
+    TOKENOMICS: (
+      <DexterParagraph text="100’000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
+    ),
+    TRADE: (
+      <DexterParagraph text="Earn 0.35% on every trade, plus enjoy additional liquidity incentives for orders placed near the market price." />
+    ),
+    STAKE: (
+      <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
+    ),
+    CONTRIBUTE: (
+      <DexterParagraph text="Whether you're a developer, designer, community manager or marketing enthusiast, your contributions are vital and give you the possibility to get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
+    ),
+  }[topicSection];
+}
+
+function getTopicSectionProps(
+  topicSection: TopicSectionEnum
+): TopicSectionProps {
+  return {
+    TOKENOMICS: {
+      backgroundColor: "#141414",
+      title: "$DEXTR Token",
+      body: getTopicSectionBody(TopicSectionEnum.TOKENOMICS),
+      imageUrl: "/landing/dexter-mascotte-holding-coin.png",
+      buttonUrl:
+        "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
+      buttonText: "Learn more",
+      reversed: true,
+    },
+    TRADE: {
+      backgroundColor: "#191b1d",
+      title: "Earn rewards by trading",
+      body: getTopicSectionBody(TopicSectionEnum.TRADE),
+      imageUrl: "/landing/treasury-earn-by-trading.png",
+      buttonText: "Trade Now",
+      buttonUrl: "/trade",
+      reversed: false,
+    },
+    STAKE: {
+      backgroundColor: "#141414",
+      title: "Stake $XRD to earn $DEXTR",
+      body: getTopicSectionBody(TopicSectionEnum.STAKE),
+      imageUrl: "/landing/staking-safe.png",
+      buttonText: "Stake now",
+      buttonUrl:
+        "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
+      reversed: true,
+    },
+    CONTRIBUTE: {
+      backgroundColor: "#191b1d",
+      title: "Earn $DEXTR by contributing",
+      body: getTopicSectionBody(TopicSectionEnum.CONTRIBUTE),
+      imageUrl: "/landing/hands.png",
+      buttonText: "Learn more",
+      buttonUrl: "",
+      reversed: false,
+    },
+  }[topicSection] as TopicSectionProps;
+}
+
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   return (
     <div className="bg-[#191B1D]">
       <HeroSection />
-      <Tokenomics />
-      <EarnByTrading />
-      <StakeToEarnDextr />
-      <EarnByContributing />
+      <TopicSection topicSection={TopicSectionEnum.TOKENOMICS} />
+      <TopicSection topicSection={TopicSectionEnum.TRADE} />
+      <TopicSection topicSection={TopicSectionEnum.STAKE} />
+      <TopicSection topicSection={TopicSectionEnum.CONTRIBUTE} />
     </div>
   );
 }
@@ -103,26 +182,37 @@ function BackgroundLights({ type }: { type: Device }) {
     );
   }
 }
-function Tokenomics() {
+
+function TopicSection({
+  topicSection,
+}: {
+  topicSection: TopicSectionEnum;
+}): JSX.Element {
+  const x = getTopicSectionProps(topicSection);
+  const {
+    backgroundColor,
+    title,
+    body,
+    imageUrl,
+    buttonUrl,
+    buttonText,
+    reversed,
+  } = x;
   return (
-    <div className={`bg-[#141414]`}>
-      <div className={`${containerWidthAndPadding} `}>Tokenomics</div>
+    <div className={`bg-[${backgroundColor}] py-10`}>
+      <div className={`${containerWidthAndPadding} `}>
+        <div
+          className={`flex items-center ${reversed ? "flex-row-reverse" : ""}`}
+        >
+          <div className="">
+            <DexterHeading title={title} />
+            <p>{body}</p>
+            <DexterButton title={buttonText} targetUrl={buttonUrl} />
+          </div>
+          <img src={imageUrl} alt={title} className="w-[300px]" />
+        </div>
+      </div>
     </div>
-  );
-}
-function EarnByTrading() {
-  return <div className={`${containerWidthAndPadding} `}>EarnByTrading</div>;
-}
-function StakeToEarnDextr() {
-  return (
-    <div className={`bg-[#141414]`}>
-      <div className={`${containerWidthAndPadding} `}>StakeToEarnDextr</div>
-    </div>
-  );
-}
-function EarnByContributing() {
-  return (
-    <div className={`${containerWidthAndPadding} `}>EarnByContributing</div>
   );
 }
 
@@ -140,5 +230,27 @@ function DexterButton({ title, targetUrl }: DexterButtonProps) {
         <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
       </button>
     </a>
+  );
+}
+
+function DexterParagraph({ text }: { text: string }) {
+  return <p className="text-sm tracking-wide py-2">{text}</p>;
+}
+
+function DexterHeading({ title }: { title: string }) {
+  return (
+    <>
+      <h2
+        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
+        style={{
+          margin: 0,
+          marginBottom: "20px",
+          marginTop: "0px",
+          fontSize: "45px",
+        }}
+      >
+        {title}
+      </h2>
+    </>
   );
 }
