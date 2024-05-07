@@ -87,12 +87,12 @@ function BackgroundLights({ type }: { type: Device }) {
         <img
           src="/landing/blue-light.png"
           alt="blue light"
-          className="absolute opacity-40 scale-[3] top-[-300%] left-[-50%] z-[-30] "
+          className="absolute opacity-40 scale-[3] top-[-0%] right-[-80%] z-[-30]"
         />
         <img
           src="/landing/green-light.png"
           alt="green light"
-          className="absolute opacity-100 scale-[3] top-[-200%] right-[-80%] z-[-30] "
+          className="absolute opacity-100 scale-[3] top-[-200%] left-[-50%] z-[-30] "
         />
         <img
           src="/landing/background-structures.png"
