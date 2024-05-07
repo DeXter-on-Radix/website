@@ -198,17 +198,19 @@ function TopicSection({
     reversed,
   } = x;
   return (
-    <div className={`${backgroundColor} py-10`}>
+    <div className={`${backgroundColor} py-20`}>
       <div className={`${containerWidthAndPadding} `}>
         <div
-          className={`flex items-center ${reversed ? "flex-row-reverse" : ""}`}
+          className={`flex items-center justify-center ${
+            reversed ? "flex-row-reverse" : ""
+          }`}
         >
-          <div className="">
+          <div className="w-2/3 max-w-[520px]">
             <DexterHeading title={title} />
             {body}
             <DexterButton title={buttonText} targetUrl={buttonUrl} />
           </div>
-          <img src={imageUrl} alt={title} className="w-[300px]" />
+          <img src={imageUrl} alt={title} className="w-[400px] px-8" />
         </div>
       </div>
     </div>
