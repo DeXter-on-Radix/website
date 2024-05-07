@@ -110,12 +110,9 @@ function HeroSection() {
               `min-[820px]:max-w-[60%] max-[820px]:items-center max-[820px]:text-center z-50 `
             }
           >
-            <img
-              src="/dexter-logo-and-lettering.svg"
-              alt="dexter logo and lettering"
-              className="pb-4 min-[420px]:hidden"
-            />
-            <h1 className={`!m-0 z-100 max-[820px]:max-w-[600px]`}>
+            <h1
+              className={`!m-0 z-100 max-[820px]:max-w-[600px] max-[420px]:py-4`}
+            >
               Decentralized Order Book Exchange on Radix
             </h1>
             <div className="relative">
