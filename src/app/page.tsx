@@ -25,7 +25,7 @@ interface TopicSectionProps {
 function getTopicSectionBody(topicSection: TopicSectionEnum): JSX.Element {
   return {
     TOKENOMICS: (
-      <DexterParagraph text="100’000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
+      <DexterParagraph text="100'000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
     ),
     TRADE: (
       <DexterParagraph text="Earn 0.35% on every trade, plus enjoy additional liquidity incentives for orders placed near the market price." />
@@ -44,7 +44,7 @@ function getTopicSectionProps(
 ): TopicSectionProps {
   return {
     TOKENOMICS: {
-      backgroundColor: "#141414",
+      backgroundColor: "bg-dexter-grey-dark",
       title: "$DEXTR Token",
       body: getTopicSectionBody(TopicSectionEnum.TOKENOMICS),
       imageUrl: "/landing/dexter-mascotte-holding-coin.png",
@@ -54,7 +54,7 @@ function getTopicSectionProps(
       reversed: true,
     },
     TRADE: {
-      backgroundColor: "#191b1d",
+      backgroundColor: "bg-dexter-grey-light",
       title: "Earn rewards by trading",
       body: getTopicSectionBody(TopicSectionEnum.TRADE),
       imageUrl: "/landing/treasury-earn-by-trading.png",
@@ -63,7 +63,7 @@ function getTopicSectionProps(
       reversed: false,
     },
     STAKE: {
-      backgroundColor: "#141414",
+      backgroundColor: "bg-dexter-grey-dark",
       title: "Stake $XRD to earn $DEXTR",
       body: getTopicSectionBody(TopicSectionEnum.STAKE),
       imageUrl: "/landing/staking-safe.png",
@@ -73,7 +73,7 @@ function getTopicSectionProps(
       reversed: true,
     },
     CONTRIBUTE: {
-      backgroundColor: "#191b1d",
+      backgroundColor: "bg-dexter-grey-light",
       title: "Earn $DEXTR by contributing",
       body: getTopicSectionBody(TopicSectionEnum.CONTRIBUTE),
       imageUrl: "/landing/hands.png",
@@ -88,7 +88,7 @@ const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   return (
-    <div className="bg-[#191B1D]">
+    <div className="bg-dexter-grey-dark">
       <HeroSection />
       <TopicSection topicSection={TopicSectionEnum.TOKENOMICS} />
       <TopicSection topicSection={TopicSectionEnum.TRADE} />
@@ -199,7 +199,7 @@ function TopicSection({
     reversed,
   } = x;
   return (
-    <div className={`bg-[${backgroundColor}] py-10`}>
+    <div className={`${backgroundColor} py-10`}>
       <div className={`${containerWidthAndPadding} `}>
         <div
           className={`flex items-center ${reversed ? "flex-row-reverse" : ""}`}
