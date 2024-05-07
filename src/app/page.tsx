@@ -88,7 +88,7 @@ const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   return (
-    <div className="bg-dexter-grey-dark">
+    <div className="bg-dexter-grey-light">
       <HeroSection />
       <TopicSection topicSection={TopicSectionEnum.TOKENOMICS} />
       <TopicSection topicSection={TopicSectionEnum.TRADE} />
