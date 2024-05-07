@@ -26,7 +26,7 @@ export function initializeSubscriptions(store: AppStore) {
   rdt = RadixDappToolkit({
     dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
     networkId:
-      process.env.NEXT_PUBLIC_NETWORK == "mainnet"
+      process.env.NEXT_PUBLIC_NETWORK! == "mainnet"
         ? RadixNetwork.Mainnet
         : RadixNetwork.Stokenet,
   });
