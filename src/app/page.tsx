@@ -109,7 +109,7 @@ function HeroSection() {
           <div
             className={
               `flex flex-col items-start justify-center ` +
-              `min-[820px]:max-w-[60%] max-[820px]:items-center max-[820px]:text-center z-50 `
+              `min-[821px]:max-w-[60%] max-[820px]:items-center max-[820px]:text-center z-50 `
             }
           >
             <h1
@@ -161,7 +161,7 @@ function BackgroundLights({ type }: { type: Device }) {
   }
   if (type === Device.MOBILE) {
     return (
-      <div className="min-[820px]:hidden">
+      <div className="min-[821px]:hidden">
         <img
           src="/landing/blue-light.png"
           alt="blue light"
@@ -226,7 +226,11 @@ function DexterButton({ title, targetUrl }: DexterButtonProps) {
   return (
     <a href={targetUrl} className="z-100 min-w-[220px] max-w-[220px]">
       <button
-        className={`min-h-[44px] w-[220px] uppercase px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black opacity-100 cursor-pointer`}
+        className={
+          `min-h-[44px] w-[220px] px-4 my-6 mt-8 rounded ` +
+          `bg-dexter-green-OG text-black uppercase ` +
+          `opacity-100 cursor-pointer `
+        }
       >
         <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
       </button>
