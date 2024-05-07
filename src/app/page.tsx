@@ -22,6 +22,10 @@ interface TopicSectionProps {
   reversed: boolean;
 }
 
+// Define a shared variable for container dimensions and padding to ensure
+// consistency across sections with full-width backgrounds.
+const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
+
 function getTopicSectionBody(topicSection: TopicSectionEnum): JSX.Element {
   return {
     TOKENOMICS: (
@@ -83,8 +87,6 @@ function getTopicSectionProps(
     },
   }[topicSection] as TopicSectionProps;
 }
-
-const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   return (
