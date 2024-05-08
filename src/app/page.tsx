@@ -203,7 +203,7 @@ function TopicSection({
     reversed,
   } = x;
   return (
-    <div className={`${backgroundColor} py-20`}>
+    <div className={`${backgroundColor} py-20 max-[820px]:py-10`}>
       <div className={`${containerWidthAndPadding} max-[820px]:w-full`}>
         <div
           className={`flex items-center justify-center ${
