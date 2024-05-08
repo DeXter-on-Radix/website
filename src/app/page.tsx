@@ -103,9 +103,11 @@ export default function Landing() {
 function HeroSection() {
   return (
     <div>
-      <div className={`${containerWidthAndPadding} h-[calc(100vh-74px)]`}>
+      <div
+        className={`${containerWidthAndPadding} h-[calc(100vh-74px)] flex justify-center items-center pb-[20vh]`}
+      >
         {/* Header Section */}
-        <div className="flex justify-center mt-28 relative">
+        <div className="flex justify-center relative">
           <div
             className={
               `flex flex-col items-start justify-center ` +
