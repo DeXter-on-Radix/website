@@ -52,7 +52,7 @@ The ...Slice file is the main file for any state slice and should provide an eas
   ```
 - The createSlice function for the slice called `<slice_name>Slice`
   ```
-  export const unsrSlice = createSlice({
+  export const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
