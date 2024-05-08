@@ -218,7 +218,7 @@ function TopicSection({
           <img
             src={imageUrl}
             alt={title}
-            className="w-[400px] min-[821px]:px-8 max-[820px]:max-w-[300px]"
+            className="w-[400px] min-[821px]:px-8 max-[820px]:max-w-[280px]"
           />
         </div>
       </div>
