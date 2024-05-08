@@ -8,6 +8,7 @@ import { radixSlice } from "./radixSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 import { i18nSlice } from "./i18nSlice";
 import { userSlice } from "./user/userSlice";
+import { exchangeSlice } from "./exchange/exchangeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     priceInfo: priceInfoSlice.reducer,
     i18n: i18nSlice.reducer,
     user: userSlice.reducer,
+    exchange: exchangeSlice.reducer,
   },
 });
 

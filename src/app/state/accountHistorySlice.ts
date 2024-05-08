@@ -32,7 +32,6 @@ const initialState: AccountHistoryState = {
 };
 
 // ASYNC THUNKS
-// thunks should change state or call other functions that change state. This is just a normal async function that fetches data.
 export const fetchAccountHistory = createAsyncThunk<
   SdkResult,
   undefined,
@@ -55,7 +54,6 @@ export const fetchAccountHistory = createAsyncThunk<
   }
 });
 
-// this is just a normal async function and should not be a thunk.
 export const cancelOrder = createAsyncThunk<
   SdkResult,
   { orderId: number; pairAddress: string },

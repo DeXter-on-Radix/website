@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import {
   Candle,
   OrderbookLine,
@@ -37,21 +37,22 @@ export interface ExchangeState {
   candlePeriod: CandlePeriodsType;
 }
 
+const initialOrderbook = {
+  buyOrders: [],
+  sellOrders: [],
+  lastPrice: undefined,
+  bestSellPrice: undefined,
+  bestBuyPrice: undefined,
+  spread: undefined,
+  spreadPerc: undefined,
+  grouping: 0,
+};
 const initialState: ExchangeState = {
   allTokens: [],
   allPairs: [],
   selectedPair: undefined,
   selectedPairTrades: [],
-  selectedPairOrderbook: {
-    buyOrders: [],
-    sellOrders: [],
-    lastPrice: undefined,
-    bestSellPrice: undefined,
-    bestBuyPrice: undefined,
-    spread: undefined,
-    spreadPerc: undefined,
-    grouping: 0,
-  },
+  selectedPairOrderbook: initialOrderbook,
   selectedPairCandles: [],
   candlePeriod: "1D",
 };
@@ -59,5 +60,17 @@ const initialState: ExchangeState = {
 export const exchangeSlice = createSlice({
   name: "exchange",
   initialState,
-  reducers: {},
+  reducers: {
+    setTokens: (state, action: PayloadAction<TokenInfo[]>) => {
+      state.allTokens = action.payload;
+    },
+    setSelectedPair: (state, action: PayloadAction<PairInfo | undefined>) => {
+      state.selectedPair = action.payload;
+      if (!state.selectedPair) {
+        state.selectedPairTrades = [];
+        state.selectedPairOrderbook = initialOrderbook;
+        state.selectedPairCandles = [];
+      }
+    },
+  },
 });
