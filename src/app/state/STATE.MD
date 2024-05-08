@@ -63,7 +63,7 @@ The ...Slice file is the main file for any state slice and should provide an eas
     }
   })
   ```
-- an export of the available actions for the slice called ```<slice_name>Actions. The purpose of this export is to only expose the actions you want users to call (which might exclude certain reducers and/or thunks that should only be used by the slice internally).
+- an export of the available actions for the slice called ```<slice_name>Actions. The purpose of this export is to list all actions that can be called from outside of the slice (which might exclude certain reducers and/or thunks that should only be used by the slice internally).
   ```
   export const userActions = {
     ...
