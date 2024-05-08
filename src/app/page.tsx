@@ -26,31 +26,34 @@ interface TopicSectionProps {
 // consistency across sections with full-width backgrounds.
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
-function getTopicSectionBody(topicSection: TopicSectionEnum): JSX.Element {
-  return {
-    TOKENOMICS: (
-      <DexterParagraph text="100'000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
-    ),
-    TRADE: (
-      <DexterParagraph text="Earn 0.35% on every trade, plus enjoy additional liquidity incentives for orders placed near the market price." />
-    ),
-    STAKE: (
-      <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
-    ),
-    CONTRIBUTE: (
-      <DexterParagraph text="Whether you're a developer, designer, community manager or marketing enthusiast, your contributions are vital and give you the possibility to get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
-    ),
-  }[topicSection];
-}
-
 function getTopicSectionProps(
   topicSection: TopicSectionEnum
 ): TopicSectionProps {
+  const tokenomicsBody = (
+    <DexterParagraph text="100'000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
+  );
+  const tradeBody = (
+    <p className="text-sm tracking-wide py-2">
+      Earn{" "}
+      <span className="text-lg tracking-tight font-bold color-white">
+        0.35% on every trade
+      </span>
+      , plus enjoy additional liquidity incentives for orders placed near the
+      market price.
+    </p>
+  );
+  const stakeBody = (
+    <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
+  );
+  const contributeBody = (
+    <DexterParagraph text="Whether you're a developer, designer, community manager or marketing enthusiast, your contributions are vital and give you the possibility to get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
+  );
+
   return {
     TOKENOMICS: {
       backgroundColor: "bg-dexter-grey-dark",
       title: "$DEXTR Token",
-      body: getTopicSectionBody(TopicSectionEnum.TOKENOMICS),
+      body: tokenomicsBody,
       imageUrl: "/landing/dexter-mascotte-holding-coin.png",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
@@ -60,7 +63,7 @@ function getTopicSectionProps(
     TRADE: {
       backgroundColor: "bg-dexter-grey-light",
       title: "Earn rewards by trading",
-      body: getTopicSectionBody(TopicSectionEnum.TRADE),
+      body: tradeBody,
       imageUrl: "/landing/treasury-earn-by-trading.png",
       buttonText: "Trade Now",
       buttonUrl: "/trade",
@@ -69,7 +72,7 @@ function getTopicSectionProps(
     STAKE: {
       backgroundColor: "bg-dexter-grey-dark",
       title: "Stake $XRD to earn $DEXTR",
-      body: getTopicSectionBody(TopicSectionEnum.STAKE),
+      body: stakeBody,
       imageUrl: "/landing/staking-safe.png",
       buttonText: "Stake now",
       buttonUrl:
@@ -79,13 +82,13 @@ function getTopicSectionProps(
     CONTRIBUTE: {
       backgroundColor: "bg-dexter-grey-light",
       title: "Earn $DEXTR by contributing",
-      body: getTopicSectionBody(TopicSectionEnum.CONTRIBUTE),
+      body: contributeBody,
       imageUrl: "/landing/hands.png",
       buttonText: "Learn more",
       buttonUrl: "",
       reversed: false,
     },
-  }[topicSection] as TopicSectionProps;
+  }[topicSection];
 }
 
 export default function Landing() {
