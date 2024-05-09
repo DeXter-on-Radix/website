@@ -4,6 +4,12 @@
 
 Please make sure to read the general guidelines for contributing to the project code [here](../../../CONTRIBUTING.md).
 
+### Understanding REDUX
+
+Dexter uses Redux to manage global app state. If you are new to Redux, it is suggested to read up a bit more about th elibrary and its usaeg before going through the rest of this document. There are many quick tutorials on Redux or you can go through the official documentation [here](https://redux.js.org/usage/).
+
+You do not have to be an expert on Redux to understand the principles in this document (or to contribute to Dexter), but it will help if you have a basic understanding.
+
 ## Principles for managing state:
 
 ### Use Global State (Redux) only for state that needs to be used in multiple unrelated components or needs to be preserved when the component is deactivated.
