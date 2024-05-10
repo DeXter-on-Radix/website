@@ -255,12 +255,12 @@ function DexterHeading({ title }: { title: string }) {
   return (
     <>
       <h2
-        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
+        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base"
         style={{
           margin: 0,
           marginBottom: "20px",
           marginTop: "0px",
-          fontSize: "45px",
+          fontSize: "38px",
         }}
       >
         {title}
