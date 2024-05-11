@@ -26,11 +26,51 @@ interface TopicSectionProps {
 // consistency across sections with full-width backgrounds.
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
+function IconTitleAndBody({
+  icon,
+  title,
+  body,
+}: {
+  icon: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="flex items-start mt-2">
+      <img
+        src={`/landing/icons/${icon}.svg`}
+        alt={icon}
+        className="w-12 mr-4 pt-2 max-[440px]:w-10 max-[440px]:mr-2 max-[440px]:pt-1"
+      />
+      <div>
+        <p className="text-base font-bold col-white text-left">{title}</p>
+        <DexterParagraph additionalClass="text-left" text={body} />
+      </div>
+    </div>
+  );
+}
+
 function getTopicSectionProps(
   topicSection: TopicSectionEnum
 ): TopicSectionProps {
   const tokenomicsBody = (
-    <DexterParagraph text="100'000 DEXTR is minted every 2 weeks. No max supply, but ~26M in 10 years at current rate." />
+    <>
+      <IconTitleAndBody
+        icon="money"
+        title="Tokenomics"
+        body="100'000 DEXTR is minted and distributed every 2 weeks to contributors, traders and stakers. No max supply, but ~26M in 10 years at current rate."
+      />
+      <IconTitleAndBody
+        icon="chart"
+        title="Vote in the DAO"
+        body="1 $DEXTR equals 1 vote in our governance decisions, which are currently being held on crubsup."
+      />
+      <IconTitleAndBody
+        icon="money-bag"
+        title="Revenue Share"
+        body="Revenue generated from collecting platform fees will be shared among all DEXTR holders (coming soon)."
+      />
+    </>
   );
   const tradeBody = (
     <p className="text-sm tracking-wide py-2">
@@ -258,8 +298,22 @@ function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
   );
 }
 
-function DexterParagraph({ text }: { text: string }) {
-  return <p className="text-sm tracking-wide py-2">{text}</p>;
+function DexterParagraph({
+  text,
+  additionalClass,
+}: {
+  text: string;
+  additionalClass?: string;
+}) {
+  return (
+    <p
+      className={
+        "text-sm tracking-wide py-2 " + (additionalClass ? additionalClass : "")
+      }
+    >
+      {text}
+    </p>
+  );
 }
 
 function DexterHeading({ title }: { title: string }) {
