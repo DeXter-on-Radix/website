@@ -85,7 +85,7 @@ function getTopicSectionProps(
       title: "Earn $DEXTR by contributing",
       body: contributeBody,
       imageUrl: "/landing/hands.png",
-      buttonText: "Learn more",
+      buttonText: "Contribute now",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       reversed: false,
@@ -215,7 +215,11 @@ function TopicSection({
           <div className="w-full min-[821px]:max-w-[520px] max-[820px]:text-center">
             <DexterHeading title={title} />
             {body}
-            <DexterButton title={buttonText} targetUrl={buttonUrl} />
+            <DexterButton
+              title={buttonText}
+              targetUrl={buttonUrl}
+              targetBlank={true}
+            />
           </div>
           <img
             src={imageUrl}
@@ -231,14 +235,15 @@ function TopicSection({
 interface DexterButtonProps {
   title: string;
   targetUrl?: string;
+  targetBlank?: boolean;
 }
 
-function DexterButton({ title, targetUrl }: DexterButtonProps) {
+function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
   return (
     <a
       href={targetUrl}
       className="z-100 min-w-[220px] max-w-[220px]"
-      target="_blank"
+      target={`${targetBlank ? "_blank" : ""}`}
     >
       <button
         className={
