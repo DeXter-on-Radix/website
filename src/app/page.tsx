@@ -65,8 +65,9 @@ function getTopicSectionProps(
       title: "Earn rewards by trading",
       body: tradeBody,
       imageUrl: "/landing/treasury-earn-by-trading.png",
-      buttonText: "Trade Now",
-      buttonUrl: "/trade",
+      buttonText: "Learn more",
+      buttonUrl:
+        "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
       reversed: false,
     },
     STAKE: {
@@ -85,7 +86,8 @@ function getTopicSectionProps(
       body: contributeBody,
       imageUrl: "/landing/hands.png",
       buttonText: "Learn more",
-      buttonUrl: "",
+      buttonUrl:
+        "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       reversed: false,
     },
   }[topicSection];
@@ -233,7 +235,11 @@ interface DexterButtonProps {
 
 function DexterButton({ title, targetUrl }: DexterButtonProps) {
   return (
-    <a href={targetUrl} className="z-100 min-w-[220px] max-w-[220px]">
+    <a
+      href={targetUrl}
+      className="z-100 min-w-[220px] max-w-[220px]"
+      target="_blank"
+    >
       <button
         className={
           `min-h-[44px] w-[220px] px-4 my-6 mt-8 rounded ` +
