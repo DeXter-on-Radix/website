@@ -43,8 +43,8 @@ function IconTitleAndBody({
         className="w-12 mr-4 pt-2 max-[440px]:w-10 max-[440px]:mr-2 max-[440px]:pt-1"
       />
       <div>
-        <p className="text-base font-bold col-white text-left">{title}</p>
-        <DexterParagraph additionalClass="text-left" text={body} />
+        <p className="text-base font-bold text-white text-left">{title}</p>
+        <DexterParagraph additionalClass="text-left opacity-80" text={body} />
       </div>
     </div>
   );
@@ -58,24 +58,24 @@ function getTopicSectionProps(
       <IconTitleAndBody
         icon="money"
         title="Tokenomics"
-        body="100'000 DEXTR is minted and distributed every 2 weeks to contributors, traders and stakers. No max supply, but ~26M in 10 years at current rate."
+        body="100'000 DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate."
       />
       <IconTitleAndBody
         icon="chart"
         title="Vote in the DAO"
-        body="1 $DEXTR equals 1 vote in our governance decisions, which are currently being held on crubsup."
+        body="1 $DEXTR equals 1 vote in governance decisions."
       />
       <IconTitleAndBody
         icon="money-bag"
-        title="Revenue Share"
-        body="Revenue generated from collecting platform fees will be shared among all DEXTR holders (coming soon)."
+        title="Revenue Share (coming soon...)"
+        body="Trade fees collected by DeXter will be shared among all DEXTR holders."
       />
     </>
   );
   const tradeBody = (
     <p className="text-sm tracking-wide py-2">
       Earn{" "}
-      <span className="text-lg tracking-tight font-bold color-white">
+      <span className="text-lg tracking-tight font-bold text-white">
         0.35% on every trade
       </span>
       , plus enjoy additional liquidity incentives for orders placed near the
@@ -86,7 +86,7 @@ function getTopicSectionProps(
     <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
   );
   const contributeBody = (
-    <DexterParagraph text="Whether you're a developer, designer, community manager or marketing enthusiast, your contributions are vital and give you the possibility to get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
+    <DexterParagraph text="Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
   );
 
   return {
@@ -125,7 +125,7 @@ function getTopicSectionProps(
       title: "Earn $DEXTR by contributing",
       body: contributeBody,
       imageUrl: "/landing/hands.png",
-      buttonText: "Contribute now",
+      buttonText: "Join us",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       reversed: false,
@@ -245,7 +245,9 @@ function TopicSection({
     reversed,
   } = x;
   return (
-    <div className={`${backgroundColor} py-20 max-[820px]:py-10`}>
+    <div
+      className={`${backgroundColor} py-20 max-[820px]:py-10 z-[100] relative`}
+    >
       <div className={`${containerWidthAndPadding} max-[820px]:w-full`}>
         <div
           className={`flex items-center justify-center ${
