@@ -21,7 +21,7 @@ import { DexterToast } from "../components/DexterToaster";
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
-    <div className="bg-[#141414] h-screen flex flex-col items-center justify-center">
+    <div className="bg-[#141414] h-screen flex items-center justify-center">
       <div>
         <HeaderComponent />
         {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
@@ -127,8 +127,8 @@ function RewardsCard() {
             {!isConnected
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
-                ? t("total_rewards")
-                : t("no_rewards_to_claim")}
+              ? t("total_rewards")
+              : t("no_rewards_to_claim")}
           </h4>
         </div>
         <RewardsOverview />
@@ -199,10 +199,11 @@ function ClaimButton() {
 
   return (
     <button
-      className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${!disabled
+      className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
+        !disabled
           ? "bg-dexter-gradient-green text-black"
           : "bg-[#232629] text-[#474D52] opacity-50"
-        }`}
+      }`}
       onClick={async (e) => {
         e.stopPropagation();
         DexterToast.promise(
