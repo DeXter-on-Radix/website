@@ -145,45 +145,47 @@ export default function Landing() {
 
 function HeroSection() {
   return (
-    <div>
-      <div
-        className={`${containerWidthAndPadding} min-h-[100vh] flex flex-col justify-center items-center pb-[20vh]`}
-      >
-        {/* Container */}
-        <div className="flex justify-center relative">
-          <div
+    <div
+      className={
+        `${containerWidthAndPadding} ` +
+        `flex flex-col justify-center items-center  ` +
+        `min-h-[100vh] pb-[20vh]`
+      }
+    >
+      {/* Container */}
+      <div className="flex justify-center relative">
+        <div
+          className={
+            `flex flex-col items-start justify-center z-50 ` +
+            `max-[820px]:items-center max-[820px]:text-center ` +
+            `min-[821px]:max-w-[60%] `
+          }
+        >
+          <h1
             className={
-              `flex flex-col items-start justify-center z-50 ` +
-              `max-[820px]:items-center max-[820px]:text-center ` +
-              `min-[821px]:max-w-[60%] `
+              `!m-0 z-100 ` +
+              `max-[420px]:py-4 ` +
+              `max-[820px]:max-w-[600px] max-[820px]:!mb-2 `
             }
           >
-            <h1
-              className={
-                `!m-0 z-100 ` +
-                `max-[420px]:py-4 ` +
-                `max-[820px]:max-w-[600px] max-[820px]:!mb-2 `
-              }
-            >
-              Decentralized Order Book Exchange on Radix
-            </h1>
-            <div className="relative">
-              <BackgroundLights showFor={Device.MOBILE} />
-              <DexterButton title="TRADE NOW" targetUrl="/trade" />
-            </div>
-            <KeyFeatures showFor={Device.MOBILE} />
-          </div>
+            Decentralized Order Book Exchange on Radix
+          </h1>
           <div className="relative">
-            <BackgroundLights showFor={Device.DESKTOP} />
-            <img
-              src="/landing/dexter-mascotte.png"
-              alt="Dexter Mascotte"
-              className={`w-[300px] z-[100] max-[820px]:hidden relative `}
-            />
+            <BackgroundLights showFor={Device.MOBILE} />
+            <DexterButton title="TRADE NOW" targetUrl="/trade" />
           </div>
+          <KeyFeatures showFor={Device.MOBILE} />
         </div>
-        <KeyFeatures showFor={Device.DESKTOP} />
+        <div className="relative">
+          <BackgroundLights showFor={Device.DESKTOP} />
+          <img
+            src="/landing/dexter-mascotte.png"
+            alt="Dexter Mascotte"
+            className={`w-[300px] z-[100] max-[820px]:hidden relative `}
+          />
+        </div>
       </div>
+      <KeyFeatures showFor={Device.DESKTOP} />
     </div>
   );
 }
