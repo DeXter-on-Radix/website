@@ -247,11 +247,6 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
           alt="green light"
           className="absolute opacity-100 scale-[3] top-[-200%] left-[-50%] z-[-30] "
         />
-        <img
-          src="/landing/background-structures.png"
-          alt="background structures"
-          className="absolute opacity-5 scale-[3] top-[-150%] right-[-0%] z-[-20] "
-        />
       </div>
     );
   }
