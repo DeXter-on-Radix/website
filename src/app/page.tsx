@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "hooks";
+
 enum Device {
   MOBILE = "MOBILE",
   DESKTOP = "DESKTOP",
@@ -48,10 +50,11 @@ interface DexterParagraphProps {
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
-  const tokenomicsProps = TopicSectionPropsDict[TopicSectionEnum.TOKENOMICS];
-  const tradeProps = TopicSectionPropsDict[TopicSectionEnum.TRADE];
-  const stakeProps = TopicSectionPropsDict[TopicSectionEnum.STAKE];
-  const contributeProps = TopicSectionPropsDict[TopicSectionEnum.CONTRIBUTE];
+  const t = useTranslations();
+  const tokenomicsProps = getTokenomicsTopicSectionProps(t);
+  const tradeProps = getTradeTopicSectionProps(t);
+  const stakeProps = getStakeTopicSectionProps(t);
+  const contributeProps = getContributeTopicSectionProps(t);
 
   return (
     <div className="bg-dexter-grey-light">
@@ -65,6 +68,7 @@ export default function Landing() {
 }
 
 function HeroSection() {
+  const t = useTranslations();
   return (
     <div
       className={
@@ -88,11 +92,11 @@ function HeroSection() {
               `max-[820px]:max-w-[600px] max-[820px]:!mb-2 `
             }
           >
-            Decentralized Order Book Exchange on Radix
+            {t("decentralized_order_book_exchange_on")}
           </h1>
           <div className="relative">
             <BackgroundLights showFor={Device.MOBILE} />
-            <DexterButton title="TRADE NOW" targetUrl="/trade" />
+            <DexterButton title={t("trade_now")} targetUrl="/trade" />
           </div>
           <KeyFeatures showFor={Device.MOBILE} />
         </div>
@@ -111,10 +115,11 @@ function HeroSection() {
 }
 
 function KeyFeatures({ showFor }: { showFor: Device }) {
+  const t = useTranslations();
   const content = [
-    ["landing/icons/rocket.svg", "Easy and fast"],
-    ["landing/icons/decentralized.svg", "Decentralized"],
-    ["landing/icons/coins.svg", "Earn rewards by trading"],
+    ["landing/icons/rocket.svg", "easy_and_fast"],
+    ["landing/icons/decentralized.svg", "decentralized"],
+    ["landing/icons/coins.svg", "earn_rewards_by_trading"],
   ];
   return (
     <div
@@ -129,7 +134,7 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
             `min-[821px]:hidden `
       }
     >
-      {content.map(([iconUrl, title], indx) => {
+      {content.map(([iconUrl, text], indx) => {
         return (
           <div
             key={indx}
@@ -140,7 +145,7 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
           >
             <img
               src={iconUrl}
-              alt={title}
+              alt={text}
               className={
                 `w-[24px] ` +
                 `min-[821px]:w-[32px] min-[821px]:opacity-100 ` +
@@ -154,7 +159,7 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
                 `min-[821px]:text-lg`
               }
             >
-              {title}
+              {t(text)}
             </p>
           </div>
         );
@@ -245,6 +250,7 @@ function TopicSection({
 }
 
 function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
+  const t = useTranslations();
   return (
     <div className="flex items-start mt-2">
       <img
@@ -253,8 +259,11 @@ function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
         className="w-12 mr-4 pt-2 max-[440px]:w-10 max-[440px]:mr-2 max-[440px]:pt-1"
       />
       <div>
-        <p className="text-base font-bold text-white text-left">{title}</p>
-        <DexterParagraph additionalClass="text-left opacity-80" text={body} />
+        <p className="text-base font-bold text-white text-left">{t(title)}</p>
+        <DexterParagraph
+          additionalClass="text-left opacity-80"
+          text={t(body)}
+        />
       </div>
     </div>
   );
@@ -299,89 +308,102 @@ function DexterHeading({ title }: DexterHeadingProps) {
 }
 
 function DexterParagraph({ text, additionalClass }: DexterParagraphProps) {
+  const t = useTranslations();
   return (
     <p
       className={
         "text-sm tracking-wide py-2 " + (additionalClass ? additionalClass : "")
       }
     >
-      {text}
+      {t(text)}
     </p>
   );
 }
 
-const tokenomicsBody = (
-  <>
-    <IconTitleAndBody
-      icon="money"
-      title="Tokenomics"
-      body="100'000 DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate."
-    />
-    <IconTitleAndBody
-      icon="vote"
-      title="Vote in the DAO"
-      body="1 $DEXTR equals 1 vote in governance decisions."
-    />
-    <IconTitleAndBody
-      icon="chart"
-      title="Revenue Share (coming soon...)"
-      body="Trade fees collected by DeXter will be shared among all DEXTR holders."
-    />
-  </>
-);
-
-const TopicSectionPropsDict = {
-  TOKENOMICS: {
+function getTokenomicsTopicSectionProps(
+  t: (key: string) => string // translation dict needs to be passed in
+): TopicSectionProps {
+  const tokenomicsBody = (
+    <>
+      <IconTitleAndBody
+        icon="money"
+        title={t("tokenomics")}
+        body={t("100k_dextr_minted_every_2")}
+      />
+      <IconTitleAndBody
+        icon="vote"
+        title={t("vote_in_the_dao")}
+        body={t("1_dextr_equals_1_vote")}
+      />
+      <IconTitleAndBody
+        icon="chart"
+        title={t("revenue_share_coming_soon")}
+        body={t("trade_fees_collected_by_dexter")}
+      />
+    </>
+  );
+  return {
     backgroundColor: "bg-dexter-grey-dark",
-    title: "$DEXTR Token",
+    title: t("dextr_token"),
     body: tokenomicsBody,
     imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
     buttonUrl:
       "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
-    buttonText: "Learn more",
+    buttonText: t("learn_more"),
     reversed: true,
-  },
-  TRADE: {
+  };
+}
+
+function getTradeTopicSectionProps(
+  t: (key: string) => string // translation dict needs to be passed in
+): TopicSectionProps {
+  const tradeBody = (
+    <p className="text-sm tracking-wide py-2">
+      {t("earn")}{" "}
+      <span className="text-lg tracking-tight font-bold text-white">
+        {t("x%_on_every_trade")}
+      </span>
+      , {t("plus_enjoy_additional_liquidity_incentives")}
+    </p>
+  );
+  return {
     backgroundColor: "bg-dexter-grey-light",
-    title: "Earn rewards by trading",
-    body: (
-      <p className="text-sm tracking-wide py-2">
-        Earn{" "}
-        <span className="text-lg tracking-tight font-bold text-white">
-          0.35% on every trade
-        </span>
-        , plus enjoy additional liquidity incentives for orders placed near the
-        market price.
-      </p>
-    ),
+    title: t("earn_rewards_by_trading"),
+    body: tradeBody,
     imageUrl: "/landing/sections/treasury-earn-by-trading.png",
-    buttonText: "Learn more",
+    buttonText: t("learn_more"),
     buttonUrl:
       "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
     reversed: false,
-  },
-  STAKE: {
+  };
+}
+
+function getStakeTopicSectionProps(
+  t: (key: string) => string // translation dict needs to be passed in
+): TopicSectionProps {
+  return {
     backgroundColor: "bg-dexter-grey-dark",
-    title: "Stake $XRD to earn $DEXTR",
-    body: (
-      <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
-    ),
+    title: t("stake_xrd_to_earn_dextr"),
+    body: <DexterParagraph text={t("delegate_your_xrd_to_our")} />,
     imageUrl: "/landing/sections/staking-safe.png",
-    buttonText: "Stake now",
+    buttonText: t("stake_now"),
     buttonUrl:
       "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
     reversed: true,
-  },
-  CONTRIBUTE: {
+  };
+}
+
+function getContributeTopicSectionProps(
+  t: (key: string) => string // translation dict needs to be passed in
+): TopicSectionProps {
+  return {
     backgroundColor: "bg-dexter-grey-light",
-    title: "Earn $DEXTR by contributing",
-    body: (
-      <DexterParagraph text="Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
-    ),
+    title: t("earn_dextr_by_contributing"),
+    body: <DexterParagraph text={t("whether_you_are_a_developer")} />,
     imageUrl: "/landing/sections/hands.png",
-    buttonText: "Join us",
+    buttonText: t("join_us"),
     buttonUrl:
       "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
     reversed: false,
-  },
-};
+  };
+}
