@@ -22,19 +22,17 @@ interface TopicSectionProps {
   reversed: boolean;
 }
 
+interface IconTitleAndBodyProps {
+  icon: string;
+  title: string;
+  body: string;
+}
+
 // Define a shared variable for container dimensions and padding to ensure
 // consistency across sections with full-width backgrounds.
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
-function IconTitleAndBody({
-  icon,
-  title,
-  body,
-}: {
-  icon: string;
-  title: string;
-  body: string;
-}) {
+function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
   return (
     <div className="flex items-start mt-2">
       <img
@@ -151,7 +149,7 @@ function HeroSection() {
       <div
         className={`${containerWidthAndPadding} min-h-[100vh] flex flex-col justify-center items-center pb-[20vh]`}
       >
-        {/* Header Section */}
+        {/* Container */}
         <div className="flex justify-center relative">
           <div
             className={
@@ -229,6 +227,7 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
 function BackgroundLights({ showFor }: { showFor: Device }) {
   if (showFor === Device.DESKTOP) {
     return (
+      // Parent is not rendered on small screens so we don't need to explicitally hide it
       <>
         <img
           src="/landing/blue-light.svg"
@@ -250,6 +249,7 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
   }
   if (showFor === Device.MOBILE) {
     return (
+      // Parent is always rendered so we need to explicitally hide it
       <div className="min-[821px]:hidden">
         <img
           src="/landing/blue-light.svg"
