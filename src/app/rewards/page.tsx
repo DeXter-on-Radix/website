@@ -113,7 +113,7 @@ function RewardsCard() {
     }
   }, [dispatch, isConnected, account, pairsList]);
   return (
-    <div className="max-w-[400px] sm:max-w-[600px] w-full px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D]">
+    <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
       <div className="flex flex-col">
         <div>
           <h4
