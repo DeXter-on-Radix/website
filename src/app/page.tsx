@@ -61,12 +61,12 @@ function getTopicSectionProps(
         body="100'000 DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate."
       />
       <IconTitleAndBody
-        icon="chart"
+        icon="vote"
         title="Vote in the DAO"
         body="1 $DEXTR equals 1 vote in governance decisions."
       />
       <IconTitleAndBody
-        icon="money-bag"
+        icon="chart"
         title="Revenue Share (coming soon...)"
         body="Trade fees collected by DeXter will be shared among all DEXTR holders."
       />
