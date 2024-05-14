@@ -165,12 +165,13 @@ function HeroSection() {
               Decentralized Order Book Exchange on Radix
             </h1>
             <div className="relative">
-              <BackgroundLights type={Device.MOBILE} />
+              <BackgroundLights showFor={Device.MOBILE} />
               <DexterButton title="TRADE NOW" targetUrl="/trade" />
             </div>
+            <KeyFeatures showFor={Device.MOBILE} />
           </div>
           <div className="relative">
-            <BackgroundLights type={Device.DESKTOP} />
+            <BackgroundLights showFor={Device.DESKTOP} />
             <img
               src="/landing/dexter-mascotte.png"
               alt="Dexter Mascotte"
@@ -178,14 +179,41 @@ function HeroSection() {
             />
           </div>
         </div>
-        {/* Icons */}
       </div>
     </div>
   );
 }
 
-function BackgroundLights({ type }: { type: Device }) {
-  if (type === Device.DESKTOP) {
+function KeyFeatures({ showFor }: { showFor: Device }) {
+  const content = [
+    ["landing/icons/rocket.svg", "Easy and fast"],
+    ["landing/icons/decentralized.svg", "Decentralized"],
+    ["landing/icons/coins.svg", "Earn rewards by trading"],
+  ];
+  if (showFor === Device.MOBILE) {
+    return (
+      <div className="min-[821px]:hidden flex justify-between w-full max-w-2xl pt-10 bottom-[200px] right-[250px] min-[401px]:px-4 z-50 text-sm">
+        {content.map(([iconUrl, title], indx) => {
+          return (
+            <div
+              key={indx}
+              className="flex flex-col justify-start items-center w-24"
+            >
+              <img src={iconUrl} alt={title} width="24px" />
+              <p className="text-sm max-[380px]:text-xs pt-2">{title}</p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  if (showFor === Device.DESKTOP) {
+    return <></>;
+  }
+}
+
+function BackgroundLights({ showFor }: { showFor: Device }) {
+  if (showFor === Device.DESKTOP) {
     return (
       <>
         <img
@@ -206,7 +234,7 @@ function BackgroundLights({ type }: { type: Device }) {
       </>
     );
   }
-  if (type === Device.MOBILE) {
+  if (showFor === Device.MOBILE) {
     return (
       <div className="min-[821px]:hidden">
         <img
