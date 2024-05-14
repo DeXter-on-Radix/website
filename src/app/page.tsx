@@ -28,117 +28,38 @@ interface IconTitleAndBodyProps {
   body: string;
 }
 
+interface DexterButtonProps {
+  title: string;
+  targetUrl?: string;
+  targetBlank?: boolean;
+}
+
+interface DexterHeadingProps {
+  title: string;
+}
+
+interface DexterParagraphProps {
+  text: string;
+  additionalClass?: string;
+}
+
 // Define a shared variable for container dimensions and padding to ensure
 // consistency across sections with full-width backgrounds.
 const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
-function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
-  return (
-    <div className="flex items-start mt-2">
-      <img
-        src={`/landing/icons/${icon}.svg`}
-        alt={icon}
-        className="w-12 mr-4 pt-2 max-[440px]:w-10 max-[440px]:mr-2 max-[440px]:pt-1"
-      />
-      <div>
-        <p className="text-base font-bold text-white text-left">{title}</p>
-        <DexterParagraph additionalClass="text-left opacity-80" text={body} />
-      </div>
-    </div>
-  );
-}
-
-function getTopicSectionProps(
-  topicSection: TopicSectionEnum
-): TopicSectionProps {
-  const tokenomicsBody = (
-    <>
-      <IconTitleAndBody
-        icon="money"
-        title="Tokenomics"
-        body="100'000 DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate."
-      />
-      <IconTitleAndBody
-        icon="vote"
-        title="Vote in the DAO"
-        body="1 $DEXTR equals 1 vote in governance decisions."
-      />
-      <IconTitleAndBody
-        icon="chart"
-        title="Revenue Share (coming soon...)"
-        body="Trade fees collected by DeXter will be shared among all DEXTR holders."
-      />
-    </>
-  );
-  const tradeBody = (
-    <p className="text-sm tracking-wide py-2">
-      Earn{" "}
-      <span className="text-lg tracking-tight font-bold text-white">
-        0.35% on every trade
-      </span>
-      , plus enjoy additional liquidity incentives for orders placed near the
-      market price.
-    </p>
-  );
-  const stakeBody = (
-    <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
-  );
-  const contributeBody = (
-    <DexterParagraph text="Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
-  );
-
-  return {
-    TOKENOMICS: {
-      backgroundColor: "bg-dexter-grey-dark",
-      title: "$DEXTR Token",
-      body: tokenomicsBody,
-      imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
-      buttonUrl:
-        "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
-      buttonText: "Learn more",
-      reversed: true,
-    },
-    TRADE: {
-      backgroundColor: "bg-dexter-grey-light",
-      title: "Earn rewards by trading",
-      body: tradeBody,
-      imageUrl: "/landing/sections/treasury-earn-by-trading.png",
-      buttonText: "Learn more",
-      buttonUrl:
-        "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
-      reversed: false,
-    },
-    STAKE: {
-      backgroundColor: "bg-dexter-grey-dark",
-      title: "Stake $XRD to earn $DEXTR",
-      body: stakeBody,
-      imageUrl: "/landing/sections/staking-safe.png",
-      buttonText: "Stake now",
-      buttonUrl:
-        "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
-      reversed: true,
-    },
-    CONTRIBUTE: {
-      backgroundColor: "bg-dexter-grey-light",
-      title: "Earn $DEXTR by contributing",
-      body: contributeBody,
-      imageUrl: "/landing/sections/hands.png",
-      buttonText: "Join us",
-      buttonUrl:
-        "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
-      reversed: false,
-    },
-  }[topicSection];
-}
-
 export default function Landing() {
+  const tokenomicsProps = TopicSectionPropsDict[TopicSectionEnum.TOKENOMICS];
+  const tradeProps = TopicSectionPropsDict[TopicSectionEnum.TRADE];
+  const stakeProps = TopicSectionPropsDict[TopicSectionEnum.STAKE];
+  const contributeProps = TopicSectionPropsDict[TopicSectionEnum.CONTRIBUTE];
+
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
-      <TopicSection topicSection={TopicSectionEnum.TOKENOMICS} />
-      <TopicSection topicSection={TopicSectionEnum.TRADE} />
-      <TopicSection topicSection={TopicSectionEnum.STAKE} />
-      <TopicSection topicSection={TopicSectionEnum.CONTRIBUTE} />
+      <TopicSection {...tokenomicsProps} />
+      <TopicSection {...tradeProps} />
+      <TopicSection {...stakeProps} />
+      <TopicSection {...contributeProps} />
     </div>
   );
 }
@@ -269,20 +190,14 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
 }
 
 function TopicSection({
-  topicSection,
-}: {
-  topicSection: TopicSectionEnum;
-}): JSX.Element {
-  const x = getTopicSectionProps(topicSection);
-  const {
-    backgroundColor,
-    title,
-    body,
-    imageUrl,
-    buttonUrl,
-    buttonText,
-    reversed,
-  } = x;
+  backgroundColor,
+  title,
+  body,
+  imageUrl,
+  buttonUrl,
+  buttonText,
+  reversed,
+}: TopicSectionProps): JSX.Element {
   return (
     <div
       className={`${backgroundColor} py-20 max-[820px]:py-10 z-[100] relative`}
@@ -313,10 +228,20 @@ function TopicSection({
   );
 }
 
-interface DexterButtonProps {
-  title: string;
-  targetUrl?: string;
-  targetBlank?: boolean;
+function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
+  return (
+    <div className="flex items-start mt-2">
+      <img
+        src={`/landing/icons/${icon}.svg`}
+        alt={icon}
+        className="w-12 mr-4 pt-2 max-[440px]:w-10 max-[440px]:mr-2 max-[440px]:pt-1"
+      />
+      <div>
+        <p className="text-base font-bold text-white text-left">{title}</p>
+        <DexterParagraph additionalClass="text-left opacity-80" text={body} />
+      </div>
+    </div>
+  );
 }
 
 function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
@@ -339,25 +264,7 @@ function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
   );
 }
 
-function DexterParagraph({
-  text,
-  additionalClass,
-}: {
-  text: string;
-  additionalClass?: string;
-}) {
-  return (
-    <p
-      className={
-        "text-sm tracking-wide py-2 " + (additionalClass ? additionalClass : "")
-      }
-    >
-      {text}
-    </p>
-  );
-}
-
-function DexterHeading({ title }: { title: string }) {
+function DexterHeading({ title }: DexterHeadingProps) {
   return (
     <>
       <h2
@@ -374,3 +281,91 @@ function DexterHeading({ title }: { title: string }) {
     </>
   );
 }
+
+function DexterParagraph({ text, additionalClass }: DexterParagraphProps) {
+  return (
+    <p
+      className={
+        "text-sm tracking-wide py-2 " + (additionalClass ? additionalClass : "")
+      }
+    >
+      {text}
+    </p>
+  );
+}
+
+const tokenomicsBody = (
+  <>
+    <IconTitleAndBody
+      icon="money"
+      title="Tokenomics"
+      body="100'000 DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate."
+    />
+    <IconTitleAndBody
+      icon="vote"
+      title="Vote in the DAO"
+      body="1 $DEXTR equals 1 vote in governance decisions."
+    />
+    <IconTitleAndBody
+      icon="chart"
+      title="Revenue Share (coming soon...)"
+      body="Trade fees collected by DeXter will be shared among all DEXTR holders."
+    />
+  </>
+);
+
+const TopicSectionPropsDict = {
+  TOKENOMICS: {
+    backgroundColor: "bg-dexter-grey-dark",
+    title: "$DEXTR Token",
+    body: tokenomicsBody,
+    imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
+    buttonUrl:
+      "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
+    buttonText: "Learn more",
+    reversed: true,
+  },
+  TRADE: {
+    backgroundColor: "bg-dexter-grey-light",
+    title: "Earn rewards by trading",
+    body: (
+      <p className="text-sm tracking-wide py-2">
+        Earn{" "}
+        <span className="text-lg tracking-tight font-bold text-white">
+          0.35% on every trade
+        </span>
+        , plus enjoy additional liquidity incentives for orders placed near the
+        market price.
+      </p>
+    ),
+    imageUrl: "/landing/sections/treasury-earn-by-trading.png",
+    buttonText: "Learn more",
+    buttonUrl:
+      "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
+    reversed: false,
+  },
+  STAKE: {
+    backgroundColor: "bg-dexter-grey-dark",
+    title: "Stake $XRD to earn $DEXTR",
+    body: (
+      <DexterParagraph text="Delegate your $XRD to our Validator to earn $DEXTR." />
+    ),
+    imageUrl: "/landing/sections/staking-safe.png",
+    buttonText: "Stake now",
+    buttonUrl:
+      "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
+    reversed: true,
+  },
+  CONTRIBUTE: {
+    backgroundColor: "bg-dexter-grey-light",
+    title: "Earn $DEXTR by contributing",
+    body: (
+      <DexterParagraph text="Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team." />
+    ),
+    imageUrl: "/landing/sections/hands.png",
+    buttonText: "Join us",
+    buttonUrl:
+      "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
+    reversed: false,
+  },
+};
