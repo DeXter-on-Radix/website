@@ -252,12 +252,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
     return (
       <>
         <img
-          src="/landing/blue-light.png"
+          src="/landing/blue-light.svg"
           alt="blue light"
           className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] "
         />
         <img
-          src="/landing/green-light.png"
+          src="/landing/green-light.svg"
           alt="green light"
           className="absolute z-10 scale-[4] top-[-147px] right-[122px] "
         />
