@@ -149,7 +149,7 @@ function HeroSection() {
   return (
     <div>
       <div
-        className={`${containerWidthAndPadding} h-[calc(100vh-74px)] flex justify-center items-center pb-[20vh]`}
+        className={`${containerWidthAndPadding} min-h-[100vh] flex flex-col justify-center items-center pb-[20vh]`}
       >
         {/* Header Section */}
         <div className="flex justify-center relative">
@@ -184,6 +184,7 @@ function HeroSection() {
             />
           </div>
         </div>
+        <KeyFeatures showFor={Device.DESKTOP} />
       </div>
     </div>
   );
@@ -219,7 +220,30 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
     );
   }
   if (showFor === Device.DESKTOP) {
-    return <></>;
+    return (
+      <div
+        className={
+          `flex justify-between w-full max-w-3xl z-50 pt-10 ` +
+          `relative top-10 ` +
+          `min-[401px]:px-4 ` +
+          `max-[820px]:hidden `
+        }
+      >
+        {content.map(([iconUrl, title], indx) => {
+          return (
+            <div
+              key={indx}
+              className="flex flex-col justify-start items-center w-24"
+            >
+              <img src={iconUrl} alt={title} width="24px" />
+              <p className="text-sm max-[380px]:text-xs pt-2 text-center">
+                {title}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    );
   }
 }
 
