@@ -196,55 +196,34 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
     ["landing/icons/decentralized.svg", "Decentralized"],
     ["landing/icons/coins.svg", "Earn rewards by trading"],
   ];
-  if (showFor === Device.MOBILE) {
-    return (
-      <div
-        className={
-          `flex justify-between w-full max-w-2xl z-50 pt-10 ` +
-          `min-[401px]:px-4 ` +
-          `min-[821px]:hidden `
-        }
-      >
-        {content.map(([iconUrl, title], indx) => {
-          return (
-            <div
-              key={indx}
-              className="flex flex-col justify-start items-center w-24"
-            >
-              <img src={iconUrl} alt={title} width="24px" />
-              <p className="text-sm max-[380px]:text-xs pt-2">{title}</p>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-  if (showFor === Device.DESKTOP) {
-    return (
-      <div
-        className={
-          `flex justify-between w-full max-w-3xl z-50 pt-10 ` +
-          `relative top-10 ` +
-          `min-[401px]:px-4 ` +
-          `max-[820px]:hidden `
-        }
-      >
-        {content.map(([iconUrl, title], indx) => {
-          return (
-            <div
-              key={indx}
-              className="flex flex-col justify-start items-center w-24"
-            >
-              <img src={iconUrl} alt={title} width="24px" />
-              <p className="text-sm max-[380px]:text-xs pt-2 text-center">
-                {title}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
+  return (
+    <div
+      className={
+        showFor === Device.DESKTOP
+          ? `flex justify-between w-full max-w-3xl z-50 pt-10 ` +
+            `relative top-10 ` +
+            `min-[401px]:px-4 ` +
+            `max-[820px]:hidden `
+          : `flex justify-between w-full max-w-2xl z-50 pt-10 ` +
+            `min-[401px]:px-4 ` +
+            `min-[821px]:hidden `
+      }
+    >
+      {content.map(([iconUrl, title], indx) => {
+        return (
+          <div
+            key={indx}
+            className="flex flex-col justify-start items-center w-24"
+          >
+            <img src={iconUrl} alt={title} width="24px" />
+            <p className="text-sm max-[380px]:text-xs pt-2 text-center">
+              {title}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function BackgroundLights({ showFor }: { showFor: Device }) {
@@ -273,12 +252,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
     return (
       <div className="min-[821px]:hidden">
         <img
-          src="/landing/blue-light.png"
+          src="/landing/blue-light.svg"
           alt="blue light"
           className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30]"
         />
         <img
-          src="/landing/green-light.png"
+          src="/landing/green-light.svg"
           alt="green light"
           className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] "
         />
