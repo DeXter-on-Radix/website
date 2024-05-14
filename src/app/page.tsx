@@ -51,11 +51,10 @@ const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   const t = useTranslations();
-  const tokenomicsProps = getTokenomicsTopicSectionProps(t);
-  const tradeProps = getTradeTopicSectionProps(t);
-  const stakeProps = getStakeTopicSectionProps(t);
-  const contributeProps = getContributeTopicSectionProps(t);
-
+  const tokenomicsProps = getTopicsSectionProps(TopicSectionEnum.TOKENOMICS, t);
+  const tradeProps = getTopicsSectionProps(TopicSectionEnum.TRADE, t);
+  const stakeProps = getTopicsSectionProps(TopicSectionEnum.STAKE, t);
+  const contributeProps = getTopicsSectionProps(TopicSectionEnum.CONTRIBUTE, t);
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
@@ -318,6 +317,22 @@ function DexterParagraph({ text, additionalClass }: DexterParagraphProps) {
       {t(text)}
     </p>
   );
+}
+
+/*
+ * Content for each section (except hero section)
+ * is stored in the following functions
+ */
+function getTopicsSectionProps(
+  topicSectionEnum: TopicSectionEnum,
+  t: (key: string) => string
+): TopicSectionProps {
+  return {
+    TOKENOMICS: getTokenomicsTopicSectionProps(t),
+    TRADE: getTradeTopicSectionProps(t),
+    STAKE: getStakeTopicSectionProps(t),
+    CONTRIBUTE: getContributeTopicSectionProps(t),
+  }[topicSectionEnum];
 }
 
 function getTokenomicsTopicSectionProps(
