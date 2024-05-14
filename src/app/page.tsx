@@ -155,12 +155,17 @@ function HeroSection() {
         <div className="flex justify-center relative">
           <div
             className={
-              `flex flex-col items-start justify-center ` +
-              `min-[821px]:max-w-[60%] max-[820px]:items-center max-[820px]:text-center z-50 `
+              `flex flex-col items-start justify-center z-50 ` +
+              `max-[820px]:items-center max-[820px]:text-center ` +
+              `min-[821px]:max-w-[60%] `
             }
           >
             <h1
-              className={`!m-0 z-100 max-[820px]:max-w-[600px] max-[420px]:py-4`}
+              className={
+                `!m-0 z-100 ` +
+                `max-[420px]:py-4 ` +
+                `max-[820px]:max-w-[600px] max-[820px]:!mb-2 `
+              }
             >
               Decentralized Order Book Exchange on Radix
             </h1>
@@ -192,7 +197,13 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
   ];
   if (showFor === Device.MOBILE) {
     return (
-      <div className="min-[821px]:hidden flex justify-between w-full max-w-2xl pt-10 bottom-[200px] right-[250px] min-[401px]:px-4 z-50 text-sm">
+      <div
+        className={
+          `flex justify-between w-full max-w-2xl z-50 pt-10 ` +
+          `min-[401px]:px-4 ` +
+          `min-[821px]:hidden `
+        }
+      >
         {content.map(([iconUrl, title], indx) => {
           return (
             <div
