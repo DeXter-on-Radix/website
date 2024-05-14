@@ -153,7 +153,7 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
             />
             <p
               className={
-                `pt-2 text-center opacity-80 text-sm` +
+                `pt-2 text-center opacity-80 text-sm ` +
                 `max-[380px]:text-xs ` +
                 `min-[821px]:text-lg`
               }
