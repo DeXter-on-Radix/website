@@ -94,7 +94,7 @@ function getTopicSectionProps(
       backgroundColor: "bg-dexter-grey-dark",
       title: "$DEXTR Token",
       body: tokenomicsBody,
-      imageUrl: "/landing/dexter-mascotte-holding-coin.png",
+      imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
       buttonText: "Learn more",
@@ -104,7 +104,7 @@ function getTopicSectionProps(
       backgroundColor: "bg-dexter-grey-light",
       title: "Earn rewards by trading",
       body: tradeBody,
-      imageUrl: "/landing/treasury-earn-by-trading.png",
+      imageUrl: "/landing/sections/treasury-earn-by-trading.png",
       buttonText: "Learn more",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives",
@@ -114,7 +114,7 @@ function getTopicSectionProps(
       backgroundColor: "bg-dexter-grey-dark",
       title: "Stake $XRD to earn $DEXTR",
       body: stakeBody,
-      imageUrl: "/landing/staking-safe.png",
+      imageUrl: "/landing/sections/staking-safe.png",
       buttonText: "Stake now",
       buttonUrl:
         "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
@@ -124,7 +124,7 @@ function getTopicSectionProps(
       backgroundColor: "bg-dexter-grey-light",
       title: "Earn $DEXTR by contributing",
       body: contributeBody,
-      imageUrl: "/landing/hands.png",
+      imageUrl: "/landing/sections/hands.png",
       buttonText: "Join us",
       buttonUrl:
         "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
