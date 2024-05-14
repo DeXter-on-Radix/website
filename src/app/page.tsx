@@ -73,7 +73,6 @@ function HeroSection() {
         `min-h-[100vh] pb-[20vh]`
       }
     >
-      {/* Container */}
       <div className="flex justify-center relative">
         <div
           className={
@@ -134,10 +133,27 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
         return (
           <div
             key={indx}
-            className="flex flex-col justify-start items-center w-24"
+            className={
+              `flex flex-col justify-start items-center w-24 ` +
+              `min-[821px]:w-32`
+            }
           >
-            <img src={iconUrl} alt={title} width="24px" />
-            <p className="text-sm max-[380px]:text-xs pt-2 text-center">
+            <img
+              src={iconUrl}
+              alt={title}
+              className={
+                `w-[24px] ` +
+                `min-[821px]:w-[32px] min-[821px]:opacity-100 ` +
+                `min-[400px]:w-[28px]`
+              }
+            />
+            <p
+              className={
+                `pt-2 text-center opacity-80 text-sm` +
+                `max-[380px]:text-xs ` +
+                `min-[821px]:text-lg`
+              }
+            >
               {title}
             </p>
           </div>
