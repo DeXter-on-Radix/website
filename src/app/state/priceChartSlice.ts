@@ -72,7 +72,7 @@ export function handleCrosshairMove(
           (candle) => candle.time === param.time
         );
 
-        if (currentIndex > 0 && currentIndex < data.length) {
+        if (currentIndex >= 0 && currentIndex < data.length) {
           const currentData = data[currentIndex];
           const volumeData = param.seriesData.get(volumeSeries) as OHLCVData;
           dispatch(setLegendChange(currentData));
