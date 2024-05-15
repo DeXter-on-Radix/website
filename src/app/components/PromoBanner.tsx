@@ -51,25 +51,17 @@ export function PromoBanner({
   };
 
   return (
-    <div
-      className={
-        "flex justify-center items-center " + // positioning
-        `max-w-[100vw] ` + // sizing
-        "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%" // gradient background
-      }
+    <a
+      onClick={handleRedirect}
+      className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
     >
-      <a
-        onClick={handleRedirect}
-        className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
-      >
-        <img
-          src={currentImageSrc}
-          alt="promo header"
-          className={`w-[100vw] ${
-            isSmallScreen() ? "h-auto " : "h-[80px] w-auto"
-          }`}
-        />
-      </a>
-    </div>
+      <img
+        src={currentImageSrc}
+        alt="promo header"
+        className={`w-[100vw] ${
+          isSmallScreen() ? "h-auto " : "h-[80px] w-auto"
+        }`}
+      />
+    </a>
   );
 }
