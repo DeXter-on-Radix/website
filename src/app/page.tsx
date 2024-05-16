@@ -47,8 +47,7 @@ interface DexterParagraphProps {
 
 // Define a shared variable for container dimensions and padding to ensure
 // consistency across sections with full-width backgrounds.
-const containerWidthAndPadding =
-  "w-[1200px] max-w-[100vw] max-[1500px]:max-w-[70vw] m-auto p-8 ";
+const containerWidthAndPadding = "w-[1000px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   const t = useTranslations();
