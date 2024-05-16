@@ -200,10 +200,13 @@ function ClaimButton() {
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
         !disabled
           ? "bg-dexter-gradient-green text-black"
-          : "bg-[#232629] text-[#474D52] opacity-50"
+          : "bg-[#232629] text-[#474D52] opacity-50 cursor-default"
       }`}
       onClick={async (e) => {
         e.stopPropagation();
+        if (disabled) {
+          return;
+        }
         DexterToast.promise(
           async () => {
             const action = await dispatch(claimRewards());
