@@ -47,7 +47,7 @@ interface DexterParagraphProps {
 
 // Define a shared variable for container dimensions and padding to ensure
 // consistency across sections with full-width backgrounds.
-const containerWidthAndPadding = "w-[1000px] max-w-[100vw] m-auto p-8 ";
+const containerWidthAndPadding = "w-[1050px] max-w-[100vw] m-auto p-8 ";
 
 export default function Landing() {
   const t = useTranslations();
@@ -377,19 +377,10 @@ function getTokenomicsTopicSectionProps(
 function getTradeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
-  const tradeBody = (
-    <p className="text-sm tracking-wide py-2">
-      {t("earn")}{" "}
-      <span className="text-lg tracking-tight font-bold text-white">
-        {t("x%_on_every_trade")}
-      </span>
-      , {t("plus_enjoy_additional_liquidity_incentives")}
-    </p>
-  );
   return {
     backgroundColor: "bg-dexter-grey-light",
     title: t("earn_rewards_by_trading"),
-    body: tradeBody,
+    body: <DexterParagraph text={t("earn_rewards_by_trading_and")} />,
     imageUrl: "/landing/sections/treasury-earn-by-trading.png",
     buttonText: t("learn_more"),
     buttonUrl:
