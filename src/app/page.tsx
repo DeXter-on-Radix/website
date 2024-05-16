@@ -47,7 +47,8 @@ interface DexterParagraphProps {
 
 // Define a shared variable for container dimensions and padding to ensure
 // consistency across sections with full-width backgrounds.
-const containerWidthAndPadding = "w-[1200px] max-w-[100vw] m-auto p-8 ";
+const containerWidthAndPadding =
+  "w-[1200px] max-w-[100vw] max-[1500px]:max-w-[70vw] m-auto p-8 ";
 
 export default function Landing() {
   const t = useTranslations();
@@ -72,7 +73,7 @@ function HeroSection() {
     <div
       className={
         `${containerWidthAndPadding} ` +
-        `flex flex-col justify-center items-center  ` +
+        `flex flex-col justify-center items-center ` +
         `min-h-[100vh] pb-[20vh]`
       }
     >
@@ -104,7 +105,7 @@ function HeroSection() {
           <img
             src="/landing/dexter-mascotte.png"
             alt="Dexter Mascotte"
-            className={`w-[300px] z-[100] max-[820px]:hidden relative `}
+            className={`w-[285px] z-[100] max-[820px]:hidden relative `}
           />
         </div>
       </div>
@@ -147,15 +148,15 @@ function KeyFeatures({ showFor }: { showFor: Device }) {
               alt={text}
               className={
                 `w-[24px] ` +
-                `min-[821px]:w-[32px] min-[821px]:opacity-100 ` +
-                `min-[400px]:w-[28px]`
+                `min-[821px]:w-[28px] min-[821px]:opacity-100 ` +
+                `min-[400px]:w-[26px]`
               }
             />
             <p
               className={
                 `pt-2 text-center opacity-80 text-sm ` +
                 `max-[380px]:text-xs ` +
-                `min-[821px]:text-lg`
+                `min-[821px]:text-base`
               }
             >
               {t(text)}
