@@ -85,6 +85,11 @@ function HeroSection() {
             `min-[821px]:max-w-[60%] `
           }
         >
+          <img
+            src="/dexter-logo-and-lettering.svg"
+            alt="dexter logo and lettering"
+            className="pb-4 min-[420px]:hidden h-12"
+          />
           <h1
             className={
               `!m-0 z-100 ` +
