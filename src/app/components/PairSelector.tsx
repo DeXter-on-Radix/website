@@ -1,4 +1,3 @@
-import { useSearchParams } from "next/navigation";
 import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPair, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
@@ -119,23 +118,6 @@ export function PairSelector() {
     },
     [isOpen, selectOption, filteredOptions.length]
   );
-
-  const searchParams = useSearchParams();
-  const pairsList = pairSelector.pairsList;
-
-  useEffect(() => {
-    if (pairsList.length > 0) {
-      const pairToInit = searchParams.get("pair")?.split("-").join("/");
-      const pair = pairsList.find(
-        (pair) => pair.name.toUpperCase() === pairToInit?.toUpperCase()
-      );
-      if (pair) {
-        dispatch(
-          selectPair({ pairAddress: pair.address, pairName: pair.name })
-        );
-      }
-    }
-  }, [pairsList, dispatch, searchParams]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
