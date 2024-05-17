@@ -40,7 +40,7 @@ export default function Trade() {
     document.title = pairName ? `DeXter • ${pairName.toUpperCase()}` : "DeXter";
   }, [pairName]);
 
-  // Set query param 'pair' if specified.
+  // Set pair that was specified in query param
   useEffect(() => {
     if (pairsList.length > 0) {
       const pairToInit = searchParams.get("pair")?.split("-").join("/");
