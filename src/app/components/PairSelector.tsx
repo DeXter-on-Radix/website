@@ -62,7 +62,7 @@ export function PairSelector() {
     dispatch(
       selectPair({
         pairAddress: process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS!,
-        pairName: "DEXTR/XRD",
+        pairName: "",
       })
     );
   }, [dispatch]);
