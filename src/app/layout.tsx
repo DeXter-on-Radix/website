@@ -7,7 +7,7 @@ import { Navbar } from "./components/NavBar";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
@@ -44,7 +44,7 @@ export default function RootLayout({
           >
             <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
               <Navbar />
-              {children}
+              <Suspense>{children}</Suspense>
               <Footer />
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { OrderBook } from "../components/OrderBook";
@@ -75,7 +75,7 @@ export default function Trade() {
   }, [dispatch]);
 
   return (
-    <Suspense>
+    <>
       <PromoBanner {...promoBannerConfig} />
       <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
         <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
@@ -102,6 +102,6 @@ export default function Trade() {
           <AccountHistory />
         </div>
       </div>
-    </Suspense>
+    </>
   );
 }
