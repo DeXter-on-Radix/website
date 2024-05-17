@@ -453,3 +453,12 @@ export function isMobile(): boolean {
   }
   return false;
 }
+
+export function setQueryParam(key: string, value: string) {
+  if (!window) {
+    return;
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set(key, value);
+  history.pushState({}, "", url);
+}
