@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
+import { useSearchParams } from "next/navigation";
 
 interface PairInfo {
   name: string;
@@ -37,8 +38,10 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
 }
 
 export function PairSelector() {
+  const searchParams = useSearchParams();
   const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
+  const pairsList = pairSelector.pairsList;
   const dispatch = useAppDispatch();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -58,14 +61,28 @@ export function PairSelector() {
   );
   const id = "pairOption";
 
+  // Set pair that was specified in query param, otherwise fallback to defatult pair
   useEffect(() => {
+    if (pairsList.length > 0) {
+      const pairToInit = searchParams.get("pair")?.split("-").join("/");
+      const pair = pairsList.find(
+        (pair) => pair.name.toUpperCase() === pairToInit?.toUpperCase()
+      );
+      if (pair) {
+        dispatch(
+          selectPair({ pairAddress: pair.address, pairName: pair.name })
+        );
+        return;
+      }
+    }
+    // No query param present or found: fallback to default pair
     dispatch(
       selectPair({
         pairAddress: process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS!,
-        pairName: "",
+        pairName: "DEXTR/XRD", // TODO: implement getPairName(pairAddress) using alphadex list of all pairs
       })
     );
-  }, [dispatch]);
+  }, [pairsList, dispatch, searchParams]);
 
   const selectOption = useCallback(() => {
     const option = filteredOptions[highlightedIndex];

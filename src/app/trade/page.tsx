@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { OrderBook } from "../components/OrderBook";
 import { OrderInput } from "../components/OrderInput";
@@ -9,7 +8,7 @@ import { PairSelector } from "../components/PairSelector";
 import { PriceChart } from "../components/PriceChart";
 import { AccountHistory } from "../components/AccountHistory";
 import { PriceInfo } from "../components/PriceInfo";
-import { fetchBalances, selectPair } from "state/pairSelectorSlice";
+import { fetchBalances } from "state/pairSelectorSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { fetchAccountHistory } from "../state/accountHistorySlice";
 
@@ -29,31 +28,14 @@ const promoBannerConfig: PromoBannerProps = {
 };
 
 export default function Trade() {
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const pairName = pairSelector.name;
-  const pairsList = pairSelector.pairsList;
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
     document.title = pairName ? `DeXter • ${pairName.toUpperCase()}` : "DeXter";
   }, [pairName]);
-
-  // Set pair that was specified in query param
-  useEffect(() => {
-    if (pairsList.length > 0) {
-      const pairToInit = searchParams.get("pair")?.split("-").join("/");
-      const pair = pairsList.find(
-        (pair) => pair.name.toUpperCase() === pairToInit?.toUpperCase()
-      );
-      if (pair) {
-        dispatch(
-          selectPair({ pairAddress: pair.address, pairName: pair.name })
-        );
-      }
-    }
-  }, [pairsList, dispatch, searchParams]);
 
   // Detect browser langauge
   useEffect(() => {
