@@ -22,7 +22,7 @@ interface NavbarItemMobileProps extends NavbarItemProps {
 
 const NavItems: { path: string; title: string }[] = [
   {
-    path: "/",
+    path: "/trade",
     title: "Trade",
   },
   {
@@ -33,7 +33,7 @@ const NavItems: { path: string; title: string }[] = [
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px]">
+    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px] z-[100]">
       <div className="flex h-full">
         <Logo />
         <NavbarItemsDesktop />
@@ -58,22 +58,24 @@ export function Navbar() {
 function Logo() {
   return (
     <>
-      <Image
-        src="/dexter-logo-and-lettering.svg"
-        alt="Dexter logo and lettering"
-        width={130}
-        height={130}
-        className="!my-0 mx-5 hidden min-[420px]:block"
-        priority={true}
-      />
-      <Image
-        src="/dexter-logo.svg"
-        alt="Dexter logo and lettering"
-        width={30}
-        height={30}
-        className="!my-0 mx-5 min-[420px]:hidden"
-        priority={true}
-      />
+      <Link className="flex justify-center items-center" href="/">
+        <Image
+          src="/dexter-logo-and-lettering.svg"
+          alt="Dexter logo and lettering"
+          width={130}
+          height={130}
+          className="!my-0 mx-5 hidden min-[420px]:block"
+          priority={true}
+        />
+        <Image
+          src="/dexter-logo.svg"
+          alt="Dexter logo and lettering"
+          width={30}
+          height={30}
+          className="!my-0 mx-5 min-[420px]:hidden"
+          priority={true}
+        />
+      </Link>
     </>
   );
 }
