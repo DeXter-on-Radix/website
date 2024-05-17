@@ -44,6 +44,12 @@ export default function RootLayout({
           >
             <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
               <Navbar />
+              {
+                // When using useSearchParams from next/navigation we need to
+                // wrap the outer component in a Suspense boundary, otherwise
+                // the build on cloudflare fails. More info here:
+                // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+              }
               <Suspense>{children}</Suspense>
               <Footer />
             </div>
