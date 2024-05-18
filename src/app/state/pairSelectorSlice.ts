@@ -21,7 +21,7 @@ export interface PairSelectorState {
 
 interface SelectPairPayload {
   pairAddress: string;
-  pairName?: string;
+  pairName: string;
 }
 
 export const initalTokenInfo: TokenInfo = {
