@@ -1,1 +1,25 @@
-{}
+{
+  "decentralized_order_book_exchange_on": "Decentralized Order Book Exchange on Radix",
+  "trade_now": "Trade Now",
+  "easy_and_fast": "Easy and fast",
+  "decentralized": "Decentralized",
+  "earn_rewards_by_trading": "Earn rewards by trading",
+  "dextr_token": "$DEXTR Token",
+  "tokenomics": "Tokenomics",
+  "100k_dextr_minted_every_2": "100'000 $DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate.",
+  "vote_in_the_dao": "Vote in the DAO",
+  "1_dextr_equals_1_vote": "1 $DEXTR equals 1 vote in governance decisions.",
+  "revenue_share_coming_soon": "Revenue Share (coming soon...)",
+  "trade_fees_collected_by_dexter": "Trade fees collected by DeXter will be shared among all DEXTR holders.",
+  "learn_more": "Learn more",
+  "stake_now": "Stake now",
+  "earn_rewards_by_trading_and": "Earn rewards by trading and providing liquidity near market prices. A total of 20'000 DEXTR is awarded every 2 weeks and can be claimed on our rewards page.",
+  "earn": "Earn",
+  "x%_on_every_trade": "0.35% on every trade",
+  "plus_enjoy_additional_liquidity_incentives": "plus enjoy additional liquidity incentives for orders placed near the market price.",
+  "stake_xrd_to_earn_dextr": "Stake $XRD to earn $DEXTR",
+  "delegate_your_xrd_to_our": "Delegate your $XRD to our Validator to earn $DEXTR.",
+  "earn_dextr_by_contributing": "Earn $DEXTR by contributing",
+  "whether_you_are_a_developer": "Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team.",
+  "join_us": "Join us"
+}
