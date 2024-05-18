@@ -1,1 +1,25 @@
-{}
+{
+  "decentralized_order_book_exchange_on": "Exchange order book descentralizada na Radix",
+  "trade_now": "Começar agora",
+  "easy_and_fast": "Fácil e rápida",
+  "decentralized": "Descentralizada",
+  "earn_rewards_by_trading": "Ganhe recompensas negociando",
+  "dextr_token": "Token $DEXTR",
+  "tokenomics": "Tokenomics",
+  "100k_dextr_minted_every_2": "100.000 $DEXTR cunhados a cada 2 semanas. Sem limite máximo, mas ~26M em 10 anos na taxa atual.",
+  "vote_in_the_dao": "Vote no DAO",
+  "1_dextr_equals_1_vote": "1 $DEXTR equivale a 1 voto em decisões de governança.",
+  "revenue_share_coming_soon": "Participação de Receita (em breve...)",
+  "trade_fees_collected_by_dexter": "Taxas de negociação coletadas pela DeXter serão compartilhadas entre todos os holders de $DEXTR.",
+  "learn_more": "Saiba mais",
+  "stake_now": "Faça stake agora",
+  "earn_rewards_by_trading_and": "Ganha recompensas negociando e fornecendo liquidez perto dos preços de mercado. Um total de 20'000 DEXTR é concedido a cada 2 semanas e pode ser reivindicado na nossa página de recompensas.",
+  "earn": "Ganhe",
+  "x%_on_every_trade": "0,35% em cada negociação",
+  "plus_enjoy_additional_liquidity_incentives": "mais aproveite incentivos adicionais de liquidez para ordens colocadas perto do preço de mercado.",
+  "stake_xrd_to_earn_dextr": "Faça stake de $XRD para ganhar $DEXTR",
+  "delegate_your_xrd_to_our": "Delegue seu $XRD para nosso Validador para ganhar $DEXTR.",
+  "earn_dextr_by_contributing": "Ganhe $DEXTR contribuindo",
+  "whether_you_are_a_developer": "Seja você desenvolvedor, designer ou entusiasta de marketing, todos os colaboradores são recompensados com tokens $DEXTR. Somos 100% construídos pela comunidade, sem equipe formal.",
+  "join_us": "Junte-se a nós"
+}
