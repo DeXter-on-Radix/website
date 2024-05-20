@@ -42,7 +42,7 @@ export default function RootLayout({
             data-path={path}
             className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
           >
-            <div className="flex flex-col justify-between min-h-[100vh]">
+            <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
               <Navbar />
               {children}
               <Footer />

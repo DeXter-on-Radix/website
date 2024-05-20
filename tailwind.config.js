@@ -30,6 +30,8 @@ module.exports = {
         "dexter-gradient-green": "#ACF840",
         "dexter-gradient-blue": "#05CBE6",
         "dexter-red": "#D22D2D",
+        "dexter-grey-dark": "#141414",
+        "dexter-grey-light": "#191B1D",
         "content-dark": "#212A09",
       },
     },

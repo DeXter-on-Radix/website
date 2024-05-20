@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test("page loads without errors", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/trade");
   const title = await page.title();
   expect(title).toContain("DeXter");
 });
 
 test("connects to AlphaDEX", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/trade");
 
   // Create a promise that resolves when the desired console text appears
   const waitForConsoleText = (pattern: RegExp): Promise<void> => {
