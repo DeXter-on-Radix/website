@@ -96,7 +96,7 @@ function HeroSection() {
               `max-[820px]:max-w-[600px] max-[820px]:!mb-2 `
             }
           >
-            DEPLOY PREVIEW:{t("decentralized_order_book_exchange_on")}
+            {t("decentralized_order_book_exchange_on")}
           </h1>
           <div className="relative">
             <BackgroundLights showFor={Device.MOBILE} />
