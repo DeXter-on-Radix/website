@@ -220,10 +220,6 @@ export const fetchReciepts = createAsyncThunk<
       }
     }
   });
-  console.log(
-    "Fetched all receipts for account: " + accountAddress,
-    receipts.length
-  );
   return receipts;
 });
 
@@ -264,7 +260,6 @@ export const fetchOrderRewards = createAsyncThunk<
     throw new Error("Missing rewardOrderAddress");
   }
   // let recieptIds = state.rewardSlice.recieptIds;
-  console.log("Fetching order rewards for receipt ids: ", receiptIds.length);
   let orderRewards: OrderRewards[] = [];
   if (receiptIds.length > 0) {
     orderRewards = await getOrderRewards(
@@ -327,7 +322,6 @@ export const claimRewards = createAsyncThunk<
   const rdt = getRdtOrThrow();
   const state = thunkAPI.getState().rewardSlice;
 
-  console.log("Claiming rewards. Rewards data: ", state.rewardData);
   const rewardOrdersMap: Map<string, number[]> = new Map();
   state.rewardData.ordersRewards.forEach((orderRewardData) => {
     let existingOrderIds = rewardOrdersMap.get(
@@ -344,14 +338,12 @@ export const claimRewards = createAsyncThunk<
   // create a manifest to create a proof of all accountRewardNfts in the current account
   const walletData = rdt.walletApi.getWalletData();
   const accountAddress = walletData.accounts[0].address;
-  console.log("Claiming rewards for account: " + accountAddress);
   let accountNftIds = state.rewardData.accountsRewards.map(
     (accountRewards) =>
       `NonFungibleLocalId("${createAccountNftId(
         accountRewards.accountAddress
       )}")`
   );
-  console.log("Found reward NFTs: ", accountNftIds);
   let accountsNftProofString = "";
   if (accountNftIds.length > 0) {
     accountsNftProofString = 'Proof("account_reward_nft_proof")';
@@ -402,7 +394,6 @@ export const claimRewards = createAsyncThunk<
           "deposit_batch" 
           Expression("ENTIRE_WORKTOP");
         `;
-  console.log("Claim Rewards Tx Manifest: ", claimRewardsManifest);
   const transactionResult = await rdt.walletApi.sendTransaction({
     transactionManifest: claimRewardsManifest,
   });
