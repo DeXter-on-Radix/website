@@ -90,6 +90,8 @@ git checkout -b fork-${forkedRepoOwner}--${forkedRepoBranchName} fork-${forkedRe
 # 5. Push the new branch to the original repository:
 git push origin fork-${forkedRepoOwner}--${forkedRepoBranchName}
 
+# Create a pull request for 'fork-${forkedRepoOwner}--${forkedRepoBranchName}' on GitHub by visiting:
+#      https://github.com/DeXter-on-Radix/website/pull/new/fork-${forkedRepoOwner}--${forkedRepoBranchName}
 
   `);
 })();
