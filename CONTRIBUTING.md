@@ -34,7 +34,7 @@ Refer to package.json to see what env files are used with which command.
 
 If you have an `.env` file it will take precedence over the `.env.testnet` and `.env.mainnet` files.
 
-Do not run build command wihtout ENV_FILE variable set beforehand, (it's not already set in package.json for deployment purposes).
+Do not run build command without ENV_FILE variable set beforehand, (it's not already set in package.json for deployment purposes).
 
 ## Testnet Wallet Setup
 
