@@ -75,7 +75,16 @@ function PriceChartCanvas(props: PriceChartProps) {
 
     if (chartContainer) {
       const handleResize = () => {
-        chart.applyOptions({ width: chartContainer.clientWidth });
+        const adaptForPadding = 15 * 2; // 15px padding on each side
+        const priceChartSize =
+          window.innerWidth <= 850
+            ? window.innerWidth
+            : window.innerWidth <= 1100
+            ? window.innerWidth - 300
+            : window.innerWidth <= 1721
+            ? window.innerWidth - 600
+            : Math.min(921, window.innerWidth - 600);
+        chart.applyOptions({ width: priceChartSize - adaptForPadding });
       };
 
       const chart = createChart(chartContainer, {
@@ -183,7 +192,10 @@ function PriceChartCanvas(props: PriceChartProps) {
   //Temporary brute force approach to trim the top of the chart to remove the gap
   return (
     <div>
-      <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
+      <div
+        ref={chartContainerRef}
+        className="relative mt-[-1.7rem] w-full chart-container-ref"
+      >
         <div
           ref={legendRef}
           className={
@@ -248,7 +260,7 @@ export function PriceChart() {
   }, [dispatch]);
 
   return (
-    <div>
+    <>
       <div className="flex items-center justify-between sm:pr-10">
         <div className="">
           <span className="text-secondary-content text-sm font-bold uppercase">
@@ -278,6 +290,6 @@ export function PriceChart() {
         percChange={percChange}
         volume={currentVolume}
       />
-    </div>
+    </>
   );
 }

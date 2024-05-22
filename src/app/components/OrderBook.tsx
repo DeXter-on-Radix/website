@@ -35,16 +35,16 @@ function OrderBookRow(props: OrderBookRowProps) {
       right: 0,
       top: 0,
       bottom: 0,
-      zIndex: -1,
+      zIndex: 0,
     } as CSSProperties;
 
     return (
-      <div className="relative col-span-4 sized-columns text-xs mb-0.5 py-0.5 ">
+      <div className="relative col-span-4 sized-columns text-xs pb-1 py-0.5 ">
         <div style={barStyle}></div>
-        <div className="order-cell text-start ml-2">{orderCount}</div>
-        <div className="order-cell text-end">{priceString}</div>
-        <div className="order-cell text-end">{sizeString}</div>
-        <div className="order-cell text-end mr-2">{totalString}</div>
+        <div className="order-cell text-start z-10 ml-2">{orderCount}</div>
+        <div className="order-cell text-end z-10">{priceString}</div>
+        <div className="order-cell text-end z-10">{sizeString}</div>
+        <div className="order-cell text-end z-10 mr-2">{totalString}</div>
       </div>
     );
   }

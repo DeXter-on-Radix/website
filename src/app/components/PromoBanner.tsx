@@ -66,7 +66,7 @@ export function PromoBanner({
           src={currentImageSrc}
           alt="promo header"
           className={`w-[100vw] ${
-            isSmallScreen() ? "h-auto " : "h-[80px] w-auto"
+            isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
           }`}
         />
       </a>

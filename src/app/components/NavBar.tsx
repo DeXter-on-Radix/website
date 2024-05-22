@@ -33,7 +33,7 @@ const NavItems: { path: string; title: string }[] = [
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px] z-[100]">
+    <nav className="flex items-center justify-between w-full !h-[64px] !min-h-[64px] z-[100]">
       <div className="flex h-full">
         <Logo />
         <NavbarItemsDesktop />
@@ -62,8 +62,8 @@ function Logo() {
         <Image
           src="/dexter-logo-and-lettering.svg"
           alt="Dexter logo and lettering"
-          width={130}
-          height={130}
+          width={110}
+          height={110}
           className="!my-0 mx-5 hidden min-[420px]:block"
           priority={true}
         />
