@@ -2,7 +2,7 @@ import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaSearch } from "react-icons/fa";
+// import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
 
@@ -158,6 +158,7 @@ export function PairSelector() {
           }}
           className="!bg-transparent uppercase text-primary-content text-lg"
           style={{ minWidth: 0, padding: 0, border: "none" }}
+          autoComplete="off"
         />
         {!isOpen && (
           <Image
@@ -165,21 +166,21 @@ export function PairSelector() {
             alt="chevron down"
             width="40"
             height="40"
-            className="lg:hidden"
+            className=""
           />
         )}
-        <div className="hidden lg:flex space-x-2 text-secondary-content">
+        {/* <div className="hidden lg:flex space-x-2 text-secondary-content">
           <FaSearch className="my-auto" />
           <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
             /
           </span>
-        </div>
+        </div> */}
       </div>
       <ul
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 max-h-screen"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 list-none overflow-y-scroll max-h-[50vh] scrollbar-thin"
         }
       >
         {filteredOptions.map((option, index) => {
@@ -197,7 +198,7 @@ export function PairSelector() {
                 onMouseEnter={() => setHighlightedIndex(index)}
                 onClick={() => selectOption()}
                 className={
-                  "!px-3 py-2 cursor-pointer " +
+                  "!px-4 py-3 cursor-pointer " +
                   (highlightedIndex === index ? " bg-base-300" : "")
                 }
                 style={{ marginTop: 0, marginBottom: 0 }}

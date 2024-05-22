@@ -79,12 +79,14 @@ function PriceChartCanvas(props: PriceChartProps) {
         const priceChartSize =
           window.innerWidth <= 850
             ? window.innerWidth
-            : window.innerWidth <= 1100
+            : window.innerWidth <= 1025
             ? window.innerWidth - 300
-            : window.innerWidth <= 1721
-            ? window.innerWidth - 600
+            : window.innerWidth <= 1350
+            ? window.innerWidth - 2 * 260
             : Math.min(921, window.innerWidth - 600);
         chart.applyOptions({ width: priceChartSize - adaptForPadding });
+        // // OLD CODE
+        // chart.applyOptions({ width: chartContainer.clientWidth });
       };
 
       const chart = createChart(chartContainer, {

@@ -17,7 +17,7 @@ export function PriceInfo() {
   const basePair = pairSelector.token2.symbol;
 
   return (
-    <div className="flex justify-between py-2 h-full ">
+    <div className="flex justify-between py-2 h-full max-w-[500px] min-[1026px]:m-auto">
       <div className="flex flex-col items-start justify-center pl-5 lg:pl-8">
         <span className="text-sm font-bold text-secondary-content uppercase">
           {t("price")}

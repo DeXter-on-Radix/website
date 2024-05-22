@@ -126,7 +126,7 @@ export function DisplayTable() {
   }, [openOrders, orderHistory, selectedTable]);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto scrollbar-none">
       <table className="table table-zebra table-xs !mt-0 mb-16">
         <thead>
           <tr>

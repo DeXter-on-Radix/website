@@ -146,7 +146,7 @@ export function OrderInput() {
     <div className="h-full flex flex-col text-base justify-start items-center">
       <OrderSideTabs />
       {/* INNER_CONTAINER_MAX_WIDTH */}
-      <div className={`p-[24px] max-w-[500px] m-auto`}>
+      <div className={`p-4 max-w-[500px] m-auto my-0 h-[650px]`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />

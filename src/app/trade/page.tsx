@@ -59,7 +59,7 @@ export default function Trade() {
     <div className="">
       <PromoBanner {...promoBannerConfig} />
       {/* <div className="border-x-4 border-black"> */}
-      <div className="min-[1721px]:max-w-[1521px] min-[1721px]:m-auto min-[1721px]:border-x min-[1721px]:border-[#d0d0d01a]">
+      <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
         <div className="grid-container">
           <div className="pairSelector">
             <PairSelector />
@@ -77,7 +77,7 @@ export default function Trade() {
             {/* <p className="p-5 text-secondary-content text-base">Price Chart</p> */}
             <PriceChart />
           </div>
-          <div className="tradeHistory">
+          <div className="tradeHistory max-w-[100vw] scrollbar-thin">
             <AccountHistory />
           </div>
         </div>

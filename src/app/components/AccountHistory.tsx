@@ -59,7 +59,7 @@ export function AccountHistory() {
   }, [dispatch, account, pairAddress]);
 
   return (
-    <div>
+    <div className="">
       <OrdersTabs />
       <div className="">
         <DisplayTable />
