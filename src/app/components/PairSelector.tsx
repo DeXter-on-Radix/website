@@ -6,6 +6,13 @@ import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
 
+// List of coins that should be removed from the frontend.
+// Those coins are still tradeable on alphadex.
+const UNVERIFIED_PAIRS = [
+  "component_rdx1cqzv2v63gaexzf28g8slvr7y0xtdhzjetckqj0n0vwk9syk3klxtv2", // 3TR/XRD
+  "component_rdx1crzqxsshnx4mk2474vy9ans6p8v0njph6hvfrt025c7uq8lwf9h0w9", // I£/XRD
+];
+
 interface PairInfo {
   name: string;
   address: string;
@@ -34,6 +41,11 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
     (option) => !priorityPairs.includes(option.name)
   );
   return [...priorityOptions, ...otherOptions];
+}
+
+// Remove unverified trading pairs
+function removeUnverifiedOptions(options: PairInfo[]): PairInfo[] {
+  return options.filter((option) => !UNVERIFIED_PAIRS.includes(option.address));
 }
 
 export function PairSelector() {
@@ -131,7 +143,7 @@ export function PairSelector() {
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
-    setFilteredOptions(sortOptions(newOptions));
+    setFilteredOptions(removeUnverifiedOptions(sortOptions(newOptions)));
     setHighlightedIndex(0);
   }, [options, query]);
 
