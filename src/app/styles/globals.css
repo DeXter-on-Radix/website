@@ -176,6 +176,7 @@ input[type="number"]::-ms-clear {
 @media (min-width: 1351px) {
   .grid-container {
     grid-template-columns: 300px auto 300px;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
       "pairSelector priceInfo    orderBook"
       "orderInput   priceChart   orderBook"
@@ -186,8 +187,8 @@ input[type="number"]::-ms-clear {
 @media (min-width: 1026px) and (max-width: 1350px) {
   .grid-container {
     grid-template-columns: 260px auto 260px;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
-      /* "banner       banner       banner" */
       "pairSelector priceInfo    orderBook"
       "orderInput   priceChart   orderBook"
       "tradeHistory tradeHistory tradeHistory";

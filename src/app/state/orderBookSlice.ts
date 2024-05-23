@@ -37,7 +37,7 @@ const initialState: OrderBookState = {
   grouping: 0,
 };
 
-export const MAX_ROWS = 15;
+export const MAX_ROWS = 13;
 
 export function toOrderBookRowProps(
   adexOrderbookLines: adex.OrderbookLine[],

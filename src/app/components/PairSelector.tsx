@@ -180,7 +180,7 @@ export function PairSelector() {
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 list-none overflow-y-scroll max-h-[50vh] scrollbar-thin"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 list-none max-h-[50vh] overflow-y-auto scrollbar-thin"
         }
       >
         {filteredOptions.map((option, index) => {

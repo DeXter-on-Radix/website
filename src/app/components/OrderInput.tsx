@@ -146,7 +146,7 @@ export function OrderInput() {
     <div className="h-full flex flex-col text-base justify-start items-center">
       <OrderSideTabs />
       {/* INNER_CONTAINER_MAX_WIDTH */}
-      <div className={`p-4 max-w-[500px] m-auto my-0 h-[650px]`}>
+      <div className={`p-4 max-w-[500px] m-auto my-0 h-[570px]`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />
@@ -157,7 +157,7 @@ export function OrderInput() {
           </>
         )}
         <FeesTable />
-        <FeesDisclaimer />
+        {/* <FeesDisclaimer /> */}
       </div>
     </div>
   );
@@ -293,16 +293,16 @@ function MarketOrderDisclaimer() {
   );
 }
 
-function FeesDisclaimer() {
-  const t = useTranslations();
-  return (
-    <div className="">
-      <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
-        {t("fees_are_paid_in_received")}
-      </p>
-    </div>
-  );
-}
+// function FeesDisclaimer() {
+//   const t = useTranslations();
+//   return (
+//     <div className="">
+//       <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
+//         {t("fees_are_paid_in_received")}
+//       </p>
+//     </div>
+//   );
+// }
 
 function FeesTable() {
   const t = useTranslations();
@@ -329,9 +329,17 @@ function FeesTable() {
           }`}
           key={indx}
         >
-          <p className="text-xs text-left grow">
-            {t(`${key}_fee`)} ({t("estimate").toLowerCase()}):
-          </p>
+          <div className="flex grow">
+            <p className="text-xs text-left">
+              {t(`${key}_fee`)} ({t("estimate").toLowerCase()}):{" "}
+            </p>
+            {indx === 0 && (
+              <InfoTooltip
+                iconColor="text-white"
+                content={t("fees_are_paid_in_received")}
+              />
+            )}
+          </div>
           <p className="text-xs">
             {value} {currency}{" "}
           </p>
