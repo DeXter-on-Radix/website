@@ -27,6 +27,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const dispatch = useAppDispatch();
   const { data, candlePrice } = props;
+  const isLoading = data.length === 0;
   //displayTime offsets by local timezone, causing discrepancy on chart
   const candleDate = new Date(
     parseInt(candlePrice?.time.toString() || "") * 1000
@@ -75,6 +76,10 @@ function PriceChartCanvas(props: PriceChartProps) {
 
     if (chartContainer) {
       const handleResize = () => {
+        // hacky way to fix resizing issue. This is heavily dependant on the
+        // grid area breakpoints, so whenever you change grid area, this
+        // needs to be adapted too. This is not ideal and should be fixed.
+        // TODO: fix price chart container so this code is not needed anymore.
         const adaptForPadding = 15 * 2; // 15px padding on each side
         const priceChartSize =
           window.innerWidth <= 850
@@ -128,12 +133,12 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
-        borderUpColor: theme["success"],
-        wickUpColor: theme["success"],
-        upColor: theme["success"],
-        borderDownColor: theme["error"],
-        wickDownColor: theme["error"],
-        downColor: theme["error"],
+        borderUpColor: theme["dexter-green"],
+        wickUpColor: theme["dexter-green"],
+        upColor: theme["dexter-green"],
+        borderDownColor: theme["dexter-red"],
+        wickDownColor: theme["dexter-red"],
+        downColor: theme["dexter-red"],
       });
 
       chart.priceScale("right").applyOptions({
@@ -158,7 +163,9 @@ function PriceChartCanvas(props: PriceChartProps) {
         data.map((datum) => ({
           ...datum,
           color:
-            datum.close - datum.open < 0 ? theme["error"] : theme["success"],
+            datum.close - datum.open < 0
+              ? theme["dexter-red"]
+              : theme["dexter-green"],
         }))
       );
 
@@ -181,9 +188,15 @@ function PriceChartCanvas(props: PriceChartProps) {
       window.addEventListener("resize", handleResize);
 
       // Configure chart for full-canvas candle display. For reference: https://github.com/DeXter-on-Radix/website/issues/269
-      chart
-        .timeScale()
-        .setVisibleLogicalRange({ from: 0, to: clonedData.length });
+      const totalCandles = clonedData.length;
+      const chartWidth =
+        document.querySelector(".chart-container-ref")?.clientWidth || 600;
+      const minCandleWidth = 13; // in px
+      const nbrOfCandlesToDisply = Math.min(chartWidth / minCandleWidth); //chartWidth / ;
+      chart.timeScale().setVisibleLogicalRange({
+        from: Math.max(totalCandles - nbrOfCandlesToDisply),
+        to: totalCandles,
+      });
 
       return () => {
         window.removeEventListener("resize", handleResize);
@@ -202,7 +215,11 @@ function PriceChartCanvas(props: PriceChartProps) {
           ref={legendRef}
           className={
             "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
-            (props.change && props.change < 0 ? "!text-error" : "!text-success")
+            (isLoading
+              ? "hidden"
+              : props.change && props.change < 0
+              ? "!text-dexter-red"
+              : "!text-dexter-green")
           }
         >
           <div className="flex justify-start gap-x-6 text-xs font-medium">
