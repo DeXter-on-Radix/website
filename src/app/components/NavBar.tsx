@@ -36,11 +36,10 @@ export function Navbar() {
     <nav
       className={
         "sticky top-0 sm:border-b-0 border-b-2 sm:border-none border-gray-800 sm:static " +
-        "bg-base-200 flex items-center justify-between w-full !h-[74px] !min-h-[74px] " +
+        "bg-base-200 sm:bg-transparent flex items-center justify-between w-full !h-[74px] !min-h-[74px] " +
         "z-[101]" // needed for main screen since divs use z-[100]
       }
     >
-      {/* <nav className="flex items-center justify-between w-full !h-[74px] !min-h-[74px] z-[100]"> */}
       <div className="flex h-full">
         <Logo />
         <NavbarItemsDesktop />
