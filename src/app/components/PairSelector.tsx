@@ -9,8 +9,9 @@ import React from "react";
 // List of coins that should be removed from the frontend.
 // Those coins are still tradeable on alphadex.
 const UNVERIFIED_PAIRS = [
-  "component_rdx1cqzv2v63gaexzf28g8slvr7y0xtdhzjetckqj0n0vwk9syk3klxtv2", // 3TR/XRD
-  "component_rdx1crzqxsshnx4mk2474vy9ans6p8v0njph6hvfrt025c7uq8lwf9h0w9", // I£/XRD
+  // 3TR/XRD -> removing because invalid tokenUrl leads to calls to a suspicious looking website
+  // See discussion here: https://github.com/DeXter-on-Radix/website/pull/417#issuecomment-2127957550
+  "component_rdx1cqzv2v63gaexzf28g8slvr7y0xtdhzjetckqj0n0vwk9syk3klxtv2",
 ];
 
 interface PairInfo {
