@@ -167,7 +167,7 @@ function OrderSideTabs() {
   return (
     <div
       // OUTSIDE_CONTAINER_MAX_WIDTH
-      className={`min-h-[44px] flex max-w-[500px] w-full`}
+      className={`h-[40px] flex max-w-[500px] w-full`}
     >
       {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
         <OrderSideTab orderSide={currentSide} key={indx} />
@@ -205,9 +205,9 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
 function OrderTypeTabs() {
   return (
     <>
-      <div className="min-h-[44px] flex justify-center">
+      <div className="h-[40px] flex justify-center">
         <div className="w-full">
-          <div className="flex min-h-[44px]">
+          <div className="flex h-[40px]">
             {[OrderType.MARKET, OrderType.LIMIT].map((type, indx) => (
               <OrderTypeTab orderType={type} key={indx} />
             ))}
@@ -397,7 +397,7 @@ function SubmitButton() {
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
   return (
     <button
-      className={`w-full min-h-[44px] p-3 my-6 rounded ${
+      className={`w-full h-[40px] p-3 my-6 rounded ${
         disabled
           ? "bg-[#232629] text-[#474D52] opacity-50"
           : side === "BUY"
@@ -750,7 +750,7 @@ function DisabledInputField({
   label,
 }: DisabledInputFieldProps): JSX.Element | null {
   return (
-    <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
+    <div className="h-[40px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
       <div className="uppercase text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
         {label}
       </div>
@@ -769,7 +769,7 @@ function CurrencyInput({
   return (
     <>
       <div
-        className={`min-h-[44px] w-full content-between bg-base-200 flex rounded-lg ${
+        className={`h-[40px] w-full content-between bg-base-200 flex rounded-lg ${
           inputValidation.valid
             ? "hover:outline hover:outline-1 hover:outline-white/50"
             : "border-2 border-red-500"
