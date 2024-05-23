@@ -67,6 +67,10 @@ module.exports = {
           "base-300": "#000000",
           "base-content": "#FFFFFF",
 
+          "dexter-green": "#A7D22D",
+          "dexter-green-OG": "#CAFC40",
+          "dexter-red": "#D22D2D",
+
           "--rounded-btn": "0",
           "--btn-text-case": "none",
           "--rounded-box": "0",
