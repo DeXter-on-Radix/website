@@ -53,7 +53,7 @@ export function PromoBanner({
   return (
     <div
       className={
-        "flex justify-center items-center " + // positioning
+        "promo-banner flex justify-center items-center " + // positioning
         `max-w-[100vw] ` + // sizing
         "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%" // gradient background
       }

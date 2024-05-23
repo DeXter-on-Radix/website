@@ -93,10 +93,14 @@ function PriceChartCanvas(props: PriceChartProps) {
         // // OLD CODE
         // chart.applyOptions({ width: chartContainer.clientWidth });
       };
-
+      const vh = window.innerHeight;
+      const promoCarouselExists =
+        document.querySelector(".promo-banner") !== null;
+      const spaceTaken = promoCarouselExists ? 150 + 64 : 150;
+      const chartHeight = Math.min(vh - spaceTaken, 550);
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 550,
+        height: chartHeight,
         layout: {
           background: {
             color: theme["base-200"],
