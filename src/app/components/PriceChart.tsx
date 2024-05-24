@@ -10,7 +10,7 @@ import {
   initialPriceChartState,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
-import { displayNumber } from "../utils";
+import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
@@ -24,7 +24,7 @@ interface PriceChartProps {
 function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
-
+  const currency = useAppSelector((state) => state.pairSelector.token2.symbol);
   const dispatch = useAppDispatch();
   const { data, candlePrice } = props;
   const isLoading = data.length === 0;
@@ -35,35 +35,35 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
-  const noDigits = 8;
-  const fixedDecimals = 6;
+  const nbrOfDigits = 8;
+  const currencyPrecision = getPrecision(currency);
 
-  const volume = displayNumber(props.volume || 0, noDigits, 2);
-  const percChange = displayNumber(props.percChange || 0, noDigits, 2);
-  const change = displayNumber(props.change || 0, noDigits, 2);
+  const volume = displayNumber(props.volume || 0, nbrOfDigits, 2);
+  const percChange = displayNumber(props.percChange || 0, nbrOfDigits, 2);
+  const change = displayNumber(props.change || 0, nbrOfDigits, 2);
 
   const candleOpen = displayNumber(
     candlePrice?.open || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleHigh = displayNumber(
     candlePrice?.high || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleLow = displayNumber(
     candlePrice?.low || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleClose = displayNumber(
     candlePrice?.close || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   useEffect(() => {
