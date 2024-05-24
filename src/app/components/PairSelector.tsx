@@ -164,8 +164,8 @@ export function PairSelector() {
           <Image
             src="/chevron-down.svg"
             alt="chevron down"
-            width="28"
-            height="28"
+            width="25"
+            height="25"
             className=""
           />
         )}
@@ -204,8 +204,8 @@ export function PairSelector() {
                 style={{ marginTop: 0, marginBottom: 0 }}
                 key={`${id}-${index}`}
               >
-                <div className="flex justify-between ">
-                  <div className="flex justify-center items-center">
+                <div className="flex justify-between">
+                  <div className="flex justify-center items-center truncate">
                     {pair1 && pair2 && (
                       <>
                         <div className="relative mr-8">
