@@ -40,7 +40,10 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const volume = displayNumber(props.volume || 0, nbrOfDigits, 2);
   const percChange = displayNumber(props.percChange || 0, nbrOfDigits, 2);
-  const change = displayNumber(props.change || 0, nbrOfDigits, 2);
+  // const change = displayNumber(props.change || 0, nbrOfDigits, 2);
+  const percChangeFormatted = ` ${
+    props.change && props.change > 0 ? "+" : ""
+  }${percChange} %`;
 
   const candleOpen = displayNumber(
     candlePrice?.open || 0,
@@ -218,7 +221,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         <div
           ref={legendRef}
           className={
-            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
+            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 " +
             (isLoading
               ? "hidden"
               : props.change && props.change < 0
@@ -229,8 +232,8 @@ function PriceChartCanvas(props: PriceChartProps) {
           <div className="flex justify-start gap-x-6 text-xs font-medium">
             <div className="text-secondary-content">{candleDate}</div>
             <div className="text-xs font-medium">
-              <span className="text-secondary-content">Change</span> {change} (
-              {percChange})%
+              <span className="text-secondary-content">Change</span>
+              {percChangeFormatted}
             </div>
             <div className="text-xs font-medium">
               <span className="text-secondary-content">Volume</span> {volume}
