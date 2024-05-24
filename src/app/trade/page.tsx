@@ -17,7 +17,10 @@ import { detectBrowserLanguage } from "../utils";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
-import { PromoBanner, PromoBannerProps } from "../components/PromoBanner";
+import {
+  PromoBannerCarousel,
+  PromoBannerProps,
+} from "../components/PromoBannerCarousel";
 
 // Configuration for promo banner
 // Once both images and a targetUrl are defined the banner will automatically show
@@ -76,7 +79,7 @@ export default function Trade() {
 
   return (
     <>
-      <PromoBanner {...promoBannerConfig} />
+      <PromoBannerCarousel items={[promoBannerConfig]} />
       <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
         <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
           <PairSelector />
