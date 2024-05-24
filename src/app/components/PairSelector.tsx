@@ -7,12 +7,9 @@ import Image from "next/image";
 import React from "react";
 
 // List of coins that should be removed from the frontend.
+// Removing pairs requires a community vote / decision.
 // Those coins are still tradeable on alphadex.
-const UNVERIFIED_PAIRS = [
-  // 3TR/XRD -> removing because invalid tokenUrl leads to calls to a suspicious looking website
-  // See discussion here: https://github.com/DeXter-on-Radix/website/pull/417#issuecomment-2127957550
-  "component_rdx1cqzv2v63gaexzf28g8slvr7y0xtdhzjetckqj0n0vwk9syk3klxtv2",
-];
+const BLACKLISTED_PAIRS: string[] = [];
 
 interface PairInfo {
   name: string;
@@ -44,9 +41,11 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
   return [...priorityOptions, ...otherOptions];
 }
 
-// Remove unverified trading pairs
-function removeUnverifiedOptions(options: PairInfo[]): PairInfo[] {
-  return options.filter((option) => !UNVERIFIED_PAIRS.includes(option.address));
+// Remove blacklisted trading pairs
+function removeBlacklistedOptions(options: PairInfo[]): PairInfo[] {
+  return options.filter(
+    (option) => !BLACKLISTED_PAIRS.includes(option.address)
+  );
 }
 
 export function PairSelector() {
@@ -144,7 +143,7 @@ export function PairSelector() {
     const newOptions = options.filter(
       (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
     );
-    setFilteredOptions(removeUnverifiedOptions(sortOptions(newOptions)));
+    setFilteredOptions(removeBlacklistedOptions(sortOptions(newOptions)));
     setHighlightedIndex(0);
   }, [options, query]);
 
@@ -222,7 +221,11 @@ export function PairSelector() {
                       <>
                         <div className="relative mr-8">
                           <img
-                            src={option.token1.iconUrl}
+                            src={
+                              option.token1.symbol === "3TR" // remove broken link for 3TR
+                                ? "grey-circle.svg"
+                                : option.token1.iconUrl
+                            }
                             alt="Token Icon"
                             className="w-6 h-6 rounded-full z-20"
                           />
