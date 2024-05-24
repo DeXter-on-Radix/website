@@ -82,7 +82,13 @@
 }
 
 :root {
-  --radix-connect-button-height: 40px;
+  --radix-connect-button-height: 36px;
+  --radix-connect-button-width: 140px;
+}
+@media (max-width: 419px) {
+  :root {
+    /* --radix-connect-button-width: 36px; */
+  }
 }
 
 /* remove up and down arrows on number input fields */
