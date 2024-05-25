@@ -1,5 +1,5 @@
 import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
-import { selectPairAddress, TokenInfo } from "../state/pairSelectorSlice";
+import { selectPair, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -71,14 +71,24 @@ export function PairSelector() {
   const id = "pairOption";
 
   useEffect(() => {
-    dispatch(selectPairAddress(process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS!));
+    dispatch(
+      selectPair({
+        pairAddress: process.env.NEXT_PUBLIC_DEFAULT_PAIR_ADDRESS!,
+        pairName: "",
+      })
+    );
   }, [dispatch]);
 
   const selectOption = useCallback(() => {
     const option = filteredOptions[highlightedIndex];
     setQuery(() => "");
     dispatch(orderInputSlice.actions.resetNumbersInput());
-    dispatch(selectPairAddress(option["address"]));
+    dispatch(
+      selectPair({
+        pairAddress: option["address"],
+        pairName: option["name"],
+      })
+    );
     setIsOpen((isOpen) => !isOpen);
   }, [dispatch, highlightedIndex, filteredOptions]);
 
