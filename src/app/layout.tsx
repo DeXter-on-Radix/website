@@ -7,7 +7,7 @@ import { Navbar } from "./components/NavBar";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
@@ -44,7 +44,13 @@ export default function RootLayout({
           >
             <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
               <Navbar />
-              {children}
+              {
+                // When using useSearchParams from next/navigation we need to
+                // wrap the outer component in a Suspense boundary, otherwise
+                // the build on cloudflare fails. More info here:
+                // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+              }
+              <Suspense>{children}</Suspense>
               <Footer />
             </div>
           </div>
