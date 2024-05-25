@@ -29,6 +29,10 @@ const NavItems: { path: string; title: string }[] = [
     path: "/rewards",
     title: "Rewards",
   },
+  {
+    path: "/provide-liquidity",
+    title: "Provide Liquidity",
+  },
 ];
 
 export function Navbar() {
