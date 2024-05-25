@@ -2,7 +2,7 @@ import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { getRdt } from "../subscriptions";
-import { updateIconIfNeeded } from "../utils";
+import { setQueryParam, updateIconIfNeeded } from "../utils";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
 
@@ -17,6 +17,11 @@ export interface PairSelectorState {
   token1: TokenInfo;
   token2: TokenInfo;
   pairsList: adex.PairInfo[];
+}
+
+interface SelectPairPayload {
+  pairAddress: string;
+  pairName: string;
 }
 
 export const initalTokenInfo: TokenInfo = {
@@ -115,13 +120,15 @@ export const pairSelectorSlice = createSlice({
         return pair;
       });
     },
-
-    selectPairAddress: (
+    selectPair: (
       state: PairSelectorState,
-      action: PayloadAction<string>
+      action: PayloadAction<SelectPairPayload>
     ) => {
-      const pairAddress = action.payload;
+      const { pairAddress, pairName } = action.payload;
       adex.clientState.currentPairAddress = pairAddress;
+      if (pairName) {
+        setQueryParam("pair", formatPairName(pairName));
+      }
     },
 
     setBalance: (
@@ -149,4 +156,8 @@ export const pairSelectorSlice = createSlice({
   },
 });
 
-export const { updateAdex, selectPairAddress } = pairSelectorSlice.actions;
+function formatPairName(pairName: string): string {
+  return pairName?.toLowerCase().split("/").join("-");
+}
+
+export const { updateAdex, selectPair } = pairSelectorSlice.actions;
