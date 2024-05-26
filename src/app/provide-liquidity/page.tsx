@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "hooks";
 import {
-  useProvideLiquidity,
+  useProvideLiquidityContext,
   ProvideLiquidityProvider,
   Distribution,
 } from "./ProvideLiquidityContext";
@@ -14,8 +14,6 @@ import {
 //   "component_tdx_2_1cqee79vy0dkv34jrqe8zs6czdqjnx5jq5tpeyum54ewxtthvwz3t0c";
 
 export default function ProvideLiquidity() {
-  // const { isConnected, walletData } = useAppSelector((state) => state.radix);
-
   return (
     <ProvideLiquidityProvider>
       <div className="bg-[#141414] h-full">
@@ -59,7 +57,7 @@ function BatchOrderSummary() {
     ["sellSideLiq"]: [sellSideLiq],
     ["distribution"]: [distribution],
     ["midPrice"]: [midPrice],
-  } = useProvideLiquidity();
+  } = useProvideLiquidityContext();
 
   return (
     <div>
@@ -81,7 +79,7 @@ function CreateBatchOrderForm() {
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
     ["bins"]: [bins],
-  } = useProvideLiquidity();
+  } = useProvideLiquidityContext();
 
   return (
     <div className="pb-20">

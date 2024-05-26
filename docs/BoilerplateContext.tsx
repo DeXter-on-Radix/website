@@ -55,7 +55,7 @@ export const BoilerplateProvider: React.FC<{
 BoilerplateProvider.displayName = "BoilerplateProvider";
 
 // Custom hook to use the Boilerplate context
-export const useBoilerplate = (): BoilerplateContextType => {
+export const useBoilerplateContext = (): BoilerplateContextType => {
   const context = useContext(BoilerplateContext);
   if (!context) {
     throw new Error("useBoilerplate must be used within a BoilerplateProvider");

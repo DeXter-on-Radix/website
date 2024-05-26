@@ -69,7 +69,7 @@ export const ProvideLiquidityProvider: React.FC<
 ProvideLiquidityProvider.displayName = "ProvideLiquidityProvider";
 
 // Custom hook to use the ProvideLiquidity context
-export const useProvideLiquidity = (): ProvideLiquidityContextType => {
+export const useProvideLiquidityContext = (): ProvideLiquidityContextType => {
   const context = useContext(ProvideLiquidityContext);
   if (!context) {
     throw new Error(
