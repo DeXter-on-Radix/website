@@ -44,18 +44,17 @@ export function PairSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
+  const [initialSearchDone, setInitialSearchDone] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   // uncomment duplicates to test scroll behavior
-  const options = useMemo(
-    () => [
-      // ...pairSelector.pairsList,
-      // ...pairSelector.pairsList,
-      ...pairSelector.pairsList,
-    ],
-    [pairSelector.pairsList]
-  );
+  const options = useMemo(() => {
+    return [...pairSelector.pairsList];
+  }, [pairSelector.pairsList]);
+
+  const optionsLoaded = useMemo(() => options.length !== 0, [options]);
+
   const id = "pairOption";
 
   useEffect(() => {
@@ -67,18 +66,30 @@ export function PairSelector() {
     );
   }, [dispatch]);
 
-  const selectOption = useCallback(() => {
-    const option = filteredOptions[highlightedIndex];
-    setQuery(() => "");
-    dispatch(orderInputSlice.actions.resetNumbersInput());
-    dispatch(
-      selectPair({
-        pairAddress: option["address"],
-        pairName: option["name"],
-      })
-    );
-    setIsOpen((isOpen) => !isOpen);
-  }, [dispatch, highlightedIndex, filteredOptions]);
+  const selectOption = useCallback(
+    (index: number = highlightedIndex) => {
+      const option = filteredOptions[index];
+      setQuery(() => "");
+      dispatch(orderInputSlice.actions.resetNumbersInput());
+      dispatch(
+        selectPair({
+          pairAddress: option["address"],
+          pairName: option["name"],
+        })
+      );
+      setHighlightedIndex(index);
+      setIsOpen((isOpen) => !isOpen);
+    },
+    [
+      dispatch,
+      isOpen,
+      setIsOpen,
+      setHighlightedIndex,
+      highlightedIndex,
+      filteredOptions,
+      selectPair,
+    ]
+  );
 
   const getDisplayValue = () => {
     if (isOpen) return displayName(query);
@@ -137,13 +148,37 @@ export function PairSelector() {
     }
   }, [isOpen]);
 
+  const onQueryChange = useCallback(
+    (userInputQuery: string) => {
+      const newOptions = options.filter(
+        (option) =>
+          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
+          -1
+      );
+      setQuery(userInputQuery);
+      setFilteredOptions(sortOptions(newOptions));
+      setHighlightedIndex(0);
+      setInitialSearchDone(true);
+    },
+    [
+      options,
+      setQuery,
+      setInitialSearchDone,
+      setHighlightedIndex,
+      setFilteredOptions,
+    ]
+  );
+
   useEffect(() => {
-    const newOptions = options.filter(
-      (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
-    );
-    setFilteredOptions(sortOptions(newOptions));
-    setHighlightedIndex(0);
-  }, [options, query]);
+    if (optionsLoaded && !initialSearchDone) {
+      // optionsLoaded is a flag which is used in order to determine if the async function which
+      // populates the array is done. The options array is always expected to have a length > 0
+
+      // initialSearchDone is a flag which is needed in order to avoid triggering this useEffect
+      // everytime that an option is selected by the user.
+      onQueryChange("");
+    }
+  }, [optionsLoaded, onQueryChange, initialSearchDone]);
 
   return (
     <div
@@ -164,7 +199,7 @@ export function PairSelector() {
           value={getDisplayValue()}
           name="searchTerm"
           onChange={(e) => {
-            setQuery(e.target.value);
+            onQueryChange(e.target.value);
           }}
           className="!bg-transparent uppercase text-primary-content text-lg"
           style={{ minWidth: 0, padding: 0, border: "none" }}
@@ -204,12 +239,14 @@ export function PairSelector() {
                 </div>
               )}
               <li
-                onMouseEnter={() => setHighlightedIndex(index)}
-                onClick={() => selectOption()}
-                className={
-                  "!px-3 py-2 cursor-pointer " +
-                  (highlightedIndex === index ? " bg-base-300" : "")
-                }
+                onClick={() => {
+                  selectOption(index);
+                }}
+                className={`!px-3 py-2 cursor-pointer  ${
+                  highlightedIndex === index
+                    ? "bg-base-300"
+                    : "hover:bg-base-200"
+                }`}
                 style={{ marginTop: 0, marginBottom: 0 }}
                 key={`${id}-${index}`}
               >
