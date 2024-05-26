@@ -242,7 +242,11 @@ export function PairSelector() {
                 onClick={() => {
                   selectOption(index);
                 }}
-                className={"!px-3 py-2 cursor-pointer hover:bg-base-300"}
+                className={`!px-3 py-2 cursor-pointer  ${
+                  highlightedIndex === index
+                    ? "bg-base-300"
+                    : "hover:bg-base-200"
+                }`}
                 style={{ marginTop: 0, marginBottom: 0 }}
                 key={`${id}-${index}`}
               >
