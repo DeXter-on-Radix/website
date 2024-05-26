@@ -11,14 +11,14 @@ To initialize a new Page State follow this guide:
 1. Create your page, e.g. "MyPage" (create `src/my-page/page.tsx`)
 2. Create your page context `src/my-page/MyPageContext.tsx`
 3. Copy the content of [BoilerplateContext](./BoilerplateContext.tsx) into your context file, and follow its instructions
-4. You now should have 2 exports from MyPageContext: `useMyPage` and `MyPageProvider`.
-5. Import those inside `src/my-page/page.tsx`:
+4. You now should have 2 exports from MyPageContext: `MyPageProvider` which is used to create the context and `useMyPageContext` which is used to access the states.
+5. Import both inside `src/my-page/page.tsx`:
 
 ```tsx
-import { useMyPage, MyPageProvider } from "./MyPageContext";
+import { useMyPageContext, MyPageProvider } from "./MyPageContext";
 ```
 
-6. Then wrap your page-wide component inside `MyPageProvider` like this:
+6. Then wrap your page component inside `MyPageProvider` like this:
 
 ```jsx
 export default function MyPage() {
@@ -26,7 +26,7 @@ export default function MyPage() {
 }
 ```
 
-7. Whenever you need the state or update the state, use can import it like this:
+7. Whenever you need a state or update the state, use can import it like this:
 
 ```jsx
 function MyPageChildComponent() {
@@ -34,7 +34,7 @@ function MyPageChildComponent() {
     ["firstName"]: [firstName, setFirstName],
     ["lastName"]: [lastName, setLastName],
     ["age"]: [age, setAge],
-  } = useProvideLiquidity();
+  } = useMyPageContext();
 
   // Example usage showing how to get and set the state
   return (
