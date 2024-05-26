@@ -1,4 +1,4 @@
-// Following this example:
+// Original Idea from this example (modified for typescript):
 // => https://dev.to/nazmifeeroz/using-usecontext-and-usestate-hooks-as-a-store-mnm
 import React, { useState, createContext, ReactNode, useContext } from "react";
 
