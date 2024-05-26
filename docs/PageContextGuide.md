@@ -1,24 +1,26 @@
-# How to use BoilerplateContext
+# How to Use BoilerplateContext
 
-As a reminder: we plan on having 3 different types of state:
+We have three types of state management:
 
-- **Global State (Redux: `createSlice()`)**: state that is potentially shared among the full webapp and among muliple pages (e.g. trade history is needed to display past trades inside "Trade" page but also to compute rewards inside "Rewards", hence should be global)
-- **Page State (React: `useContext()`)**: page wide local state that can be shared among different components on a single page. BoilerplateContext is exactly this, a page wide state store that is shared among different components of a given page, but does not pervail when switching to another page. Example use cases: form inputs.
-- **Component State (React: `useState()`)**: if we have atomic components (reusable UI components like buttons or headings etc), those should not depend on either global nor local page wide state.
+1. **Global State (Redux: `createSlice()`)**: Shared across the entire web app and multiple pages (e.g., trade history for "Trade" and "Rewards" pages).
+2. **Page State (React: `useContext()`)**: Local state shared among components on a single page. This is managed by BoilerplateContext and does not persist across pages. Example: form inputs.
+3. **Component State (React: `useState()`)**: For atomic components like buttons or headings that shouldn't depend on global or local state.
 
-To initialize a new Page State follow this guide:
+## Initializing Page State
 
-1. Create your page, e.g. "MyPage" (create `src/my-page/page.tsx`)
-2. Create your page context `src/my-page/MyPageContext.tsx`
-3. Copy the content of [BoilerplateContext](./BoilerplateContext.tsx) into your context file, and follow its instructions
-4. You now should have 2 exports from MyPageContext: `MyPageProvider` which is used to create the context and `useMyPageContext` which is used to access the states.
-5. Import both inside `src/my-page/page.tsx`:
+Follow these steps to create a new Page State:
+
+1. **Create Your Page**: For example, "MyPage" (`src/my-page/page.tsx`).
+2. **Create Your Page Context**: (`src/my-page/MyPageContext.tsx`).
+3. **Copy BoilerplateContext**: Copy content from [BoilerplateContext](./BoilerplateContext.tsx) to your context file and follow the instructions.
+4. **Export Context**: Ensure `MyPageContext` exports `MyPageProvider` (to create the context) and `useMyPageContext` (to access state).
+5. **Import Context**:
 
 ```tsx
 import { useMyPageContext, MyPageProvider } from "./MyPageContext";
 ```
 
-6. Then wrap your page component inside `MyPageProvider` like this:
+6. **Wrap Your Page Component**:
 
 ```jsx
 export default function MyPage() {
@@ -26,14 +28,14 @@ export default function MyPage() {
 }
 ```
 
-7. Whenever you need a state or update the state, use can import it like this:
+7. **Use State in Components**:
 
 ```jsx
 function MyPageChildComponent() {
   const {
-    ["firstName"]: [firstName, setFirstName],
-    ["lastName"]: [lastName, setLastName],
-    ["age"]: [age, setAge],
+    firstName: [firstName, setFirstName],
+    lastName: [lastName, setLastName],
+    age: [age, setAge],
   } = useMyPageContext();
 
   // Example usage showing how to get and set the state
@@ -49,18 +51,20 @@ function MyPageChildComponent() {
 }
 ```
 
-8. If you need only the value, or only the setter, you can use this pattern:
+8. **Accessing Only Values or Setters**:
 
 ```jsx
 function MyPageChildComponent() {
   const {
-    ["firstName"]: [firstName, setFirstName], // both value and setter needed
-    ["lastName"]: [lastName], // only value needed
-    ["age"]: [, setAge], // only setter needed
-  } = useProvideLiquidity();
-  // ...
+    firstName: [firstName, setFirstName], // both value and setter needed
+    lastName: [lastName], // only value needed
+    age: [, setAge], // only setter needed
+  } = useMyPageContext();
+
   return <></>;
 }
 ```
 
-## For any questions, please ping @dcts
+## Questions?
+
+For any questions, please ping @dcts.
