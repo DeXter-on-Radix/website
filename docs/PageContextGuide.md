@@ -2,9 +2,9 @@
 
 As a reminder: we plan on having 3 different types of state:
 
-- **Global State (Redux: createSlice())**: state that is potentially shared among the full webapp and among muliple pages (e.g. trade history is needed to display past trades inside "Trade" page but also to compute rewards inside "Rewards", hence should be global)
-- **Page State (React: useContext())**: page wide local state that can be shared among different components on a single page. BoilerplateContext is exactly this, a page wide state store that is shared among different components of a given page, but does not pervail when switching to another page. Example use cases: form inputs.
-- **Component State (React: useState())**: if we have atomic components (reusable UI components like buttons or headings etc), those should not depend on either global nor local page wide state.
+- **Global State (Redux: `createSlice()`)**: state that is potentially shared among the full webapp and among muliple pages (e.g. trade history is needed to display past trades inside "Trade" page but also to compute rewards inside "Rewards", hence should be global)
+- **Page State (React: `useContext()`)**: page wide local state that can be shared among different components on a single page. BoilerplateContext is exactly this, a page wide state store that is shared among different components of a given page, but does not pervail when switching to another page. Example use cases: form inputs.
+- **Component State (React: `useState()`)**: if we have atomic components (reusable UI components like buttons or headings etc), those should not depend on either global nor local page wide state.
 
 To initialize a new Page State follow this guide:
 
