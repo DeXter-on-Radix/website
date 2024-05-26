@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { OrderBook } from "../components/OrderBook";
 import { OrderInput } from "../components/OrderInput";
@@ -8,7 +9,7 @@ import { PairSelector } from "../components/PairSelector";
 import { PriceChart } from "../components/PriceChart";
 import { AccountHistory } from "../components/AccountHistory";
 import { PriceInfo } from "../components/PriceInfo";
-import { fetchBalances } from "state/pairSelectorSlice";
+import { fetchBalances, selectPair } from "state/pairSelectorSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { fetchAccountHistory } from "../state/accountHistorySlice";
 
@@ -16,7 +17,10 @@ import { detectBrowserLanguage } from "../utils";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
-import { PromoBanner, PromoBannerProps } from "../components/PromoBanner";
+import {
+  PromoBannerCarousel,
+  PromoBannerProps,
+} from "../components/PromoBannerCarousel";
 
 // Configuration for promo banner
 // Once both images and a targetUrl are defined the banner will automatically show
@@ -28,13 +32,31 @@ const promoBannerConfig: PromoBannerProps = {
 };
 
 export default function Trade() {
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const pairName = useAppSelector((state) => state.pairSelector.name);
+  const pairSelector = useAppSelector((state) => state.pairSelector);
+  const pairName = pairSelector.name;
+  const pairsList = pairSelector.pairsList;
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
     document.title = pairName ? `DeXter • ${pairName.toUpperCase()}` : "DeXter";
   }, [pairName]);
+
+  // Set pair that was specified in query param
+  useEffect(() => {
+    if (pairsList.length > 0) {
+      const pairToInit = searchParams.get("pair")?.split("-").join("/");
+      const pair = pairsList.find(
+        (pair) => pair.name.toUpperCase() === pairToInit?.toUpperCase()
+      );
+      if (pair) {
+        dispatch(
+          selectPair({ pairAddress: pair.address, pairName: pair.name })
+        );
+      }
+    }
+  }, [pairsList, dispatch, searchParams]);
 
   // Detect browser langauge
   useEffect(() => {
@@ -57,7 +79,7 @@ export default function Trade() {
 
   return (
     <>
-      <PromoBanner {...promoBannerConfig} />
+      <PromoBannerCarousel items={[promoBannerConfig]} />
       <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
         <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
           <PairSelector />

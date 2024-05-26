@@ -453,3 +453,14 @@ export function isMobile(): boolean {
   }
   return false;
 }
+
+// Sets a URL query parameter and updates the browser's history state
+// without triggering a reload of the page.
+export function setQueryParam(key: string, value: string) {
+  if (!window) {
+    return;
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set(key, value);
+  history.pushState({}, "", url);
+}
