@@ -6,6 +6,9 @@ import {
   ProvideLiquidityProvider,
   Distribution,
 } from "./ProvideLiquidityContext";
+import { Time, createChart } from "lightweight-charts";
+import { useEffect, useRef } from "react";
+import { Calculator } from "services/Calculator";
 
 // Hardcoded stokenet addresses
 // const dextrResource =
@@ -17,12 +20,16 @@ export default function ProvideLiquidity() {
   return (
     <ProvideLiquidityProvider>
       <div className="bg-[#141414] grow pb-20">
-        <div className="max-w-[800px] m-auto">
+        <div className="max-w-[1200px] m-auto">
           <HeaderComponent />
           <WalletStatus />
-          <div className="flex flex-col">
-            <CreateBatchOrderForm />
-            <BatchOrderSummary />
+          <div className="flex flex-row">
+            <div className="w-1/2 px-10">
+              <CreateBatchOrderForm />
+            </div>
+            <div className="w-1/2 px-10">
+              <BatchOrderSummary />
+            </div>
           </div>
         </div>
       </div>
@@ -57,65 +64,115 @@ interface BatchOrderItem {
   id: string;
   index: number;
   price: number;
-  token1amount: number;
-  token2amount: number;
+  token1amount?: number;
+  token2amount?: number;
 }
 
-function getBatchOrderItems(
-  midPrice: number,
+function distributeLinearLiquidity(
+  batchOrders: BatchOrderItem[],
+  sellSideLiq: number,
+  buySideLiq: number
+): BatchOrderItem[] {
+  const bins = batchOrders.length / 2;
+  batchOrders.forEach((batchOrderItem) => {
+    batchOrderItem.token1amount = Calculator.divide(
+      batchOrderItem.side === "BUY" ? buySideLiq : sellSideLiq,
+      bins
+    );
+    batchOrderItem.token2amount = Calculator.multiply(
+      batchOrderItem.token1amount,
+      batchOrderItem.price
+    );
+  });
+  return batchOrders;
+}
+
+function distributeExponentialLiqudity(
+  batchOrderItems: BatchOrderItem[],
   buySideLiq: number,
   sellSideLiq: number,
+  reversed?: boolean
+): BatchOrderItem[] {
+  const halfBins = batchOrderItems.length / 2;
+  const base = 2;
+  let ratios = Array.from({ length: halfBins }, (_, i) => Math.pow(base, i));
+  if (reversed) {
+    ratios = ratios.reverse();
+  }
+  const sumOfRatios = ratios.reduce((a, b) => a + b, 0);
+  const normalizedRatios = ratios.map((ratio) => ratio / sumOfRatios);
+
+  const amounts = normalizedRatios.map((ratio, indx) => {
+    const isBuySide = indx < halfBins;
+    return ratio * (isBuySide ? buySideLiq : sellSideLiq);
+  });
+  const reverseAmounts = [...amounts].reverse();
+  const fullAmounts = [...reverseAmounts, ...amounts];
+
+  fullAmounts.forEach((amount, index) => {
+    batchOrderItems[index].token1amount = amount;
+    batchOrderItems[index].token2amount = amount / batchOrderItems[index].price;
+  });
+  return batchOrderItems;
+}
+
+function getInitializedBatchOrderItems(
+  midPrice: number,
   bins: number,
-  distribution: Distribution,
   percSteps: number
 ): BatchOrderItem[] {
-  // catch uneven nbr of bins
-  if (bins % 2 !== 0) {
-    throw new Error("Only even number of bins supported");
-  }
-  const binsPerSide = bins / 2;
-
   // Init batchOrderItems
   let bucketCount = 1;
   const batchOrderItems: BatchOrderItem[] = [];
-
   // 1. Create buy batchOrderItems
-  for (let i = -binsPerSide; i < 0; i++) {
-    const token1amount = {
-      LINEAR: buySideLiq / binsPerSide,
-      EXTREMES: buySideLiq / binsPerSide,
-      MID_DISTRIBUTION: buySideLiq / binsPerSide,
-    }[distribution];
-    const price = midPrice + midPrice * i * percSteps;
+  for (let i = -bins; i <= bins; i++) {
+    if (i === 0) {
+      continue;
+    }
     batchOrderItems.push({
-      side: OrderSide.BUY,
+      side: i < 0 ? OrderSide.BUY : OrderSide.SELL,
       id: `Bucket_${bucketCount++}`,
       index: i,
-      price: midPrice + midPrice * i * percSteps,
-      token1amount: token1amount,
-      token2amount: token1amount * price,
+      price: Calculator.add(
+        midPrice,
+        Calculator.multiply(Calculator.multiply(midPrice, i), percSteps)
+      ),
     } as BatchOrderItem);
   }
-
-  // 2. Created sell batchOrderItems
-  for (let i = 1; i <= binsPerSide; i++) {
-    const token1amount = {
-      LINEAR: sellSideLiq / binsPerSide,
-      EXTREMES: sellSideLiq / binsPerSide,
-      MID_DISTRIBUTION: sellSideLiq / binsPerSide,
-    }[distribution];
-    const price = midPrice + midPrice * i * percSteps;
-    batchOrderItems.push({
-      side: OrderSide.SELL,
-      id: `Bucket_${bucketCount++}`,
-      index: i,
-      price: midPrice + midPrice * i * percSteps,
-      token1amount: token1amount,
-      token2amount: token1amount * price,
-    } as BatchOrderItem);
-  }
-
   return batchOrderItems;
+}
+
+interface GetBatchOrderItemsProps {
+  midPrice: number;
+  bins: number;
+  percSteps: number;
+  distribution: Distribution;
+  buySideLiq: number;
+  sellSideLiq: number;
+}
+
+function getBatchOrderItems({
+  midPrice,
+  bins,
+  percSteps,
+  distribution,
+  buySideLiq,
+  sellSideLiq,
+}: GetBatchOrderItemsProps) {
+  const batchOrderItems = getInitializedBatchOrderItems(
+    midPrice,
+    bins,
+    percSteps
+  );
+  if (distribution === Distribution.LINEAR) {
+    return distributeLinearLiquidity(batchOrderItems, sellSideLiq, buySideLiq);
+  }
+  return distributeExponentialLiqudity(
+    batchOrderItems,
+    buySideLiq,
+    sellSideLiq,
+    distribution === Distribution.EXTREMES
+  );
 }
 
 function BatchOrderSummary() {
@@ -125,22 +182,25 @@ function BatchOrderSummary() {
     ["midPrice"]: [midPrice],
     ["bins"]: [bins],
     ["percSteps"]: [percSteps],
-    ["decimals"]: [decimals],
     ["distribution"]: [distribution],
   } = useProvideLiquidityContext();
 
-  const batchOrderItems = getBatchOrderItems(
+  // Output the results
+  const batchOrderItems = getBatchOrderItems({
     midPrice,
+    bins,
+    percSteps,
+    distribution,
     buySideLiq,
     sellSideLiq,
-    bins,
-    distribution,
-    percSteps
-  );
-
+  });
   return (
     <div>
       <h4>Batch Order Summary</h4>
+      <BarChart
+        prices={batchOrderItems.map((o) => o.price)}
+        amounts={batchOrderItems.map((o) => o.token1amount || 0)}
+      />
       {batchOrderItems.map(
         ({ side, price, token1amount, token2amount, id }) => {
           return (
@@ -148,7 +208,7 @@ function BatchOrderSummary() {
               <p>
                 <span className="font-bold">{id}: </span>
                 {side} {token1amount} DEXTR for {token2amount} XRD at price{" "}
-                {price.toFixed(decimals)}
+                {price.toFixed(4)}
               </p>
             </div>
           );
@@ -164,7 +224,8 @@ function CreateBatchOrderForm() {
     ["sellSideLiq"]: [sellSideLiq, setSellSideLiq],
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
-    ["bins"]: [bins],
+    ["bins"]: [bins, setBins],
+    ["percSteps"]: [percSteps, setPercSteps],
   } = useProvideLiquidityContext();
 
   return (
@@ -232,10 +293,10 @@ function CreateBatchOrderForm() {
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">% Steps: </p>
         <input
-          className="text-right w-40 cursor-not-allowed"
+          className="text-right w-40"
           type="text"
-          value="2%"
-          disabled
+          value={percSteps}
+          onChange={(e) => setPercSteps(parseFloat(e.target.value) || 0)}
         />
       </div>
 
@@ -252,10 +313,10 @@ function CreateBatchOrderForm() {
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Bins: </p>
         <input
-          className="text-right w-40 cursor-not-allowed"
+          className="text-right w-40"
           type="text"
           value={bins}
-          disabled
+          onChange={(e) => setBins(Number(e.target.value) || 0)}
         />
       </div>
 
@@ -317,6 +378,48 @@ function SubmitTransactionButton() {
       </span>
     </button>
   );
+}
+
+interface BarChartProps {
+  prices: number[];
+  amounts: number[];
+}
+
+function BarChart({ prices, amounts }: BarChartProps) {
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (chartContainerRef.current) {
+      const chart = createChart(chartContainerRef.current, {
+        width: chartContainerRef.current.clientWidth,
+        height: 300,
+      });
+
+      const barSeries = chart.addHistogramSeries();
+
+      // Generate date strings in the yyyy-mm-dd format
+      const startDate = new Date(2024, 0, 1); // Arbitrary start date: January 1, 2024
+      const data = prices.map((price, index) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + index); // Increment the day for each data point
+        const dateString = date.toISOString().split("T")[0]; // Convert to yyyy-mm-dd format
+        return {
+          time: dateString as Time,
+          value: amounts[index],
+        };
+      });
+      barSeries.setData(data);
+
+      // Fit the chart content to show all bars
+      chart.timeScale().fitContent();
+
+      return () => {
+        chart.remove();
+      };
+    }
+  }, [prices, amounts]);
+
+  return <div ref={chartContainerRef}></div>;
 }
 
 // GENERATE TRANSACTION MANIFEST TEST
