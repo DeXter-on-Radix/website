@@ -194,6 +194,7 @@ export function PairSelector() {
       >
         <input
           id="pair-selector-text"
+          autoComplete="off"
           ref={inputRef}
           type="text"
           value={getDisplayValue()}
