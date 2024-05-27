@@ -16,17 +16,13 @@ import {
 export default function ProvideLiquidity() {
   return (
     <ProvideLiquidityProvider>
-      <div className="bg-[#141414] h-full">
+      <div className="bg-[#141414] grow pb-20">
         <div className="max-w-[800px] m-auto">
           <HeaderComponent />
           <WalletStatus />
-          <div className="flex">
-            <div className="w-1/2 px-4">
-              <CreateBatchOrderForm />
-            </div>
-            <div className="w-1/2 px-4">
-              <BatchOrderSummary />
-            </div>
+          <div className="flex flex-col">
+            <CreateBatchOrderForm />
+            <BatchOrderSummary />
           </div>
         </div>
       </div>
@@ -51,23 +47,113 @@ function WalletStatus() {
   );
 }
 
+enum OrderSide {
+  BUY = "BUY",
+  SELL = "SELL",
+}
+
+interface BatchOrderItem {
+  side: OrderSide;
+  id: string;
+  index: number;
+  price: number;
+  token1amount: number;
+  token2amount: number;
+}
+
+function getBatchOrderItems(
+  midPrice: number,
+  buySideLiq: number,
+  sellSideLiq: number,
+  bins: number,
+  distribution: Distribution,
+  percSteps: number
+): BatchOrderItem[] {
+  // catch uneven nbr of bins
+  if (bins % 2 !== 0) {
+    throw new Error("Only even number of bins supported");
+  }
+  const binsPerSide = bins / 2;
+
+  // Init batchOrderItems
+  let bucketCount = 1;
+  const batchOrderItems: BatchOrderItem[] = [];
+
+  // 1. Create buy batchOrderItems
+  for (let i = -binsPerSide; i < 0; i++) {
+    const token1amount = {
+      LINEAR: buySideLiq / binsPerSide,
+      EXTREMES: buySideLiq / binsPerSide,
+      MID_DISTRIBUTION: buySideLiq / binsPerSide,
+    }[distribution];
+    const price = midPrice + midPrice * i * percSteps;
+    batchOrderItems.push({
+      side: OrderSide.BUY,
+      id: `Bucket_${bucketCount++}`,
+      index: i,
+      price: midPrice + midPrice * i * percSteps,
+      token1amount: token1amount,
+      token2amount: token1amount * price,
+    } as BatchOrderItem);
+  }
+
+  // 2. Created sell batchOrderItems
+  for (let i = 1; i <= binsPerSide; i++) {
+    const token1amount = {
+      LINEAR: sellSideLiq / binsPerSide,
+      EXTREMES: sellSideLiq / binsPerSide,
+      MID_DISTRIBUTION: sellSideLiq / binsPerSide,
+    }[distribution];
+    const price = midPrice + midPrice * i * percSteps;
+    batchOrderItems.push({
+      side: OrderSide.SELL,
+      id: `Bucket_${bucketCount++}`,
+      index: i,
+      price: midPrice + midPrice * i * percSteps,
+      token1amount: token1amount,
+      token2amount: token1amount * price,
+    } as BatchOrderItem);
+  }
+
+  return batchOrderItems;
+}
+
 function BatchOrderSummary() {
   const {
     ["buySideLiq"]: [buySideLiq],
     ["sellSideLiq"]: [sellSideLiq],
-    ["distribution"]: [distribution],
     ["midPrice"]: [midPrice],
+    ["bins"]: [bins],
+    ["percSteps"]: [percSteps],
+    ["decimals"]: [decimals],
+    ["distribution"]: [distribution],
   } = useProvideLiquidityContext();
+
+  const batchOrderItems = getBatchOrderItems(
+    midPrice,
+    buySideLiq,
+    sellSideLiq,
+    bins,
+    distribution,
+    percSteps
+  );
 
   return (
     <div>
-      <h4>Summary</h4>
-      <p className="text-base">Buy side liquidity is set to {buySideLiq} XRD</p>
-      <p className="text-base">
-        Sell side liquidity is set to {sellSideLiq} XRD
-      </p>
-      <p className="text-base">Selected distribution: {distribution}</p>
-      <p className="text-base">Mid Price: {midPrice}</p>
+      <h4>Batch Order Summary</h4>
+      {batchOrderItems.map(
+        ({ side, price, token1amount, token2amount, id }) => {
+          return (
+            <div className="text-base" key={id}>
+              <p>
+                <span className="font-bold">{id}: </span>
+                {side} {token1amount} DEXTR for {token2amount} XRD at price{" "}
+                {price.toFixed(decimals)}
+              </p>
+            </div>
+          );
+        }
+      )}
     </div>
   );
 }
@@ -82,7 +168,7 @@ function CreateBatchOrderForm() {
   } = useProvideLiquidityContext();
 
   return (
-    <div className="pb-20">
+    <div className="pb-10">
       <h4>Create Batch Order DEXTR/XRD</h4>
 
       <div className="flex items-center justify-between h-10">

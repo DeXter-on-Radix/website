@@ -43,7 +43,7 @@ export const ProvideLiquidityProvider: React.FC<
     Distribution.LINEAR
   );
   const [midPrice, setMidPrice] = useState<number>(0);
-  const [bins, setBins] = useState<number>(8);
+  const [bins, setBins] = useState<number>(10);
   const [percStep, setPercStep] = useState<number>(0.02); // 2% default steps
   const [decimals, setDecimals] = useState<number>(8); // 8 decimals per default
 
