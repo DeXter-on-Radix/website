@@ -102,12 +102,9 @@ function distributeExponentialLiqudity(
   const sumOfRatios = ratios.reduce((a, b) => a + b, 0);
   const normalizedRatios = ratios.map((ratio) => ratio / sumOfRatios);
 
-  const amounts = normalizedRatios.map((ratio, indx) => {
-    const isBuySide = indx < halfBins;
-    return ratio * (isBuySide ? buySideLiq : sellSideLiq);
-  });
-  const reverseAmounts = [...amounts].reverse();
-  const fullAmounts = [...reverseAmounts, ...amounts];
+  const buyAmounts = normalizedRatios.map((ratio) => ratio * buySideLiq);
+  const sellAmounts = normalizedRatios.map((ratio) => ratio * sellSideLiq);
+  const fullAmounts = [buyAmounts.reverse(), sellAmounts].flat();
 
   fullAmounts.forEach((amount, index) => {
     batchOrderItems[index].token1amount = amount;
@@ -171,7 +168,7 @@ function getBatchOrderItems({
     batchOrderItems,
     buySideLiq,
     sellSideLiq,
-    distribution === Distribution.EXTREMES
+    distribution === Distribution.MID_DISTRIBUTION
   );
 }
 
@@ -240,18 +237,6 @@ function CreateBatchOrderForm() {
       </div>
 
       <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Sell Side Liqudity: </p>
-        <input
-          id="sell-side-liquidity"
-          className="text-right w-40"
-          type="text"
-          value={sellSideLiq}
-          onChange={(e) => setSellSideLiq(parseFloat(e.target.value) || 0)}
-          autoComplete="off"
-        />
-      </div>
-
-      <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Buy Side Liqudity: </p>
         <input
           id="buy-side-liquidity"
@@ -259,6 +244,18 @@ function CreateBatchOrderForm() {
           type="text"
           value={buySideLiq}
           onChange={(e) => setBuySideLiq(parseFloat(e.target.value) || 0)}
+          autoComplete="off"
+        />
+      </div>
+
+      <div className="flex items-center justify-between h-10">
+        <p className="text-base font-bold">Sell Side Liqudity: </p>
+        <input
+          id="sell-side-liquidity"
+          className="text-right w-40"
+          type="text"
+          value={sellSideLiq}
+          onChange={(e) => setSellSideLiq(parseFloat(e.target.value) || 0)}
           autoComplete="off"
         />
       </div>

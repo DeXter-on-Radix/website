@@ -8,8 +8,8 @@ type StateUpdater<T> = React.Dispatch<React.SetStateAction<T>>;
 // Define the type for the context value
 interface ProvideLiquidityContextType {
   pair: [string, StateUpdater<string>];
-  sellSideLiq: [number, StateUpdater<number>];
   buySideLiq: [number, StateUpdater<number>];
+  sellSideLiq: [number, StateUpdater<number>];
   distribution: [Distribution, StateUpdater<Distribution>];
   midPrice: [number, StateUpdater<number>];
   bins: [number, StateUpdater<number>];
@@ -37,8 +37,8 @@ export const ProvideLiquidityProvider: React.FC<
 > = ({ children }) => {
   // Define all states and initial values
   const [pair, setPair] = useState<string>("DEXTR/XRD");
-  const [sellSideLiq, setSellSideLiq] = useState<number>(2000);
   const [buySideLiq, setBuySideLiq] = useState<number>(2000);
+  const [sellSideLiq, setSellSideLiq] = useState<number>(2000);
   const [distribution, setDistribution] = useState<Distribution>(
     Distribution.MID_DISTRIBUTION
   );
@@ -49,8 +49,8 @@ export const ProvideLiquidityProvider: React.FC<
 
   const store: ProvideLiquidityContextType = {
     pair: [pair, setPair],
-    sellSideLiq: [sellSideLiq, setSellSideLiq],
     buySideLiq: [buySideLiq, setBuySideLiq],
+    sellSideLiq: [sellSideLiq, setSellSideLiq],
     distribution: [distribution, setDistribution],
     midPrice: [midPrice, setMidPrice],
     bins: [bins, setBins],
