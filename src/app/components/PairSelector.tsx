@@ -70,7 +70,7 @@ export function PairSelector() {
   }, [filteredOptions, selectedOption]);
 
   const options = useMemo(() => {
-    return [...pairSelector.pairsList];
+    return [...removeBlacklistedOptions(pairSelector.pairsList)];
   }, [pairSelector.pairsList]);
 
   const id = "pairOption";
