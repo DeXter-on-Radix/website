@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, ChangeEvent } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
@@ -274,7 +276,7 @@ function InfoTooltip({
   }
   return (
     <div
-      className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
+      className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10 font-normal normal-case"
       data-tip={content}
     >
       <AiOutlineInfoCircle className={`${iconColor} text-sm`} />
@@ -395,6 +397,17 @@ function SubmitButton() {
         .replaceAll("<$ORDER_TYPE>", t(type))
         .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
+
+  // Fix hydration error:
+  // https://nextjs.org/docs/messages/react-hydration-error#solution-1-using-useeffect-to-run-on-the-client-only
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) {
+    return <></>;
+  }
+
   return (
     <button
       className={`w-full h-[40px] p-3 my-6 rounded ${
@@ -436,15 +449,17 @@ function SubmitButton() {
         );
       }}
     >
-      <span className="font-bold text-sm tracking-[.1px] uppercase">
-        {buttonText}
-      </span>
-      {isLimitOrder && isConnected && (
-        <InfoTooltip
-          iconColor={isBuyOrder ? "text-black" : "text-white"}
-          content={quoteDescription || undefined}
-        />
-      )}
+      <div className="flex justify-center items-center">
+        <div className="font-bold text-sm tracking-[.1px] uppercase">
+          {buttonText}
+        </div>
+        {isLimitOrder && isConnected && (
+          <InfoTooltip
+            iconColor={isBuyOrder ? "text-black" : "text-white"}
+            content={quoteDescription || undefined}
+          />
+        )}
+      </div>
     </button>
   );
 }
