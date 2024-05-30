@@ -20,14 +20,14 @@ export default function ProvideLiquidity() {
   return (
     <ProvideLiquidityProvider>
       <div className="bg-[#141414] grow pb-20">
-        <div className="max-w-[1200px] m-auto">
+        <div className=" max-w-[800px] m-auto">
           <HeaderComponent />
           <WalletStatus />
-          <div className="flex flex-row">
-            <div className="w-1/2 px-10">
+          <div className="flex max-[800px]:flex-col">
+            <div className="w-1/2 max-[800px]:w-full px-10">
               <CreateBatchOrderForm />
             </div>
-            <div className="w-1/2 px-10">
+            <div className="w-1/2 max-[800px]:w-full px-10">
               <BatchOrderSummary />
             </div>
           </div>
@@ -201,10 +201,18 @@ function BatchOrderSummary() {
       {batchOrderItems.map(
         ({ side, price, token1amount, token2amount, id }) => {
           return (
-            <div className="text-base" key={id}>
+            <div className="text-sm" key={id}>
               <p>
                 <span className="font-bold">{id}: </span>
-                {side} {token1amount} DEXTR for {token2amount} XRD at price{" "}
+                <span
+                  className={
+                    (side === "BUY" ? "text-dexter-green" : "text-dexter-red") +
+                    " font-bold"
+                  }
+                >
+                  {side}
+                </span>{" "}
+                {token1amount} DEXTR for {token2amount} XRD at price{" "}
                 {price.toFixed(4)}
               </p>
             </div>
@@ -425,18 +433,18 @@ function BarChart({ prices, amounts }: BarChartProps) {
 // GENERATE TRANSACTION MANIFEST TEST
 // GENERATE TRANSACTION MANIFEST TEST
 // function generateCommand(
-//   B1: string,
-//   B3: string,
-//   B7: string,
-//   B8: string,
-//   B9: string,
+//   account: string,
+//   token1res: string,
+//   token2res: string,
+//   token1amount: string,
+//   token2amount: string,
 //   row24: string[]
 // ) {
-//   const address1 = `Address("${B1}")`;
-//   const address3 = `Address("${B3}")`;
-//   const address7 = `Address("${B7}")`;
-//   const decimal8 = `Decimal("${B8}")`;
-//   const decimal9 = `Decimal("${B9}")`;
+//   const address1 = `Address("${account}")`;
+//   const address3 = `Address("${token1res}")`;
+//   const address7 = `Address("${token2res}")`;
+//   const decimal8 = `Decimal("${token1amount}")`;
+//   const decimal9 = `Decimal("${token2amount}")`;
 //   const row24Concat = row24.join("");
 
 //   const part1 = `CALL_METHOD ${address1} "withdraw" ${address3} ${decimal8}; `;
@@ -449,12 +457,75 @@ function BarChart({ prices, amounts }: BarChartProps) {
 // }
 
 // // Example usage:
-// const B1 = "value1"; // Account -> account_tdx_2_128t0tnge6cvufl8rc2nj6ushlamuk4fcl4ll889v4fhv57algulas9
-// const B3 = "value3"; // Dexter Resource -> resource_tdx_2_1tkutsk75mpp8ngyzuf0t29zvtdr8empwvswmmcefelmwxzw45haeuv
-// const B7 = "value7"; // Radix resource -> resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc
-// const B8 = "value8"; // token 1 quantity
-// const B9 = "value9"; // token 2 quantity
+// const account = "account_tdx_2_128t0tnge6cvufl8rc2nj6ushlamuk4fcl4ll889v4fhv57algulas9";
+// const token1res = "resource_tdx_2_1tkutsk75mpp8ngyzuf0t29zvtdr8empwvswmmcefelmwxzw45haeuv"; // Dexter Resource
+// const token2res = "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"; // Radix resource
+// const token1amount = "2000"; // token 1 quantity
+// const token2amount = "4000"; // token 2 quantity
 // const row24 = ["value24A", "value24B", "value24C"]; // C24:M24 values as an array
 
-// const result = generateCommand(B1, B3, B7, B8, B9, row24);
+// const result = generateCommand(account, token1res, token2res, token1amount, token2amount, row24);
+// console.log(result);
+
+/**
+ * MANIFEST GENERATION: Single Orders
+ */
+interface GenerateOrderManifestInputs {
+  userAccountAddress: string;
+  token1resourceAddress: string;
+  token2resourceAddress: string;
+  adexTradePairComponent: string;
+  bucketId: string;
+  orderPrice: number;
+  orderAmount: number;
+  side: OrderSide;
+  newResourceAmount: number;
+}
+
+function generateOrderManifest({
+  userAccountAddress,
+  token1resourceAddress,
+  token2resourceAddress,
+  adexTradePairComponent,
+  bucketId,
+  orderPrice,
+  orderAmount,
+  side,
+  newResourceAmount,
+}: GenerateOrderManifestInputs): string {
+  if (newResourceAmount === 0) {
+    return "";
+  }
+  return (
+    `TAKE_FROM_WORKTOP Address("${token2resourceAddress}") Decimal("${newResourceAmount}") Bucket("bucket${bucketId}"); ` +
+    `\nCALL_METHOD Address("${adexTradePairComponent}") "new_limit_order" "POSTONLY" "${side}" Address("${token1resourceAddress}") ` +
+    `Decimal("${orderAmount}") Decimal("${orderPrice}") Bucket("bucket${bucketId}") 4u32 Address("${userAccountAddress}");`
+  );
+}
+
+// Example usage:
+// const userAccountAddress =
+//   "account_tdx_2_128t0tnge6cvufl8rc2nj6ushlamuk4fcl4ll889v4fhv57algulas9";
+// const token1resourceAddress =
+//   "resource_tdx_2_1tkutsk75mpp8ngyzuf0t29zvtdr8empwvswmmcefelmwxzw45haeuv";
+// const token2resourceAddress =
+//   "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc";
+// const adexTradePairComponent =
+//   "component_tdx_2_1cqee79vy0dkv34jrqe8zs6czdqjnx5jq5tpeyum54ewxtthvwz3t0c";
+// const side = OrderSide.BUY;
+// const bucketId = "j"; // Change this to your value
+// const orderAmount = 966.666666666667; // Change this to your value
+// const orderPrice = 1.89; // Change this to your value
+// const newResourceAmount = 1827; // Change this to your value
+// const result = generateOrderManifest({
+//   userAccountAddress,
+//   token1resourceAddress,
+//   adexTradePairComponent,
+//   token2resourceAddress,
+//   bucketId,
+//   orderAmount,
+//   orderPrice,
+//   side,
+//   newResourceAmount,
+// });
 // console.log(result);
