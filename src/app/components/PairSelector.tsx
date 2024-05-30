@@ -14,9 +14,7 @@ interface PairInfo {
   lastPrice: number;
   change24h: number;
 }
-function displayName(name?: string) {
-  return name?.toUpperCase();
-}
+
 function getPairs(name?: string): string[] {
   return name ? name.split("/") : [];
 }
@@ -40,20 +38,28 @@ export function PairSelector() {
   const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
-  const [query, setQuery] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
-  const [initialSearchDone, setInitialSearchDone] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  // uncomment duplicates to test scroll behavior
+  // Use -1 to indicate that the highlightedIndex should be ignored
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
+  const [selectedOption, setSelectedOption] = useState<PairInfo>();
+
+  const selectedOptionIndex = useMemo(() => {
+    const index = filteredOptions.findIndex(
+      (x) => x.name === selectedOption?.name
+    );
+    // set the selectedOptionIndex to 0 if no option is selected
+    return index !== -1 ? index : 0;
+  }, [filteredOptions, selectedOption]);
+
   const options = useMemo(() => {
     return [...pairSelector.pairsList];
   }, [pairSelector.pairsList]);
-
-  const optionsLoaded = useMemo(() => options.length !== 0, [options]);
 
   const id = "pairOption";
 
@@ -69,7 +75,8 @@ export function PairSelector() {
   const selectOption = useCallback(
     (index: number = highlightedIndex) => {
       const option = filteredOptions[index];
-      setQuery(() => "");
+      setSelectedOption(option);
+      setQuery("");
       dispatch(orderInputSlice.actions.resetNumbersInput());
       dispatch(
         selectPair({
@@ -77,29 +84,32 @@ export function PairSelector() {
           pairName: option["name"],
         })
       );
-      setHighlightedIndex(index);
-      setIsOpen((isOpen) => !isOpen);
+      setHighlightedIndex(-1);
+      setIsOpen(!isOpen);
     },
     [
+      setSelectedOption,
+      setQuery,
       dispatch,
-      isOpen,
-      setIsOpen,
       setHighlightedIndex,
-      highlightedIndex,
+      setIsOpen,
       filteredOptions,
-      selectPair,
+      highlightedIndex,
+      isOpen,
     ]
   );
 
   const getDisplayValue = () => {
-    if (isOpen) return displayName(query);
-    if (pairSelector.name) return displayName(pairSelector.name);
-
+    if (isOpen) return query;
+    if (pairSelector.name) return pairSelector.name;
     return "";
   };
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      const finalIndex =
+        highlightedIndex !== -1 ? highlightedIndex : selectedOptionIndex;
+
       if (e.key === "/") {
         if (!isOpen) {
           e.preventDefault();
@@ -110,34 +120,52 @@ export function PairSelector() {
         setIsOpen(false);
       } else if (e.key === "Enter" && isOpen) {
         e.preventDefault();
-        selectOption();
+        selectOption(finalIndex);
       } else if (e.key === "ArrowDown" && isOpen) {
         e.preventDefault();
-        setHighlightedIndex((highlightedIndex) =>
-          highlightedIndex < filteredOptions.length - 1
-            ? highlightedIndex + 1
-            : 0
+        setHighlightedIndex(
+          finalIndex + 1 === filteredOptions.length ? 0 : finalIndex + 1
         );
       } else if (e.key === "ArrowUp" && isOpen) {
         e.preventDefault();
-        setHighlightedIndex((highlightedIndex) =>
-          highlightedIndex > 0
-            ? highlightedIndex - 1
-            : filteredOptions.length - 1
+        setHighlightedIndex(
+          finalIndex - 1 < 0 ? filteredOptions.length - 1 : finalIndex - 1
         );
       }
     },
-    [isOpen, selectOption, filteredOptions.length]
+    [
+      setIsOpen,
+      setHighlightedIndex,
+      highlightedIndex,
+      selectedOptionIndex,
+      filteredOptions,
+      isOpen,
+      selectOption,
+    ]
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-
     // Remove the event listener when the component unmounts
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
+
+  const onQueryChange = (userInputQuery: string) => {
+    const sortedOptions = sortOptions(
+      options.filter(
+        (option) =>
+          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
+          -1
+      )
+    );
+    setFilteredOptions(sortedOptions);
+    setQuery(userInputQuery);
+    // Reset the current selected option to the first one that is available
+    // everytime that the user query is updated
+    setHighlightedIndex(0);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -145,40 +173,11 @@ export function PairSelector() {
       inputRef.current?.select();
     } else {
       inputRef.current?.blur();
+      // Restore filtered options when the menu closes
+      setFilteredOptions(options);
+      setHighlightedIndex(-1);
     }
-  }, [isOpen]);
-
-  const onQueryChange = useCallback(
-    (userInputQuery: string) => {
-      const newOptions = options.filter(
-        (option) =>
-          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
-          -1
-      );
-      setQuery(userInputQuery);
-      setFilteredOptions(sortOptions(newOptions));
-      setHighlightedIndex(0);
-      setInitialSearchDone(true);
-    },
-    [
-      options,
-      setQuery,
-      setInitialSearchDone,
-      setHighlightedIndex,
-      setFilteredOptions,
-    ]
-  );
-
-  useEffect(() => {
-    if (optionsLoaded && !initialSearchDone) {
-      // optionsLoaded is a flag which is used in order to determine if the async function which
-      // populates the array is done. The options array is always expected to have a length > 0
-
-      // initialSearchDone is a flag which is needed in order to avoid triggering this useEffect
-      // everytime that an option is selected by the user.
-      onQueryChange("");
-    }
-  }, [optionsLoaded, onQueryChange, initialSearchDone]);
+  }, [isOpen, options, setFilteredOptions, setHighlightedIndex]);
 
   return (
     <div
@@ -189,11 +188,12 @@ export function PairSelector() {
       <div
         className="w-full h-full flex text-xl font-bold justify-between p-4 px-5 cursor-pointer"
         onClick={() => {
-          setIsOpen((isOpen) => !isOpen);
+          setIsOpen(!isOpen);
         }}
       >
         <input
           id="pair-selector-text"
+          autoComplete="off"
           ref={inputRef}
           type="text"
           value={getDisplayValue()}
@@ -229,7 +229,8 @@ export function PairSelector() {
       >
         {filteredOptions.map((option, index) => {
           const [pair1, pair2] = getPairs(option["name"]);
-
+          const indexToHighLight =
+            highlightedIndex !== -1 ? highlightedIndex : selectedOptionIndex;
           return (
             <React.Fragment key={`pair-${index}`}>
               {index === 0 && (
@@ -243,7 +244,7 @@ export function PairSelector() {
                   selectOption(index);
                 }}
                 className={`!px-3 py-2 cursor-pointer  ${
-                  highlightedIndex === index
+                  indexToHighLight === index
                     ? "bg-base-300"
                     : "hover:bg-base-200"
                 }`}
