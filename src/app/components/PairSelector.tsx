@@ -203,7 +203,6 @@ export function PairSelector() {
           }}
           className="!bg-transparent uppercase text-primary-content text-lg"
           style={{ minWidth: 0, padding: 0, border: "none" }}
-          autoComplete="off"
         />
         {!isOpen && (
           <Image
