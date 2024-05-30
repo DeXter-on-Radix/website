@@ -745,7 +745,7 @@ function SecondaryLabel({
     <></>
   ) : (
     <p
-      className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
+      className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px] text-right"
       onClick={
         userAction === UserAction.UPDATE_PRICE && updateValue
           ? () => updateValue(value)
