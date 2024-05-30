@@ -2,7 +2,6 @@ import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPair, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
 
@@ -213,12 +212,6 @@ export function PairSelector() {
             className=""
           />
         )}
-        {/* <div className="hidden lg:flex space-x-2 text-secondary-content">
-          <FaSearch className="my-auto" />
-          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
-            /
-          </span>
-        </div> */}
       </div>
       <ul
         tabIndex={0}
