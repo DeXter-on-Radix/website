@@ -191,7 +191,6 @@ input[type="number"]::-ms-clear {
   .grid-container {
     grid-template-columns: 300px auto;
     grid-template-areas:
-      /* "banner       banner" */
       "pairSelector priceInfo"
       "orderInput   priceChart"
       "orderBook    tradeHistory";
@@ -202,7 +201,6 @@ input[type="number"]::-ms-clear {
   .grid-container {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      /* "banner       banner" */
       "pairSelector pairSelector"
       "priceInfo    priceInfo"
       "priceChart   priceChart"
@@ -217,7 +215,6 @@ input[type="number"]::-ms-clear {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     grid-template-areas:
-      /* "banner" */
       "pairSelector"
       "priceInfo"
       "priceChart"
