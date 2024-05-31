@@ -159,7 +159,6 @@ export function OrderInput() {
           </>
         )}
         <FeesTable />
-        {/* <FeesDisclaimer /> */}
       </div>
     </div>
   );
@@ -294,17 +293,6 @@ function MarketOrderDisclaimer() {
     </div>
   );
 }
-
-// function FeesDisclaimer() {
-//   const t = useTranslations();
-//   return (
-//     <div className="">
-//       <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
-//         {t("fees_are_paid_in_received")}
-//       </p>
-//     </div>
-//   );
-// }
 
 function FeesTable() {
   const t = useTranslations();
