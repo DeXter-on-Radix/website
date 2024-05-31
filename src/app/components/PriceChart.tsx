@@ -39,7 +39,6 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const volume = displayNumber(props.volume || 0, nbrOfDigits, 2);
   const percChange = displayNumber(props.percChange || 0, nbrOfDigits, 2);
-  // const change = displayNumber(props.change || 0, nbrOfDigits, 2);
   const percChangeFormatted = ` ${
     props.change && props.change > 0 ? "+" : ""
   }${percChange} %`;
