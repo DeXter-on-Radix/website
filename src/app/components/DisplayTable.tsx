@@ -21,6 +21,22 @@ import "../styles/table.css";
 import { DexterToast } from "./DexterToaster";
 import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
 
+function createOrderReceiptAddressLookup(
+  pairsList: PairInfo[]
+): Record<string, string> {
+  const orderReceiptAddressLookup: Record<string, string> = {};
+  pairsList.forEach((pairInfo) => {
+    orderReceiptAddressLookup[pairInfo.address] = pairInfo.orderReceiptAddress;
+  });
+  return orderReceiptAddressLookup;
+}
+
+function getNftReceiptUrl(orderReceiptAddress: string, id: number) {
+  return `https://${
+    process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+  }dashboard.radixdlt.com/nft/${orderReceiptAddress}%3A%23${id}%23`;
+}
+
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
 const headers = {
@@ -197,20 +213,6 @@ const OpenOrdersRows = ({ data }: TableProps) => {
     </tr>
   );
 };
-
-function createOrderReceiptAddressLookup(
-  pairsList: PairInfo[]
-): Record<string, string> {
-  const orderReceiptAddressLookup: Record<string, string> = {};
-  pairsList.forEach((pairInfo) => {
-    orderReceiptAddressLookup[pairInfo.address] = pairInfo.orderReceiptAddress;
-  });
-  return orderReceiptAddressLookup;
-}
-
-function getNftReceiptUrl(orderReceiptAddress: string, id: number) {
-  return `https://dashboard.radixdlt.com/nft/${orderReceiptAddress}%3A%23${id}%23`;
-}
 
 const OrderHistoryRows = ({ data }: TableProps) => {
   const t = useTranslations();
