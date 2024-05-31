@@ -287,9 +287,9 @@ export function PriceChart() {
 
   return (
     <>
-      <div className="flex items-center justify-between sm:pr-10">
+      <div className="flex items-center justify-between sm:pr-10 pr-4">
         <div className="">
-          <span className="text-secondary-content text-sm font-bold uppercase">
+          <span className="block text-secondary-content text-sm font-bold uppercase">
             {t("trading_chart")}
           </span>
         </div>
