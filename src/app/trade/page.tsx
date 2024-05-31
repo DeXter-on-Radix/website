@@ -94,7 +94,7 @@ export default function Trade() {
           <div className="orderInput max-[850px]:p-5 max-[700px]:p-0 ">
             <OrderInput />
           </div>
-          <div className="priceChart px-4 pt-2">
+          <div className="priceChart pl-4 pr-2 pt-2">
             <PriceChart />
           </div>
           <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
