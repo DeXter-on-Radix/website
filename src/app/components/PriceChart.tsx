@@ -192,7 +192,7 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       window.addEventListener("resize", handleResize);
 
-      // Configure chart for full-canvas candle display. For reference: https://github.com/DeXter-on-Radix/website/issues/269
+      // Configure chart candles to have max-width of 13px
       const totalCandles = clonedData.length;
       const chartWidth =
         document.querySelector(".chart-container-ref")?.clientWidth || 600;
