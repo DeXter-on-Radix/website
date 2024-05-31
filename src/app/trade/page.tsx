@@ -80,7 +80,6 @@ export default function Trade() {
   return (
     <div className="">
       <PromoBannerCarousel items={[promoBannerConfig]} />
-      {/* <div className="border-x-4 border-black"> */}
       <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
         <div className="grid-container">
           <div className="pairSelector">
@@ -95,8 +94,7 @@ export default function Trade() {
           <div className="orderInput max-[850px]:p-5 max-[700px]:p-0 ">
             <OrderInput />
           </div>
-          <div className="priceChart pl-4 pt-2">
-            {/* <p className="p-5 text-secondary-content text-base">Price Chart</p> */}
+          <div className="priceChart px-4 pt-2">
             <PriceChart />
           </div>
           <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
