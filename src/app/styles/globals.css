@@ -120,10 +120,16 @@ input[type="number"]::-ms-clear {
   background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
 }
 
+/**
+ * GRID AREA CSS: Utilizes global CSS classes for grid areas.
+ * Justification: TailwindCSS lacks a readable method for implementing 
+ * grid-template-areas. Therefore, all grid area-related styles are 
+ * centralized in global CSS to maintain separation from 
+ * component-specific styles.
+ */
 .grid-container {
   display: grid;
   grid-gap: 1px;
-  background-color: #00000066;
   background-color: #d0d0d01a;
   width: 100%;
   height: 100%;
