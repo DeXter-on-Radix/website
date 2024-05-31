@@ -191,9 +191,9 @@ function DisplayTable() {
 
   return (
     <div className="overflow-x-auto scrollbar-none">
-      <table className="table table-zebra table-xs !mt-0 mb-16">
+      <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
-          <tr>
+          <tr className="">
             {tableToShow.headers.map((header, i) => (
               <th className="text-secondary-content uppercase" key={i}>
                 {t(header)}
@@ -250,11 +250,11 @@ const OrderHistoryRows = ({ data }: TableProps) => {
     data.map((order) => (
       <tr
         key={order.id}
-        className={
+        className={`${
           order.status === "CANCELLED" && order.completedPerc === 0
-            ? "opacity-30"
+            ? "opacity-40"
             : ""
-        }
+        } `}
       >
         <td>{order.pairName}</td>
         <td className="uppercase">{t(order.orderType)}</td>

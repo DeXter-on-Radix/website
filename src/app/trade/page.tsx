@@ -99,7 +99,7 @@ export default function Trade() {
             {/* <p className="p-5 text-secondary-content text-base">Price Chart</p> */}
             <PriceChart />
           </div>
-          <div className="tradeHistory max-w-[100vw] scrollbar-thin">
+          <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
             <AccountHistory />
           </div>
         </div>
