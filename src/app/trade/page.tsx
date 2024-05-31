@@ -78,8 +78,10 @@ export default function Trade() {
   }, [dispatch]);
 
   return (
-    <div className="">
-      <PromoBannerCarousel items={[promoBannerConfig]} />
+    <div className="grow">
+      <div className="h-[64px] bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%">
+        <PromoBannerCarousel items={[promoBannerConfig]} />
+      </div>
       <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
         <div className="grid-container">
           <div className="pairSelector">
