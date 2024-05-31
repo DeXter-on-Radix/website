@@ -5,7 +5,6 @@ import {
   OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
-  // fetchCandlesForInitialPeriod,
   initializeLegend,
   initialPriceChartState,
 } from "../state/priceChartSlice";
@@ -72,7 +71,6 @@ function PriceChartCanvas(props: PriceChartProps) {
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
 
-    // dispatch(fetchCandlesForInitialPeriod());
     if (data && data.length > 0) {
       dispatch(initializeLegend());
     }
