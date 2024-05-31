@@ -45,6 +45,7 @@ const headers = {
     "order_price",
     "order_fee",
     "time_ordered",
+    "time_completed",
   ],
 };
 
@@ -222,6 +223,7 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
+        <td>{displayTime(order.timeCompleted, "full")}</td>
       </tr>
     ))
   ) : (
