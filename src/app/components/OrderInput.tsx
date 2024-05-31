@@ -148,7 +148,7 @@ export function OrderInput() {
     <div className="h-full flex flex-col text-base justify-start items-center">
       <OrderSideTabs />
       {/* INNER_CONTAINER_MAX_WIDTH */}
-      <div className={`p-4 max-w-[500px] m-auto my-0 h-[570px] w-full`}>
+      <div className={`p-4 m-auto my-0 h-[570px] w-full`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />
@@ -168,7 +168,7 @@ function OrderSideTabs() {
   return (
     <div
       // OUTSIDE_CONTAINER_MAX_WIDTH
-      className={`h-[40px] flex max-w-[500px] w-full`}
+      className={`h-[40px] flex w-full`}
     >
       {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
         <OrderSideTab orderSide={currentSide} key={indx} />
