@@ -182,6 +182,8 @@ const OpenOrdersRows = ({ data }: TableProps) => {
 };
 
 const OrderHistoryRows = ({ data }: TableProps) => {
+  // Sort by timeCompleted
+  data = data.sort((a, b) => b.timeCompleted.localeCompare(a.timeCompleted));
   const t = useTranslations();
   return data.length ? (
     data.map((order) => (
