@@ -19,12 +19,14 @@ interface TableProps {
 
 import "../styles/table.css";
 import { DexterToast } from "./DexterToaster";
+import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
 const headers = {
   [Tables.OPEN_ORDERS]: [
     "pair",
+    "id",
     "order_type",
     "direction",
     "time_ordered",
@@ -36,6 +38,7 @@ const headers = {
   ],
   [Tables.ORDER_HISTORY]: [
     "pair",
+    "id",
     "order_type",
     "direction",
     "status",
@@ -146,10 +149,24 @@ export function DisplayTable() {
 
 const OpenOrdersRows = ({ data }: TableProps) => {
   const t = useTranslations();
+  // Needed to create order NFT urls
+  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   return data.length ? (
     data.map((order) => (
       <tr key={order.id} className="">
         <td>{order.pairName}</td>
+        <td>
+          <a
+            href={getNftReceiptUrl(
+              orderReceiptAddressLookup[order.pairAddress],
+              order.id
+            )}
+            target="_blank"
+          >
+            #{order.id}
+          </a>
+        </td>
         <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
           {t(displayOrderSide(order.side).text)}
@@ -181,10 +198,27 @@ const OpenOrdersRows = ({ data }: TableProps) => {
   );
 };
 
+function createOrderReceiptAddressLookup(
+  pairsList: PairInfo[]
+): Record<string, string> {
+  const orderReceiptAddressLookup: Record<string, string> = {};
+  pairsList.forEach((pairInfo) => {
+    orderReceiptAddressLookup[pairInfo.address] = pairInfo.orderReceiptAddress;
+  });
+  return orderReceiptAddressLookup;
+}
+
+function getNftReceiptUrl(orderReceiptAddress: string, id: number) {
+  return `https://dashboard.radixdlt.com/nft/${orderReceiptAddress}%3A%23${id}%23`;
+}
+
 const OrderHistoryRows = ({ data }: TableProps) => {
+  const t = useTranslations();
+  // Needed to create order NFT urls
+  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   // Sort by timeCompleted
   data = data.sort((a, b) => b.timeCompleted.localeCompare(a.timeCompleted));
-  const t = useTranslations();
   return data.length ? (
     data.map((order) => (
       <tr
@@ -196,6 +230,17 @@ const OrderHistoryRows = ({ data }: TableProps) => {
         }
       >
         <td>{order.pairName}</td>
+        <td>
+          <a
+            href={getNftReceiptUrl(
+              orderReceiptAddressLookup[order.pairAddress],
+              order.id
+            )}
+            target="_blank"
+          >
+            #{order.id}
+          </a>
+        </td>
         <td className="uppercase">{t(order.orderType)}</td>
         <td className={displayOrderSide(order.side).className}>
           {t(displayOrderSide(order.side).text)}
