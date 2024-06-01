@@ -10,7 +10,8 @@
     "serve-mainnet": "cross-env ENV_FILE=.env.mainnet npm run build && serve out",
     "lint": "next lint",
     "test": "vitest",
-    "test-integration": "playwright test"
+    "test-integration": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.0",
@@ -40,6 +41,8 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@playwright/test": "^1.37.1",
     "@tailwindcss/typography": "^0.5.9",
     "@testing-library/react": "^14.2.2",
