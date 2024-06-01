@@ -7,8 +7,9 @@ import {
   Distribution,
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Calculator } from "services/Calculator";
+import { getBatchOrderItems } from "./provide-liquidity-utils";
 
 // Hardcoded stokenet addresses
 // const dextrResource =
@@ -39,10 +40,22 @@ export default function ProvideLiquidity() {
 
 function WalletStatus() {
   const { isConnected, walletData } = useAppSelector((state) => state.radix);
+
+  // Prevent hydration error
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) {
+    return <></>;
+  }
+
   return (
     <>
       {!isConnected && (
-        <div className="p-6 bg-slate-700 font-bold">PLEASE CONNECT WALLET</div>
+        <div className="p-6 bg-slate-700 font-bold">
+          <p>PLEASE CONNECT WALLET</p>
+        </div>
       )}
       {isConnected && (
         <div className="p-6 bg-slate-700 text-base">
@@ -51,124 +64,6 @@ function WalletStatus() {
         </div>
       )}
     </>
-  );
-}
-
-enum OrderSide {
-  BUY = "BUY",
-  SELL = "SELL",
-}
-
-interface BatchOrderItem {
-  side: OrderSide;
-  id: string;
-  index: number;
-  price: number;
-  token1amount?: number;
-  token2amount?: number;
-}
-
-function distributeLinearLiquidity(
-  batchOrders: BatchOrderItem[],
-  sellSideLiq: number,
-  buySideLiq: number
-): BatchOrderItem[] {
-  const bins = batchOrders.length / 2;
-  batchOrders.forEach((batchOrderItem) => {
-    batchOrderItem.token1amount = Calculator.divide(
-      batchOrderItem.side === "BUY" ? buySideLiq : sellSideLiq,
-      bins
-    );
-    batchOrderItem.token2amount = Calculator.multiply(
-      batchOrderItem.token1amount,
-      batchOrderItem.price
-    );
-  });
-  return batchOrders;
-}
-
-function distributeExponentialLiqudity(
-  batchOrderItems: BatchOrderItem[],
-  buySideLiq: number,
-  sellSideLiq: number,
-  reversed?: boolean
-): BatchOrderItem[] {
-  const halfBins = batchOrderItems.length / 2;
-  const base = 2;
-  let ratios = Array.from({ length: halfBins }, (_, i) => Math.pow(base, i));
-  if (reversed) {
-    ratios = ratios.reverse();
-  }
-  const sumOfRatios = ratios.reduce((a, b) => a + b, 0);
-  const normalizedRatios = ratios.map((ratio) => ratio / sumOfRatios);
-
-  const buyAmounts = normalizedRatios.map((ratio) => ratio * buySideLiq);
-  const sellAmounts = normalizedRatios.map((ratio) => ratio * sellSideLiq);
-  const fullAmounts = [buyAmounts.reverse(), sellAmounts].flat();
-
-  fullAmounts.forEach((amount, index) => {
-    batchOrderItems[index].token1amount = amount;
-    batchOrderItems[index].token2amount = amount / batchOrderItems[index].price;
-  });
-  return batchOrderItems;
-}
-
-function getInitializedBatchOrderItems(
-  midPrice: number,
-  bins: number,
-  percSteps: number
-): BatchOrderItem[] {
-  // Init batchOrderItems
-  let bucketCount = 1;
-  const batchOrderItems: BatchOrderItem[] = [];
-  // 1. Create buy batchOrderItems
-  for (let i = -bins; i <= bins; i++) {
-    if (i === 0) {
-      continue;
-    }
-    batchOrderItems.push({
-      side: i < 0 ? OrderSide.BUY : OrderSide.SELL,
-      id: `Bucket_${bucketCount++}`,
-      index: i,
-      price: Calculator.add(
-        midPrice,
-        Calculator.multiply(Calculator.multiply(midPrice, i), percSteps)
-      ),
-    } as BatchOrderItem);
-  }
-  return batchOrderItems;
-}
-
-interface GetBatchOrderItemsProps {
-  midPrice: number;
-  bins: number;
-  percSteps: number;
-  distribution: Distribution;
-  buySideLiq: number;
-  sellSideLiq: number;
-}
-
-function getBatchOrderItems({
-  midPrice,
-  bins,
-  percSteps,
-  distribution,
-  buySideLiq,
-  sellSideLiq,
-}: GetBatchOrderItemsProps) {
-  const batchOrderItems = getInitializedBatchOrderItems(
-    midPrice,
-    bins,
-    percSteps
-  );
-  if (distribution === Distribution.LINEAR) {
-    return distributeLinearLiquidity(batchOrderItems, sellSideLiq, buySideLiq);
-  }
-  return distributeExponentialLiqudity(
-    batchOrderItems,
-    buySideLiq,
-    sellSideLiq,
-    distribution === Distribution.MID_DISTRIBUTION
   );
 }
 
@@ -191,6 +86,7 @@ function BatchOrderSummary() {
     buySideLiq,
     sellSideLiq,
   });
+  console.log(batchOrderItems);
   return (
     <div>
       <h4>Batch Order Summary</h4>
