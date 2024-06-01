@@ -109,6 +109,7 @@ const headers = {
     "order_price",
     "order_fee",
     "time_ordered",
+    "time_completed",
   ],
 };
 
@@ -193,7 +194,7 @@ function DisplayTable() {
     <div className="overflow-x-auto scrollbar-none">
       <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
-          <tr className="">
+          <tr>
             {tableToShow.headers.map((header, i) => (
               <th className="text-secondary-content uppercase" key={i}>
                 {t(header)}
@@ -245,16 +246,18 @@ const OpenOrdersRows = ({ data }: TableProps) => {
 };
 
 const OrderHistoryRows = ({ data }: TableProps) => {
+  // Sort by timeCompleted
+  data = data.sort((a, b) => b.timeCompleted.localeCompare(a.timeCompleted));
   const t = useTranslations();
   return data.length ? (
     data.map((order) => (
       <tr
         key={order.id}
-        className={`${
+        className={
           order.status === "CANCELLED" && order.completedPerc === 0
             ? "opacity-40"
             : ""
-        } `}
+        }
       >
         <td>{order.pairName}</td>
         <td className="uppercase">{t(order.orderType)}</td>
@@ -286,6 +289,7 @@ const OrderHistoryRows = ({ data }: TableProps) => {
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
         </td>
         <td>{displayTime(order.timeSubmitted, "full")}</td>
+        <td>{displayTime(order.timeCompleted, "full")}</td>
       </tr>
     ))
   ) : (
