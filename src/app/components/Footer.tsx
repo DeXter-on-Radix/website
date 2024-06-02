@@ -22,6 +22,10 @@ export function Footer() {
         text: t("tokenomics"),
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
       },
+      {
+        text: t("KPIs"),
+        url: "/kpis",
+      },
     ],
   };
   const contentColumn2 = {
