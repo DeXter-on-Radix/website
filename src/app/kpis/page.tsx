@@ -81,6 +81,16 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
       <p>Youtube Subscribers: {kpiData.socials.youtubeSubscribers}</p>
       <p>Instagram Followers: {kpiData.socials.instagramFollowers}</p>
       <p>Twitter Followers: {kpiData.socials.twitterFollowers}</p>
+      <LineChart
+        title={"Weekly Website Page Requests"}
+        x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
+        y={kpiData.website.pageRequests.map((o) => o.value)}
+      />
+      <LineChart
+        title={"Weekly Website Unique Visitors"}
+        x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
+        y={kpiData.website.uniqueVisitors.map((o) => o.value)}
+      />
     </>
   );
 }
