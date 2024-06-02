@@ -121,3 +121,8 @@ input[type="number"]::-ms-clear {
 .custom-auto-row-grid {
   grid-auto-rows: 0fr auto 0fr;
 }
+
+/* Fix margin on lightweight charts */
+.tv-lightweight-charts table {
+  margin: 0 !important;
+}
