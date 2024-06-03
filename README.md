@@ -19,3 +19,14 @@ If you'd like to send and receive trades, you will need to:
 ## Contributing
 
 We welcome contributions to this project. Please read our [contributing guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+**REMARK ON FORKED REPOS**:
+
+If you created a PR from a forked repo, please run the following command to create instructions on how to copy the PR from your forked repo onto the origin repository (dexter-on-radix/website). Insert the PR number into this script:
+
+```bash
+npm run copy-pr -- <PR_NUMBER>
+
+# an actual (valid) example is PR#409:
+npm run copy-pr -- 409
+```
