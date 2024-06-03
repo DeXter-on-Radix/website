@@ -6,6 +6,11 @@ import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
 
+// List of coins that should be removed from the frontend.
+// Removing pairs requires a community vote / decision.
+// Those coins are still tradeable on alphadex.
+const BLACKLISTED_PAIRS: string[] = [];
+
 interface PairInfo {
   name: string;
   address: string;
@@ -34,6 +39,13 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
   return [...priorityOptions, ...otherOptions];
 }
 
+// Remove blacklisted trading pairs
+function removeBlacklistedOptions(options: PairInfo[]): PairInfo[] {
+  return options.filter(
+    (option) => !BLACKLISTED_PAIRS.includes(option.address)
+  );
+}
+
 export function PairSelector() {
   const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
@@ -58,7 +70,7 @@ export function PairSelector() {
   }, [filteredOptions, selectedOption]);
 
   const options = useMemo(() => {
-    return [...pairSelector.pairsList];
+    return [...removeBlacklistedOptions(pairSelector.pairsList)];
   }, [pairSelector.pairsList]);
 
   const id = "pairOption";
@@ -257,7 +269,11 @@ export function PairSelector() {
                       <>
                         <div className="relative mr-8">
                           <img
-                            src={option.token1.iconUrl}
+                            src={
+                              option.token1.symbol === "3TR" // remove broken link for 3TR
+                                ? "grey-circle.svg"
+                                : option.token1.iconUrl
+                            }
                             alt="Token Icon"
                             className="w-6 h-6 rounded-full z-20"
                           />
