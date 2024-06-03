@@ -173,7 +173,7 @@ export function PairSelector() {
     } else {
       inputRef.current?.blur();
       // Restore filtered options when the menu closes
-      setFilteredOptions(options);
+      setFilteredOptions(sortOptions(options));
       setHighlightedIndex(-1);
     }
   }, [isOpen, options, setFilteredOptions, setHighlightedIndex]);
