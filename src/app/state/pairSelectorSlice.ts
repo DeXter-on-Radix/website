@@ -127,6 +127,7 @@ export const pairSelectorSlice = createSlice({
       const { pairAddress, pairName } = action.payload;
       adex.clientState.currentPairAddress = pairAddress;
       if (pairName) {
+        state.name = pairName; // Prevent empty pairname during loading
         setQueryParam("pair", formatPairName(pairName));
       }
     },

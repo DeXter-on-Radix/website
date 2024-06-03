@@ -171,7 +171,7 @@ function SocialIcons() {
     },
   ];
   return (
-    <div className={`flex flex-wrap ${marginBottom}`}>
+    <div className={`flex flex-wrap ${marginBottom} pb-10`}>
       {socials.map(({ id, url }, indx) => (
         <a href={url} key={indx} target="_blank" className="mr-2 mt-2">
           <img className="w-8 sm:w-7" src={`/socials/${id}.svg`} alt={id}></img>
