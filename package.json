@@ -10,7 +10,8 @@
     "serve-mainnet": "cross-env ENV_FILE=.env.mainnet npm run build && serve out",
     "lint": "next lint",
     "test": "vitest",
-    "test-integration": "playwright test"
+    "test-integration": "playwright test",
+    "copy-pr": "node ./scripts/copy-pr.js"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.0",
@@ -36,6 +37,7 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.11.0",
     "react-redux": "^8.1.2",
+    "resize-observer-polyfill": "^1.5.1",
     "tailwindcss": "3.3.2",
     "typescript": "5.1.6"
   },
@@ -57,6 +59,7 @@
     "jsdom": "^24.0.0",
     "prettier": "2.8.8",
     "serve": "^14.2.3",
+    "tailwind-scrollbar": "^3.1.0",
     "vitest": "^1.4.0"
   },
   "engines": {

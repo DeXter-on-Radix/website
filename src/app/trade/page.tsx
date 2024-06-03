@@ -78,33 +78,32 @@ export default function Trade() {
   }, [dispatch]);
 
   return (
-    <>
-      <PromoBannerCarousel items={[promoBannerConfig]} />
-      <div className="flex-grow grid grid-cols-12 custom-auto-row-grids max-w-none divide-y-4 divide-base-300">
-        <div className="col-span-12 lg:col-span-5 xl:col-span-3 text-center lg:border-r-4 border-t-4 border-base-300">
-          <PairSelector />
-        </div>
-        <div className="min-h-[50px] col-span-12 lg:col-span-7 xl:col-span-6 text-center">
-          <PriceInfo />
-        </div>
-        <div className="col-span-12 xl:col-span-3 hidden xl:block  row-span-2 text-center border-l-4 border-base-300">
-          <OrderBook />
-        </div>
-        <div className="grid grid-cols-12 xl:grid-cols-9 col-span-12 xl:col-span-9">
-          <div className="col-span-12 lg:col-span-5 xl:col-span-3 order-2 lg:order-1 text-center lg:border-r-4 border-base-300">
+    <div className="grow">
+      <div className="min-h-[64px] bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%">
+        <PromoBannerCarousel items={[promoBannerConfig]} />
+      </div>
+      <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
+        <div className="grid-container">
+          <div className="pairSelector">
+            <PairSelector />
+          </div>
+          <div className="priceInfo">
+            <PriceInfo />
+          </div>
+          <div className="orderBook max-[850px]:p-5 max-[700px]:p-0 ">
+            <OrderBook />
+          </div>
+          <div className="orderInput max-[850px]:p-5 max-[700px]:p-0 ">
             <OrderInput />
           </div>
-          <div className="col-span-12 p-2 lg:col-span-7 xl:col-span-6 order-1 lg:order-2 text-center xs:border-b-4 lg:border-b-0 border-base-300">
+          <div className="priceChart pl-4 pr-2 pt-2">
             <PriceChart />
           </div>
-        </div>
-        <div className="col-span-12 xl:hidden lg:col-span-5 lg:border-r-4 border-base-300">
-          <OrderBook />
-        </div>
-        <div className="col-span-12 lg:col-span-7 xl:col-span-12 text-center">
-          <AccountHistory />
+          <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
+            <AccountHistory />
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

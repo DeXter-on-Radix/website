@@ -31,7 +31,7 @@ export default function RootLayout({
   // and use metadata https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#step-2-creating-a-root-layout
 
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme="dark" className="scrollbar-none">
       <head>
         <title>DeXter</title>
       </head>
