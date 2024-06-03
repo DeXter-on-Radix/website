@@ -10,7 +10,8 @@
     "serve-mainnet": "cross-env ENV_FILE=.env.mainnet npm run build && serve out",
     "lint": "next lint",
     "test": "vitest",
-    "test-integration": "playwright test"
+    "test-integration": "playwright test",
+    "copy-pr": "node ./scripts/copy-pr.js"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.0",
