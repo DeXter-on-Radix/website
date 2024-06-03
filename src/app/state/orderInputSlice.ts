@@ -7,6 +7,7 @@ import {
 import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
+import { getTransactionDetail } from "alphadex-sdk-js/lib/radix-api";
 import { RDT, getRdtOrThrow } from "../subscriptions";
 import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
@@ -679,5 +680,33 @@ async function createTx(state: RootState, rdt: RDT) {
     state.radix?.walletData.accounts[0]?.address || "" // settle account
   );
   // Then submits the order to the wallet
-  return await adex.submitTransaction(createOrderResponse.data, rdt);
+  return await submitTransaction(createOrderResponse.data, rdt);
+}
+
+/*
+ * Submit a transaction
+ */
+//This is originally from the alphadex-client.js line 779
+async function submitTransaction(manifest: any, rdt: RDT) {
+  const result = await rdt.walletApi.sendTransaction({
+    transactionManifest: manifest,
+    version: 1,
+    message: "Order Using DeXter",
+  });
+  if (result.isErr()) {
+    console.error("Problem with submitting tx.", result.error.message);
+    return new SdkResult("ERROR", result.error.message, result.error);
+  }
+  let txDetailResult = await getTransactionDetail(
+    result.value.transactionIntentHash
+  );
+  if (txDetailResult.status != 200) {
+    return new SdkResult("ERROR", txDetailResult.message, txDetailResult.data);
+  } else {
+    return new SdkResult(
+      "SUCCESS",
+      txDetailResult.message,
+      txDetailResult.data
+    );
+  }
 }
