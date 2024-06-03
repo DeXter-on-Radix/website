@@ -2,7 +2,6 @@ import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPair, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
 
@@ -220,23 +219,17 @@ export function PairSelector() {
           <Image
             src="/chevron-down.svg"
             alt="chevron down"
-            width="40"
-            height="40"
-            className="lg:hidden"
+            width="25"
+            height="25"
+            className=""
           />
         )}
-        <div className="hidden lg:flex space-x-2 text-secondary-content">
-          <FaSearch className="my-auto" />
-          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
-            /
-          </span>
-        </div>
       </div>
       <ul
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-y-scroll max-h-[50vh]"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-y-scroll max-h-[50vh] list-none scrollbar-thin"
         }
       >
         {filteredOptions.map((option, index) => {
@@ -263,8 +256,8 @@ export function PairSelector() {
                 style={{ marginTop: 0, marginBottom: 0 }}
                 key={`${id}-${index}`}
               >
-                <div className="flex justify-between ">
-                  <div className="flex justify-center items-center">
+                <div className="flex justify-between">
+                  <div className="flex justify-center items-center truncate">
                     {pair1 && pair2 && (
                       <>
                         <div className="relative mr-8">

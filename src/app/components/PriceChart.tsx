@@ -5,12 +5,11 @@ import {
   OHLCVData,
   setCandlePeriod,
   handleCrosshairMove,
-  // fetchCandlesForInitialPeriod,
   initializeLegend,
   initialPriceChartState,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
-import { displayNumber } from "../utils";
+import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 
 interface PriceChartProps {
@@ -24,9 +23,10 @@ interface PriceChartProps {
 function PriceChartCanvas(props: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
-
+  const currency = useAppSelector((state) => state.pairSelector.token2.symbol);
   const dispatch = useAppDispatch();
   const { data, candlePrice } = props;
+  const isLoading = data.length === 0;
   //displayTime offsets by local timezone, causing discrepancy on chart
   const candleDate = new Date(
     parseInt(candlePrice?.time.toString() || "") * 1000
@@ -34,53 +34,73 @@ function PriceChartCanvas(props: PriceChartProps) {
 
   const theme = tailwindConfig.daisyui.themes[0].dark;
 
-  const noDigits = 8;
-  const fixedDecimals = 6;
+  const nbrOfDigits = 8;
+  const currencyPrecision = getPrecision(currency);
 
-  const volume = displayNumber(props.volume || 0, noDigits, 2);
-  const percChange = displayNumber(props.percChange || 0, noDigits, 2);
-  const change = displayNumber(props.change || 0, noDigits, 2);
+  const volume = displayNumber(props.volume || 0, nbrOfDigits, 2);
+  const percChange = displayNumber(props.percChange || 0, nbrOfDigits, 2);
+  const percChangeFormatted = ` ${
+    props.change && props.change > 0 ? "+" : ""
+  }${percChange} %`;
 
   const candleOpen = displayNumber(
     candlePrice?.open || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleHigh = displayNumber(
     candlePrice?.high || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleLow = displayNumber(
     candlePrice?.low || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   const candleClose = displayNumber(
     candlePrice?.close || 0,
-    noDigits,
-    fixedDecimals
+    nbrOfDigits,
+    currencyPrecision
   );
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
 
-    // dispatch(fetchCandlesForInitialPeriod());
     if (data && data.length > 0) {
       dispatch(initializeLegend());
     }
 
     if (chartContainer) {
       const handleResize = () => {
-        chart.applyOptions({ width: chartContainer.clientWidth });
+        // hacky way to fix resizing issue. This is heavily dependant on the
+        // grid area breakpoints, so whenever you change grid area, this
+        // needs to be adapted too. This is not ideal and should be fixed.
+        // TODO: fix price chart container so this code is not needed anymore.
+        const adaptForPadding = 15 * 2; // 15px padding on each side
+        const priceChartSize =
+          window.innerWidth <= 850
+            ? window.innerWidth
+            : window.innerWidth <= 1025
+            ? window.innerWidth - 300
+            : window.innerWidth <= 1350
+            ? window.innerWidth - 2 * 260
+            : Math.min(921, window.innerWidth - 600);
+        chart.applyOptions({ width: priceChartSize - adaptForPadding });
+        // // OLD CODE
+        // chart.applyOptions({ width: chartContainer.clientWidth });
       };
-
+      const vh = window.innerHeight;
+      const promoCarouselExists =
+        document.querySelector(".promo-banner") !== null;
+      const spaceTaken = promoCarouselExists ? 150 + 64 : 150;
+      const chartHeight = Math.min(vh - spaceTaken, 550);
       const chart = createChart(chartContainer, {
         width: chartContainer.clientWidth,
-        height: 620,
+        height: chartHeight,
         layout: {
           background: {
             color: theme["base-200"],
@@ -117,12 +137,12 @@ function PriceChartCanvas(props: PriceChartProps) {
       ohlcSeries.setData(clonedData);
 
       ohlcSeries.applyOptions({
-        borderUpColor: theme["success"],
-        wickUpColor: theme["success"],
-        upColor: theme["success"],
-        borderDownColor: theme["error"],
-        wickDownColor: theme["error"],
-        downColor: theme["error"],
+        borderUpColor: theme["dexter-green"],
+        wickUpColor: theme["dexter-green"],
+        upColor: theme["dexter-green"],
+        borderDownColor: theme["dexter-red"],
+        wickDownColor: theme["dexter-red"],
+        downColor: theme["dexter-red"],
       });
 
       chart.priceScale("right").applyOptions({
@@ -147,7 +167,9 @@ function PriceChartCanvas(props: PriceChartProps) {
         data.map((datum) => ({
           ...datum,
           color:
-            datum.close - datum.open < 0 ? theme["error"] : theme["success"],
+            datum.close - datum.open < 0
+              ? theme["dexter-red"]
+              : theme["dexter-green"],
         }))
       );
 
@@ -169,10 +191,16 @@ function PriceChartCanvas(props: PriceChartProps) {
 
       window.addEventListener("resize", handleResize);
 
-      // Configure chart for full-canvas candle display. For reference: https://github.com/DeXter-on-Radix/website/issues/269
-      chart
-        .timeScale()
-        .setVisibleLogicalRange({ from: 0, to: clonedData.length });
+      // Configure chart candles to have max-width of 13px
+      const totalCandles = clonedData.length;
+      const chartWidth =
+        document.querySelector(".chart-container-ref")?.clientWidth || 600;
+      const minCandleWidth = 13; // in px
+      const nbrOfCandlesToDisply = Math.min(chartWidth / minCandleWidth); //chartWidth / ;
+      chart.timeScale().setVisibleLogicalRange({
+        from: Math.max(totalCandles - nbrOfCandlesToDisply),
+        to: totalCandles,
+      });
 
       return () => {
         window.removeEventListener("resize", handleResize);
@@ -183,19 +211,26 @@ function PriceChartCanvas(props: PriceChartProps) {
   //Temporary brute force approach to trim the top of the chart to remove the gap
   return (
     <div>
-      <div ref={chartContainerRef} className="relative mt-[-1.7rem]">
+      <div
+        ref={chartContainerRef}
+        className="relative mt-[-1.7rem] w-full chart-container-ref"
+      >
         <div
           ref={legendRef}
           className={
-            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 uppercase " +
-            (props.change && props.change < 0 ? "!text-error" : "!text-success")
+            "absolute font-bold text-xs text-left text-secondary-content mt-3 z-20 " +
+            (isLoading
+              ? "hidden"
+              : props.change && props.change < 0
+              ? "!text-dexter-red"
+              : "!text-dexter-green")
           }
         >
           <div className="flex justify-start gap-x-6 text-xs font-medium">
             <div className="text-secondary-content">{candleDate}</div>
             <div className="text-xs font-medium">
-              <span className="text-secondary-content">Change</span> {change} (
-              {percChange})%
+              <span className="text-secondary-content">Change</span>
+              {percChangeFormatted}
             </div>
             <div className="text-xs font-medium">
               <span className="text-secondary-content">Volume</span> {volume}
@@ -248,10 +283,10 @@ export function PriceChart() {
   }, [dispatch]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between sm:pr-10">
+    <>
+      <div className="flex items-center justify-between sm:pr-10 pr-4">
         <div className="">
-          <span className="text-secondary-content text-sm font-bold uppercase">
+          <span className="block text-secondary-content text-sm font-bold uppercase">
             {t("trading_chart")}
           </span>
         </div>
@@ -278,6 +313,6 @@ export function PriceChart() {
         percChange={percChange}
         volume={currentVolume}
       />
-    </div>
+    </>
   );
 }
