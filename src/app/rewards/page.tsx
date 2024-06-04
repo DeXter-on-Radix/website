@@ -101,16 +101,23 @@ function RewardsCard() {
   const userHasRewards = getUserHasRewards(rewardData);
 
   useEffect(() => {
+    // Performs 4 sequential actions:
+    // 1. fetchAddresses     : fetches relevant rewards component addresses
+    // 2. fetchAccountRewards: fetches rewards for a specific account
+    // 3. fetchReciepts      : fetches NFT reciepts
+    // 4. fetchOrderRewards  : fetches rewards based on the NFT reciepts
     async function loadRewards() {
       const fetchAddressesResult = await dispatch(fetchAddresses());
       if (!fetchAddressesResult.payload) {
-        return; // quit if address could not be loaded
+        return; // stop loading rewards if addresses could not be loaded
       }
-      let fetchReceiptsAction = await dispatch(fetchReciepts(pairsList));
-      // console.log("fetchReceiptsAction: ", fetchReceiptsAction);
       await dispatch(fetchAccountRewards());
+      let fetchReceiptsResult = await dispatch(fetchReciepts(pairsList));
+      if (!fetchReceiptsResult.payload) {
+        return; // stop loading order rewards if reciepts are not loaded successfully
+      }
       await dispatch(
-        fetchOrderRewards(fetchReceiptsAction.payload as string[])
+        fetchOrderRewards(fetchReceiptsResult.payload as string[])
       );
     }
     if (isConnected) {
