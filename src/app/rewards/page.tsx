@@ -102,7 +102,10 @@ function RewardsCard() {
 
   useEffect(() => {
     async function loadRewards() {
-      await dispatch(fetchAddresses());
+      const fetchAddressesResult = await dispatch(fetchAddresses());
+      if (!fetchAddressesResult.payload) {
+        return; // quit if address could not be loaded
+      }
       let fetchReceiptsAction = await dispatch(fetchReciepts(pairsList));
       // console.log("fetchReceiptsAction: ", fetchReceiptsAction);
       await dispatch(fetchAccountRewards());
