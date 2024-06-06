@@ -5,10 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import React from "react";
 
-// List of coins that should be removed from the frontend.
-// Removing pairs requires a community vote / decision.
-// Those coins are still tradeable on alphadex.
-const BLACKLISTED_PAIRS: string[] = [];
+import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
 
 interface PairInfo {
   name: string;
