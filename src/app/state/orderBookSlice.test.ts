@@ -9,6 +9,7 @@ function mockOrderBookLine(price: number): OrderbookLine {
 }
 
 const MOCK_SELLS = [
+  mockOrderBookLine(26),
   mockOrderBookLine(25),
   mockOrderBookLine(24),
   mockOrderBookLine(23),
@@ -52,12 +53,14 @@ describe("toOrderBookRowProps", () => {
     expect(toOrderBookRowProps(input, "sell", 0).length).toBe(MAX_ROWS);
   });
 
-  it(`"returns correct amount of rows if the input is larger"`, () => {
+  it(`returns correct amount of rows if the input is larger`, () => {
     expect(toOrderBookRowProps(MOCK_SELLS, "sell", 0).length).toBe(MAX_ROWS);
   });
 
   it("drops the correct farther away rows for sells", () => {
-    const expectedSellPrices = [24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14];
+    const expectedSellPrices = [
+      26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14,
+    ];
 
     const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell", 0);
 
@@ -67,7 +70,7 @@ describe("toOrderBookRowProps", () => {
   });
 
   it("drops the correct farther away rows for buys", () => {
-    const expectedBuyPrices = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3];
+    const expectedBuyPrices = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
     const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy", 0);
 
@@ -77,8 +80,8 @@ describe("toOrderBookRowProps", () => {
   });
 
   it("calculates correct totals", () => {
-    const expectedSellTotals = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-    const expectedBuyTotals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const expectedSellTotals = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const expectedBuyTotals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
     const sellRowProps = toOrderBookRowProps(MOCK_SELLS, "sell", 0);
     const buyRowProps = toOrderBookRowProps(MOCK_BUYS, "buy", 0);
@@ -101,6 +104,8 @@ describe("toOrderBookRowProps", () => {
       { price: undefined, total: undefined },
       { price: undefined, total: undefined },
       { price: undefined, total: undefined },
+      { price: undefined, total: undefined },
+      { price: 27, total: 13 },
       { price: 24, total: 12 },
       { price: 21, total: 9 },
       { price: 18, total: 6 },
@@ -121,6 +126,8 @@ describe("toOrderBookRowProps", () => {
       { price: 9, total: 6 },
       { price: 6, total: 9 },
       { price: 3, total: 12 },
+      { price: undefined, total: undefined },
+      { price: undefined, total: undefined },
       { price: undefined, total: undefined },
       { price: undefined, total: undefined },
       { price: undefined, total: undefined },

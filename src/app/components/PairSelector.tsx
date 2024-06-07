@@ -2,9 +2,10 @@ import { useAppSelector, useAppDispatch, useTranslations } from "../hooks";
 import { selectPair, TokenInfo } from "../state/pairSelectorSlice";
 import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
+
+import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
 
 interface PairInfo {
   name: string;
@@ -14,9 +15,7 @@ interface PairInfo {
   lastPrice: number;
   change24h: number;
 }
-function displayName(name?: string) {
-  return name?.toUpperCase();
-}
+
 function getPairs(name?: string): string[] {
   return name ? name.split("/") : [];
 }
@@ -36,26 +35,40 @@ function sortOptions(options: PairInfo[]): PairInfo[] {
   return [...priorityOptions, ...otherOptions];
 }
 
+// Remove blacklisted trading pairs
+function removeBlacklistedOptions(options: PairInfo[]): PairInfo[] {
+  return options.filter(
+    (option) => !BLACKLISTED_PAIRS.includes(option.address)
+  );
+}
+
 export function PairSelector() {
   const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
-  const [query, setQuery] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  // uncomment duplicates to test scroll behavior
-  const options = useMemo(
-    () => [
-      // ...pairSelector.pairsList,
-      // ...pairSelector.pairsList,
-      ...pairSelector.pairsList,
-    ],
-    [pairSelector.pairsList]
-  );
+  // Use -1 to indicate that the highlightedIndex should be ignored
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const [filteredOptions, setFilteredOptions] = useState<PairInfo[]>([]);
+  const [selectedOption, setSelectedOption] = useState<PairInfo>();
+
+  const selectedOptionIndex = useMemo(() => {
+    const index = filteredOptions.findIndex(
+      (x) => x.name === selectedOption?.name
+    );
+    // set the selectedOptionIndex to 0 if no option is selected
+    return index !== -1 ? index : 0;
+  }, [filteredOptions, selectedOption]);
+
+  const options = useMemo(() => {
+    return [...removeBlacklistedOptions(pairSelector.pairsList)];
+  }, [pairSelector.pairsList]);
+
   const id = "pairOption";
 
   useEffect(() => {
@@ -67,28 +80,44 @@ export function PairSelector() {
     );
   }, [dispatch]);
 
-  const selectOption = useCallback(() => {
-    const option = filteredOptions[highlightedIndex];
-    setQuery(() => "");
-    dispatch(orderInputSlice.actions.resetNumbersInput());
-    dispatch(
-      selectPair({
-        pairAddress: option["address"],
-        pairName: option["name"],
-      })
-    );
-    setIsOpen((isOpen) => !isOpen);
-  }, [dispatch, highlightedIndex, filteredOptions]);
+  const selectOption = useCallback(
+    (index: number = highlightedIndex) => {
+      const option = filteredOptions[index];
+      setSelectedOption(option);
+      setQuery("");
+      dispatch(orderInputSlice.actions.resetNumbersInput());
+      dispatch(
+        selectPair({
+          pairAddress: option["address"],
+          pairName: option["name"],
+        })
+      );
+      setHighlightedIndex(-1);
+      setIsOpen(!isOpen);
+    },
+    [
+      setSelectedOption,
+      setQuery,
+      dispatch,
+      setHighlightedIndex,
+      setIsOpen,
+      filteredOptions,
+      highlightedIndex,
+      isOpen,
+    ]
+  );
 
   const getDisplayValue = () => {
-    if (isOpen) return displayName(query);
-    if (pairSelector.name) return displayName(pairSelector.name);
-
+    if (isOpen) return query;
+    if (pairSelector.name) return pairSelector.name;
     return "";
   };
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      const finalIndex =
+        highlightedIndex !== -1 ? highlightedIndex : selectedOptionIndex;
+
       if (e.key === "/") {
         if (!isOpen) {
           e.preventDefault();
@@ -99,34 +128,52 @@ export function PairSelector() {
         setIsOpen(false);
       } else if (e.key === "Enter" && isOpen) {
         e.preventDefault();
-        selectOption();
+        selectOption(finalIndex);
       } else if (e.key === "ArrowDown" && isOpen) {
         e.preventDefault();
-        setHighlightedIndex((highlightedIndex) =>
-          highlightedIndex < filteredOptions.length - 1
-            ? highlightedIndex + 1
-            : 0
+        setHighlightedIndex(
+          finalIndex + 1 === filteredOptions.length ? 0 : finalIndex + 1
         );
       } else if (e.key === "ArrowUp" && isOpen) {
         e.preventDefault();
-        setHighlightedIndex((highlightedIndex) =>
-          highlightedIndex > 0
-            ? highlightedIndex - 1
-            : filteredOptions.length - 1
+        setHighlightedIndex(
+          finalIndex - 1 < 0 ? filteredOptions.length - 1 : finalIndex - 1
         );
       }
     },
-    [isOpen, selectOption, filteredOptions.length]
+    [
+      setIsOpen,
+      setHighlightedIndex,
+      highlightedIndex,
+      selectedOptionIndex,
+      filteredOptions,
+      isOpen,
+      selectOption,
+    ]
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-
     // Remove the event listener when the component unmounts
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
+
+  const onQueryChange = (userInputQuery: string) => {
+    const sortedOptions = sortOptions(
+      options.filter(
+        (option) =>
+          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
+          -1
+      )
+    );
+    setFilteredOptions(sortedOptions);
+    setQuery(userInputQuery);
+    // Reset the current selected option to the first one that is available
+    // everytime that the user query is updated
+    setHighlightedIndex(0);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -134,16 +181,11 @@ export function PairSelector() {
       inputRef.current?.select();
     } else {
       inputRef.current?.blur();
+      // Restore filtered options when the menu closes
+      setFilteredOptions(sortOptions(options));
+      setHighlightedIndex(-1);
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const newOptions = options.filter(
-      (option) => option["name"].toLowerCase().indexOf(query.toLowerCase()) > -1
-    );
-    setFilteredOptions(sortOptions(newOptions));
-    setHighlightedIndex(0);
-  }, [options, query]);
+  }, [isOpen, options, setFilteredOptions, setHighlightedIndex]);
 
   return (
     <div
@@ -154,17 +196,18 @@ export function PairSelector() {
       <div
         className="w-full h-full flex text-xl font-bold justify-between p-4 px-5 cursor-pointer"
         onClick={() => {
-          setIsOpen((isOpen) => !isOpen);
+          setIsOpen(!isOpen);
         }}
       >
         <input
           id="pair-selector-text"
+          autoComplete="off"
           ref={inputRef}
           type="text"
           value={getDisplayValue()}
           name="searchTerm"
           onChange={(e) => {
-            setQuery(e.target.value);
+            onQueryChange(e.target.value);
           }}
           className="!bg-transparent uppercase text-primary-content text-lg"
           style={{ minWidth: 0, padding: 0, border: "none" }}
@@ -173,28 +216,23 @@ export function PairSelector() {
           <Image
             src="/chevron-down.svg"
             alt="chevron down"
-            width="40"
-            height="40"
-            className="lg:hidden"
+            width="25"
+            height="25"
+            className=""
           />
         )}
-        <div className="hidden lg:flex space-x-2 text-secondary-content">
-          <FaSearch className="my-auto" />
-          <span className="px-2 bg-neutral !rounded-sm text-neutral-content my-auto">
-            /
-          </span>
-        </div>
       </div>
       <ul
         tabIndex={0}
         className={
           `${isOpen ? "" : "hidden"}` +
-          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-y-scroll max-h-[50vh]"
+          " absolute z-30 bg-base-100 w-full !my-0 !p-0 overflow-y-scroll max-h-[50vh] list-none scrollbar-thin"
         }
       >
         {filteredOptions.map((option, index) => {
           const [pair1, pair2] = getPairs(option["name"]);
-
+          const indexToHighLight =
+            highlightedIndex !== -1 ? highlightedIndex : selectedOptionIndex;
           return (
             <React.Fragment key={`pair-${index}`}>
               {index === 0 && (
@@ -204,22 +242,28 @@ export function PairSelector() {
                 </div>
               )}
               <li
-                onMouseEnter={() => setHighlightedIndex(index)}
-                onClick={() => selectOption()}
-                className={
-                  "!px-3 py-2 cursor-pointer " +
-                  (highlightedIndex === index ? " bg-base-300" : "")
-                }
+                onClick={() => {
+                  selectOption(index);
+                }}
+                className={`!px-3 py-2 cursor-pointer  ${
+                  indexToHighLight === index
+                    ? "bg-base-300"
+                    : "hover:bg-base-200"
+                }`}
                 style={{ marginTop: 0, marginBottom: 0 }}
                 key={`${id}-${index}`}
               >
-                <div className="flex justify-between ">
-                  <div className="flex justify-center items-center">
+                <div className="flex justify-between">
+                  <div className="flex justify-center items-center truncate">
                     {pair1 && pair2 && (
                       <>
                         <div className="relative mr-8">
                           <img
-                            src={option.token1.iconUrl}
+                            src={
+                              option.token1.symbol === "3TR" // remove broken link for 3TR
+                                ? "grey-circle.svg"
+                                : option.token1.iconUrl
+                            }
                             alt="Token Icon"
                             className="w-6 h-6 rounded-full z-20"
                           />
