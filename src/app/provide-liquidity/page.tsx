@@ -10,6 +10,7 @@ import { Time, createChart } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
 import { Calculator } from "services/Calculator";
 import { getBatchOrderItems } from "./provide-liquidity-utils";
+import { PairSelector } from "components/PairSelector";
 
 // Hardcoded stokenet addresses
 // const dextrResource =
@@ -25,10 +26,10 @@ export default function ProvideLiquidity() {
           <HeaderComponent />
           <WalletStatus />
           <div className="flex max-[800px]:flex-col">
-            <div className="w-1/2 max-[800px]:w-full px-10">
-              <CreateBatchOrderForm />
+            <div className="w-1/2 max-[800px]:w-full px-5">
+              <BatchOrderForm />
             </div>
-            <div className="w-1/2 max-[800px]:w-full px-10">
+            <div className="w-1/2 max-[800px]:w-full px-5">
               <BatchOrderSummary />
             </div>
           </div>
@@ -86,7 +87,6 @@ function BatchOrderSummary() {
     buySideLiq,
     sellSideLiq,
   });
-  console.log(batchOrderItems);
   return (
     <div>
       <h4>Batch Order Summary</h4>
@@ -119,53 +119,22 @@ function BatchOrderSummary() {
   );
 }
 
-function CreateBatchOrderForm() {
+function BatchOrderForm() {
   const {
     ["buySideLiq"]: [buySideLiq, setBuySideLiq],
     ["sellSideLiq"]: [sellSideLiq, setSellSideLiq],
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
     ["bins"]: [bins, setBins],
-    ["percSteps"]: [percSteps, setPercSteps],
   } = useProvideLiquidityContext();
 
   return (
     <div className="pb-10">
       <h4>Create Batch Order DEXTR/XRD</h4>
+      <PairSelector />
 
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Pair: </p>
-        <select name="pair" id="pair">
-          <option value="dextr/xrd">DEXTR/XRD</option>
-        </select>
-      </div>
-
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Buy Side Liqudity: </p>
-        <input
-          id="buy-side-liquidity"
-          className="text-right w-40"
-          type="text"
-          value={buySideLiq}
-          onChange={(e) => setBuySideLiq(parseFloat(e.target.value) || 0)}
-          autoComplete="off"
-        />
-      </div>
-
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Sell Side Liqudity: </p>
-        <input
-          id="sell-side-liquidity"
-          className="text-right w-40"
-          type="text"
-          value={sellSideLiq}
-          onChange={(e) => setSellSideLiq(parseFloat(e.target.value) || 0)}
-          autoComplete="off"
-        />
-      </div>
-
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Distribution: </p>
+      <div className="">
+        <p className="text-base font-bold">Select Liquidity Shape: </p>
         <select
           name="distribution"
           id="distribution"
@@ -192,32 +161,36 @@ function CreateBatchOrderForm() {
       </div>
 
       <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">% Steps: </p>
-        <input
-          className="text-right w-40"
-          type="text"
-          value={percSteps}
-          onChange={(e) => setPercSteps(parseFloat(e.target.value) || 0)}
-        />
-      </div>
-
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Decimals: </p>
-        <input
-          className="text-right w-40 cursor-not-allowed"
-          type="text"
-          value="8"
-          disabled
-        />
-      </div>
-
-      <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Bins: </p>
+        <p className="text-base font-bold">Number of Orders: </p>
         <input
           className="text-right w-40"
           type="text"
           value={bins}
           onChange={(e) => setBins(Number(e.target.value) || 0)}
+        />
+      </div>
+
+      <div className="flex items-center justify-between h-10">
+        <p className="text-base font-bold">Buy Side Liqudity: </p>
+        <input
+          id="buy-side-liquidity"
+          className="text-right w-40"
+          type="text"
+          value={buySideLiq}
+          onChange={(e) => setBuySideLiq(parseFloat(e.target.value) || 0)}
+          autoComplete="off"
+        />
+      </div>
+
+      <div className="flex items-center justify-between h-10">
+        <p className="text-base font-bold">Sell Side Liqudity: </p>
+        <input
+          id="sell-side-liquidity"
+          className="text-right w-40"
+          type="text"
+          value={sellSideLiq}
+          onChange={(e) => setSellSideLiq(parseFloat(e.target.value) || 0)}
+          autoComplete="off"
         />
       </div>
 

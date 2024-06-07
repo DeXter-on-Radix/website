@@ -27,7 +27,7 @@ interface GetBatchOrderItemsInputs {
 export function getBatchOrderItems({
   midPrice,
   bins,
-  percSteps,
+  percSteps = 0.02,
   distribution,
   buySideLiq,
   sellSideLiq,
@@ -86,10 +86,12 @@ function distributeExponentialLiqudity(
   const buyAmounts = normalizedRatios.map((ratio) => ratio * buySideLiq);
   const sellAmounts = normalizedRatios.map((ratio) => ratio * sellSideLiq);
   const fullAmounts = [buyAmounts.reverse(), sellAmounts].flat();
-
   fullAmounts.forEach((amount, index) => {
     batchOrderItems[index].token1amount = amount;
-    batchOrderItems[index].token2amount = amount / batchOrderItems[index].price;
+    batchOrderItems[index].token2amount = Calculator.multiply(
+      amount,
+      batchOrderItems[index].price
+    );
   });
   return batchOrderItems;
 }

@@ -37,13 +37,13 @@ export const ProvideLiquidityProvider: React.FC<
 > = ({ children }) => {
   // Define all states and initial values
   const [pair, setPair] = useState<string>("DEXTR/XRD");
-  const [buySideLiq, setBuySideLiq] = useState<number>(2000);
-  const [sellSideLiq, setSellSideLiq] = useState<number>(2000);
+  const [buySideLiq, setBuySideLiq] = useState<number>(2000); // specified in token1
+  const [sellSideLiq, setSellSideLiq] = useState<number>(2000); // specified in token1
   const [distribution, setDistribution] = useState<Distribution>(
-    Distribution.MID_DISTRIBUTION
+    Distribution.LINEAR
   );
   const [midPrice, setMidPrice] = useState<number>(2.1);
-  const [bins, setBins] = useState<number>(5);
+  const [bins, setBins] = useState<number>(4);
   const [percStep, setPercStep] = useState<number>(0.02); // 2% default steps
   const [decimals, setDecimals] = useState<number>(8); // 8 decimals per default
 
