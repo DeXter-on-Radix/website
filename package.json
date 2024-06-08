@@ -11,7 +11,8 @@
     "lint": "next lint",
     "test": "vitest",
     "test-integration": "playwright test",
-    "copy-pr": "node ./scripts/copy-pr.js"
+    "copy-pr": "node ./scripts/copy-pr.js",
+    "test-all": "npm run lint && npm run test && npm run test-integration"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.0",
