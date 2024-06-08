@@ -10,6 +10,7 @@ interface ProvideLiquidityContextType {
   pair: [string, StateUpdater<string>];
   buySideLiq: [number, StateUpdater<number>];
   sellSideLiq: [number, StateUpdater<number>];
+  maintainLiqRatio: [boolean, StateUpdater<boolean>];
   distribution: [Distribution, StateUpdater<Distribution>];
   midPrice: [number, StateUpdater<number>];
   bins: [number, StateUpdater<number>];
@@ -37,12 +38,13 @@ export const ProvideLiquidityProvider: React.FC<
 > = ({ children }) => {
   // Define all states and initial values
   const [pair, setPair] = useState<string>("DEXTR/XRD");
-  const [buySideLiq, setBuySideLiq] = useState<number>(2000); // specified in token1
-  const [sellSideLiq, setSellSideLiq] = useState<number>(2000); // specified in token1
+  const [buySideLiq, setBuySideLiq] = useState<number>(100); // specified in token1
+  const [sellSideLiq, setSellSideLiq] = useState<number>(100); // specified in token1
+  const [maintainLiqRatio, setMaintainLiqRatio] = useState<boolean>(true); // equal liquidity by default
   const [distribution, setDistribution] = useState<Distribution>(
     Distribution.LINEAR
   );
-  const [midPrice, setMidPrice] = useState<number>(2.1);
+  const [midPrice, setMidPrice] = useState<number>(-1);
   const [bins, setBins] = useState<number>(4);
   const [percStep, setPercStep] = useState<number>(0.02); // 2% default steps
   const [decimals, setDecimals] = useState<number>(8); // 8 decimals per default
@@ -51,6 +53,7 @@ export const ProvideLiquidityProvider: React.FC<
     pair: [pair, setPair],
     buySideLiq: [buySideLiq, setBuySideLiq],
     sellSideLiq: [sellSideLiq, setSellSideLiq],
+    maintainLiqRatio: [maintainLiqRatio, setMaintainLiqRatio],
     distribution: [distribution, setDistribution],
     midPrice: [midPrice, setMidPrice],
     bins: [bins, setBins],

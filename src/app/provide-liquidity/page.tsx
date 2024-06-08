@@ -8,20 +8,14 @@ import {
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { Calculator } from "services/Calculator";
 import { getBatchOrderItems } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
-
-// Hardcoded stokenet addresses
-// const dextrResource =
-//   "resource_tdx_2_1tkutsk75mpp8ngyzuf0t29zvtdr8empwvswmmcefelmwxzw45haeuv";
-// const dextrXrdPair =
-//   "component_tdx_2_1cqee79vy0dkv34jrqe8zs6czdqjnx5jq5tpeyum54ewxtthvwz3t0c";
+import { Calculator } from "services/Calculator";
 
 export default function ProvideLiquidity() {
   return (
     <ProvideLiquidityProvider>
-      <div className="bg-[#141414] grow pb-20">
+      <div className="bg-[#1a1c1e] grow pb-20">
         <div className=" max-w-[800px] m-auto">
           <HeaderComponent />
           <WalletStatus />
@@ -120,18 +114,26 @@ function BatchOrderSummary() {
 }
 
 function BatchOrderForm() {
+  const { lastPrice } = useAppSelector((state) => state.priceInfo);
   const {
     ["buySideLiq"]: [buySideLiq, setBuySideLiq],
     ["sellSideLiq"]: [sellSideLiq, setSellSideLiq],
+    ["maintainLiqRatio"]: [maintainLiqRatio, setMaintainLiqRatio],
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
     ["bins"]: [bins, setBins],
   } = useProvideLiquidityContext();
 
+  useEffect(() => {
+    setMidPrice(lastPrice);
+  });
+
   return (
     <div className="pb-10">
       <h4>Create Batch Order DEXTR/XRD</h4>
-      <PairSelector />
+      <div className="bg-[#232629] my-4">
+        <PairSelector />
+      </div>
 
       <div className="">
         <p className="text-base font-bold">Select Liquidity Shape: </p>
@@ -177,7 +179,18 @@ function BatchOrderForm() {
           className="text-right w-40"
           type="text"
           value={buySideLiq}
-          onChange={(e) => setBuySideLiq(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            const newBuySideLiq = parseFloat(e.target.value) || 0;
+            if (maintainLiqRatio && buySideLiq > 0) {
+              if (sellSideLiq > 0) {
+                const multiplier = Calculator.divide(newBuySideLiq, buySideLiq);
+                setSellSideLiq(Calculator.multiply(sellSideLiq, multiplier));
+              } else if (sellSideLiq === 0) {
+                setSellSideLiq(newBuySideLiq);
+              }
+            }
+            setBuySideLiq(newBuySideLiq);
+          }}
           autoComplete="off"
         />
       </div>
@@ -189,9 +202,35 @@ function BatchOrderForm() {
           className="text-right w-40"
           type="text"
           value={sellSideLiq}
-          onChange={(e) => setSellSideLiq(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            const newSellSideLiq = parseFloat(e.target.value) || 0;
+            if (maintainLiqRatio && sellSideLiq > 0) {
+              if (buySideLiq > 0) {
+                const multiplier = Calculator.divide(
+                  newSellSideLiq,
+                  sellSideLiq
+                );
+                setBuySideLiq(Calculator.multiply(buySideLiq, multiplier));
+              } else if (buySideLiq === 0) {
+                setBuySideLiq(newSellSideLiq);
+              }
+            }
+            setSellSideLiq(newSellSideLiq);
+          }}
           autoComplete="off"
         />
+      </div>
+
+      <div
+        className="flex items-center justify-between h-10 cursor-pointer"
+        onClick={() => setMaintainLiqRatio(!maintainLiqRatio)}
+      >
+        <p className="text-base font-bold ">Maintain Liq Ratio:</p>
+        <p className=""> {maintainLiqRatio ? "YES" : "NO"}</p>
+      </div>
+
+      <div>
+        <p className="text-base font-bold"></p>
       </div>
 
       <SubmitTransactionButton />
