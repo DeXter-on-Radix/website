@@ -8,7 +8,7 @@ import {
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { getBatchOrderItems } from "./provide-liquidity-utils";
+import { getBatchOrderItems, roundDownToEven } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
 
@@ -67,7 +67,7 @@ function BatchOrderSummary() {
     ["buySideLiq"]: [buySideLiq],
     ["sellSideLiq"]: [sellSideLiq],
     ["midPrice"]: [midPrice],
-    ["bins"]: [bins],
+    ["nbrOfOrders"]: [nbrOfOrders],
     ["percSteps"]: [percSteps],
     ["distribution"]: [distribution],
   } = useProvideLiquidityContext();
@@ -75,7 +75,7 @@ function BatchOrderSummary() {
   // Output the results
   const batchOrderItems = getBatchOrderItems({
     midPrice,
-    bins,
+    nbrOfOrders,
     percSteps,
     distribution,
     buySideLiq,
@@ -121,7 +121,7 @@ function BatchOrderForm() {
     ["maintainLiqRatio"]: [maintainLiqRatio, setMaintainLiqRatio],
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
-    ["bins"]: [bins, setBins],
+    ["nbrOfOrders"]: [nbrOfOrders, setNbrOfOrders],
   } = useProvideLiquidityContext();
 
   useEffect(() => {
@@ -167,8 +167,10 @@ function BatchOrderForm() {
         <input
           className="text-right w-40"
           type="text"
-          value={bins}
-          onChange={(e) => setBins(Number(e.target.value) || 0)}
+          value={nbrOfOrders}
+          onChange={(e) =>
+            setNbrOfOrders(roundDownToEven(Number(e.target.value) || 0))
+          }
         />
       </div>
 

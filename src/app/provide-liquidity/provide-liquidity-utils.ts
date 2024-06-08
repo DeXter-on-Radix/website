@@ -17,7 +17,7 @@ interface BatchOrderItem {
 
 interface GetBatchOrderItemsInputs {
   midPrice: number;
-  bins: number;
+  nbrOfOrders: number;
   percSteps: number;
   distribution: Distribution;
   buySideLiq: number;
@@ -26,7 +26,7 @@ interface GetBatchOrderItemsInputs {
 
 export function getBatchOrderItems({
   midPrice,
-  bins,
+  nbrOfOrders,
   percSteps = 0.02,
   distribution,
   buySideLiq,
@@ -34,7 +34,7 @@ export function getBatchOrderItems({
 }: GetBatchOrderItemsInputs) {
   const batchOrderItems = getInitializedBatchOrderItems(
     midPrice,
-    bins,
+    nbrOfOrders,
     percSteps
   );
   if (distribution === Distribution.LINEAR) {
@@ -98,13 +98,14 @@ function distributeExponentialLiqudity(
 
 function getInitializedBatchOrderItems(
   midPrice: number,
-  bins: number,
+  nbrOfOrders: number,
   percSteps: number
 ): BatchOrderItem[] {
   // Init batchOrderItems
   let bucketCount = 1;
   const batchOrderItems: BatchOrderItem[] = [];
   // 1. Create buy batchOrderItems
+  const bins = nbrOfOrders / 2;
   for (let i = -bins; i <= bins; i++) {
     if (i === 0) {
       continue;
@@ -120,4 +121,20 @@ function getInitializedBatchOrderItems(
     } as BatchOrderItem);
   }
   return batchOrderItems;
+}
+
+export function roundDownToEven(x: number): number {
+  const numbers = [2, 4, 6, 8];
+  // If x is less than the first number in the array
+  if (x < numbers[0]) {
+    return numbers[0];
+  }
+  // Iterate backwards to find the largest number <= x
+  for (let i = numbers.length - 1; i >= 0; i--) {
+    if (x >= numbers[i]) {
+      return numbers[i];
+    }
+  }
+  // Default to the smallest number (safety net, technically not needed here)
+  return numbers[0];
 }

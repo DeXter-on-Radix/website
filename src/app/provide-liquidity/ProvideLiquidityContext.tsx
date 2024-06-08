@@ -13,7 +13,7 @@ interface ProvideLiquidityContextType {
   maintainLiqRatio: [boolean, StateUpdater<boolean>];
   distribution: [Distribution, StateUpdater<Distribution>];
   midPrice: [number, StateUpdater<number>];
-  bins: [number, StateUpdater<number>];
+  nbrOfOrders: [number, StateUpdater<number>];
   percSteps: [number, StateUpdater<number>];
   decimals: [number, StateUpdater<number>];
 }
@@ -45,7 +45,7 @@ export const ProvideLiquidityProvider: React.FC<
     Distribution.LINEAR
   );
   const [midPrice, setMidPrice] = useState<number>(-1);
-  const [bins, setBins] = useState<number>(4);
+  const [nbrOfOrders, setNbrOfOrders] = useState<number>(8); // Number of orders
   const [percStep, setPercStep] = useState<number>(0.02); // 2% default steps
   const [decimals, setDecimals] = useState<number>(8); // 8 decimals per default
 
@@ -56,7 +56,7 @@ export const ProvideLiquidityProvider: React.FC<
     maintainLiqRatio: [maintainLiqRatio, setMaintainLiqRatio],
     distribution: [distribution, setDistribution],
     midPrice: [midPrice, setMidPrice],
-    bins: [bins, setBins],
+    nbrOfOrders: [nbrOfOrders, setNbrOfOrders],
     percSteps: [percStep, setPercStep],
     decimals: [decimals, setDecimals],
   };
