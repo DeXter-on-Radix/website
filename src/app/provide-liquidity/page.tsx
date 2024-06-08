@@ -135,7 +135,7 @@ function BatchOrderForm() {
         <PairSelector />
       </div>
 
-      <div className="">
+      <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Select Liquidity Shape: </p>
         <select
           name="distribution"
@@ -154,7 +154,7 @@ function BatchOrderForm() {
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Mid Price: </p>
         <input
-          className="text-right w-40"
+          className="text-right w-40 !bg-base-100"
           type="text"
           value={midPrice}
           onChange={(e) => setMidPrice(parseFloat(e.target.value) || 0)}
@@ -164,21 +164,24 @@ function BatchOrderForm() {
 
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Number of Orders: </p>
-        <input
-          className="text-right w-40"
-          type="text"
+        <select
+          name="nbrOfOrders"
+          id="nbrOfOrders"
           value={nbrOfOrders}
-          onChange={(e) =>
-            setNbrOfOrders(roundDownToEven(Number(e.target.value) || 0))
-          }
-        />
+          onChange={(e) => setNbrOfOrders(Number(e.target.value))}
+        >
+          <option value={2}>2</option>
+          <option value={4}>4</option>
+          <option value={6}>6</option>
+          <option value={8}>8</option>
+        </select>
       </div>
 
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Buy Side Liqudity: </p>
         <input
           id="buy-side-liquidity"
-          className="text-right w-40"
+          className="text-right w-40 !bg-base-100"
           type="text"
           value={buySideLiq}
           onChange={(e) => {
@@ -201,7 +204,7 @@ function BatchOrderForm() {
         <p className="text-base font-bold">Sell Side Liqudity: </p>
         <input
           id="sell-side-liquidity"
-          className="text-right w-40"
+          className="text-right w-40 !bg-base-100"
           type="text"
           value={sellSideLiq}
           onChange={(e) => {
@@ -228,7 +231,10 @@ function BatchOrderForm() {
         onClick={() => setMaintainLiqRatio(!maintainLiqRatio)}
       >
         <p className="text-base font-bold ">Maintain Liq Ratio:</p>
-        <p className=""> {maintainLiqRatio ? "YES" : "NO"}</p>
+        <p className="!bg-base-100 w-40 text-right">
+          {" "}
+          {maintainLiqRatio ? "YES" : "NO"}
+        </p>
       </div>
 
       <div>
@@ -307,7 +313,7 @@ function BarChart({ prices, amounts }: BarChartProps) {
     if (chartContainerRef.current) {
       const chart = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
-        height: 300,
+        height: chartContainerRef.current.clientHeight,
       });
 
       const barSeries = chart.addHistogramSeries();
@@ -334,7 +340,12 @@ function BarChart({ prices, amounts }: BarChartProps) {
     }
   }, [prices, amounts]);
 
-  return <div ref={chartContainerRef}></div>;
+  return (
+    <div
+      className="barchart w-full h-72 relative"
+      ref={chartContainerRef}
+    ></div>
+  );
 }
 
 // GENERATE TRANSACTION MANIFEST TEST
