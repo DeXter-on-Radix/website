@@ -1,12 +1,12 @@
 import { Calculator } from "../services/Calculator";
 import { Distribution } from "./ProvideLiquidityContext";
 
-enum OrderSide {
+export enum OrderSide {
   BUY = "BUY",
   SELL = "SELL",
 }
 
-interface BatchOrderItem {
+export interface BatchOrderItem {
   side: OrderSide;
   id: string;
   index: number;

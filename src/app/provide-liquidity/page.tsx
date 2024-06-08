@@ -8,7 +8,8 @@ import {
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { getBatchOrderItems, roundDownToEven } from "./provide-liquidity-utils";
+import { OrderSide, getBatchOrderItems } from "./provide-liquidity-utils";
+import { BatchOrderItem } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
 
@@ -88,33 +89,79 @@ function BatchOrderSummary() {
         prices={batchOrderItems.map((o) => o.price)}
         amounts={batchOrderItems.map((o) => o.token1amount || 0)}
       />
-      {batchOrderItems.map(
-        ({ side, price, token1amount, token2amount, id }) => {
+      <BatchOrderSummaryTables batchOrderItems={batchOrderItems} />
+    </div>
+  );
+}
+
+function BatchOrderSummaryTables({
+  batchOrderItems,
+}: {
+  batchOrderItems: BatchOrderItem[];
+}) {
+  return (
+    <div className="flex">
+      <div className="w-1/2 mx-1">
+        <BatchOrderSummaryTable
+          side={OrderSide.BUY}
+          batchOrderItems={batchOrderItems.filter((i) => i.side === "BUY")}
+        />
+      </div>
+      <div className="w-1/2 mx-1">
+        <BatchOrderSummaryTable
+          side={OrderSide.SELL}
+          batchOrderItems={batchOrderItems.filter((i) => i.side === "SELL")}
+        />
+      </div>
+    </div>
+  );
+}
+
+function BatchOrderSummaryTable({
+  batchOrderItems,
+  side,
+}: {
+  batchOrderItems: BatchOrderItem[];
+  side: OrderSide;
+}) {
+  const { token1, token2 } = useAppSelector((state) => state.pairSelector);
+  return (
+    <div>
+      <p
+        className={`font-bold text-center
+          ${side === OrderSide.BUY ? "text-dexter-green" : "text-dexter-red"}
+        `}
+      >
+        {side === OrderSide.BUY ? "Buy" : "Sell"} {token1.symbol.toUpperCase()}
+      </p>
+      <table className="text-sm my-2 text-center">
+        <thead>
+          <tr>
+            <td className="text-sm">Qty ({token1.symbol.toUpperCase()})</td>
+            <td className="text-sm">Price ({token2.symbol.toUpperCase()})</td>
+          </tr>
+        </thead>
+        {batchOrderItems.map((batchOrderItem, indx) => {
           return (
-            <div className="text-sm" key={id}>
-              <p>
-                <span className="font-bold">{id}: </span>
-                <span
-                  className={
-                    (side === "BUY" ? "text-dexter-green" : "text-dexter-red") +
-                    " font-bold"
-                  }
-                >
-                  {side}
-                </span>{" "}
-                {token1amount} DEXTR for {token2amount} XRD at price{" "}
-                {price.toFixed(4)}
-              </p>
-            </div>
+            <tr
+              className={`text-sm ${
+                indx % 2 === 0 ? "bg-dexter-grey-dark" : ""
+              }`}
+              key={indx}
+            >
+              <td>{batchOrderItem.token1amount?.toFixed(4)}</td>
+              <td>{batchOrderItem.price?.toFixed(4)}</td>
+            </tr>
           );
-        }
-      )}
+        })}
+      </table>
     </div>
   );
 }
 
 function BatchOrderForm() {
   const { lastPrice } = useAppSelector((state) => state.priceInfo);
+  const { token1 } = useAppSelector((state) => state.pairSelector);
   const {
     ["buySideLiq"]: [buySideLiq, setBuySideLiq],
     ["sellSideLiq"]: [sellSideLiq, setSellSideLiq],
@@ -136,7 +183,7 @@ function BatchOrderForm() {
       </div>
 
       <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Select Liquidity Shape: </p>
+        <p className="text-base font-4bold">Select Liquidity Shape: </p>
         <select
           name="distribution"
           id="distribution"
@@ -154,7 +201,7 @@ function BatchOrderForm() {
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Mid Price: </p>
         <input
-          className="text-right w-40 !bg-base-100"
+          className="text-right w-20 !bg-base-100"
           type="text"
           value={midPrice}
           onChange={(e) => setMidPrice(parseFloat(e.target.value) || 0)}
@@ -178,10 +225,12 @@ function BatchOrderForm() {
       </div>
 
       <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Buy Side Liqudity: </p>
+        <p className="text-base font-bold">
+          Buy Side Liqudity (in {token1.symbol}):{" "}
+        </p>
         <input
           id="buy-side-liquidity"
-          className="text-right w-40 !bg-base-100"
+          className="text-right w-20 !bg-base-100"
           type="text"
           value={buySideLiq}
           onChange={(e) => {
@@ -201,10 +250,12 @@ function BatchOrderForm() {
       </div>
 
       <div className="flex items-center justify-between h-10">
-        <p className="text-base font-bold">Sell Side Liqudity: </p>
+        <p className="text-base font-bold">
+          Sell Side Liqudity (in {token1.symbol}):{" "}
+        </p>
         <input
           id="sell-side-liquidity"
-          className="text-right w-40 !bg-base-100"
+          className="text-right w-20 !bg-base-100"
           type="text"
           value={sellSideLiq}
           onChange={(e) => {
@@ -231,7 +282,7 @@ function BatchOrderForm() {
         onClick={() => setMaintainLiqRatio(!maintainLiqRatio)}
       >
         <p className="text-base font-bold ">Maintain Liq Ratio:</p>
-        <p className="!bg-base-100 w-40 text-right">
+        <p className="!bg-base-100 w-20 text-right">
           {" "}
           {maintainLiqRatio ? "YES" : "NO"}
         </p>
@@ -288,7 +339,7 @@ function SubmitTransactionButton() {
   return (
     <button
       className={
-        `min-h-[44px] w-[220px] px-4 my-6 mt-8 rounded ` +
+        `min-h-[40px] w-[220px] px-4 my-6 mt-8 rounded ` +
         `bg-dexter-green-OG text-black uppercase ` +
         `opacity-100 cursor-pointer `
       }
