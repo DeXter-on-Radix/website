@@ -454,7 +454,7 @@ interface GenerateOrderManifestInputs {
   newResourceAmount: number;
 }
 
-function generateOrderManifest({
+export function generateOrderManifest({
   userAccountAddress,
   token1resourceAddress,
   token2resourceAddress,
