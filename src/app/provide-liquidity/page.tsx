@@ -8,7 +8,12 @@ import {
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { OrderSide, getBatchOrderItems } from "./provide-liquidity-utils";
+import {
+  OrderSide,
+  generateBatchOrderManifest,
+  generateOrderManifest,
+  getBatchOrderItems,
+} from "./provide-liquidity-utils";
 import { BatchOrderItem } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
@@ -64,6 +69,9 @@ function WalletStatus() {
 }
 
 function BatchOrderSummary() {
+  const { token1, token2, address } = useAppSelector(
+    (state) => state.pairSelector
+  );
   const {
     ["buySideLiq"]: [buySideLiq],
     ["sellSideLiq"]: [sellSideLiq],
@@ -72,7 +80,6 @@ function BatchOrderSummary() {
     ["percSteps"]: [percSteps],
     ["distribution"]: [distribution],
   } = useProvideLiquidityContext();
-
   // Output the results
   const batchOrderItems = getBatchOrderItems({
     midPrice,
@@ -81,7 +88,11 @@ function BatchOrderSummary() {
     distribution,
     buySideLiq,
     sellSideLiq,
+    token1address: token1.address,
+    token2address: token2.address,
+    pairAddress: address,
   });
+
   return (
     <div>
       <h4>Batch Order Summary</h4>
@@ -161,7 +172,9 @@ function BatchOrderSummaryTable({
 
 function BatchOrderForm() {
   const { lastPrice } = useAppSelector((state) => state.priceInfo);
-  const { token1 } = useAppSelector((state) => state.pairSelector);
+  const { token1, token2, address } = useAppSelector(
+    (state) => state.pairSelector
+  );
   const {
     ["buySideLiq"]: [buySideLiq, setBuySideLiq],
     ["sellSideLiq"]: [sellSideLiq, setSellSideLiq],
@@ -169,10 +182,19 @@ function BatchOrderForm() {
     ["distribution"]: [distribution, setDistribution],
     ["midPrice"]: [midPrice, setMidPrice],
     ["nbrOfOrders"]: [nbrOfOrders, setNbrOfOrders],
+    ["percSteps"]: [percSteps],
   } = useProvideLiquidityContext();
-
-  useEffect(() => {
-    setMidPrice(lastPrice);
+  // Output the results
+  const batchOrderItems = getBatchOrderItems({
+    midPrice,
+    nbrOfOrders,
+    percSteps,
+    distribution,
+    buySideLiq,
+    sellSideLiq,
+    token1address: token1.address,
+    token2address: token2.address,
+    pairAddress: address,
   });
 
   return (
@@ -200,6 +222,12 @@ function BatchOrderForm() {
 
       <div className="flex items-center justify-between h-10">
         <p className="text-base font-bold">Mid Price: </p>
+        <p
+          className="text-base font-bold underline cursor-pointer"
+          onClick={() => setMidPrice(lastPrice)}
+        >
+          Last Price: {lastPrice}
+        </p>
         <input
           className="text-right w-20 !bg-base-100"
           type="text"
@@ -292,7 +320,7 @@ function BatchOrderForm() {
         <p className="text-base font-bold"></p>
       </div>
 
-      <SubmitTransactionButton />
+      <SubmitTransactionButton batchOrderItems={batchOrderItems} />
     </div>
   );
 }
@@ -332,9 +360,15 @@ function DexterHeading({ title }: { title: string }) {
   );
 }
 
-function SubmitTransactionButton() {
+function SubmitTransactionButton({
+  batchOrderItems,
+}: {
+  batchOrderItems: BatchOrderItem[];
+}) {
+  const { walletData } = useAppSelector((state) => state.radix);
+  const userAddress = walletData.accounts[0]?.address || "unknown";
   const handleClick = () => {
-    alert("handling batch transaction not implemented yet");
+    console.log(generateBatchOrderManifest({ batchOrderItems, userAddress }));
   };
   return (
     <button

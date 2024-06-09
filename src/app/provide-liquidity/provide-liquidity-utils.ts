@@ -11,6 +11,9 @@ export interface BatchOrderItem {
   id: string;
   index: number;
   price: number;
+  token1address: string;
+  token2address: string;
+  pairAddress: string;
   token1amount?: number;
   token2amount?: number;
 }
@@ -22,6 +25,9 @@ interface GetBatchOrderItemsInputs {
   distribution: Distribution;
   buySideLiq: number;
   sellSideLiq: number;
+  token1address: string;
+  token2address: string;
+  pairAddress: string;
 }
 
 export function getBatchOrderItems({
@@ -31,11 +37,17 @@ export function getBatchOrderItems({
   distribution,
   buySideLiq,
   sellSideLiq,
+  token1address,
+  token2address,
+  pairAddress,
 }: GetBatchOrderItemsInputs) {
   const batchOrderItems = getInitializedBatchOrderItems(
     midPrice,
     nbrOfOrders,
-    percSteps
+    percSteps,
+    token1address,
+    token2address,
+    pairAddress
   );
   if (distribution === Distribution.LINEAR) {
     return distributeLinearLiquidity(batchOrderItems, sellSideLiq, buySideLiq);
@@ -99,7 +111,10 @@ function distributeExponentialLiqudity(
 function getInitializedBatchOrderItems(
   midPrice: number,
   nbrOfOrders: number,
-  percSteps: number
+  percSteps: number,
+  token1address: string,
+  token2address: string,
+  pairAddress: string
 ): BatchOrderItem[] {
   // Init batchOrderItems
   let bucketCount = 1;
@@ -118,6 +133,9 @@ function getInitializedBatchOrderItems(
         midPrice,
         Calculator.multiply(Calculator.multiply(midPrice, i), percSteps)
       ),
+      token1address,
+      token2address,
+      pairAddress,
     } as BatchOrderItem);
   }
   return batchOrderItems;
@@ -139,40 +157,84 @@ export function roundDownToEven(x: number): number {
   return numbers[0];
 }
 
+// Get BatchOrder Manifest
+export function generateBatchOrderManifest({
+  batchOrderItems,
+  userAddress,
+}: {
+  batchOrderItems: BatchOrderItem[];
+  userAddress: string;
+}): string {
+  const { token1address, token2address } = batchOrderItems[0];
+  const token1total = batchOrderItems
+    .filter((o) => o.side === "SELL")
+    .map((o) => o.token1amount || 0)
+    .reduce((a, b) => a + b);
+  const token2total = batchOrderItems
+    .filter((o) => o.side === "BUY")
+    .map((o) => o.token2amount || 0)
+    .reduce((a, b) => a + b);
+
+  const individualOrderManifests = batchOrderItems
+    .map((i) => generateOrderManifest(i, userAddress))
+    .join("\n\n");
+
+  const batchOrderManifest = `
+    CALL_METHOD
+      Address("${userAddress}")
+      "withdraw"
+      Address("${token1address}")
+      Decimal("${token1total}");
+    CALL_METHOD
+      Address("${userAddress}")
+      "withdraw"
+      Address("${token2address}")
+      Decimal("${token2total}");
+
+    ${individualOrderManifests}
+
+    CALL_METHOD 
+      Address("${userAddress}") 
+      "deposit_batch" 
+      Expression("ENTIRE_WORKTOP");`;
+  return batchOrderManifest;
+}
+
 /**
  * MANIFEST GENERATION: Single Orders
  */
-interface GenerateOrderManifestInputs {
-  userAccountAddress: string;
-  token1resourceAddress: string;
-  token2resourceAddress: string;
-  adexTradePairComponent: string;
-  bucketId: string;
-  orderPrice: number;
-  orderAmount: number;
-  side: OrderSide;
-  newResourceAmount: number;
-}
 
-export function generateOrderManifest({
-  userAccountAddress,
-  token1resourceAddress,
-  token2resourceAddress,
-  adexTradePairComponent,
-  bucketId,
-  orderPrice,
-  orderAmount,
-  side,
-  newResourceAmount,
-}: GenerateOrderManifestInputs): string {
-  if (newResourceAmount === 0) {
-    return "";
-  }
-  return (
-    `TAKE_FROM_WORKTOP Address("${token2resourceAddress}") Decimal("${newResourceAmount}") Bucket("bucket${bucketId}"); ` +
-    `\nCALL_METHOD Address("${adexTradePairComponent}") "new_limit_order" "POSTONLY" "${side}" Address("${token1resourceAddress}") ` +
-    `Decimal("${orderAmount}") Decimal("${orderPrice}") Bucket("bucket${bucketId}") 4u32 Address("${userAccountAddress}");`
-  );
+export function generateOrderManifest(
+  batchOrderItem: BatchOrderItem,
+  userAddress: string
+): string {
+  const {
+    id,
+    price,
+    side,
+    token1amount,
+    token2amount,
+    token1address,
+    token2address,
+    pairAddress,
+  } = batchOrderItem;
+
+  return `
+      TAKE_FROM_WORKTOP 
+        Address("${side === "BUY" ? token2address : token1address}") 
+        Decimal("${side === "BUY" ? token2amount : token1amount}") 
+        Bucket("${id}");
+      CALL_METHOD
+        Address("${pairAddress}")
+        "new_limit_order"
+        "POSTONLY"
+        "${side}"
+        Address("${token1address}")
+        Decimal("${token1amount}")
+        Decimal("${price}")
+        Bucket("${id}")
+        4u32 Address("${userAddress}");
+    `;
 }
 
 // Example usage:
