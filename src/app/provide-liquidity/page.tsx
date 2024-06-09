@@ -17,6 +17,9 @@ import {
 import { BatchOrderItem } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
+import { getRdtOrThrow } from "subscriptions";
+import { GatewayApi, ButtonApi } from "@radixdlt/radix-dapp-toolkit";
+import { DexterToast } from "components/DexterToaster";
 
 export default function ProvideLiquidity() {
   return (
@@ -367,8 +370,23 @@ function SubmitTransactionButton({
 }) {
   const { walletData } = useAppSelector((state) => state.radix);
   const userAddress = walletData.accounts[0]?.address || "unknown";
-  const handleClick = () => {
-    console.log(generateBatchOrderManifest({ batchOrderItems, userAddress }));
+  const submitBatchOrder = async () => {
+    DexterToast.promise(
+      async () => {
+        const rdt = getRdtOrThrow();
+        return await rdt.walletApi.sendTransaction({
+          transactionManifest: generateBatchOrderManifest({
+            batchOrderItems,
+            userAddress,
+          }),
+          version: 1,
+          message: "BatchOrder Using DeXter",
+        });
+      },
+      "Submitting Batch Order",
+      "Success",
+      "Failed"
+    );
   };
   return (
     <button
@@ -377,7 +395,7 @@ function SubmitTransactionButton({
         `bg-dexter-green-OG text-black uppercase ` +
         `opacity-100 cursor-pointer `
       }
-      onClick={handleClick}
+      onClick={submitBatchOrder}
     >
       <span className="font-bold text-sm tracking-[.1px] ">
         SUBMIT TRANSACTION

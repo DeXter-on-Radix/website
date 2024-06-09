@@ -94,7 +94,6 @@ function distributeExponentialLiqudity(
   }
   const sumOfRatios = ratios.reduce((a, b) => a + b, 0);
   const normalizedRatios = ratios.map((ratio) => ratio / sumOfRatios);
-
   const buyAmounts = normalizedRatios.map((ratio) => ratio * buySideLiq);
   const sellAmounts = normalizedRatios.map((ratio) => ratio * sellSideLiq);
   const fullAmounts = [buyAmounts.reverse(), sellAmounts].flat();
@@ -203,7 +202,6 @@ export function generateBatchOrderManifest({
 /**
  * MANIFEST GENERATION: Single Orders
  */
-
 export function generateOrderManifest(
   batchOrderItem: BatchOrderItem,
   userAddress: string
@@ -236,30 +234,3 @@ export function generateOrderManifest(
         4u32 Address("${userAddress}");
     `;
 }
-
-// Example usage:
-// const userAccountAddress =
-//   "account_tdx_2_128t0tnge6cvufl8rc2nj6ushlamuk4fcl4ll889v4fhv57algulas9";
-// const token1resourceAddress =
-//   "resource_tdx_2_1tkutsk75mpp8ngyzuf0t29zvtdr8empwvswmmcefelmwxzw45haeuv";
-// const token2resourceAddress =
-//   "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc";
-// const adexTradePairComponent =
-//   "component_tdx_2_1cqee79vy0dkv34jrqe8zs6czdqjnx5jq5tpeyum54ewxtthvwz3t0c";
-// const side = OrderSide.BUY;
-// const bucketId = "j"; // Change this to your value
-// const orderAmount = 966.666666666667; // Change this to your value
-// const orderPrice = 1.89; // Change this to your value
-// const newResourceAmount = 1827; // Change this to your value
-// const result = generateOrderManifest({
-//   userAccountAddress,
-//   token1resourceAddress,
-//   adexTradePairComponent,
-//   token2resourceAddress,
-//   bucketId,
-//   orderAmount,
-//   orderPrice,
-//   side,
-//   newResourceAmount,
-// });
-// console.log(result);
