@@ -11,14 +11,12 @@ import { useEffect, useRef, useState } from "react";
 import {
   OrderSide,
   generateBatchOrderManifest,
-  generateOrderManifest,
   getBatchOrderItems,
 } from "./provide-liquidity-utils";
 import { BatchOrderItem } from "./provide-liquidity-utils";
 import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
 import { getRdtOrThrow } from "subscriptions";
-import { GatewayApi, ButtonApi } from "@radixdlt/radix-dapp-toolkit";
 import { DexterToast } from "components/DexterToaster";
 
 export default function ProvideLiquidity() {
