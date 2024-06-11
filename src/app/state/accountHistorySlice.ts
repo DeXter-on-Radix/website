@@ -115,6 +115,9 @@ export const accountHistorySlice = createSlice({
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
       state.selectedTable = action.payload;
     },
+    resetOrderHistory: (state) => {
+      state.orderHistory = [];
+    },
   },
 
   extraReducers: (builder) => {
