@@ -21,7 +21,7 @@ import { DexterToast } from "../components/DexterToaster";
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
-    <div className="bg-[#141414] h-screen flex items-center justify-center">
+    <div className="bg-[#141414] grow flex items-center justify-center">
       <div>
         <HeaderComponent />
         {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
@@ -77,7 +77,7 @@ function HeaderComponent() {
             <DexterParagraph text={t("earn_rewards_by")} />
           </div>
         </div>
-        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
+        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5 mx-auto">
           <img
             src="/rewards/chest.png"
             alt="treasury"
