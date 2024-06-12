@@ -11,6 +11,7 @@
     "lint": "next lint",
     "test": "vitest",
     "test-integration": "playwright test",
+    "test-all": "npm run lint && npm run test && npm run test-integration",
     "copy-pr": "node ./scripts/copy-pr.js"
   },
   "dependencies": {
