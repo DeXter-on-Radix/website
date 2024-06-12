@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   Tables,
@@ -101,6 +101,7 @@ interface TableProps {
 
 import "../styles/table.css";
 import { DexterToast } from "./DexterToaster";
+import { OrderReceipt } from "alphadex-sdk-js";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
@@ -115,7 +116,7 @@ const headers = {
     "order_price",
     "filled_qty",
     "completed_perc",
-    "action",
+    "cancel_orders",
   ],
   [Tables.ORDER_HISTORY]: [
     "pair",
@@ -135,8 +136,10 @@ const headers = {
 
 function ActionButton({
   order,
+  visible,
 }: {
   order: AccountHistoryState["orderHistory"][0];
+  visible: boolean;
 }) {
   const t = useTranslations();
   const dispatch = useAppDispatch();
@@ -171,9 +174,11 @@ function ActionButton({
             t("failed_to_cancel_order") // error message
           );
         }}
-        className="text-error hover:underline transition"
+        className={`text-error hover:underline transition ${
+          !visible ? "invisible" : ""
+        }`}
       >
-        {t("cancel")}
+        {t("cancel_single_order")}
       </button>
     );
   }
@@ -217,7 +222,11 @@ function DisplayTable() {
           <tr>
             {tableToShow.headers.map((header, i) => (
               <th className="text-secondary-content uppercase" key={i}>
-                {t(header)}
+                {header === "cancel_orders" ? (
+                  <CancelOrdersHeaderRow />
+                ) : (
+                  t(header)
+                )}
               </th>
             ))}
           </tr>
@@ -228,53 +237,106 @@ function DisplayTable() {
   );
 }
 
+const CancelOrdersHeaderRow = () => {
+  return (
+    <div className="flex items-center">
+      <CheckBox />
+      <span>Cancel Orders </span>
+      <img src="./bin.svg" className="w-3 ml-1" alt="trash can icon" />
+    </div>
+  );
+};
+
+const CheckBox = () => {
+  return (
+    <input
+      id="default-checkbox"
+      type="checkbox"
+      value=""
+      className="mr-2 w-4 h-4 bg-gray-100 border-gray-300 rounded cursor-pointer"
+    />
+  );
+};
+
 const OpenOrdersRows = ({ data }: TableProps) => {
   const t = useTranslations();
   // Needed to create order NFT urls
-  const { pairsList } = useAppSelector((state) => state.rewardSlice);
-  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   return data.length ? (
-    data.map((order) => (
-      <tr key={order.id} className="">
-        <td>{order.pairName}</td>
-        <td>
-          <a
-            href={getNftReceiptUrl(
-              orderReceiptAddressLookup[order.pairAddress],
-              order.id
-            )}
-            target="_blank"
-          >
-            #{order.id}
-          </a>
-        </td>
-        <td className="uppercase">{t(order.orderType)}</td>
-        <td className={displayOrderSide(order.side).className}>
-          {t(displayOrderSide(order.side).text)}
-        </td>
-        <td>{displayTime(order.timeSubmitted, "full")}</td>
-        <td>
-          {order.amount} {order.specifiedToken.symbol}
-        </td>
-        <td>
-          {order.price} {getPriceSymbol(order)}
-        </td>
-        <td>
-          {/* Filled Qty (compute with completedPerc to avoid using amountFilled) */}
-          {order.status === "COMPLETED"
-            ? order.amount
-            : (order.amount * order.completedPerc) / 100}{" "}
-          {order.specifiedToken.symbol}
-        </td>
-        <td>{order.completedPerc}%</td>
-        <td>
-          <ActionButton order={order} />
-        </td>
-      </tr>
-    ))
+    data.map((order, indx) => <OpenOrderRow order={order} key={indx} />)
   ) : (
     <tr>
       <td colSpan={7}>{t("no_active_orders")}</td>
+    </tr>
+  );
+};
+
+const OpenOrderRow = ({ order }: { order: OrderReceipt }) => {
+  const t = useTranslations();
+  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
+  const [rowIsHovered, setRowIsHovered] = useState(false);
+  const rowRef = useRef<HTMLTableRowElement | null>(null);
+
+  useEffect(() => {
+    const handleMouseEnter = () => setRowIsHovered(true);
+    const handleMouseLeave = () => setRowIsHovered(false);
+    const rowElement = rowRef.current;
+    if (rowElement) {
+      rowElement.addEventListener("mouseenter", handleMouseEnter);
+      rowElement.addEventListener("mouseleave", handleMouseLeave);
+    }
+    // Cleanup the event listeners on unmount
+    return () => {
+      if (rowElement) {
+        rowElement.removeEventListener("mouseenter", handleMouseEnter);
+        rowElement.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+  }, []);
+
+  return (
+    <tr
+      key={order.id}
+      className={`${rowIsHovered ? "!bg-[#3f3f3f]" : ""}`}
+      ref={rowRef}
+    >
+      <td>{order.pairName}</td>
+      <td>
+        <a
+          href={getNftReceiptUrl(
+            orderReceiptAddressLookup[order.pairAddress],
+            order.id
+          )}
+          target="_blank"
+        >
+          #{order.id}
+        </a>
+      </td>
+      <td className="uppercase">{t(order.orderType)}</td>
+      <td className={displayOrderSide(order.side).className}>
+        {t(displayOrderSide(order.side).text)}
+      </td>
+      <td>{displayTime(order.timeSubmitted, "full")}</td>
+      <td>
+        {order.amount} {order.specifiedToken.symbol}
+      </td>
+      <td>
+        {order.price} {getPriceSymbol(order)}
+      </td>
+      <td>
+        {/* Filled Qty (compute with completedPerc to avoid using amountFilled) */}
+        {order.status === "COMPLETED"
+          ? order.amount
+          : (order.amount * order.completedPerc) / 100}{" "}
+        {order.specifiedToken.symbol}
+      </td>
+      <td>{order.completedPerc}%</td>
+      <td>
+        <div className="flex items-center">
+          <CheckBox />
+          <ActionButton order={order} visible={rowIsHovered} />
+        </div>
+      </td>
     </tr>
   );
 };
