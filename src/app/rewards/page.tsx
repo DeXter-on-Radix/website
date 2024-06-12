@@ -77,7 +77,7 @@ function HeaderComponent() {
             <DexterParagraph text={t("earn_rewards_by")} />
           </div>
         </div>
-        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
+        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5 mx-auto">
           <img
             src="/rewards/chest.png"
             alt="treasury"
