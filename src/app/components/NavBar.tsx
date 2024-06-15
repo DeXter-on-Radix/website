@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
 import { accountHistorySlice } from "state/accountHistorySlice";
+import { pairSelectorSlice } from "state/pairSelectorSlice";
 
 interface NavbarItemProps {
   title: string;
@@ -37,13 +38,16 @@ export function Navbar() {
 
   useEffect(() => {
     const radixConnectButton = document.querySelector("radix-connect-button")!;
+    // Trigger disconnect actions
     const handleDisconnect = () => {
-      dispatch(accountHistorySlice.actions.resetOrderHistory());
+      dispatch(accountHistorySlice.actions.resetAccountHistory());
+      dispatch(pairSelectorSlice.actions.resetBalance());
     };
 
     radixConnectButton.addEventListener("onDisconnect", handleDisconnect);
+
     return () => {
-      radixConnectButton.removeEventListener("onDisconnet", handleDisconnect);
+      radixConnectButton.removeEventListener("onDisconnect", handleDisconnect);
     };
   }, [dispatch]);
 

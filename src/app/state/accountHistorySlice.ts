@@ -112,11 +112,11 @@ export const accountHistorySlice = createSlice({
       const adexState = action.payload;
       state.trades = adexState.currentPairTrades;
     },
+    resetAccountHistory: () => {
+      return initialState;
+    },
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
       state.selectedTable = action.payload;
-    },
-    resetOrderHistory: (state) => {
-      state.orderHistory = [];
     },
   },
 
