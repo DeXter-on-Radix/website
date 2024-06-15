@@ -22,7 +22,7 @@ enum Status {
   ERROR = "ERROR",
 }
 
-export default function Kpis() {
+export default function Liquidity() {
   const [status, setStatus] = useState<Status>(Status.LOADING);
   const [kpiData, setKpiData] = useState<KpiData>({} as KpiData);
 
@@ -41,7 +41,7 @@ export default function Kpis() {
   }, []);
 
   return (
-    <div className="my-10 p-10">
+    <div className="my-10 p-10 flex flex-col items-center">
       {status === Status.LOADING && <LoadingState />}
       {status === Status.ERROR && <ErrorStatus />}
       {status === Status.OK && <KpiDashboard kpiData={kpiData} />}
@@ -58,49 +58,119 @@ function LoadingState() {
 }
 
 function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
-  console.log("INSIDE KPI DASH");
-  console.log(kpiData);
+  // console.log("INSIDE KPI DASH");
+  // console.log(kpiData);
   return (
     <>
-      <h1>KPI Dashboard</h1>
-      <p>
-        TOTAL Trade Volume (USD): {displayNumber(kpiData.tradeVolume.total.USD)}
-      </p>
-      <p>TOTAL Trade Volume (XRD): {kpiData.tradeVolume.total.XRD}</p>
-      <LineChart
-        title={"Weekly Trade Volume (XRD)"}
-        x={kpiData.tradeVolume.weekly.XRD.map((o) => o.weekIdentifier)}
-        y={kpiData.tradeVolume.weekly.XRD.map((o) => o.value)}
-      />
-      <LineChart
-        title={"Weekly Trade Volume (USD)"}
-        x={kpiData.tradeVolume.weekly.USD.map((o) => o.weekIdentifier)}
-        y={kpiData.tradeVolume.weekly.USD.map((o) => o.value)}
-      />
-      <h2>Socials</h2>
-      <p>Youtube Subscribers: {kpiData.socials.youtubeSubscribers}</p>
-      <p>Instagram Followers: {kpiData.socials.instagramFollowers}</p>
-      <p>Twitter Followers: {kpiData.socials.twitterFollowers}</p>
-      <LineChart
-        title={"Weekly Website Page Requests"}
-        x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
-        y={kpiData.website.pageRequests.map((o) => o.value)}
-      />
-      <LineChart
-        title={"Weekly Website Unique Visitors"}
-        x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
-        y={kpiData.website.uniqueVisitors.map((o) => o.value)}
-      />
+      <div className="w-1/2">
+      <h2
+        className="text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal"
+        style={{
+          margin: 0,
+          marginBottom: "20px",
+          marginTop: "0px",
+          fontSize: "45px",
+        }}
+      >
+        KPI Dashboard
+      </h2>
+      <div className="flex flex-col">
+        <p className="text-[24px] m-1">Trading</p>
+        <div className="flex">
+          <div className="m-1">
+            <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mb-1">
+              <p className="text-[14px] text-[#768089]">
+                TOTAL Trade Volume (USD)
+              </p>
+              <p>{displayNumber(kpiData.tradeVolume.total.USD)}</p>
+            </div>
+            <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mt-1">
+              <LineChart
+                title={"Weekly Trade Volume (USD)"}
+                amount={kpiData.tradeVolume.total.USD}
+                x={kpiData.tradeVolume.weekly.USD.map((o) => o.weekIdentifier)}
+                y={kpiData.tradeVolume.weekly.USD.map((o) => o.value)}
+              />
+            </div>
+          </div>
+          <div className="m-1">
+            <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mb-1">
+              <p className="text-[14px] text-[#768089]">
+                TOTAL Trade Volume (XRD)
+              </p>
+              <p>{displayNumber(kpiData.tradeVolume.total.XRD)}</p>
+            </div>
+            <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mt-1">
+                <LineChart
+                title={"Weekly Trade Volume (XRD)"}
+                amount={kpiData.tradeVolume.total.XRD}
+                x={kpiData.tradeVolume.weekly.XRD.map((o) => o.weekIdentifier)}
+                y={kpiData.tradeVolume.weekly.XRD.map((o) => o.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col mt-8">
+        <p className="text-[24px] m-1">Website</p>
+        <div className="flex">
+          <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl m-1">
+            <LineChart
+              title={"Weekly Website Page Requests"}
+              amount={55467}
+              x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
+              y={kpiData.website.pageRequests.map((o) => o.value)}
+            />
+          </div>
+          <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl m-1">
+            <LineChart
+              title={"Weekly Website Unique Visitors"}
+              amount={6452}
+              x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
+              y={kpiData.website.uniqueVisitors.map((o) => o.value)}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col mt-8 w-full">
+        <p className="text-[24px]">Socials</p>
+        <div className="flex w-full justify-between">
+            <div className="flex w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl">
+            <img src="/socials/youtubu.png" width={56} height={56} alt="" />
+            <div className="pl-2">
+              <p className="text-[11px]">Subscribers</p>
+              <p className="text-2xl text-[#FFFFFF]">{kpiData.socials.youtubeSubscribers}</p>
+            </div>
+          </div>
+            <div className="flex w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl">
+            <img src="/socials/instagram.png" width={56} height={56} alt="" />
+            <div className="pl-2">
+              <p className="text-[11px]">Followers</p>
+              <p className="text-2xl text-[#FFFFFF]">{kpiData.socials.instagramFollowers}</p>
+            </div>
+          </div>
+            <div className="flex w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl">
+            <img src="/socials/twitter.png" width={56} height={56} alt="" />
+            <div className="pl-2">
+              <p className="text-[11px]">Followers</p>
+              <p className="text-2xl text-[#FFFFFF]">{kpiData.socials.twitterFollowers}</p>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
     </>
   );
 }
 
 function LineChart({
   title,
+  amount,
   x,
   y,
 }: {
   title: string;
+  amount: number;
   x: string[];
   y: number[];
 }) {
@@ -109,8 +179,20 @@ function LineChart({
   useEffect(() => {
     if (chartContainerRef.current) {
       const chart = createChart(chartContainerRef.current, {
-        width: 400,
-        height: 250,
+        width: 415,
+        height: 280,
+        layout: {
+          background: "#141414",
+          textColor: "rgba(255, 255, 255, 0.9)",
+        },
+        grid: {
+          vertLines: {
+            color: '#141414',
+          },
+          horzLines: {
+            color: '#141414',
+          },
+        },
       });
       const lineSeries = chart.addLineSeries();
 
@@ -136,11 +218,14 @@ function LineChart({
         style={{
           textAlign: "left",
           margin: "0",
-          fontSize: "22px",
+          fontSize: "14px",
           color: "white",
         }}
       >
         {title}
+      </div>
+      <div>
+        {amount}
       </div>
       <div ref={chartContainerRef} />
     </div>
