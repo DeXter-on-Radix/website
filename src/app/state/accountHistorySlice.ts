@@ -19,6 +19,7 @@ export interface AccountHistoryState {
   orderHistory: adex.OrderReceipt[];
   selectedTable: Tables;
   tables: Tables[];
+  selectedOrdersToCancel: Record<string, boolean>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
 }
 
 // INITIAL STATE
@@ -27,6 +28,7 @@ const initialState: AccountHistoryState = {
   orderHistory: [],
   selectedTable: Tables.OPEN_ORDERS,
   tables: Object.values(Tables),
+  selectedOrdersToCancel: {},
 };
 
 // ASYNC THUNKS
@@ -115,6 +117,19 @@ export const accountHistorySlice = createSlice({
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
       state.selectedTable = action.payload;
     },
+    selectOrderToCancel: (state, action: PayloadAction<string>) => {
+      console.log("selecting Order " + action.payload);
+      state.selectedOrdersToCancel[action.payload] = true;
+      console.log({ state });
+    },
+    deselectOrderToCancel: (state, action: PayloadAction<string>) => {
+      console.log("deselecting Order " + action.payload);
+      delete state.selectedOrdersToCancel[action.payload];
+      console.log({ state });
+    },
+    resetSelectedOrdersToCancel: (state) => {
+      state.selectedOrdersToCancel = {};
+    },
   },
 
   extraReducers: (builder) => {
@@ -125,7 +140,8 @@ export const accountHistorySlice = createSlice({
 });
 
 // SELECTORS
-export const { setSelectedTable } = accountHistorySlice.actions;
+export const { setSelectedTable, selectOrderToCancel, deselectOrderToCancel } =
+  accountHistorySlice.actions;
 
 // TODO: possibly remove, as this selector seems to not be used anywhere in the code
 export const selectFilteredData = createSelector(

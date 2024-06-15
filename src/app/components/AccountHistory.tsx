@@ -5,6 +5,8 @@ import {
   fetchAccountHistory,
   selectOpenOrders,
   setSelectedTable,
+  selectOrderToCancel,
+  deselectOrderToCancel,
   cancelOrder,
   selectOrderHistory,
   AccountHistoryState,
@@ -27,6 +29,10 @@ function createOrderReceiptAddressLookup(
     orderReceiptAddressLookup[pairInfo.address] = pairInfo.orderReceiptAddress;
   });
   return orderReceiptAddressLookup;
+}
+
+function getNftReceiptId(orderReceiptAddress: string, id: number) {
+  return `${orderReceiptAddress}_${id}`;
 }
 
 function getNftReceiptUrl(orderReceiptAddress: string, id: number) {
@@ -101,7 +107,6 @@ interface TableProps {
 
 import "../styles/table.css";
 import { DexterToast } from "./DexterToaster";
-import { OrderReceipt } from "alphadex-sdk-js";
 
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
@@ -219,7 +224,7 @@ function DisplayTable() {
     <div className="overflow-x-auto scrollbar-none">
       <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
-          <tr>
+          <tr className="h-12">
             {tableToShow.headers.map((header, i) => (
               <th className="text-secondary-content uppercase" key={i}>
                 {header === "cancel_orders" ? (
@@ -238,22 +243,69 @@ function DisplayTable() {
 }
 
 const CancelOrdersHeaderRow = () => {
+  const { selectedOrdersToCancel } = useAppSelector(
+    (state) => state.accountHistory
+  );
+  const nbrOfOrders: number = Object.keys(selectedOrdersToCancel).length;
+  const orderSelected: boolean = nbrOfOrders > 0;
+
+  const batchCancelOrders = () => {
+    alert("deleting batch orders");
+  };
   return (
-    <div className="flex items-center">
-      <CheckBox />
-      <span>Cancel Orders </span>
-      <img src="./bin.svg" className="w-3 ml-1" alt="trash can icon" />
+    <div className="flex items-center w-[140px]">
+      {orderSelected ? (
+        <div
+          className="bg-dexter-red text-white font-bold p-2 rounded flex items-center cursor-pointer"
+          onClick={batchCancelOrders}
+        >
+          <span>Cancel {nbrOfOrders} Orders </span>
+          <img
+            src="./bin-white.svg"
+            className="w-3 ml-1"
+            alt="trash can icon"
+          />
+        </div>
+      ) : (
+        <div className=" flex">
+          <span>Cancel Orders </span>
+          <img src="./bin.svg" className="w-3 ml-1" alt="trash can icon" />
+        </div>
+      )}
     </div>
   );
 };
 
-const CheckBox = () => {
+const CheckBox = ({ orderId }: { orderId: string }) => {
+  const dispatch = useAppDispatch();
+  const { selectedOrdersToCancel } = useAppSelector(
+    (state) => state.accountHistory
+  );
+
+  const selectOrDeselectCheckbox = (
+    event: React.MouseEvent<HTMLInputElement>,
+    n: number
+  ) => {
+    if (event.currentTarget.checked) {
+      if (n >= 8) {
+        alert("Cannot select more than 8 orders.");
+        event.preventDefault();
+      } else {
+        dispatch(selectOrderToCancel(orderId));
+      }
+    } else {
+      dispatch(deselectOrderToCancel(orderId));
+    }
+  };
+
   return (
     <input
-      id="default-checkbox"
       type="checkbox"
-      value=""
+      value={orderId}
       className="mr-2 w-4 h-4 bg-gray-100 border-gray-300 rounded cursor-pointer"
+      onClick={(e) => {
+        selectOrDeselectCheckbox(e, Object.keys(selectedOrdersToCancel).length);
+      }}
     />
   );
 };
@@ -270,7 +322,7 @@ const OpenOrdersRows = ({ data }: TableProps) => {
   );
 };
 
-const OpenOrderRow = ({ order }: { order: OrderReceipt }) => {
+const OpenOrderRow = ({ order }: { order: any }) => {
   const t = useTranslations();
   const { pairsList } = useAppSelector((state) => state.rewardSlice);
   const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
@@ -333,7 +385,12 @@ const OpenOrderRow = ({ order }: { order: OrderReceipt }) => {
       <td>{order.completedPerc}%</td>
       <td>
         <div className="flex items-center">
-          <CheckBox />
+          <CheckBox
+            orderId={getNftReceiptId(
+              orderReceiptAddressLookup[order.pairAddress],
+              order.id
+            )}
+          />
           <ActionButton order={order} visible={rowIsHovered} />
         </div>
       </td>
