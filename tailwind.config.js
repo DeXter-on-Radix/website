@@ -67,6 +67,12 @@ module.exports = {
           "base-300": "#000000",
           "base-content": "#FFFFFF",
 
+          "dexter-green": "#A7D22D",
+          "dexter-green-OG": "#CAFC40",
+          "dexter-red": "#D22D2D",
+          "dexter-orderbook-green": "#2c3416",
+          "dexter-orderbook-red": "#341616",
+
           "--rounded-btn": "0",
           "--btn-text-case": "none",
           "--rounded-box": "0",
@@ -113,5 +119,6 @@ module.exports = {
     require("daisyui"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/container-queries"),
+    require("tailwind-scrollbar"),
   ],
 };
