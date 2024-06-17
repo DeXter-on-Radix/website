@@ -132,7 +132,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col mt-8 w-full">
+        <div className="flex flex-col mt-8 w-[913px]">
           <p className="text-[24px]">Socials</p>
           <div className="flex w-full justify-between">
             <div className="flex w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl">
