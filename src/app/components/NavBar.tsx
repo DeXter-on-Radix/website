@@ -26,16 +26,8 @@ const NavItems: { path: string; title: string }[] = [
     title: "Trade",
   },
   {
-    path: "/kpi",
-    title: "Stake",
-  },
-  {
     path: "/rewards",
     title: "Rewards",
-  },
-  {
-    path: "/kpis",
-    title: "Liquidity",
   },
 ];
 
