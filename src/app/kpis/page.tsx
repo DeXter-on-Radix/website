@@ -22,7 +22,7 @@ enum Status {
   ERROR = "ERROR",
 }
 
-export default function Liquidity() {
+export default function Kpis() {
   const [status, setStatus] = useState<Status>(Status.LOADING);
   const [kpiData, setKpiData] = useState<KpiData>({} as KpiData);
 
@@ -79,7 +79,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
               <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mt-1">
                 <LineChart
                   title={"Weekly Trade Volume (USD)"}
-                  amount={Math.round(kpiData.tradeVolume.total.USD).toLocaleString("en-EN")}
+                  lastWeekAmount={Math.round(kpiData.tradeVolume.total.USD).toLocaleString("en-EN")}
                   x={kpiData.tradeVolume.weekly.USD.map((o) => o.weekIdentifier)}
                   y={kpiData.tradeVolume.weekly.USD.map((o) => o.value)}
                 />
@@ -95,7 +95,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
               <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mt-1">
                 <LineChart
                   title={"Weekly Trade Volume (XRD)"}
-                  amount={Math.round(kpiData.tradeVolume.total.XRD).toLocaleString("en-EN")}
+                  lastWeekAmount={Math.round(kpiData.tradeVolume.total.XRD).toLocaleString("en-EN")}
                   x={kpiData.tradeVolume.weekly.XRD.map((o) => o.weekIdentifier)}
                   y={kpiData.tradeVolume.weekly.XRD.map((o) => o.value)}
                 />
@@ -109,7 +109,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
             <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl m-1">
               <LineChart
                 title={"Weekly Website Page Requests"}
-                amount={kpiData.website.pageRequests[0].value}
+                lastWeekAmount={kpiData.website.pageRequests[kpiData.website.pageRequests.length-1].value}
                 x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
                 y={kpiData.website.pageRequests.map((o) => o.value)}
               />
@@ -117,7 +117,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
             <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl m-1">
               <LineChart
                 title={"Weekly Website Unique Visitors"}
-                amount={kpiData.website.uniqueVisitors[0].value}
+                lastWeekAmount={kpiData.website.uniqueVisitors[kpiData.website.uniqueVisitors.length - 1].value}
                 x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
                 y={kpiData.website.uniqueVisitors.map((o) => o.value)}
               />
@@ -157,12 +157,12 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
 
 function LineChart({
   title,
-  amount,
+  lastWeekAmount,
   x,
   y,
 }: {
   title: string;
-  amount: number;
+  lastWeekAmount: string;
   x: string[];
   y: number[];
 }) {
@@ -177,7 +177,6 @@ function LineChart({
           background: "#191B1D",
           textColor: "rgba(255, 255, 255, 0.9)",
         },
-
       });
       const lineSeries = chart.addLineSeries();
 
@@ -185,7 +184,6 @@ function LineChart({
         time: new Date(date).toISOString().split("T")[0],
         value: y[index],
       }));
-
       lineSeries.setData(formattedData);
 
       // Automatically fit the data to the canvas
@@ -210,7 +208,7 @@ function LineChart({
         {title}
       </div>
       <div>
-        {amount}
+        {lastWeekAmount}
       </div>
       <div ref={chartContainerRef} />
     </div>
