@@ -21,6 +21,7 @@
 
   html {
     font-family: "inter";
+    font-size: 15px;
   }
 
   @font-face {
@@ -81,7 +82,13 @@
 }
 
 :root {
-  --radix-connect-button-height: 40px;
+  --radix-connect-button-height: 36px;
+  --radix-connect-button-width: 140px;
+}
+@media (max-width: 419px) {
+  :root {
+    /* --radix-connect-button-width: 36px; */
+  }
 }
 
 /* remove up and down arrows on number input fields */
@@ -113,13 +120,108 @@ input[type="number"]::-ms-clear {
   background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
 }
 
-/* Grid layout for home page */
-.custom-auto-row-grid[data-path="/"] {
-  grid-auto-rows: 0fr auto auto 1fr 1fr;
+/**
+ * GRID AREA CSS: Utilizes global CSS classes for grid areas.
+ * Justification: TailwindCSS lacks a readable method for implementing 
+ * grid-template-areas. Therefore, all grid area-related styles are 
+ * centralized in global CSS to maintain separation from 
+ * component-specific styles.
+ */
+.grid-container {
+  display: grid;
+  grid-gap: 1px;
+  background-color: #d0d0d01a;
+  width: 100%;
+  height: 100%;
 }
-/* Grid layout for rest of the pages */
-.custom-auto-row-grid {
-  grid-auto-rows: 0fr auto 0fr;
+
+.pairSelector,
+.priceInfo,
+.orderBook,
+.orderInput,
+.priceChart,
+.tradeHistory {
+  background-color: #1a1c1e;
+}
+
+.pairSelector {
+  grid-area: pairSelector;
+}
+.priceInfo {
+  grid-area: priceInfo;
+}
+.orderBook {
+  grid-area: orderBook;
+}
+.orderInput {
+  grid-area: orderInput;
+}
+.priceChart {
+  grid-area: priceChart;
+}
+.tradeHistory {
+  grid-area: tradeHistory;
+}
+
+/* 3 column layout */
+@media (min-width: 1351px) {
+  .grid-container {
+    grid-template-columns: 300px auto 300px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "pairSelector priceInfo    orderBook"
+      "orderInput   priceChart   orderBook"
+      "tradeHistory tradeHistory tradeHistory";
+  }
+}
+
+@media (min-width: 1026px) and (max-width: 1350px) {
+  .grid-container {
+    grid-template-columns: 260px auto 260px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "pairSelector priceInfo    orderBook"
+      "orderInput   priceChart   orderBook"
+      "tradeHistory tradeHistory tradeHistory";
+  }
+}
+
+/* 2 column layout */
+@media (min-width: 851px) and (max-width: 1025px) {
+  .grid-container {
+    grid-template-columns: 300px auto;
+    grid-template-areas:
+      "pairSelector priceInfo"
+      "orderInput   priceChart"
+      "orderBook    tradeHistory";
+  }
+}
+
+@media (min-width: 701px) and (max-width: 850px) {
+  .grid-container {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "pairSelector pairSelector"
+      "priceInfo    priceInfo"
+      "priceChart   priceChart"
+      "orderInput   orderBook"
+      "tradeHistory tradeHistory";
+  }
+}
+
+/* 1 column layout */
+@media (max-width: 700px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "pairSelector"
+      "priceInfo"
+      "priceChart"
+      "orderInput"
+      "orderBook"
+      "tradeHistory";
+  }
 }
 
 /* Fix margin on lightweight charts */

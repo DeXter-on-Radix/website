@@ -146,7 +146,7 @@ export function OrderInput() {
     <div className="h-full flex flex-col text-base justify-start items-center">
       <OrderSideTabs />
       {/* INNER_CONTAINER_MAX_WIDTH */}
-      <div className={`p-[24px] max-w-[500px] m-auto`}>
+      <div className={`p-4 m-auto my-0 h-[570px] w-full`}>
         <OrderTypeTabs />
         <UserInputContainer />
         <SubmitButton />
@@ -157,7 +157,6 @@ export function OrderInput() {
           </>
         )}
         <FeesTable />
-        <FeesDisclaimer />
       </div>
     </div>
   );
@@ -167,7 +166,7 @@ function OrderSideTabs() {
   return (
     <div
       // OUTSIDE_CONTAINER_MAX_WIDTH
-      className={`min-h-[44px] flex max-w-[500px] w-full`}
+      className={`h-[40px] flex w-full`}
     >
       {[OrderSide.BUY, OrderSide.SELL].map((currentSide, indx) => (
         <OrderSideTab orderSide={currentSide} key={indx} />
@@ -205,9 +204,9 @@ function OrderSideTab({ orderSide }: OrderSideTabProps): JSX.Element | null {
 function OrderTypeTabs() {
   return (
     <>
-      <div className="min-h-[44px] flex justify-center">
+      <div className="h-[40px] flex justify-center">
         <div className="w-full">
-          <div className="flex min-h-[44px]">
+          <div className="flex h-[40px]">
             {[OrderType.MARKET, OrderType.LIMIT].map((type, indx) => (
               <OrderTypeTab orderType={type} key={indx} />
             ))}
@@ -274,7 +273,7 @@ function InfoTooltip({
   }
   return (
     <div
-      className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10"
+      className="my-auto ml-2 tooltip text-3xl before:bg-base-300 z-10 font-normal normal-case"
       data-tip={content}
     >
       <AiOutlineInfoCircle className={`${iconColor} text-sm`} />
@@ -288,17 +287,6 @@ function MarketOrderDisclaimer() {
     <div className="">
       <p className="text-xs tracking-[0.5px] opacity-70 pb-6 border-b-[1px] border-b-[rgba(255,255,255,0.2)]">
         {t("displayed_value_is_exact_at")}
-      </p>
-    </div>
-  );
-}
-
-function FeesDisclaimer() {
-  const t = useTranslations();
-  return (
-    <div className="">
-      <p className="text-xs tracking-[0.5px] opacity-70 pb-6">
-        {t("fees_are_paid_in_received")}
       </p>
     </div>
   );
@@ -329,9 +317,17 @@ function FeesTable() {
           }`}
           key={indx}
         >
-          <p className="text-xs text-left grow">
-            {t(`${key}_fee`)} ({t("estimate").toLowerCase()}):
-          </p>
+          <div className="flex grow">
+            <p className="text-xs text-left">
+              {t(`${key}_fee`)} ({t("estimate").toLowerCase()}):{" "}
+            </p>
+            {indx === 0 && (
+              <InfoTooltip
+                iconColor="text-white"
+                content={t("fees_are_paid_in_received")}
+              />
+            )}
+          </div>
           <p className="text-xs">
             {value} {currency}{" "}
           </p>
@@ -387,9 +383,20 @@ function SubmitButton() {
         .replaceAll("<$ORDER_TYPE>", t(type))
         .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
+
+  // Fix hydration error:
+  // https://nextjs.org/docs/messages/react-hydration-error#solution-1-using-useeffect-to-run-on-the-client-only
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) {
+    return <></>;
+  }
+
   return (
     <button
-      className={`w-full min-h-[44px] p-3 my-6 rounded ${
+      className={`w-full h-[40px] p-3 my-6 rounded ${
         disabled
           ? "bg-[#232629] text-[#474D52] opacity-50"
           : side === "BUY"
@@ -428,15 +435,17 @@ function SubmitButton() {
         );
       }}
     >
-      <span className="font-bold text-sm tracking-[.1px] uppercase">
-        {buttonText}
-      </span>
-      {isLimitOrder && isConnected && (
-        <InfoTooltip
-          iconColor={isBuyOrder ? "text-black" : "text-white"}
-          content={quoteDescription || undefined}
-        />
-      )}
+      <div className="flex justify-center items-center">
+        <div className="font-bold text-sm tracking-[.1px] uppercase">
+          {buttonText}
+        </div>
+        {isLimitOrder && isConnected && (
+          <InfoTooltip
+            iconColor={isBuyOrder ? "text-black" : "text-white"}
+            content={quoteDescription || undefined}
+          />
+        )}
+      </div>
     </button>
   );
 }
@@ -722,7 +731,7 @@ function SecondaryLabel({
     <></>
   ) : (
     <p
-      className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px]"
+      className="text-xs font-medium text-white underline mr-1 cursor-pointer tracking-[0.1px] text-right"
       onClick={
         userAction === UserAction.UPDATE_PRICE && updateValue
           ? () => updateValue(value)
@@ -742,7 +751,7 @@ function DisabledInputField({
   label,
 }: DisabledInputFieldProps): JSX.Element | null {
   return (
-    <div className="min-h-[44px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
+    <div className="h-[40px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
       <div className="uppercase text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
         {label}
       </div>
@@ -761,7 +770,7 @@ function CurrencyInput({
   return (
     <>
       <div
-        className={`min-h-[44px] w-full content-between bg-base-200 flex rounded-lg ${
+        className={`h-[40px] w-full content-between bg-base-200 flex rounded-lg ${
           inputValidation.valid
             ? "hover:outline hover:outline-1 hover:outline-white/50"
             : "border-2 border-red-500"

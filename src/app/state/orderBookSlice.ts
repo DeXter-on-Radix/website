@@ -1,6 +1,9 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import * as adex from "alphadex-sdk-js";
 import { RootState } from "./store";
+import * as tailwindConfig from "../../../tailwind.config";
+
+const theme = tailwindConfig.daisyui.themes[0].dark;
 
 export interface OrderBookRowProps {
   barColor?: string;
@@ -34,7 +37,7 @@ const initialState: OrderBookState = {
   grouping: 0,
 };
 
-export const MAX_ROWS = 11;
+export const MAX_ROWS = 13;
 
 export function toOrderBookRowProps(
   adexOrderbookLines: adex.OrderbookLine[],
@@ -44,10 +47,10 @@ export function toOrderBookRowProps(
   const props: OrderBookRowProps[] = [];
   let adexRows = [...adexOrderbookLines]; // copy the array so we can mutate it
 
-  let barColor = "hsl(var(--suc))";
+  let barColor = theme["dexter-orderbook-green"];
   if (side === "sell") {
     adexRows.reverse();
-    barColor = "hsl(var(--erc))";
+    barColor = theme["dexter-orderbook-red"];
   }
   let groupedArray;
   if (grouping > 0) {

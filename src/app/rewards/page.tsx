@@ -21,7 +21,7 @@ import { DexterToast } from "../components/DexterToaster";
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
-    <div className="bg-[#141414] h-screen flex items-center justify-center">
+    <div className="bg-[#141414] grow flex items-center justify-center">
       <div>
         <HeaderComponent />
         {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
@@ -77,7 +77,7 @@ function HeaderComponent() {
             <DexterParagraph text={t("earn_rewards_by")} />
           </div>
         </div>
-        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
+        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5 mx-auto">
           <img
             src="/rewards/chest.png"
             alt="treasury"
@@ -101,13 +101,23 @@ function RewardsCard() {
   const userHasRewards = getUserHasRewards(rewardData);
 
   useEffect(() => {
+    // Performs 4 sequential actions:
+    // 1. fetchAddresses     : fetches relevant rewards component addresses
+    // 2. fetchAccountRewards: fetches rewards for a specific account
+    // 3. fetchReciepts      : fetches NFT reciepts
+    // 4. fetchOrderRewards  : fetches rewards based on the NFT reciepts
     async function loadRewards() {
-      await dispatch(fetchAddresses());
-      let fetchReceiptsAction = await dispatch(fetchReciepts(pairsList));
-      // console.log("fetchReceiptsAction: ", fetchReceiptsAction);
+      const fetchAddressesResult = await dispatch(fetchAddresses());
+      if (!fetchAddressesResult.payload) {
+        return; // stop loading rewards if addresses could not be loaded
+      }
       await dispatch(fetchAccountRewards());
+      let fetchReceiptsResult = await dispatch(fetchReciepts(pairsList));
+      if (!fetchReceiptsResult.payload) {
+        return; // stop loading order rewards if reciepts are not loaded successfully
+      }
       await dispatch(
-        fetchOrderRewards(fetchReceiptsAction.payload as string[])
+        fetchOrderRewards(fetchReceiptsResult.payload as string[])
       );
     }
     if (isConnected) {

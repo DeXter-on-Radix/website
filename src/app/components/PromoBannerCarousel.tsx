@@ -72,7 +72,7 @@ export function PromoBannerCarousel({
   }
 
   return (
-    <div className="relative min-h-80">
+    <div className="relative">
       <div
         className={
           "flex justify-center items-center " + // positioning
@@ -88,7 +88,7 @@ export function PromoBannerCarousel({
             src={currentImageSrc}
             alt="promo header"
             className={`w-[100vw] ${
-              isSmallScreen() ? "h-auto " : "h-[80px] w-auto"
+              isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
             }`}
           />
         </a>
