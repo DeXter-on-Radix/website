@@ -62,13 +62,13 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
   // console.log(kpiData);
   return (
     <>
-      <div className="lg:w-[800px] md:w-[400px] sm:w-[400px]">
+      <div className="xs:w-[400px] sm:w-[400px] md:[800px] lg:w-[800px] ">
         <h2 className="text-md text-[45px] mb-[20px] bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal">
           KPI Dashboard
         </h2>
         <div className="flex flex-col">
           <p className="text-[24px] m-1">Trading</p>
-          <div className="flex md:flex-col sm:flex-col sm:w-[400px] lg:flex-row">
+          <div className="flex flex-wrap">
             <div className="m-1">
               <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl mb-1">
                 <p className="text-[14px] text-[#768089]">
@@ -105,7 +105,7 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
         </div>
         <div className="flex flex-col mt-8">
           <p className="text-[24px] m-1">Website</p>
-          <div className="flex sm:flex-col md:flex-col lg:flex-row">
+          <div className="flex flex-wrap">
             <div className="border-[#3c3d3d] border-[2px] p-4 rounded-xl m-1">
               <LineChart
                 title={"Weekly Website Page Requests"}
@@ -126,22 +126,22 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
         </div>
         <div className="flex flex-col mt-8 w-full">
           <p className="text-[24px]">Socials</p>
-          <div className="flex lg:flex-row lg:w-full lg:justify-between md:flex-col sm:flex-col">
-            <div className="lg:flex lg:w-[33%]  border-[#3c3d3d] border-[2px] p-4 rounded-xl md:w-full md:mt-2 sm:w-full sm:mt-2">
+          <div className="flex w-full justify-between flex-wrap">
+            <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2  border-[#3c3d3d] border-[2px] p-4 rounded-xl ">
               <img src="/socials/youtube.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Subscribers</p>
                 <p className="text-2xl text-[#FFFFFF]">{kpiData.socials.youtubeSubscribers}</p>
               </div>
             </div>
-            <div className="lg:flex lg:w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl md:w-full md:mt-2 sm:w-full sm:mt-2">
+            <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2 border-[#3c3d3d] border-[2px] p-4 rounded-xl ">
               <img src="/socials/instagram.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
                 <p className="text-2xl text-[#FFFFFF]">{kpiData.socials.instagramFollowers}</p>
               </div>
             </div>
-            <div className="lg:flex lg:w-[33%] border-[#3c3d3d] border-[2px] p-4 rounded-xl md:w-full md:mt-2 sm:w-full sm:mt-2">
+            <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2 border-[#3c3d3d] border-[2px] p-4 rounded-xl ">
               <img src="/socials/twitter.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
