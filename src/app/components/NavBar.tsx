@@ -41,7 +41,7 @@ export function Navbar() {
     // Trigger disconnect actions
     const handleDisconnect = () => {
       dispatch(accountHistorySlice.actions.resetAccountHistory());
-      dispatch(pairSelectorSlice.actions.resetBalance());
+      dispatch(pairSelectorSlice.actions.resetBalances());
     };
 
     radixConnectButton.addEventListener("onDisconnect", handleDisconnect);
