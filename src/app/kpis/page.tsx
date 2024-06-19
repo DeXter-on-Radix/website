@@ -41,7 +41,6 @@ export default function Kpis() {
   }, []);
 
   return (
-
     <div className="my-10 p-10 flex flex-col items-center">
       {status === Status.LOADING && <LoadingState />}
       {status === Status.ERROR && <ErrorStatus />}
@@ -152,7 +151,6 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
           </div>
         </div>
       </div>
-
     </>
   );
 }
@@ -179,8 +177,6 @@ function LineChart({
           background: "#191B1D",
           textColor: "rgba(255, 255, 255, 0.9)",
         },
-        width: 400,
-        height: 250,
       });
       const lineSeries = chart.addLineSeries();
 
@@ -188,7 +184,6 @@ function LineChart({
         time: new Date(date).toISOString().split("T")[0],
         value: y[index],
       }));
-
       lineSeries.setData(formattedData);
 
       // Automatically fit the data to the canvas
@@ -207,7 +202,6 @@ function LineChart({
           textAlign: "left",
           margin: "0",
           fontSize: "14px",
-          fontSize: "22px",
           color: "white",
         }}
       >

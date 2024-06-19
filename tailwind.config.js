@@ -119,6 +119,6 @@ module.exports = {
     require("daisyui"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/container-queries"),
-    require("tailwindcss-scrollbar"),
+    require("tailwind-scrollbar"),
   ],
 };
