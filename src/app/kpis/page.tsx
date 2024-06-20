@@ -1,19 +1,7 @@
 "use client";
 
-/**
- * MVP ToDos:
- * - [ ] load public data from spreadsheet
- * - [ ] extract:
- *   - [ ] weekly trade volume in XRD
- *   - [ ] weekly trade volume in USD
- *   - [ ] weekly unique website visitors
- *   - [ ] weekly website requests
- *   - [ ] social media followers
- */
-
 import { useEffect, useState, useRef } from "react";
 import { fetchKpiData, KpiData } from "./kpis-utils";
-import { displayNumber } from "utils";
 import { createChart } from "lightweight-charts";
 
 enum Status {
@@ -58,8 +46,6 @@ function LoadingState() {
 }
 
 function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
-  // console.log("INSIDE KPI DASH");
-  // console.log(kpiData);
   return (
     <>
       <div className="xs:w-[400px] sm:w-[400px] md:[800px] lg:w-[800px]">
