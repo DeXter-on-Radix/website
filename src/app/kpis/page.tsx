@@ -48,28 +48,26 @@ function LoadingState() {
 function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
   return (
     <>
-      <div className="xs:w-[400px] sm:w-[400px] md:[800px] lg:w-[800px]">
+      <div className="xs:w-[400px] sm:w-[400px] md:[800px] lg:w-[800px] max-w-[100vw]">
         <DexterHeading title="KPI Dashboard" />
         <div className="flex flex-col">
-          <p className="text-[24px] m-1">Trading</p>
+          <p className="text-2xl m-1 !mb-1">Trading</p>
           <div className="flex flex-wrap">
             <div className="m-1">
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mb-1">
-                <p className="text-[14px] text-[#768089]">
+                <p className="text-sm text-[#768089] pb-1">
                   TOTAL Trade Volume (USD)
                 </p>
-                <p>
+                <p className="text-xl">
                   {Math.round(kpiData.tradeVolume.total.USD).toLocaleString(
                     "en-EN"
-                  )}
+                  )}{" "}
+                  USD
                 </p>
               </div>
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
                 <LineChart
                   title={"Weekly Trade Volume (USD)"}
-                  lastWeekAmount={Math.round(
-                    kpiData.tradeVolume.total.USD
-                  ).toLocaleString("en-EN")}
                   x={kpiData.tradeVolume.weekly.USD.map(
                     (o) => o.weekIdentifier
                   )}
@@ -79,21 +77,19 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
             </div>
             <div className="m-1">
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mb-1">
-                <p className="text-[14px] text-[#768089]">
+                <p className="text-sm text-[#768089] pb-1">
                   TOTAL Trade Volume (XRD)
                 </p>
-                <p>
+                <p className="text-xl">
                   {Math.round(kpiData.tradeVolume.total.XRD).toLocaleString(
                     "en-EN"
-                  )}
+                  )}{" "}
+                  XRD
                 </p>
               </div>
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
                 <LineChart
                   title={"Weekly Trade Volume (XRD)"}
-                  lastWeekAmount={Math.round(
-                    kpiData.tradeVolume.total.XRD
-                  ).toLocaleString("en-EN")}
                   x={kpiData.tradeVolume.weekly.XRD.map(
                     (o) => o.weekIdentifier
                   )}
@@ -104,36 +100,26 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
           </div>
         </div>
         <div className="flex flex-col mt-8">
-          <p className="text-[24px] m-1">Website</p>
+          <p className="text-2xl m-1 !mb-1">Website</p>
           <div className="flex flex-wrap">
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
               <LineChart
-                title={"Weekly Website Page Requests"}
-                lastWeekAmount={
-                  kpiData.website.pageRequests[
-                    kpiData.website.pageRequests.length - 1
-                  ].value
-                }
+                title={"Page Requests (Weekly)"}
                 x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
                 y={kpiData.website.pageRequests.map((o) => o.value)}
               />
             </div>
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
               <LineChart
-                title={"Weekly Website Unique Visitors"}
-                lastWeekAmount={
-                  kpiData.website.uniqueVisitors[
-                    kpiData.website.uniqueVisitors.length - 1
-                  ].value
-                }
+                title={"Unique Visitors (Weekly)"}
                 x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
                 y={kpiData.website.uniqueVisitors.map((o) => o.value)}
               />
             </div>
           </div>
         </div>
-        <div className="flex flex-col mt-8 w-full">
-          <p className="text-[24px]">Socials</p>
+        <div className="flex flex-col mt-8 pb-24 w-full">
+          <p className="text-2xl">Socials</p>
           <div className="flex w-full justify-between flex-wrap">
             <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2  border-[#2e2e2e] border-[2px] p-4 rounded-xl ">
               <img src="/socials/youtube.png" width={56} height={56} alt="" />
@@ -171,12 +157,10 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
 
 function LineChart({
   title,
-  lastWeekAmount,
   x,
   y,
 }: {
   title: string;
-  lastWeekAmount: string;
   x: string[];
   y: number[];
 }) {
@@ -200,14 +184,13 @@ function LineChart({
           },
         },
       });
+
       const lineSeries = chart.addLineSeries({
         color: "#A7D22D",
         lineWidth: 2,
-        // disabling built-in price lines
-        // lastValueVisible: false,
+        lastValueVisible: true,
         priceLineVisible: false,
       });
-
       const formattedData = x.map((date, index) => ({
         time: new Date(date).toISOString().split("T")[0],
         value: y[index],
@@ -218,14 +201,14 @@ function LineChart({
       chart.timeScale().fitContent();
 
       // Apply options
-      const myPriceFormatter = Intl.NumberFormat("en-EN", {
-        maximumFractionDigits: 0, // No decimal places
-      }).format;
       chart.applyOptions({
         localization: {
-          priceFormatter: myPriceFormatter, //(p: number) => p.toFixed(0),
+          priceFormatter: Intl.NumberFormat("en-EN", {
+            maximumFractionDigits: 0, // No decimal places
+          }).format,
         },
       });
+
       return () => {
         chart.remove();
       };
@@ -234,17 +217,7 @@ function LineChart({
 
   return (
     <div>
-      <div
-        style={{
-          textAlign: "left",
-          margin: "0",
-          fontSize: "14px",
-          color: "white",
-        }}
-      >
-        {title}
-      </div>
-      <div>{lastWeekAmount}</div>
+      <p className="text-base text-[#768089] pb-2">{title}</p>
       <div ref={chartContainerRef} />
     </div>
   );
