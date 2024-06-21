@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,6 +11,8 @@ import { i18nSlice } from "../state/i18nSlice";
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
+import { accountHistorySlice } from "state/accountHistorySlice";
+import { pairSelectorSlice } from "state/pairSelectorSlice";
 
 interface NavbarItemProps {
   title: string;
@@ -32,6 +34,23 @@ const NavItems: { path: string; title: string }[] = [
 ];
 
 export function Navbar() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const radixConnectButton = document.querySelector("radix-connect-button")!;
+    // Trigger disconnect actions
+    const handleDisconnect = () => {
+      dispatch(accountHistorySlice.actions.resetAccountHistory());
+      dispatch(pairSelectorSlice.actions.resetBalances());
+    };
+
+    radixConnectButton.addEventListener("onDisconnect", handleDisconnect);
+
+    return () => {
+      radixConnectButton.removeEventListener("onDisconnect", handleDisconnect);
+    };
+  }, [dispatch]);
+
   return (
     <nav
       className={
