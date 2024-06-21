@@ -143,6 +143,20 @@ export const pairSelectorSlice = createSlice({
         state.token2 = { ...state.token2, balance };
       }
     },
+    resetBalances: (state: PairSelectorState) => {
+      const [token1State, token2State] = [
+        { ...state.token1 },
+        { ...state.token2 },
+      ];
+      delete token1State.balance;
+      delete token2State.balance;
+
+      return {
+        ...state,
+        ["token1"]: token1State,
+        ["token2"]: token2State,
+      };
+    },
   },
 
   extraReducers: (builder) => {
