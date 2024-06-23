@@ -144,8 +144,8 @@ export const pairSelectorSlice = createSlice({
       }
     },
     resetBalances: (state: PairSelectorState) => {
-      state.token1.balance = undefined;
-      state.token2.balance = undefined;
+      delete state.token1.balance;
+      delete state.token2.balance;
     },
   },
 
