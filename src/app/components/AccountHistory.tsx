@@ -406,62 +406,93 @@ const OrderHistoryRows = ({ data }: TableProps) => {
   // Sort by timeCompleted
   data = data.sort((a, b) => b.timeCompleted.localeCompare(a.timeCompleted));
   return data.length ? (
-    data.map((order) => (
-      <tr
-        key={order.id}
-        className={
+    data.map((order, indx) => <OrderHistoryRow order={order} key={indx} />)
+  ) : (
+    <tr>
+      <td colSpan={7}>{t("no_order_history")}</td>
+    </tr>
+  );
+};
+
+const OrderHistoryRow = ({ order }: { order: any }) => {
+  const t = useTranslations();
+  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
+  const [rowIsHovered, setRowIsHovered] = useState(false);
+  const rowRef = useRef<HTMLTableRowElement | null>(null);
+
+  useEffect(() => {
+    const handleMouseEnter = () => setRowIsHovered(true);
+    const handleMouseLeave = () => setRowIsHovered(false);
+    const rowElement = rowRef.current;
+    if (rowElement) {
+      rowElement.addEventListener("mouseenter", handleMouseEnter);
+      rowElement.addEventListener("mouseleave", handleMouseLeave);
+    }
+    // Cleanup the event listeners on unmount
+    return () => {
+      if (rowElement) {
+        rowElement.removeEventListener("mouseenter", handleMouseEnter);
+        rowElement.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+  }, []);
+
+  return (
+    <tr
+      key={order.id}
+      className={`
+        ${rowIsHovered ? "!bg-[#3f3f3f] " : ""}
+        ${
           order.status === "CANCELLED" && order.completedPerc === 0
             ? "opacity-40"
             : ""
         }
-      >
-        <td>{order.pairName}</td>
-        <td>
-          <a
-            href={getNftReceiptUrl(
-              orderReceiptAddressLookup[order.pairAddress],
-              order.id
-            )}
-            target="_blank"
-          >
-            #{order.id}
-          </a>
-        </td>
-        <td className="uppercase">{t(order.orderType)}</td>
-        <td className={displayOrderSide(order.side).className}>
-          {t(displayOrderSide(order.side).text)}
-        </td>
-        <td className="uppercase">{t(order.status)}</td>
-        <td>
-          {/* Filled Qty (computed with completedPerc to avoid using amountFilled) */}
-          {order.status === "COMPLETED"
-            ? order.amount
-            : (order.amount * order.completedPerc) / 100}{" "}
-          {order.specifiedToken.symbol}
-        </td>
-        <td>
-          {/* Order Qty */}
-          {order.amount} {order.specifiedToken.symbol}
-        </td>
-        <td>
-          {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
-          {getPriceSymbol(order)}
-        </td>
-        <td>
-          {order.orderType === "MARKET"
-            ? "-"
-            : `${order.price} ${getPriceSymbol(order)}`}
-        </td>
-        <td>
-          {calculateTotalFees(order)} {order.unclaimedToken.symbol}
-        </td>
-        <td>{displayTime(order.timeSubmitted, "full")}</td>
-        <td>{displayTime(order.timeCompleted, "full")}</td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan={7}>{t("no_order_history")}</td>
+      `}
+      ref={rowRef}
+    >
+      <td>{order.pairName}</td>
+      <td>
+        <a
+          href={getNftReceiptUrl(
+            orderReceiptAddressLookup[order.pairAddress],
+            order.id
+          )}
+          target="_blank"
+        >
+          #{order.id}
+        </a>
+      </td>
+      <td className="uppercase">{t(order.orderType)}</td>
+      <td className={displayOrderSide(order.side).className}>
+        {t(displayOrderSide(order.side).text)}
+      </td>
+      <td className="uppercase">{t(order.status)}</td>
+      <td>
+        {/* Filled Qty (computed with completedPerc to avoid using amountFilled) */}
+        {order.status === "COMPLETED"
+          ? order.amount
+          : (order.amount * order.completedPerc) / 100}{" "}
+        {order.specifiedToken.symbol}
+      </td>
+      <td>
+        {/* Order Qty */}
+        {order.amount} {order.specifiedToken.symbol}
+      </td>
+      <td>
+        {calculateAvgFilled(order.token1Filled, order.token2Filled)}{" "}
+        {getPriceSymbol(order)}
+      </td>
+      <td>
+        {order.orderType === "MARKET"
+          ? "-"
+          : `${order.price} ${getPriceSymbol(order)}`}
+      </td>
+      <td>
+        {calculateTotalFees(order)} {order.unclaimedToken.symbol}
+      </td>
+      <td>{displayTime(order.timeSubmitted, "full")}</td>
+      <td>{displayTime(order.timeCompleted, "full")}</td>
     </tr>
   );
 };
