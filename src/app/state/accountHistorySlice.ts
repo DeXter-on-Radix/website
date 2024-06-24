@@ -118,14 +118,10 @@ export const accountHistorySlice = createSlice({
       state.selectedTable = action.payload;
     },
     selectOrderToCancel: (state, action: PayloadAction<string>) => {
-      console.log("selecting Order " + action.payload);
       state.selectedOrdersToCancel[action.payload] = true;
-      console.log({ state });
     },
     deselectOrderToCancel: (state, action: PayloadAction<string>) => {
-      console.log("deselecting Order " + action.payload);
       delete state.selectedOrdersToCancel[action.payload];
-      console.log({ state });
     },
     resetSelectedOrdersToCancel: (state) => {
       state.selectedOrdersToCancel = {};

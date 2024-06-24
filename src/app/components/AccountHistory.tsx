@@ -400,9 +400,6 @@ const OpenOrderRow = ({ order }: { order: any }) => {
 
 const OrderHistoryRows = ({ data }: TableProps) => {
   const t = useTranslations();
-  // Needed to create order NFT urls
-  const { pairsList } = useAppSelector((state) => state.rewardSlice);
-  const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   // Sort by timeCompleted
   data = data.sort((a, b) => b.timeCompleted.localeCompare(a.timeCompleted));
   return data.length ? (
@@ -416,6 +413,7 @@ const OrderHistoryRows = ({ data }: TableProps) => {
 
 const OrderHistoryRow = ({ order }: { order: any }) => {
   const t = useTranslations();
+  // Needed to create order NFT urls
   const { pairsList } = useAppSelector((state) => state.rewardSlice);
   const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   const [rowIsHovered, setRowIsHovered] = useState(false);
