@@ -81,5 +81,7 @@
   "displayed_value_is_exact_at": "O valor exibido é exato no momento da cotação, podendo ser alterado ao pressionar o botão devido a mudanças no mercado.",
   "fees_are_paid_in_received": "As taxas são pagas na moeda recebida e são estimativas. Valores negativos de taxas representam recompensas a receber. O valor total recebido já inclui o desconto das taxas.",
   "cancel_orders": "Cancelar Ordens",
-  "cancel_single_order": "Cancelar Ordem Única"
+  "cancel_single_order": "Cancelar Ordem Única",
+  "cancel_n_orders": "Cancelar <$NBR_OF_ORDERS> Ordens",
+  "cancel_1_order": "Cancelar 1 Orden"
 }

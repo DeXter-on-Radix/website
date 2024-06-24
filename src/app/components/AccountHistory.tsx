@@ -243,6 +243,7 @@ function DisplayTable() {
 }
 
 const CancelOrdersHeaderRow = () => {
+  const t = useTranslations();
   const { selectedOrdersToCancel } = useAppSelector(
     (state) => state.accountHistory
   );
@@ -253,13 +254,20 @@ const CancelOrdersHeaderRow = () => {
     alert("deleting batch orders");
   };
   return (
-    <div className="flex items-center w-[140px]">
+    <div className="flex items-center w-[150px]">
       {orderSelected ? (
         <div
           className="bg-dexter-red text-white font-bold p-2 rounded flex items-center cursor-pointer"
           onClick={batchCancelOrders}
         >
-          <span>Cancel {nbrOfOrders} Orders </span>
+          <span>
+            {nbrOfOrders > 1
+              ? t("cancel_n_orders").replace(
+                  "<$NBR_OF_ORDERS>",
+                  nbrOfOrders.toString()
+                )
+              : t("cancel_1_order")}
+          </span>
           <img
             src="./bin-white.svg"
             className="w-3 ml-1"
@@ -268,7 +276,7 @@ const CancelOrdersHeaderRow = () => {
         </div>
       ) : (
         <div className=" flex">
-          <span>Cancel Orders </span>
+          <span>{t("cancel_orders")}</span>
           <img src="./bin.svg" className="w-3 ml-1" alt="trash can icon" />
         </div>
       )}
