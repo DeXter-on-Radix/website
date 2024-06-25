@@ -413,7 +413,7 @@ const OpenOrderRow = ({ adexOrderReceipt }: { adexOrderReceipt: any }) => {
       <td className={displayOrderSide(adexOrderReceipt.side).className}>
         {t(displayOrderSide(adexOrderReceipt.side).text)}
       </td>
-      <td>{displayTime(adexOrderReceipt.timeSubmitted, "full")}</td>
+      <td>{displayTime(adexOrderReceipt.timeSubmitted, "full_without_seconds")}</td>
       <td>
         {adexOrderReceipt.amount} {adexOrderReceipt.specifiedToken.symbol}
       </td>
@@ -533,8 +533,8 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
       <td>
         {calculateTotalFees(order)} {order.unclaimedToken.symbol}
       </td>
-      <td>{displayTime(order.timeSubmitted, "full")}</td>
-      <td>{displayTime(order.timeCompleted, "full")}</td>
+      <td>{displayTime(order.timeSubmitted, "full_without_seconds")}</td>
+      <td>{displayTime(order.timeCompleted, "full_without_seconds")}</td>
     </tr>
   );
 };
