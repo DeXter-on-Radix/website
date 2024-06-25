@@ -252,7 +252,7 @@ const OpenOrdersRows = ({ data }: TableProps) => {
         <td className={displayOrderSide(order.side).className}>
           {t(displayOrderSide(order.side).text)}
         </td>
-        <td>{displayTime(order.timeSubmitted, "full")}</td>
+        <td>{displayTime(order.timeSubmitted, "full_without_seconds")}</td>
         <td>
           {order.amount} {order.specifiedToken.symbol}
         </td>
@@ -336,8 +336,8 @@ const OrderHistoryRows = ({ data }: TableProps) => {
         <td>
           {calculateTotalFees(order)} {order.unclaimedToken.symbol}
         </td>
-        <td>{displayTime(order.timeSubmitted, "full")}</td>
-        <td>{displayTime(order.timeCompleted, "full")}</td>
+        <td>{displayTime(order.timeSubmitted, "full_without_seconds")}</td>
+        <td>{displayTime(order.timeCompleted, "full_without_seconds")}</td>
       </tr>
     ))
   ) : (
