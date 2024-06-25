@@ -83,5 +83,8 @@
   "cancel_orders": "Cancel Orders",
   "cancel_single_order": "Cancel Single Order",
   "cancel_n_orders": "Cancel <$NBR_OF_ORDERS> Orders",
-  "cancel_1_order": "Cancel 1 Order"
+  "cancel_1_order": "Cancel 1 Order",
+  "submitting_batch_cancel": "Submitting batch cancel",
+  "failed_to_cancel_orders": "Failed to cancel orders",
+  "connect_wallet_to_batch_delete": "Connect wallet to batch delete"
 }

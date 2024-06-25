@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
+import { DexterToast } from "./DexterToaster";
+import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
+import "../styles/table.css";
 import {
   Tables,
   fetchAccountHistory,
@@ -10,16 +13,20 @@ import {
   cancelOrder,
   selectOrderHistory,
   AccountHistoryState,
+  Order,
+  batchCancel,
 } from "../state/accountHistorySlice";
 import {
+  getOrderIdentifier,
+  getOrderIdentifierFromAdex,
+} from "./AccountHistoryUtils";
+import {
   displayTime,
-  calculateTotalFees,
-  calculateAvgFilled,
   getPriceSymbol,
   displayOrderSide,
+  calculateAvgFilled,
+  calculateTotalFees,
 } from "../utils";
-
-import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -29,10 +36,6 @@ function createOrderReceiptAddressLookup(
     orderReceiptAddressLookup[pairInfo.address] = pairInfo.orderReceiptAddress;
   });
   return orderReceiptAddressLookup;
-}
-
-function getNftReceiptId(orderReceiptAddress: string, id: number) {
-  return `${orderReceiptAddress}_${id}`;
 }
 
 function getNftReceiptUrl(orderReceiptAddress: string, id: number) {
@@ -105,9 +108,6 @@ interface TableProps {
   data: AccountHistoryState["orderHistory"];
 }
 
-import "../styles/table.css";
-import { DexterToast } from "./DexterToaster";
-
 // The headers refer to keys specified in
 // src/app/state/locales/{languagecode}/trade.json
 const headers = {
@@ -139,6 +139,7 @@ const headers = {
   ],
 };
 
+// TODO: rename "order" to "adexOrderReceipt"
 function ActionButton({
   order,
   visible,
@@ -244,21 +245,44 @@ function DisplayTable() {
 
 const CancelOrdersHeaderRow = () => {
   const t = useTranslations();
+  const dispatch = useAppDispatch();
+  const { isConnected } = useAppSelector((state) => state.radix);
   const { selectedOrdersToCancel } = useAppSelector(
     (state) => state.accountHistory
   );
   const nbrOfOrders: number = Object.keys(selectedOrdersToCancel).length;
   const orderSelected: boolean = nbrOfOrders > 0;
 
-  const batchCancelOrders = () => {
-    alert("deleting batch orders");
-  };
   return (
     <div className="flex items-center w-[150px]">
       {orderSelected ? (
         <div
           className="bg-dexter-red text-white font-bold p-2 rounded flex items-center cursor-pointer"
-          onClick={batchCancelOrders}
+          onClick={async (e) => {
+            if (!isConnected) {
+              alert(t("connect_wallet_to_batch_delete"));
+              return;
+            }
+            e.stopPropagation();
+            DexterToast.promise(
+              // Function input, with following state-to-toast mapping
+              // -> pending: loading toast
+              // -> rejceted: error toast
+              // -> resolved: success toast
+              async () => {
+                const action = await dispatch(
+                  batchCancel(Object.values(selectedOrdersToCancel))
+                );
+                if (!action.type.endsWith("fulfilled")) {
+                  // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+                  throw new Error("Transaction failed due to user action.");
+                }
+              },
+              t("submitting_batch_cancel"), // Loading message
+              t("cancelled"), // success message
+              t("failed_to_cancel_orders") // error message
+            );
+          }}
         >
           <span>
             {nbrOfOrders > 1
@@ -284,7 +308,7 @@ const CancelOrdersHeaderRow = () => {
   );
 };
 
-const CheckBox = ({ orderId }: { orderId: string }) => {
+const CheckBox = ({ order }: { order: Order }) => {
   const dispatch = useAppDispatch();
   const { selectedOrdersToCancel } = useAppSelector(
     (state) => state.accountHistory
@@ -299,17 +323,17 @@ const CheckBox = ({ orderId }: { orderId: string }) => {
         alert("Cannot select more than 8 orders.");
         event.preventDefault();
       } else {
-        dispatch(selectOrderToCancel(orderId));
+        dispatch(selectOrderToCancel(order));
       }
     } else {
-      dispatch(deselectOrderToCancel(orderId));
+      dispatch(deselectOrderToCancel(order));
     }
   };
 
   return (
     <input
       type="checkbox"
-      value={orderId}
+      value={getOrderIdentifier(order)}
       className="mr-2 w-4 h-4 bg-gray-100 border-gray-300 rounded cursor-pointer"
       onClick={(e) => {
         selectOrDeselectCheckbox(e, Object.keys(selectedOrdersToCancel).length);
@@ -320,9 +344,10 @@ const CheckBox = ({ orderId }: { orderId: string }) => {
 
 const OpenOrdersRows = ({ data }: TableProps) => {
   const t = useTranslations();
-  // Needed to create order NFT urls
   return data.length ? (
-    data.map((order, indx) => <OpenOrderRow order={order} key={indx} />)
+    data.map((adexOrderReceipt, indx) => (
+      <OpenOrderRow adexOrderReceipt={adexOrderReceipt} key={indx} />
+    ))
   ) : (
     <tr>
       <td colSpan={7}>{t("no_active_orders")}</td>
@@ -330,9 +355,12 @@ const OpenOrdersRows = ({ data }: TableProps) => {
   );
 };
 
-const OpenOrderRow = ({ order }: { order: any }) => {
+const OpenOrderRow = ({ adexOrderReceipt }: { adexOrderReceipt: any }) => {
   const t = useTranslations();
   const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const { selectedOrdersToCancel } = useAppSelector(
+    (state) => state.accountHistory
+  );
   const orderReceiptAddressLookup = createOrderReceiptAddressLookup(pairsList);
   const [rowIsHovered, setRowIsHovered] = useState(false);
   const rowRef = useRef<HTMLTableRowElement | null>(null);
@@ -353,53 +381,61 @@ const OpenOrderRow = ({ order }: { order: any }) => {
       }
     };
   }, []);
+  const order: Order = {
+    pairAddress: adexOrderReceipt.pairAddress,
+    orderReceiptId: adexOrderReceipt.id,
+    orderReceiptAddress:
+      createOrderReceiptAddressLookup(pairsList)[adexOrderReceipt.pairAddress],
+  };
+  const notSelected =
+    selectedOrdersToCancel[getOrderIdentifierFromAdex(adexOrderReceipt)] ===
+    undefined;
 
   return (
     <tr
-      key={order.id}
+      key={adexOrderReceipt.id}
       className={`${rowIsHovered ? "!bg-[#3f3f3f]" : ""}`}
       ref={rowRef}
     >
-      <td>{order.pairName}</td>
+      <td>{adexOrderReceipt.pairName}</td>
       <td>
         <a
           href={getNftReceiptUrl(
-            orderReceiptAddressLookup[order.pairAddress],
-            order.id
+            orderReceiptAddressLookup[adexOrderReceipt.pairAddress],
+            adexOrderReceipt.id
           )}
           target="_blank"
         >
-          #{order.id}
+          #{adexOrderReceipt.id}
         </a>
       </td>
-      <td className="uppercase">{t(order.orderType)}</td>
-      <td className={displayOrderSide(order.side).className}>
-        {t(displayOrderSide(order.side).text)}
+      <td className="uppercase">{t(adexOrderReceipt.orderType)}</td>
+      <td className={displayOrderSide(adexOrderReceipt.side).className}>
+        {t(displayOrderSide(adexOrderReceipt.side).text)}
       </td>
-      <td>{displayTime(order.timeSubmitted, "full")}</td>
+      <td>{displayTime(adexOrderReceipt.timeSubmitted, "full")}</td>
       <td>
-        {order.amount} {order.specifiedToken.symbol}
+        {adexOrderReceipt.amount} {adexOrderReceipt.specifiedToken.symbol}
       </td>
       <td>
-        {order.price} {getPriceSymbol(order)}
+        {adexOrderReceipt.price} {getPriceSymbol(adexOrderReceipt)}
       </td>
       <td>
         {/* Filled Qty (compute with completedPerc to avoid using amountFilled) */}
-        {order.status === "COMPLETED"
-          ? order.amount
-          : (order.amount * order.completedPerc) / 100}{" "}
-        {order.specifiedToken.symbol}
+        {adexOrderReceipt.status === "COMPLETED"
+          ? adexOrderReceipt.amount
+          : (adexOrderReceipt.amount * adexOrderReceipt.completedPerc) /
+            100}{" "}
+        {adexOrderReceipt.specifiedToken.symbol}
       </td>
-      <td>{order.completedPerc}%</td>
+      <td>{adexOrderReceipt.completedPerc}%</td>
       <td>
         <div className="flex items-center">
-          <CheckBox
-            orderId={getNftReceiptId(
-              orderReceiptAddressLookup[order.pairAddress],
-              order.id
-            )}
+          <CheckBox order={order} />
+          <ActionButton
+            order={adexOrderReceipt}
+            visible={rowIsHovered && notSelected}
           />
-          <ActionButton order={order} visible={rowIsHovered} />
         </div>
       </td>
     </tr>

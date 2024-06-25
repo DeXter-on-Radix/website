@@ -7,19 +7,31 @@ import {
 import { RootState, AppDispatch } from "./store";
 import * as adex from "alphadex-sdk-js";
 import { SdkResult } from "alphadex-sdk-js/lib/models/sdk-result";
-import { getRdt, RDT } from "../subscriptions";
+import { getRdt, getRdtOrThrow, RDT } from "../subscriptions";
+import {
+  getBatchCancelManifest,
+  getOrderIdentifier,
+  getOrderIdentifierFromAdex,
+} from "components/AccountHistoryUtils";
 
 // TYPES AND INTERFACES
 export enum Tables {
   OPEN_ORDERS = "OPEN_ORDERS",
   ORDER_HISTORY = "ORDER_HISTORY",
 }
+
+export interface Order {
+  pairAddress: string;
+  orderReceiptId: string;
+  orderReceiptAddress: string;
+}
+
 export interface AccountHistoryState {
   trades: adex.Trade[];
   orderHistory: adex.OrderReceipt[];
   selectedTable: Tables;
   tables: Tables[];
-  selectedOrdersToCancel: Record<string, boolean>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
+  selectedOrdersToCancel: Record<string, Order>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
 }
 
 // INITIAL STATE
@@ -52,6 +64,32 @@ export const fetchAccountHistory = createAsyncThunk<
   } else {
     throw new Error(plainApiResponse.message);
   }
+});
+
+export const batchCancel = createAsyncThunk<
+  Order[], // return value
+  Order[], // input
+  { state: RootState }
+>("accountHistory/batchCancel", async (payload, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const orders: Order[] = payload;
+  const account = state.radix?.walletData.accounts[0]?.address || "";
+  if (!account) {
+    return thunkAPI.rejectWithValue("Account missing");
+  }
+  const rdt = getRdtOrThrow();
+  const result = await rdt.walletApi.sendTransaction({
+    transactionManifest: getBatchCancelManifest({
+      userAccount: account,
+      orders: orders,
+    }),
+    version: 1,
+  });
+  if (result.isErr()) {
+    throw new Error(`Problem with submitting tx. ${result.error.message}`);
+  }
+  thunkAPI.dispatch(fetchAccountHistory());
+  return orders;
 });
 
 export const cancelOrder = createAsyncThunk<
@@ -117,11 +155,15 @@ export const accountHistorySlice = createSlice({
     setSelectedTable: (state, action: PayloadAction<Tables>) => {
       state.selectedTable = action.payload;
     },
-    selectOrderToCancel: (state, action: PayloadAction<string>) => {
-      state.selectedOrdersToCancel[action.payload] = true;
+    selectOrderToCancel: (state, action: PayloadAction<Order>) => {
+      const order = action.payload;
+      const orderIdentifier = getOrderIdentifier(order);
+      state.selectedOrdersToCancel[orderIdentifier] = order;
     },
-    deselectOrderToCancel: (state, action: PayloadAction<string>) => {
-      delete state.selectedOrdersToCancel[action.payload];
+    deselectOrderToCancel: (state, action: PayloadAction<Order>) => {
+      const order = action.payload;
+      const orderIdentifier = getOrderIdentifier(order);
+      delete state.selectedOrdersToCancel[orderIdentifier];
     },
     resetSelectedOrdersToCancel: (state) => {
       state.selectedOrdersToCancel = {};
@@ -131,6 +173,9 @@ export const accountHistorySlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchAccountHistory.fulfilled, (state, action) => {
       state.orderHistory = action.payload.data.orders;
+    });
+    builder.addCase(batchCancel.fulfilled, (state, _action) => {
+      state.selectedOrdersToCancel = {};
     });
   },
 });

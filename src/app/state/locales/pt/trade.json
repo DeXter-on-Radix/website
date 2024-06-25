@@ -83,5 +83,8 @@
   "cancel_orders": "Cancelar Ordens",
   "cancel_single_order": "Cancelar Ordem Única",
   "cancel_n_orders": "Cancelar <$NBR_OF_ORDERS> Ordens",
-  "cancel_1_order": "Cancelar 1 Orden"
+  "cancel_1_order": "Cancelar 1 Orden",
+  "submitting_batch_cancel": "Enviando cancelamento em lote",
+  "failed_to_cancel_orders": "Falha ao cancelar pedidos",
+  "connect_wallet_to_batch_delete": "Conectar carteira para exclusão em lote"
 }
