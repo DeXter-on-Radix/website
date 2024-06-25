@@ -11,8 +11,7 @@ import { getRdt, getRdtOrThrow, RDT } from "../subscriptions";
 import {
   getBatchCancelManifest,
   getOrderIdentifier,
-  getOrderIdentifierFromAdex,
-} from "components/AccountHistoryUtils";
+} from "../components/AccountHistoryUtils";
 
 // TYPES AND INTERFACES
 export enum Tables {
@@ -174,7 +173,7 @@ export const accountHistorySlice = createSlice({
     builder.addCase(fetchAccountHistory.fulfilled, (state, action) => {
       state.orderHistory = action.payload.data.orders;
     });
-    builder.addCase(batchCancel.fulfilled, (state, _action) => {
+    builder.addCase(batchCancel.fulfilled, (state) => {
       state.selectedOrdersToCancel = {};
     });
   },
