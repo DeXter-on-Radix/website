@@ -413,7 +413,9 @@ const OpenOrderRow = ({ adexOrderReceipt }: { adexOrderReceipt: any }) => {
       <td className={displayOrderSide(adexOrderReceipt.side).className}>
         {t(displayOrderSide(adexOrderReceipt.side).text)}
       </td>
-      <td>{displayTime(adexOrderReceipt.timeSubmitted, "full_without_seconds")}</td>
+      <td>
+        {displayTime(adexOrderReceipt.timeSubmitted, "full_without_seconds")}
+      </td>
       <td>
         {adexOrderReceipt.amount} {adexOrderReceipt.specifiedToken.symbol}
       </td>
