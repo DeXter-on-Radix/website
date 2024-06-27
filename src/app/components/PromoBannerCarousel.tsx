@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+const DEFAULT_GRADIENT_BACKGROUND =
+  "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%";
+
 export interface PromoBannerProps {
   imageUrl: string; // 600x80
   imageUrlMobile: string; // 600x200
   redirectUrl: string; // target redirect address when banner is clicked
+  backgroundColor?: string; // background color, in the format of bg-[#fff]
 }
 
 interface PromoBannerCarouselProps {
@@ -23,6 +27,12 @@ export function PromoBannerCarousel({
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const [backgroundColor, setBackgroundColor] = useState(
+    items[0].backgroundColor || DEFAULT_GRADIENT_BACKGROUND
+  );
+
+  // console.log(backgroundColor);
 
   const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
 
@@ -48,6 +58,16 @@ export function PromoBannerCarousel({
   };
 
   useEffect(() => {
+    const selectedBg = items[activeIndex].backgroundColor;
+    console.log("selectedBg");
+    if (selectedBg) {
+      setBackgroundColor(selectedBg);
+    } else {
+      setBackgroundColor(DEFAULT_GRADIENT_BACKGROUND);
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
     // Determine which image to show based on the client's screen size
     setCurrentImageSrc(isSmallScreen() ? imageUrlMobile : imageUrl);
     // Update image source on window resize
@@ -70,45 +90,46 @@ export function PromoBannerCarousel({
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
   }
-
   return (
-    <div className="relative">
-      <div
-        className={
-          "flex justify-center items-center " + // positioning
-          `max-w-[100vw] ` + // sizing
-          "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%" // gradient background
-        }
-      >
-        <a
-          onClick={handleRedirect}
-          className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
+    <div className={`min-h-[64px] ${backgroundColor} `}>
+      <div className="relative">
+        <div
+          className={
+            "flex justify-center items-center " + // positioning
+            `max-w-[100vw] ` + // sizing
+            `${backgroundColor}` // background
+          }
         >
-          <img
-            src={currentImageSrc}
-            alt="promo header"
-            className={`w-[100vw] ${
-              isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
-            }`}
-          />
-        </a>
-      </div>
-      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-        {/* make sure that there are more than 1 items in the carousel before displaying the dots ui*/}
-        {items.length > 1 && (
-          <div className="flex items-center justify-center space-x-2">
-            {items.map((_, idx) => {
-              return (
-                <div
-                  key={`carousel-item-${idx}`}
-                  className={`rounded-full w-2 h-2  ${
-                    activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
-                  }`}
-                />
-              );
-            })}
-          </div>
-        )}
+          <a
+            onClick={handleRedirect}
+            className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
+          >
+            <img
+              src={currentImageSrc}
+              alt="promo header"
+              className={`w-[100vw] ${
+                isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
+              }`}
+            />
+          </a>
+        </div>
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+          {/* make sure that there are more than 1 items in the carousel before displaying the dots ui*/}
+          {items.length > 1 && (
+            <div className="flex items-center justify-center space-x-2">
+              {items.map((_, idx) => {
+                return (
+                  <div
+                    key={`carousel-item-${idx}`}
+                    className={`rounded-full w-2 h-2  ${
+                      activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
