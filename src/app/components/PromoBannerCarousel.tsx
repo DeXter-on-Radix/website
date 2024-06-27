@@ -59,13 +59,12 @@ export function PromoBannerCarousel({
 
   useEffect(() => {
     const selectedBg = items[activeIndex].backgroundColor;
-    console.log("selectedBg");
     if (selectedBg) {
       setBackgroundColor(selectedBg);
     } else {
       setBackgroundColor(DEFAULT_GRADIENT_BACKGROUND);
     }
-  }, [activeIndex]);
+  }, [activeIndex, items]);
 
   useEffect(() => {
     // Determine which image to show based on the client's screen size
