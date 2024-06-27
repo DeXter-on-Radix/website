@@ -223,8 +223,3 @@ input[type="number"]::-ms-clear {
       "tradeHistory";
   }
 }
-
-/* Fix margin on lightweight charts */
-.tv-lightweight-charts table {
-  margin: 0 !important;
-}

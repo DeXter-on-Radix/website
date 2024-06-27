@@ -209,6 +209,12 @@ function LineChart({
         },
       });
 
+      // Fix margin/spacing to make x-axis visible again
+      const tvLightweightChartTable = chartContainerRef.current.querySelector(
+        ".tv-lightweight-charts table"
+      ) as HTMLElement;
+      tvLightweightChartTable.style.margin = "0";
+
       return () => {
         chart.remove();
       };
