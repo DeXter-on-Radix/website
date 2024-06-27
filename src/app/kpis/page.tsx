@@ -232,9 +232,9 @@ function LineChart({
 function DexterHeading({ title }: { title: string }) {
   return (
     <>
-      <h2 className="!m-0 !mb-5 text-5xl text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal">
+      <h1 className="!m-0 !mb-5 text-5xl text-md bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-50% bg-clip-text text-transparent font-normal">
         {title}
-      </h2>
+      </h1>
     </>
   );
 }
