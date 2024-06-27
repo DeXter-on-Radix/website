@@ -223,3 +223,19 @@ input[type="number"]::-ms-clear {
       "tradeHistory";
   }
 }
+
+/* Hacky fix to replace border with padding on accountHistory table */
+/* Needed to fix table hover state */
+.account-history table tr,
+.account-history table thead tr,
+.account-history table td {
+  border: 0;
+}
+.account-history table tr td:first-child,
+.account-history table thead tr th:first-child {
+  padding-left: 16px;
+}
+.account-history table tr td:last-child,
+.account-history table thead tr th:last-child {
+  padding-right: 16px;
+}
