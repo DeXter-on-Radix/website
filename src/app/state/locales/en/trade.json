@@ -79,5 +79,12 @@
   "quantity": "Quantity",
   "available": "Available",
   "displayed_value_is_exact_at": "Displayed value is exact at quote time, may change on button press due market changes.",
-  "fees_are_paid_in_received": "Fees are paid in received currency and are estimates. Negative fee amounts represent rewards to earn. Total received amount already discounts fees."
+  "fees_are_paid_in_received": "Fees are paid in received currency and are estimates. Negative fee amounts represent rewards to earn. Total received amount already discounts fees.",
+  "cancel_orders": "Cancel Orders",
+  "cancel_single_order": "Cancel Single Order",
+  "cancel_n_orders": "Cancel <$NBR_OF_ORDERS> Orders",
+  "cancel_1_order": "Cancel 1 Order",
+  "submitting_batch_cancel": "Submitting batch cancel",
+  "failed_to_cancel_orders": "Failed to cancel orders",
+  "connect_wallet_to_batch_delete": "Connect wallet to batch delete"
 }
