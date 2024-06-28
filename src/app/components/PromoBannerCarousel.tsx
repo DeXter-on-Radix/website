@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+const DEFAULT_GRADIENT_BACKGROUND =
+  "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%";
+
 export interface PromoBannerProps {
   imageUrl: string; // 600x80
   imageUrlMobile: string; // 600x200
   redirectUrl: string; // target redirect address when banner is clicked
+  backgroundColor?: string; // background color, in the format of bg-[#fff]
 }
 
 interface PromoBannerCarouselProps {
@@ -19,10 +23,13 @@ export function PromoBannerCarousel({
   items,
   interval = 10000,
 }: PromoBannerCarouselProps) {
-  // Use null initially to not show any image and prevent react error
+  // Use null initially to not show any image and prevent hydration error
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
-
   const [activeIndex, setActiveIndex] = useState(0);
+  const [backgroundColor, setBackgroundColor] = useState(
+    items[0].backgroundColor || DEFAULT_GRADIENT_BACKGROUND
+  );
+  const [fade, setFade] = useState(true);
 
   const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
 
@@ -32,20 +39,32 @@ export function PromoBannerCarousel({
   );
 
   const moveToNextSlide = useCallback(() => {
-    setActiveIndex(activeIndex === items.length - 1 ? 0 : activeIndex + 1);
-  }, [setActiveIndex, activeIndex, items]);
+    setActiveIndex((prevIndex) =>
+      prevIndex === items.length - 1 ? 0 : prevIndex + 1
+    );
+  }, [items.length]);
 
   const handleRedirect = () => {
     if (hasRedirectUrl && typeof window !== "undefined") {
       window.open(redirectUrl, "_blank");
     }
   };
+
   const isSmallScreen = () => {
     if (typeof window === "undefined") {
       return false;
     }
     return window.innerWidth <= 600;
   };
+
+  useEffect(() => {
+    const selectedBg = items[activeIndex].backgroundColor;
+    if (selectedBg) {
+      setBackgroundColor(selectedBg);
+    } else {
+      setBackgroundColor(DEFAULT_GRADIENT_BACKGROUND);
+    }
+  }, [activeIndex, items]);
 
   useEffect(() => {
     // Determine which image to show based on the client's screen size
@@ -60,55 +79,66 @@ export function PromoBannerCarousel({
   }, [imageUrl, imageUrlMobile]);
 
   useEffect(() => {
-    const intervalId = setInterval(moveToNextSlide, interval);
-    return () => {
-      clearInterval(intervalId);
-    };
+    const intervalId = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        moveToNextSlide();
+        setFade(true);
+      }, 500); // Duration of the fade out
+    }, interval);
+    return () => clearInterval(intervalId);
   }, [moveToNextSlide, interval]);
 
-  // Ignore header if image is missing
+  // const handleDotClick = useCallback((idx: number) => {
+  //   setFade(false);
+  //   setTimeout(() => {
+  //     setActiveIndex(idx);
+  //     setFade(true);
+  //   }, 500); // Duration of the fade out
+  // }, []);
+
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
   }
 
   return (
-    <div className="relative">
-      <div
-        className={
-          "flex justify-center items-center " + // positioning
-          `max-w-[100vw] ` + // sizing
-          "bg-gradient-to-r from-dexter-gradient-green from-10% to-dexter-gradient-blue to-90%" // gradient background
-        }
-      >
-        <a
-          onClick={handleRedirect}
-          className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
+    <div className={`min-h-[64px] ${backgroundColor} `}>
+      <div className="relative">
+        <div
+          className={
+            "flex justify-center items-center " + // positioning
+            `max-w-[100vw] ` + // sizing
+            `${backgroundColor}` // background
+          }
         >
-          <img
-            src={currentImageSrc}
-            alt="promo header"
-            className={`w-[100vw] ${
-              isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
-            }`}
-          />
-        </a>
-      </div>
-      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-        {/* make sure that there are more than 1 items in the carousel before displaying the dots ui*/}
-        {items.length > 1 && (
-          <div className="flex items-center justify-center space-x-2">
-            {items.map((_, idx) => {
-              return (
+          <a
+            onClick={handleRedirect}
+            className={hasRedirectUrl ? "cursor-pointer" : "cursor-default"}
+          >
+            <img
+              src={currentImageSrc}
+              alt="promo header"
+              className={`transition-opacity duration-500 ${
+                fade ? "opacity-100" : "opacity-0"
+              } w-[100vw] ${isSmallScreen() ? "h-auto " : "h-[64px] w-auto"}`}
+            />
+          </a>
+        </div>
+        {/*<div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+          {items.length > 1 && (
+            <div className="flex items-center justify-center space-x-2">
+              {items.map((_, idx) => (
                 <div
                   key={`carousel-item-${idx}`}
                   className={`rounded-full w-2 h-2  ${
                     activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
                   }`}
+                  onClick={() => handleDotClick(idx)}
                 />
-              );
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>*/}
       </div>
     </div>
   );
