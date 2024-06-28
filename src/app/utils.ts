@@ -217,6 +217,19 @@ export function displayTime(
         hour12: false,
       })
       .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
+    // TODO: remove once adex supports higher precision (seconds)
+  } else if (period === "full_without_seconds") {
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        // second: "2-digit", // <- seconds removed
+        hour12: false,
+      })
+      .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
   } else if (!period) {
     return date.toLocaleString([], {
       month: "2-digit",
