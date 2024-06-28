@@ -89,13 +89,13 @@ export function PromoBannerCarousel({
     return () => clearInterval(intervalId);
   }, [moveToNextSlide, interval]);
 
-  const handleDotClick = useCallback((idx: number) => {
-    setFade(false);
-    setTimeout(() => {
-      setActiveIndex(idx);
-      setFade(true);
-    }, 500); // Duration of the fade out
-  }, []);
+  // const handleDotClick = useCallback((idx: number) => {
+  //   setFade(false);
+  //   setTimeout(() => {
+  //     setActiveIndex(idx);
+  //     setFade(true);
+  //   }, 500); // Duration of the fade out
+  // }, []);
 
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
@@ -124,7 +124,7 @@ export function PromoBannerCarousel({
             />
           </a>
         </div>
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+        {/*<div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
           {items.length > 1 && (
             <div className="flex items-center justify-center space-x-2">
               {items.map((_, idx) => (
@@ -138,7 +138,7 @@ export function PromoBannerCarousel({
               ))}
             </div>
           )}
-        </div>
+        </div>*/}
       </div>
     </div>
   );
