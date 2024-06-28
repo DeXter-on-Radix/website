@@ -29,6 +29,7 @@ export function PromoBannerCarousel({
   const [backgroundColor, setBackgroundColor] = useState(
     items[0].backgroundColor || DEFAULT_GRADIENT_BACKGROUND
   );
+  const [fade, setFade] = useState(true);
 
   const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
 
@@ -78,12 +79,22 @@ export function PromoBannerCarousel({
   }, [imageUrl, imageUrlMobile]);
 
   useEffect(() => {
-    const intervalId = setInterval(moveToNextSlide, interval);
+    const intervalId = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        moveToNextSlide();
+        setFade(true);
+      }, 500); // Duration of the fade out
+    }, interval);
     return () => clearInterval(intervalId);
-  }, [moveToNextSlide, interval, activeIndex]);
+  }, [moveToNextSlide, interval]);
 
   const handleDotClick = useCallback((idx: number) => {
-    setActiveIndex(idx);
+    setFade(false);
+    setTimeout(() => {
+      setActiveIndex(idx);
+      setFade(true);
+    }, 500); // Duration of the fade out
   }, []);
 
   if (currentImageSrc === null || currentImageSrc === "") {
@@ -107,19 +118,19 @@ export function PromoBannerCarousel({
             <img
               src={currentImageSrc}
               alt="promo header"
-              className={`w-[100vw] ${
-                isSmallScreen() ? "h-auto " : "h-[64px] w-auto"
-              }`}
+              className={`transition-opacity duration-500 ${
+                fade ? "opacity-100" : "opacity-0"
+              } w-[100vw] ${isSmallScreen() ? "h-auto " : "h-[64px] w-auto"}`}
             />
           </a>
         </div>
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 z-[1000]">
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
           {items.length > 1 && (
-            <div className="flex items-center justify-center space-x-2 z-[1000]">
+            <div className="flex items-center justify-center space-x-2">
               {items.map((_, idx) => (
                 <div
                   key={`carousel-item-${idx}`}
-                  className={`rounded-full p-1 w-2 h-2 z-[1000] ${
+                  className={`rounded-full w-2 h-2  ${
                     activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
                   }`}
                   onClick={() => handleDotClick(idx)}
