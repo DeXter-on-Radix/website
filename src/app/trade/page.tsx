@@ -22,22 +22,6 @@ import {
   PromoBannerProps,
 } from "../components/PromoBannerCarousel";
 
-// Configuration for promo banner
-// Once both images and a targetUrl are defined the banner will automatically show
-const validatorNodeBanner: PromoBannerProps = {
-  imageUrl: "/promo-banners/validator-node-staking/desktop.svg",
-  imageUrlMobile: "/promo-banners/validator-node-staking/mobile.svg",
-  redirectUrl:
-    "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
-};
-const tokentrekBanner: PromoBannerProps = {
-  imageUrl: "/promo-banners/tokentrek/222desktop-600x80.png",
-  imageUrlMobile: "/promo-banners/tokentrek/222mobile-600x200.png",
-  redirectUrl:
-    "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
-  backgroundColor: "bg-[#062b28]",
-};
-
 export default function Trade() {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
@@ -87,8 +71,24 @@ export default function Trade() {
   return (
     <div className="grow">
       <PromoBannerCarousel
-        items={[validatorNodeBanner, tokentrekBanner]}
-        interval={3000}
+        items={[
+          // Validator node banner
+          {
+            imageUrl: "/promo-banners/validatornode-desktop.svg",
+            imageUrlMobile: "/promo-banners/validatornode-mobile.svg",
+            redirectUrl:
+              "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
+          },
+          // tokentrek banner
+          {
+            imageUrl: "/promo-banners/tokentrek-desktop.svg",
+            imageUrlMobile: "/promo-banners/tokentrek-mobile.svg",
+            redirectUrl:
+              "https://tokentrek.io/dashboard/projects?p=1716380462347x668376794882113500",
+            backgroundColor: "bg-[#062b28]",
+          },
+        ]}
+        interval={2000}
       />
       <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
         <div className="grid-container">
