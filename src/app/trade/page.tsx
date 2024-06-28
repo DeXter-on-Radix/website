@@ -17,10 +17,7 @@ import { detectBrowserLanguage } from "../utils";
 import { i18nSlice } from "../state/i18nSlice";
 
 import Cookies from "js-cookie";
-import {
-  PromoBannerCarousel,
-  PromoBannerProps,
-} from "../components/PromoBannerCarousel";
+import { PromoBannerCarousel } from "../components/PromoBannerCarousel";
 
 export default function Trade() {
   const searchParams = useSearchParams();
