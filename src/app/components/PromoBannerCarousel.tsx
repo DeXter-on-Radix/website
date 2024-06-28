@@ -23,16 +23,12 @@ export function PromoBannerCarousel({
   items,
   interval = 10000,
 }: PromoBannerCarouselProps) {
-  // Use null initially to not show any image and prevent react error
+  // Use null initially to not show any image and prevent hydration error
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
-
   const [activeIndex, setActiveIndex] = useState(0);
-
   const [backgroundColor, setBackgroundColor] = useState(
     items[0].backgroundColor || DEFAULT_GRADIENT_BACKGROUND
   );
-
-  // console.log(backgroundColor);
 
   const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
 
@@ -52,6 +48,7 @@ export function PromoBannerCarousel({
       window.open(redirectUrl, "_blank");
     }
   };
+
   const isSmallScreen = () => {
     if (typeof window === "undefined") {
       return false;
@@ -82,15 +79,17 @@ export function PromoBannerCarousel({
 
   useEffect(() => {
     const intervalId = setInterval(moveToNextSlide, interval);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [moveToNextSlide, interval]);
+    return () => clearInterval(intervalId);
+  }, [moveToNextSlide, interval, activeIndex]);
 
-  // Ignore header if image is missing
+  const handleDotClick = useCallback((idx: number) => {
+    setActiveIndex(idx);
+  }, []);
+
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
   }
+
   return (
     <div className={`min-h-[64px] ${backgroundColor} `}>
       <div className="relative">
@@ -114,20 +113,18 @@ export function PromoBannerCarousel({
             />
           </a>
         </div>
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-          {/* make sure that there are more than 1 items in the carousel before displaying the dots ui*/}
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 z-[1000]">
           {items.length > 1 && (
-            <div className="flex items-center justify-center space-x-2">
-              {items.map((_, idx) => {
-                return (
-                  <div
-                    key={`carousel-item-${idx}`}
-                    className={`rounded-full w-2 h-2  ${
-                      activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
-                    }`}
-                  />
-                );
-              })}
+            <div className="flex items-center justify-center space-x-2 z-[1000]">
+              {items.map((_, idx) => (
+                <div
+                  key={`carousel-item-${idx}`}
+                  className={`rounded-full p-1 w-2 h-2 z-[1000] ${
+                    activeIndex === idx ? "bg-slate-700" : "bg-slate-500"
+                  }`}
+                  onClick={() => handleDotClick(idx)}
+                />
+              ))}
             </div>
           )}
         </div>
