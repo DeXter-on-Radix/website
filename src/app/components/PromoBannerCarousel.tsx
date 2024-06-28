@@ -42,8 +42,10 @@ export function PromoBannerCarousel({
   );
 
   const moveToNextSlide = useCallback(() => {
-    setActiveIndex(activeIndex === items.length - 1 ? 0 : activeIndex + 1);
-  }, [setActiveIndex, activeIndex, items]);
+    setActiveIndex((prevIndex) =>
+      prevIndex === items.length - 1 ? 0 : prevIndex + 1
+    );
+  }, [items.length]);
 
   const handleRedirect = () => {
     if (hasRedirectUrl && typeof window !== "undefined") {

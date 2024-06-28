@@ -85,7 +85,7 @@ export default function Trade() {
             backgroundColor: "bg-[#062b28]",
           },
         ]}
-        interval={2000}
+        interval={10000}
       />
       <div className="max-w-[1521px] m-auto border-x border-[#d0d0d01a]">
         <div className="grid-container">
