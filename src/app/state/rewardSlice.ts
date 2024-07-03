@@ -337,7 +337,7 @@ export const claimRewards = createAsyncThunk<
   let claimRewardsManifest = "";
   // create a manifest to create a proof of all accountRewardNfts in the current account
   const walletData = rdt.walletApi.getWalletData();
-  const accountAddress = walletData.accounts[0].address;
+  const accountAddress = walletData?.accounts[0].address;
   let accountNftIds = state.rewardData.accountsRewards.map(
     (accountRewards) =>
       `NonFungibleLocalId("${createAccountNftId(
