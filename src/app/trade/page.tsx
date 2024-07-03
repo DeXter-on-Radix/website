@@ -69,12 +69,12 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // Validator node banner
+          // HNY liquidity incentive program
           {
-            imageUrl: "/promo-banners/validatornode-desktop.svg",
-            imageUrlMobile: "/promo-banners/validatornode-mobile.svg",
-            redirectUrl:
-              "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
+            imageUrl: "/promo-banners/honey-desktop.svg",
+            imageUrlMobile: "/promo-banners/honey-mobile.svg",
+            redirectUrl: "https://dexteronradix.com/trade?pair=hny-xrd",
+            redirectOpensInSameTab: true,
           },
           // tokentrek banner
           {
@@ -83,6 +83,13 @@ export default function Trade() {
             redirectUrl:
               "https://tokentrek.io/dashboard/projects?p=1716380462347x668376794882113500",
             backgroundColor: "bg-[#062b28]",
+          },
+          // Validator node banner
+          {
+            imageUrl: "/promo-banners/validatornode-desktop.svg",
+            imageUrlMobile: "/promo-banners/validatornode-mobile.svg",
+            redirectUrl:
+              "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a",
           },
         ]}
         interval={10000}
