@@ -7,6 +7,7 @@ export interface PromoBannerProps {
   imageUrl: string; // 600x80
   imageUrlMobile: string; // 600x200
   redirectUrl: string; // target redirect address when banner is clicked
+  redirectOpensInSameTab?: boolean; // redirection should not be "_blank" but samepage
   backgroundColor?: string; // background color, in the format of bg-[#fff]
 }
 
@@ -32,6 +33,8 @@ export function PromoBannerCarousel({
   const [fade, setFade] = useState(true);
 
   const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
+  const redirectOpensInSameTab =
+    items[activeIndex].redirectOpensInSameTab || false;
 
   const { imageUrlMobile, imageUrl, redirectUrl } = useMemo(
     () => items[activeIndex],
@@ -46,7 +49,11 @@ export function PromoBannerCarousel({
 
   const handleRedirect = () => {
     if (hasRedirectUrl && typeof window !== "undefined") {
-      window.open(redirectUrl, "_blank");
+      if (redirectOpensInSameTab) {
+        window.location.href = redirectUrl;
+      } else {
+        window.open(redirectUrl, "_blank");
+      }
     }
   };
 
