@@ -1,6 +1,6 @@
 import { TokenInfo } from "alphadex-sdk-js";
-import { getRdtOrThrow } from "../subscriptions";
-import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/radix-dapp-toolkit";
+import { getGatewayApiClientOrThrow } from "../subscriptions";
+import { StateKeyValueStoreDataRequestKeyItem } from "@radixdlt/babylon-gateway-api-sdk";
 
 export class ClaimComponent {
   address: string = "";
@@ -192,13 +192,13 @@ export async function getAccountRewards(
   accountAddresses: string[],
   claimNFTResourceAddress: string
 ): Promise<AccountRewards[]> {
-  const rdt = getRdtOrThrow();
+  const gatewayApiClient = getGatewayApiClientOrThrow();
   let accountNftIds = accountAddresses.map((accountAddress) =>
     createAccountNftId(accountAddress)
   );
   let accountRewardsNftResult;
   try {
-    accountRewardsNftResult = await rdt.gatewayApi.state.getNonFungibleData(
+    accountRewardsNftResult = await gatewayApiClient.state.getNonFungibleData(
       claimNFTResourceAddress,
       accountNftIds
     );
@@ -296,7 +296,7 @@ export async function getOrderRewards(
   receiptIds: string[]
 ): Promise<OrderRewards[]> {
   let result: OrderRewards[] = [];
-  const rdt = getRdtOrThrow();
+  const gatewayApiClient = getGatewayApiClientOrThrow();
   // console.log("Getting OrderRewards for receiptIds: ", receiptIds);
   const maxBatchSize = 90;
   let batchStart = 0;
@@ -315,7 +315,7 @@ export async function getOrderRewards(
       };
     });
     const orderRewardsApiData =
-      await rdt.gatewayApi.state.innerClient.keyValueStoreData({
+      await gatewayApiClient.state.innerClient.keyValueStoreData({
         stateKeyValueStoreDataRequest: {
           // eslint-disable-next-line camelcase
           key_value_store_address: orderRewardsKvsAddress,

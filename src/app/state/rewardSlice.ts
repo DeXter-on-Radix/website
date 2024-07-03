@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { getRdtOrThrow } from "../subscriptions";
-import { NonFungibleResourcesCollectionItem } from "@radixdlt/radix-dapp-toolkit";
+import { getGatewayApiClientOrThrow, getRdtOrThrow } from "../subscriptions";
 import {
   AccountRewards,
   OrderRewards,
@@ -11,6 +10,7 @@ import {
 } from "./rewardUtils";
 import { DexterToast } from "../components/DexterToaster";
 import * as adex from "alphadex-sdk-js";
+import { NonFungibleResourcesCollectionItem } from "@radixdlt/babylon-gateway-api-sdk";
 
 export interface RewardState {
   recieptIds: string[];
@@ -181,7 +181,7 @@ export const fetchReciepts = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchReciepts", async (pairsList, thunkAPI) => {
-  const rdt = getRdtOrThrow();
+  const gatewayApiClient = getGatewayApiClientOrThrow();
   // const walletData = rdt.walletApi.getWalletData();
   const state = thunkAPI.getState();
   const accounts = state.radix.walletData.accounts;
@@ -189,7 +189,7 @@ export const fetchReciepts = createAsyncThunk<
   const accountAddress = accounts[0].address;
   // get all NFTs from your wallet
   const { items } =
-    await rdt.gatewayApi.state.innerClient.entityNonFungiblesPage({
+    await gatewayApiClient.state.innerClient.entityNonFungiblesPage({
       stateEntityNonFungiblesPageRequest: {
         address: accountAddress,
         // eslint-disable-next-line camelcase
@@ -284,14 +284,14 @@ export const fetchAddresses = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAddresses", async (_, thunkAPI) => {
-  const rdt = getRdtOrThrow();
+  const gatewayApiClient = getGatewayApiClientOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardComponent) {
     throw new Error("Missing rewardComponent address");
   }
   // Get the state entity
   const component: any =
-    await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(
+    await gatewayApiClient.state.getEntityDetailsVaultAggregated(
       state.rewardSlice.config.rewardComponent
     );
 
