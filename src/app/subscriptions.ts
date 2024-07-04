@@ -4,6 +4,7 @@ import {
   RadixDappToolkit,
   RadixNetwork,
 } from "@radixdlt/radix-dapp-toolkit";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import * as adex from "alphadex-sdk-js";
 import { radixSlice, WalletData } from "./state/radixSlice";
 import { fetchBalances } from "./state/pairSelectorSlice";
@@ -19,8 +20,14 @@ import { rewardSlice } from "./state/rewardSlice";
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
 let rdtInstance: null | RDT = null;
+let gatewayApiClient: null | GatewayApiClient = null;
+
 export function getRdt() {
   return rdtInstance;
+}
+
+export function getGatewayApiClient() {
+  return gatewayApiClient;
 }
 
 export function getRdtOrThrow() {
@@ -30,6 +37,15 @@ export function getRdtOrThrow() {
   }
   return rdt;
 }
+
+export function getGatewayApiClientOrThrow() {
+  const gatewayApiClient = getGatewayApiClient();
+  if (!gatewayApiClient) {
+    throw new Error("GatewayApiClient initialization failed");
+  }
+  return gatewayApiClient;
+}
+
 function setRdt(rdt: RDT) {
   rdtInstance = rdt;
 }
@@ -51,7 +67,11 @@ export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
     networkId,
+    featureFlags: ["ExperimentalMobileSupport"],
   });
+  gatewayApiClient = GatewayApiClient.initialize(
+    rdtInstance.gatewayApi.clientConfig
+  );
   rdtInstance.walletApi.setRequestData(
     DataRequestBuilder.accounts().exactly(1)
   );

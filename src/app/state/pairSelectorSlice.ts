@@ -1,7 +1,7 @@
 import * as adex from "alphadex-sdk-js";
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { getRdt } from "../subscriptions";
+import { getGatewayApiClientOrThrow, getRdt } from "../subscriptions";
 import { setQueryParam, updateIconIfNeeded } from "../utils";
 
 export const AMOUNT_MAX_DECIMALS = adex.AMOUNT_MAX_DECIMALS;
@@ -55,6 +55,7 @@ export const fetchBalances = createAsyncThunk<
   }
 
   const rdt = getRdt();
+  const gatewayApiClient = getGatewayApiClientOrThrow();
   if (rdt && state.radix.walletData.accounts.length > 0) {
     const tokens = [state.pairSelector.token1, state.pairSelector.token2];
 
@@ -64,7 +65,7 @@ export const fetchBalances = createAsyncThunk<
         let response;
         if (token.address) {
           response =
-            await rdt.gatewayApi.state.innerClient.entityFungibleResourceVaultPage(
+            await gatewayApiClient.state.innerClient.entityFungibleResourceVaultPage(
               {
                 stateEntityFungibleResourceVaultsPageRequest: {
                   address: state.radix.walletData.accounts[0].address,
