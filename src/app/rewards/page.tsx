@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useTranslations,
+  useHydrationErrorFix,
+} from "hooks";
 import {
   fetchAddresses,
   fetchReciepts,
@@ -124,6 +129,10 @@ function RewardsCard() {
       loadRewards();
     }
   }, [dispatch, isConnected, account, pairsList]);
+
+  // Fix HydrationError
+  if (!useHydrationErrorFix()) return <></>;
+
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
       <div className="flex flex-col">
@@ -207,6 +216,9 @@ function ClaimButton() {
   const userHasRewards = getUserHasRewards(rewardData);
   const disabled = !isConnected || !userHasRewards;
 
+  // Fix HydrationError
+  if (!useHydrationErrorFix()) return <></>;
+
   return (
     <button
       className={`w-full max-w-[220px] m-auto font-bold text-sm tracking-[.1px] min-h-[44px] p-3 my-6 uppercase rounded ${
@@ -264,6 +276,9 @@ function RewardsDetails() {
     rewardData.ordersRewards,
     tokensList
   );
+
+  // Fix HydrationError
+  if (!useHydrationErrorFix()) return <></>;
 
   return (
     <div className="mt-10">
