@@ -628,6 +628,8 @@ export const orderInputSlice = createSlice({
 
 function toDescription(quote: Quote): string {
   let quoteDescription = "";
+  const token2symbol = "XRD"; // TODO: import as parameter
+  const lastPrice = 0.5; // TODO: import
   if (quote.fromAmount > 0 && quote.toAmount > 0) {
     const fromAmount = truncateWithPrecision(
       quote.fromAmount,
@@ -639,9 +641,18 @@ function toDescription(quote: Quote): string {
     );
     const toTokenSymbol = quote.toToken.symbol;
     const fromTokenSymbol = quote.fromToken.symbol;
+    const avgPrice = Calculator.multiply(
+      Calculator.divide(1, toAmount),
+      fromAmount
+    );
+    const slippageInPerc = Math.round(
+      Calculator.divide(avgPrice, lastPrice) * 100
+    );
     quoteDescription +=
       `Sending ${fromAmount} ${fromTokenSymbol} ` +
-      `to receive ${toAmount} ${toTokenSymbol}.\n`;
+      `to receive ${toAmount} ${toTokenSymbol}.\n\n` +
+      `Average price: ${avgPrice.toFixed(4)} ${token2symbol}` +
+      `slippage: ${slippageInPerc}%\n`;
   }
   if (quote.resultMessageLong) {
     quoteDescription += "\n" + quote.resultMessageLong;
