@@ -96,6 +96,7 @@ function HeaderComponent() {
 }
 
 function RewardsCard() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const dispatch = useAppDispatch();
   const { isConnected, walletData } = useAppSelector((state) => state.radix);
   const account = walletData.accounts[0]?.address;
@@ -131,7 +132,7 @@ function RewardsCard() {
   }, [dispatch, isConnected, account, pairsList]);
 
   // Fix HydrationError
-  if (!useHydrationErrorFix()) return <></>;
+  if (!isClient) return <></>;
 
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
@@ -209,6 +210,7 @@ function RewardsOverview() {
 }
 
 function ClaimButton() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
@@ -217,7 +219,7 @@ function ClaimButton() {
   const disabled = !isConnected || !userHasRewards;
 
   // Fix HydrationError
-  if (!useHydrationErrorFix()) return <></>;
+  if (!isClient) return <></>;
 
   return (
     <button
@@ -255,6 +257,7 @@ function ClaimButton() {
 
 function RewardsDetails() {
   const [isOpen, setIsOpen] = useState(true);
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const { isConnected } = useAppSelector((state) => state.radix);
   const { rewardData, tokensList } = useAppSelector(
     (state) => state.rewardSlice
@@ -267,7 +270,7 @@ function RewardsDetails() {
     }
   }, [isConnected]);
 
-  if (!isConnected || !userHasRewards) {
+  if (!isConnected || !userHasRewards || !isClient) {
     return <></>;
   }
 
@@ -276,9 +279,6 @@ function RewardsDetails() {
     rewardData.ordersRewards,
     tokensList
   );
-
-  // Fix HydrationError
-  if (!useHydrationErrorFix()) return <></>;
 
   return (
     <div className="mt-10">

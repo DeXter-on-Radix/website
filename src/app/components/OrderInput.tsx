@@ -372,6 +372,7 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { side, type, token1, quote, quoteDescription, quoteError } =
@@ -390,7 +391,7 @@ function SubmitButton() {
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
 
   // Fix HydrationError
-  if (!useHydrationErrorFix()) return <></>;
+  if (!isClient) return <></>;
 
   return (
     <button
