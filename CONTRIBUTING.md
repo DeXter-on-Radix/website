@@ -178,3 +178,35 @@ To add a new banner, follow these steps:
 3. If you are the designer creating the banner, the content needs to be delivered as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg)). Furthermore, ensure there is only a single call to action (CTA). Avoid having multiple competing actions like "STAKE NOW" and "learn more". Decide which one is more important and design the banner accordingly :D
 4. Upload both files to `/public/promo-banners/`.
 5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20).
+
+## Hydration Error Handling
+
+Problem: Since the radix connect button supports caching logged in users, components that depend on the users logg in status will have different initial renders based on whether the user is logged in or not. This is a disallowed react/nextJS pattern and throws a hydration error.
+
+### General Rule: if the component's initial render depends on the users login status, use the following fix
+
+```tsx
+// Import custom hydration error hook
+import { useHydrationErrorFix } from "hooks";
+
+function SubmitButton() {
+  // SubmitButton's initial render depends on connection status! Hydratino Fix is required!
+  const { isConnected } = useAppSelector((state) => state.radix);
+
+  // Hydration fix goes at the top
+  const isClient = useHydrationErrorFix();
+
+  // Additional code like useEffect or other hooks go here!
+  // ...
+
+  // Ensures initial rendering is always empty and fixes hydration error.
+  // Add this line always before the return!
+  if (!isClient) return <></>;
+
+  return (
+    <button>
+      <p>{isConnectd ? "submit" : "please connect wallet to submit"}</p>
+    </button>
+  );
+}
+```
