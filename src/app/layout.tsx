@@ -11,6 +11,12 @@ import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 
+import { detectBrowserLanguage } from "./utils";
+import { i18nSlice } from "./state/i18nSlice";
+
+import Cookies from "js-cookie";
+import { useAppDispatch } from "hooks";
+
 export default function RootLayout({
   children,
 }: {
@@ -24,8 +30,6 @@ export default function RootLayout({
     };
   }, []);
 
-  const path = usePathname();
-
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
   // and use metadata https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#step-2-creating-a-root-layout
@@ -36,26 +40,46 @@ export default function RootLayout({
         <title>DeXter</title>
       </head>
       <Provider store={store}>
-        <body>
-          <DexterToaster toastPosition="top-center" />
-          <div
-            data-path={path}
-            className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
-          >
-            <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
-              <Navbar />
-              {
-                // When using useSearchParams from next/navigation we need to
-                // wrap the outer component in a Suspense boundary, otherwise
-                // the build on cloudflare fails. More info here:
-                // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
-              }
-              <Suspense>{children}</Suspense>
-              <Footer />
-            </div>
-          </div>
-        </body>
+        <AppBody>{children}</AppBody>
       </Provider>
     </html>
+  );
+}
+
+// This subcomponent is needed to initialize browser language in a single place
+function AppBody({ children }: { children: React.ReactNode }) {
+  const dispatch = useAppDispatch();
+  const path = usePathname();
+
+  // Detect browser langauge
+  useEffect(() => {
+    const userLanguageCookieValue = Cookies.get("userLanguage");
+    if (userLanguageCookieValue) {
+      dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
+    } else {
+      dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
+    }
+  }, [dispatch]);
+
+  return (
+    <body>
+      <DexterToaster toastPosition="top-center" />
+      <div
+        data-path={path}
+        className="h-screen prose md:prose-lg lg:prose-xl max-w-none flex flex-col"
+      >
+        <div className="flex flex-col justify-between min-h-[100vh] max-w-[100vw] overflow-x-hidden">
+          <Navbar />
+          {
+            // When using useSearchParams from next/navigation we need to
+            // wrap the outer component in a Suspense boundary, otherwise
+            // the build on cloudflare fails. More info here:
+            // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+          }
+          <Suspense>{children}</Suspense>
+          <Footer />
+        </div>
+      </div>
+    </body>
   );
 }

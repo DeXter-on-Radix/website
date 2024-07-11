@@ -13,10 +13,6 @@ import { fetchBalances, selectPair } from "state/pairSelectorSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { fetchAccountHistory } from "../state/accountHistorySlice";
 
-import { detectBrowserLanguage } from "../utils";
-import { i18nSlice } from "../state/i18nSlice";
-
-import Cookies from "js-cookie";
 import { PromoBannerCarousel } from "../components/PromoBannerCarousel";
 
 export default function Trade() {
@@ -45,16 +41,6 @@ export default function Trade() {
       }
     }
   }, [pairsList, dispatch, searchParams]);
-
-  // Detect browser langauge
-  useEffect(() => {
-    const userLanguageCookieValue = Cookies.get("userLanguage");
-    if (userLanguageCookieValue) {
-      dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
-    } else {
-      dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
-    }
-  }, [dispatch]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
