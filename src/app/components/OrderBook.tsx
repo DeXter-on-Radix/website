@@ -1,4 +1,6 @@
-import { CSSProperties } from "react";
+import * as adex from "alphadex-sdk-js";
+
+import { CSSProperties, useState } from "react";
 
 import "../styles/orderbook.css";
 import * as utils from "../utils";
@@ -123,7 +125,29 @@ function CurrentPriceRow() {
   }
 }
 
+enum OrderBookTabOptions {
+  ORDER_BOOK = "ORDER_BOOK",
+  LAST_TRADES = "LAST_TRADES",
+}
+
 export function OrderBook() {
+  const [currentTab, setCurrentTab] = useState(OrderBookTabOptions.ORDER_BOOK);
+  //const grouping = useAppSelector((state) => state.orderBook.grouping);
+  return (
+    <div>
+      <div onClick={() => setCurrentTab(OrderBookTabOptions.ORDER_BOOK)}>
+        OrderBook
+      </div>
+      <div onClick={() => setCurrentTab(OrderBookTabOptions.LAST_TRADES)}>
+        LastTrades
+      </div>
+      {currentTab === OrderBookTabOptions.ORDER_BOOK && <OrderBookTab />}
+      {currentTab === OrderBookTabOptions.LAST_TRADES && <LastTradesTab />}
+    </div>
+  );
+}
+
+export function OrderBookTab() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const token1Symbol = useAppSelector(
@@ -134,7 +158,6 @@ export function OrderBook() {
   );
   const sells = useAppSelector((state) => state.orderBook.sells);
   const buys = useAppSelector((state) => state.orderBook.buys);
-  //const grouping = useAppSelector((state) => state.orderBook.grouping);
 
   return (
     <div className="p-2 text-sx text-primary-content">
@@ -181,6 +204,20 @@ export function OrderBook() {
           <OrderBookRow key={"buy-" + index} {...props} />
         ))}
       </div>
+    </div>
+  );
+}
+
+export function LastTradesTab() {
+  adex.clientState.currentPairTrades;
+  const lastTrades = adex.clientState.currentPairTrades.slice(0, 35);
+
+  return (
+    <div>
+      Last Trades
+      {lastTrades.map((trade) => {
+        return <p className="text-xs !m-0 !p-0">{trade.id}</p>;
+      })}
     </div>
   );
 }
