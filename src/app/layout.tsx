@@ -15,7 +15,7 @@ import { detectBrowserLanguage } from "./utils";
 import { i18nSlice } from "./state/i18nSlice";
 
 import Cookies from "js-cookie";
-import { useAppDispatch } from "hooks";
+import { useAppDispatch, useAppSelector } from "hooks";
 
 export default function RootLayout({
   children,
@@ -46,18 +46,23 @@ export default function RootLayout({
   );
 }
 
-// This subcomponent is needed to initialize browser language in a single place
+// This subcomponent is needed to initialize browser language for the whole app
 function AppBody({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const path = usePathname();
 
   // Detect browser langauge
+  const { textContent } = useAppSelector((state) => state.i18n);
+  const supportedLanguages = Object.keys(textContent);
   useEffect(() => {
     const userLanguageCookieValue = Cookies.get("userLanguage");
     if (userLanguageCookieValue) {
       dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
     } else {
-      dispatch(i18nSlice.actions.changeLanguage(detectBrowserLanguage()));
+      const browserLang = detectBrowserLanguage();
+      if (supportedLanguages.includes(browserLang)) {
+        dispatch(i18nSlice.actions.changeLanguage(browserLang));
+      }
     }
   }, [dispatch]);
 
