@@ -86,5 +86,6 @@
   "cancel_1_order": "Cancel 1 Order",
   "submitting_batch_cancel": "Submitting batch cancel",
   "failed_to_cancel_orders": "Failed to cancel orders",
-  "connect_wallet_to_batch_delete": "Connect wallet to batch delete"
+  "connect_wallet_to_batch_delete": "Connect wallet to batch delete",
+  "recent_trades": "Recent Trades"
 }
