@@ -229,7 +229,7 @@ export function OrderBookTab() {
 }
 
 function RecentTradesTab() {
-  adex.clientState.currentPairTrades;
+  const t = useTranslations();
   const lastTrades = adex.clientState.currentPairTrades.slice(0, 34);
   const { token1, token2 } = useAppSelector((state) => state.pairSelector);
   return (
@@ -238,13 +238,13 @@ function RecentTradesTab() {
         <thead className="border-b-0 text-secondary-content uppercase align-top">
           <tr className="text-xs">
             <td className="pl-4">
-              Price
+              {t("price")}
               <br />({token2.symbol})
             </td>
             <td className="text-right">
-              Amount <br />({token1.symbol})
+              {t("amount")} <br />({token1.symbol})
             </td>
-            <td className="pl-8">Time</td>
+            <td className="pl-8">{t("time")}</td>
           </tr>
         </thead>
 
