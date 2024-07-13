@@ -1,3 +1,4 @@
+/* eslint-disable-next-line no-restricted-imports */
 import * as adex from "alphadex-sdk-js";
 
 import { CSSProperties, useState } from "react";
@@ -141,10 +142,11 @@ export function OrderBook() {
         {[
           [t("order_book"), OrderBookTabOptions.ORDER_BOOK],
           [t("recent_trades"), OrderBookTabOptions.RECENT_TRADES],
-        ].map(([title, tab]) => {
+        ].map(([title, tab], indx) => {
           const isActive = tab === currentTab;
           return (
             <div
+              key={indx}
               className={`text-base p-2 ${
                 isActive
                   ? "text-dexter-green-OG border-b border-[#cafc40]"
@@ -248,18 +250,18 @@ function RecentTradesTab() {
           </tr>
         </thead>
 
-        {lastTrades.map((trade) => {
+        {lastTrades.map((trade, indx) => {
           const price = Calculator.divide(
             trade.token2Amount,
             trade.token1Amount
           );
-          const side = trade.side;
           const time = trade.timestamp.split("T").join(" ").split(":00.")[0];
           const amount = Math.round(trade.token1Amount);
           return (
             <RecentTradeRow
+              key={indx}
               price={price}
-              side={side}
+              side={trade.side}
               time={time}
               amount={amount}
             />
