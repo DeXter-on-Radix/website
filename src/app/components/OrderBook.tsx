@@ -138,7 +138,7 @@ export function OrderBook() {
 
   return (
     <div className="h-[700px]">
-      <div className="flex px-2 pt-2">
+      <div className="flex space-x-5 p-4">
         {[
           [t("order_book"), OrderBookTabOptions.ORDER_BOOK],
           [t("recent_trades"), OrderBookTabOptions.RECENT_TRADES],
@@ -182,13 +182,13 @@ export function OrderBookTab() {
   const buys = useAppSelector((state) => state.orderBook.buys);
 
   return (
-    <div className="p-2 text-sx text-primary-content">
-      <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
+    <div className="p-2 !pt-0 text-sx text-primary-content">
+      <div className="grid grid-cols-2 m-1 text-secondary-content text-sm">
         <div className="justify-self-start"></div>
         <div className="flex justify-end join">
           <span className="join-item mr-2">{t("grouping")} </span>
           <input
-            className="input-xs w-16 join-item"
+            className="input-xs w-16 join-item !bg-[#222629] !rounded"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const grouping = Number(event.target.value);
               dispatch(orderBookSlice.actions.setGrouping(grouping));
@@ -232,11 +232,12 @@ export function OrderBookTab() {
 
 function RecentTradesTab() {
   const t = useTranslations();
+  console.log(adex.clientState.currentPairTrades);
   const lastTrades = adex.clientState.currentPairTrades.slice(0, 34);
   const { token1, token2 } = useAppSelector((state) => state.pairSelector);
   return (
     <div>
-      <table className="table-auto mb-4 mt-6">
+      <table className="table-auto mb-4 !mt-2">
         <thead className="border-b-0 text-secondary-content uppercase align-top">
           <tr className="text-xs">
             <td className="pl-4">
