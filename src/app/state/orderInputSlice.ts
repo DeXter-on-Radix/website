@@ -641,7 +641,9 @@ function toDescription(quote: Quote): string {
     const fromTokenSymbol = quote.fromToken.symbol;
     quoteDescription +=
       `Sending ${fromAmount} ${fromTokenSymbol} ` +
-      `to receive ${toAmount} ${toTokenSymbol}.\n`;
+      `to receive ${toAmount} ${toTokenSymbol}.\n\n` +
+      `Average price: ${quote.avgPrice}.\n` +
+      `slippage: ${Math.round(quote.slippage * 100)}%.\n`;
   }
   if (quote.resultMessageLong) {
     quoteDescription += "\n" + quote.resultMessageLong;
