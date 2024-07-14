@@ -1,6 +1,3 @@
-/* eslint-disable-next-line no-restricted-imports */
-import * as adex from "alphadex-sdk-js";
-
 import { CSSProperties, useState } from "react";
 
 import "../styles/orderbook.css";
@@ -232,8 +229,8 @@ export function OrderBookTab() {
 
 function RecentTradesTab() {
   const t = useTranslations();
-  console.log(adex.clientState.currentPairTrades);
-  const lastTrades = adex.clientState.currentPairTrades.slice(0, 34);
+  const { recentTrades } = useAppSelector((state) => state.orderBook);
+  const lastTrades = recentTrades.slice(0, 34);
   const { token1, token2 } = useAppSelector((state) => state.pairSelector);
   return (
     <div>
