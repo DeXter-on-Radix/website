@@ -314,7 +314,17 @@ export function numberOrEmptyInput(event: string) {
 export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
   const iconUrl =
     token.symbol === "DEXTR"
-      ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+      ? // use asset from coingecko to prevent ipfs failure
+        "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+      : token.symbol === "RDK"
+      ? // fix wrong icon URL in metadata ofRDK on ledger, see https://t.me/radix_dlt/716425
+        "https://radket.shop/img/logo.svg"
+      : token.symbol === "EDG"
+      ? // use smaller version to save bandwidth
+        "coins/EDG-100x100.png"
+      : token.symbol === "HNY"
+      ? // use smaller version to save bandwidth
+        "coins/HNY-100x100.png"
       : token.iconUrl;
 
   return {

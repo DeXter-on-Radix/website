@@ -24,6 +24,7 @@ export interface OrderBookState {
   spread: number | null;
   spreadPercent: number | null;
   grouping: number | null;
+  recentTrades: adex.Trade[];
 }
 
 const initialState: OrderBookState = {
@@ -35,6 +36,7 @@ const initialState: OrderBookState = {
   spread: null,
   spreadPercent: null,
   grouping: 0,
+  recentTrades: [],
 };
 
 export const MAX_ROWS = 13;
@@ -201,6 +203,9 @@ export const orderBookSlice = createSlice({
       state.lastPrice = adex.clientState.currentPairInfo.lastPrice;
       state.bestSell = bestSell;
       state.bestBuy = bestBuy;
+    },
+    updateRecentTrades(state, action: PayloadAction<adex.Trade[]>) {
+      state.recentTrades = action.payload;
     },
   },
 });
