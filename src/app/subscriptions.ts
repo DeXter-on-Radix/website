@@ -118,6 +118,11 @@ export function initializeSubscriptions(store: AppStore) {
       store.dispatch(
         rewardSlice.actions.updatePairsList(serializedState.pairsList)
       );
+      store.dispatch(
+        orderBookSlice.actions.updateRecentTrades(
+          serializedState.currentPairTrades
+        )
+      );
     })
   );
 }
