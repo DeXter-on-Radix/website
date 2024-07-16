@@ -10,6 +10,7 @@ import { DexterToaster } from "./components/DexterToaster";
 import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -34,6 +35,19 @@ export default function RootLayout({
     <html lang="en" data-theme="dark" className="scrollbar-none">
       <head>
         <title>DeXter</title>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-EF9LV5RBBE"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-EF9LV5RBBE');
+          `}
+        </Script>
       </head>
       <Provider store={store}>
         <body>
