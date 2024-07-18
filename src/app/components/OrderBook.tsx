@@ -1,9 +1,10 @@
-import { CSSProperties } from "react";
+import { CSSProperties, useState } from "react";
 
 import "../styles/orderbook.css";
 import * as utils from "../utils";
 import { OrderBookRowProps, orderBookSlice } from "../state/orderBookSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
+import { Calculator } from "services/Calculator";
 
 // For all intents, we can round all numbers to 8 decimals for Dexter.
 // Alphadex will not accept any numbers with more than 8 decimals
@@ -123,7 +124,49 @@ function CurrentPriceRow() {
   }
 }
 
+enum OrderBookTabOptions {
+  ORDER_BOOK = "ORDER_BOOK",
+  RECENT_TRADES = "RECENT_TRADES",
+}
+
 export function OrderBook() {
+  const t = useTranslations();
+  const [currentTab, setCurrentTab] = useState(OrderBookTabOptions.ORDER_BOOK);
+
+  return (
+    <div className="h-[700px]">
+      <div className="flex space-x-5 p-4">
+        {[
+          [t("order_book"), OrderBookTabOptions.ORDER_BOOK],
+          [t("recent_trades"), OrderBookTabOptions.RECENT_TRADES],
+        ].map(([title, tab], indx) => {
+          const isActive = tab === currentTab;
+          return (
+            <div
+              key={indx}
+              className={`text-base p-2 ${
+                isActive
+                  ? "text-dexter-green-OG border-b border-[#cafc40]"
+                  : "text-[#768089]"
+              } cursor-pointer`}
+              onClick={() => setCurrentTab(tab as OrderBookTabOptions)}
+            >
+              {title}
+            </div>
+          );
+        })}
+      </div>
+      <div>
+        {currentTab === OrderBookTabOptions.ORDER_BOOK && <OrderBookTab />}
+        {currentTab === OrderBookTabOptions.RECENT_TRADES && (
+          <RecentTradesTab />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function OrderBookTab() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const token1Symbol = useAppSelector(
@@ -134,16 +177,15 @@ export function OrderBook() {
   );
   const sells = useAppSelector((state) => state.orderBook.sells);
   const buys = useAppSelector((state) => state.orderBook.buys);
-  //const grouping = useAppSelector((state) => state.orderBook.grouping);
 
   return (
-    <div className="p-2 text-sx text-primary-content">
-      <div className="grid grid-cols-2 m-1 text-secondary-content font-bold text-sm uppercase">
-        <div className="justify-self-start">{t("order_book")}</div>
+    <div className="p-2 !pt-0 text-sx text-primary-content">
+      <div className="grid grid-cols-2 m-1 text-secondary-content text-sm">
+        <div className="justify-self-start"></div>
         <div className="flex justify-end join">
           <span className="join-item mr-2">{t("grouping")} </span>
           <input
-            className="input-xs w-16 join-item"
+            className="input-xs w-16 join-item !bg-[#222629] !rounded"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const grouping = Number(event.target.value);
               dispatch(orderBookSlice.actions.setGrouping(grouping));
@@ -182,5 +224,74 @@ export function OrderBook() {
         ))}
       </div>
     </div>
+  );
+}
+
+function RecentTradesTab() {
+  const t = useTranslations();
+  const { recentTrades } = useAppSelector((state) => state.orderBook);
+  const lastTrades = recentTrades.slice(0, 34);
+  const { token1, token2 } = useAppSelector((state) => state.pairSelector);
+  return (
+    <div>
+      <table className="table-auto mb-4 !mt-2">
+        <thead className="border-b-0 text-secondary-content uppercase align-top">
+          <tr className="text-xs">
+            <td className="pl-4">
+              {t("price")}
+              <br />({token2.symbol})
+            </td>
+            <td className="text-right">
+              {t("amount")} <br />({token1.symbol})
+            </td>
+            <td className="pl-8">{t("time")}</td>
+          </tr>
+        </thead>
+
+        {lastTrades.map((trade, indx) => {
+          const price = Calculator.divide(
+            trade.token2Amount,
+            trade.token1Amount
+          );
+          const time = trade.timestamp.split("T").join(" ").split(":00.")[0];
+          const amount = Math.round(trade.token1Amount);
+          return (
+            <RecentTradeRow
+              key={indx}
+              price={price}
+              side={trade.side}
+              time={time}
+              amount={amount}
+            />
+          );
+        })}
+      </table>
+    </div>
+  );
+}
+
+function RecentTradeRow({
+  price,
+  side,
+  time,
+  amount,
+}: {
+  price: number;
+  side: string;
+  time: string;
+  amount: number;
+}) {
+  return (
+    <tr className="text-xs">
+      <td
+        className={`${
+          side === "BUY" ? "text-dexter-green" : "text-dexter-red"
+        } pl-4`}
+      >
+        {price.toFixed(4)}
+      </td>
+      <td className="text-right">{amount.toLocaleString("en")}</td>
+      <td className="pl-8">{time}</td>
+    </tr>
   );
 }
