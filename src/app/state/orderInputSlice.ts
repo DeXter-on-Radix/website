@@ -13,6 +13,7 @@ import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import {
   getPrecision,
+  toFixedRoundDown,
   truncateWithPrecision,
   updateIconIfNeeded,
 } from "../utils";
@@ -668,13 +669,24 @@ async function createTx(state: RootState, rdt: RDT) {
   }[state.orderInput.specifiedToken]();
   const isMarketOrder = state.orderInput.type === OrderType.MARKET;
   const price = isMarketOrder ? -1 : state.orderInput.price;
+  let targetTokenAmount = targetToken.amount;
+  // Correct rounding precision error for xUSDC, which has
+  // -> 6 decimals on Radix dashboard
+  // -> 5 decimals on Alphadex.
+  // reference: https://github.com/DeXter-on-Radix/website/issues/486
+  if (
+    targetToken.address ===
+    "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf"
+  ) {
+    targetTokenAmount = toFixedRoundDown(targetTokenAmount, 5);
+  }
   // Adex creates the transaction manifest
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
     toAdexOrderSide(state.orderInput.side, state.orderInput.specifiedToken),
     targetToken.address,
-    targetToken.amount,
+    targetTokenAmount,
     price,
     getSlippage(state.orderInput.type),
     PLATFORM_BADGE_ID,
