@@ -8,7 +8,12 @@ import {
   truncateWithPrecision,
 } from "../utils";
 
-import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useTranslations,
+  useHydrationErrorFix,
+} from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
@@ -367,6 +372,7 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { side, type, token1, quote, quoteDescription, quoteError } =
@@ -384,15 +390,8 @@ function SubmitButton() {
         .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
 
-  // Fix hydration error:
-  // https://nextjs.org/docs/messages/react-hydration-error#solution-1-using-useeffect-to-run-on-the-client-only
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  if (!isClient) {
-    return <></>;
-  }
+  // Fix HydrationError
+  if (!isClient) return <></>;
 
   return (
     <button
