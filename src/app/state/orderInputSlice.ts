@@ -674,11 +674,12 @@ async function createTx(state: RootState, rdt: RDT) {
   // -> 6 decimals on Radix dashboard
   // -> 5 decimals on Alphadex.
   // reference: https://github.com/DeXter-on-Radix/website/issues/486
-  if (
-    targetToken.address ===
-    "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf"
-  ) {
-    targetTokenAmount = toFixedRoundDown(targetTokenAmount, 5);
+  // Also applies rounding to all coins which have less than 8 decimals
+  if (targetToken.decimals && targetToken.decimals < 8) {
+    targetTokenAmount = toFixedRoundDown(
+      targetTokenAmount,
+      targetToken.decimals
+    );
   }
   // Adex creates the transaction manifest
   const createOrderResponse = await adex.createExchangeOrderTx(
