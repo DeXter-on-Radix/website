@@ -674,8 +674,8 @@ async function createTx(state: RootState, rdt: RDT) {
   // -> 6 decimals on Radix dashboard
   // -> 5 decimals on Alphadex.
   // reference: https://github.com/DeXter-on-Radix/website/issues/486
-  // Also applies rounding to all coins which have less than 8 decimals
-  if (targetToken.decimals && targetToken.decimals < 8) {
+  // Also applies rounding to all coins which have less than 18 decimals
+  if (targetToken.decimals && targetToken.decimals < 18) {
     targetTokenAmount = toFixedRoundDown(
       targetTokenAmount,
       targetToken.decimals
