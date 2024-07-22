@@ -670,12 +670,10 @@ async function createTx(state: RootState, rdt: RDT) {
   const isMarketOrder = state.orderInput.type === OrderType.MARKET;
   const price = isMarketOrder ? -1 : state.orderInput.price;
   let targetTokenAmount = targetToken.amount;
-  // Correct rounding precision error for xUSDC, which has
-  // -> 6 decimals on Radix dashboard
-  // -> 5 decimals on Alphadex.
-  // reference: https://github.com/DeXter-on-Radix/website/issues/486
-  // Also applies rounding to all coins which have less than 18 decimals
-  if (targetToken.decimals && targetToken.decimals < 18) {
+  // Correct potential rounding precision errors
+  // One example where this fix is needed is xUSDC:
+  // https://github.com/DeXter-on-Radix/website/issues/486
+  if (targetToken.decimals) {
     targetTokenAmount = toFixedRoundDown(
       targetTokenAmount,
       targetToken.decimals
