@@ -73,7 +73,7 @@ export function initializeSubscriptions(store: AppStore) {
     rdtInstance.gatewayApi.clientConfig
   );
   rdtInstance.walletApi.setRequestData(
-    DataRequestBuilder.accounts().exactly(1)
+    DataRequestBuilder.accounts().atLeast(1)
   );
   subs.push(
     rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
