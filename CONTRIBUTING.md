@@ -181,32 +181,34 @@ To add a new banner, follow these steps:
 
 ## Hydration Error Handling
 
-Problem: Since the radix connect button supports caching logged in users, components that depend on the users logg in status will have different initial renders based on whether the user is logged in or not. This is a disallowed react/nextJS pattern and throws a hydration error.
+**Problem**
 
-### General Rule: if the component's initial render depends on the users login status, use the following fix
+State variables get cached, leading to unpredictable initial renders of components (e.g., initialization based on cookies). This violates React/NextJS patterns and triggers hydration errors.
+
+**Handling Hydration Errors**
+
+1. **No Error**: If no hydration error occurs, no action is needed.
+2. **Error Detected**: Identify the component causing the error.
+3. **Fixing the Component**: Add the following code to the problematic component:
 
 ```tsx
-// Import custom hydration error hook
 import { useHydrationErrorFix } from "hooks";
 
-function SubmitButton() {
-  // SubmitButton's initial render depends on connection status! Hydratino Fix is required!
-  const { isConnected } = useAppSelector((state) => state.radix);
-
-  // Hydration fix goes at the top
+function ComponentWithHydrationError() {
   const isClient = useHydrationErrorFix();
 
   // Additional code like useEffect or other hooks go here!
   // ...
 
-  // Ensures initial rendering is always empty and fixes hydration error.
-  // Add this line always before the return!
   if (!isClient) return <></>;
 
   return (
-    <button>
-      <p>{isConnectd ? "submit" : "please connect wallet to submit"}</p>
-    </button>
+    /* Your component JSX */
   );
 }
 ```
+
+**Common Causes of Hydration Errors**
+
+1. **Radix Connect Button**: Caches logged-in users. Components relying on login status will render differently based on the user's login state.
+2. **Language Detection**: Cached in cookies. Components will render differently for users from various regions based on their browser-detected language.
