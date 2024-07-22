@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
+import { useAppDispatch, useAppSelector } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
@@ -235,10 +235,6 @@ function LanguageSelection() {
     Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
     dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
   };
-
-  // Fix hydration error for language selection
-  const isClient = useHydrationErrorFix();
-  if (!isClient) return <></>;
 
   return (
     <div className="mr-4 flex">
