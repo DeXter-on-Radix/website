@@ -12,7 +12,10 @@ import { radixSlice } from "../state/radixSlice";
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
-import { fetchAccountHistory } from "../state/accountHistorySlice";
+import {
+  fetchAccountHistory,
+  accountHistorySlice,
+} from "../state/accountHistorySlice";
 import { pairSelectorSlice } from "../state/pairSelectorSlice";
 // eslint-disable-next-line no-restricted-imports
 import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
