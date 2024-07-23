@@ -31,6 +31,7 @@ export interface AccountHistoryState {
   selectedTable: Tables;
   tables: Tables[];
   selectedOrdersToCancel: Record<string, Order>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
+  hideOtherPairs: boolean;
 }
 
 // INITIAL STATE
@@ -40,6 +41,7 @@ const initialState: AccountHistoryState = {
   selectedTable: Tables.OPEN_ORDERS,
   tables: Object.values(Tables),
   selectedOrdersToCancel: {},
+  hideOtherPairs: true,
 };
 
 // ASYNC THUNKS
@@ -170,6 +172,9 @@ export const accountHistorySlice = createSlice({
     resetSelectedOrdersToCancel: (state) => {
       state.selectedOrdersToCancel = {};
     },
+    setHideOtherPairs: (state, action: PayloadAction<boolean>) => {
+      state.hideOtherPairs = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
@@ -213,3 +218,4 @@ export const selectOrderHistory = createSelector(
 );
 
 export const selectTables = (state: RootState) => state.accountHistory.tables;
+export const { setHideOtherPairs } = accountHistorySlice.actions;

@@ -28,6 +28,8 @@ import {
   calculateTotalFees,
 } from "../utils";
 
+import { setHideOtherPairs } from "../state/accountHistorySlice";
+
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
 ): Record<string, string> {
@@ -198,6 +200,19 @@ function DisplayTable() {
   );
   const openOrders = useAppSelector(selectOpenOrders);
   const orderHistory = useAppSelector(selectOrderHistory);
+  const dispatch = useAppDispatch();
+  const hideOtherPairs = useAppSelector(
+    (state) => state.accountHistory.hideOtherPairs
+  );
+  const selectedPair = useAppSelector((state) => state.pairSelector.name);
+
+  // console.log("orderHistory:", orderHistory);
+  // console.log("hideOtherPairs:", hideOtherPairs);
+
+  const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // console.log("Toggle Change:", e.target.checked);
+    dispatch(setHideOtherPairs(e.target.checked));
+  };
 
   const tableToShow = useMemo(() => {
     switch (selectedTable) {
@@ -208,9 +223,12 @@ function DisplayTable() {
         };
 
       case Tables.ORDER_HISTORY:
+        const filteredRows = hideOtherPairs
+          ? orderHistory
+          : orderHistory.filter((order) => order.pairAddress === selectedPair);
         return {
           headers: headers[Tables.ORDER_HISTORY],
-          rows: <OrderHistoryRows data={orderHistory} />,
+          rows: <OrderHistoryRows data={filteredRows} />,
         };
 
       default:
@@ -219,10 +237,37 @@ function DisplayTable() {
           rows: <></>,
         };
     }
-  }, [openOrders, orderHistory, selectedTable]);
+  }, [openOrders, orderHistory, selectedTable, hideOtherPairs, selectedPair]);
 
   return (
     <div className="overflow-x-auto scrollbar-none">
+      <div className="flex flex-col md:items-end xs:items-start">
+        <label className="label cursor-pointer">
+          <input
+            type="checkbox"
+            className="peer hidden"
+            checked={hideOtherPairs}
+            role="switch"
+            onChange={handleToggleChange}
+          />
+          <span
+            className={`relative inline-flex items-center w-8 h-4 rounded-lg transition-colors duration-300 ease-in-out xs:ml-4 ${
+              hideOtherPairs ? "bg-content-dark" : "border border-white"
+            }`}
+          >
+            <span
+              className={`absolute left-0.5 top-0.3 w-3 h-3 rounded-lg shadow-md transform transition-transform duration-300 ease-in-out  ${
+                hideOtherPairs
+                  ? "translate-x-4 bg-dexter-green"
+                  : "translate-x-0 bg-gray-200"
+              }`}
+            />
+          </span>
+          <span className="label-text text-xs md:pl-0 mr-16 xs:ml-2">
+            Hide other pairs
+          </span>
+        </label>
+      </div>
       <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
           <tr className="h-12">
