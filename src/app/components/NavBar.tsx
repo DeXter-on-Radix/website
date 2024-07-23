@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
@@ -70,10 +70,23 @@ export function Navbar() {
           </HideOnSmallScreens>
           {/* ensure radix connect button is only initialized once */}
           <radix-connect-button></radix-connect-button>
+          <WalletSelector />
         </div>
         <HamburgerMenu />
       </div>
     </nav>
+  );
+}
+
+function WalletSelector() {
+  const { isConnected, walletData } = useAppSelector((state) => state.radix);
+  if (!isConnected) {
+    return <></>;
+  }
+  return (
+    <div className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 ml-2 rounded">
+      <img src="/wallet.svg" />
+    </div>
   );
 }
 
