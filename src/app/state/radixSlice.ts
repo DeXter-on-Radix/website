@@ -8,7 +8,7 @@ export type WalletData = WalletDataState;
 export interface RadixState {
   walletData: WalletData;
   isConnected: boolean;
-  selectedAccount: string;
+  selectedAddress: string;
 }
 
 const initialState: RadixState = {
@@ -18,7 +18,7 @@ const initialState: RadixState = {
     proofs: [],
   },
   isConnected: false,
-  selectedAccount: "",
+  selectedAddress: "",
 };
 
 export const radixSlice = createSlice({
@@ -30,13 +30,13 @@ export const radixSlice = createSlice({
     setWalletData: (state: RadixState, action: PayloadAction<WalletData>) => {
       state.isConnected = action.payload.accounts.length > 0;
       state.walletData = action.payload;
-      state.selectedAccount =
+      state.selectedAddress =
         action.payload.accounts.length > 0
           ? action.payload.accounts[0].address
           : "";
     },
-    selectAccount: (state: RadixState, action: PayloadAction<string>) => {
-      state.selectedAccount = action.payload;
+    selectAddress: (state: RadixState, action: PayloadAction<string>) => {
+      state.selectedAddress = action.payload;
     },
   },
 });
