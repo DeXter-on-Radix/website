@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
+import { useAppDispatch, useAppSelector } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
@@ -12,8 +12,9 @@ import { radixSlice } from "../state/radixSlice";
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
-import { accountHistorySlice } from "state/accountHistorySlice";
-import { pairSelectorSlice } from "state/pairSelectorSlice";
+import { fetchAccountHistory } from "../state/accountHistorySlice";
+import { pairSelectorSlice } from "../state/pairSelectorSlice";
+import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
 
 interface NavbarItemProps {
   title: string;
@@ -82,7 +83,7 @@ export function Navbar() {
 function WalletSelector() {
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  const { isConnected, walletData, selectedAddress } = useAppSelector(
+  const { isConnected, walletData, selectedAccount } = useAppSelector(
     (state) => state.radix
   );
 
@@ -99,17 +100,18 @@ function WalletSelector() {
       {isOpen && (
         <div className="absolute top-[40px] right-0 w-[350px] max-w-[80vw] rounded bg-slate-950 py-4">
           {walletData.accounts.map((account) => {
-            const selectAddress = (address: string) => {
-              dispatch(radixSlice.actions.selectAddress(address));
+            const selectAccount = (account: WalletDataStateAccount) => {
+              dispatch(radixSlice.actions.selectAccount(account));
+              dispatch(fetchAccountHistory());
             };
             return (
               <div
                 className="hover:bg-slate-700"
-                onClick={() => selectAddress(account.address)}
+                onClick={() => selectAccount(account)}
               >
                 <div className="truncate text-base font-bold px-4 pt-2">
                   {account.label}
-                  {account.address === selectedAddress ? (
+                  {account.address === selectedAccount.address ? (
                     <span className="pl-2 bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base">
                       (CURRENT)
                     </span>
