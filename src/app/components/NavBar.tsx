@@ -14,6 +14,7 @@ import { usePathname } from "next/navigation";
 import { isMobile } from "../utils";
 import { fetchAccountHistory } from "../state/accountHistorySlice";
 import { pairSelectorSlice } from "../state/pairSelectorSlice";
+// eslint-disable-next-line no-restricted-imports
 import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
 
 interface NavbarItemProps {
@@ -96,10 +97,10 @@ function WalletSelector() {
       className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 ml-2 rounded relative "
       onClick={() => setIsOpen(!isOpen)}
     >
-      <img src="/wallet.svg" />
+      <img src="/wallet.svg" alt="wallet icon" />
       {isOpen && (
         <div className="absolute top-[40px] right-0 w-[350px] max-w-[80vw] rounded bg-slate-950 py-4">
-          {walletData.accounts.map((account) => {
+          {walletData.accounts.map((account, indx) => {
             const selectAccount = (account: WalletDataStateAccount) => {
               dispatch(radixSlice.actions.selectAccount(account));
               dispatch(fetchAccountHistory());
@@ -108,6 +109,7 @@ function WalletSelector() {
               <div
                 className="hover:bg-slate-700"
                 onClick={() => selectAccount(account)}
+                key={indx}
               >
                 <div className="truncate text-base font-bold px-4 pt-2">
                   {account.label}
