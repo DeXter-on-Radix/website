@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
+import { radixSlice } from "../state/radixSlice";
 
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
@@ -79,13 +80,51 @@ export function Navbar() {
 }
 
 function WalletSelector() {
-  const { isConnected, walletData } = useAppSelector((state) => state.radix);
+  const dispatch = useAppDispatch();
+  const [isOpen, setIsOpen] = useState(false);
+  const { isConnected, walletData, selectedAddress } = useAppSelector(
+    (state) => state.radix
+  );
+
   if (!isConnected) {
     return <></>;
   }
+
   return (
-    <div className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 ml-2 rounded">
+    <div
+      className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 ml-2 rounded relative "
+      onClick={() => setIsOpen(!isOpen)}
+    >
       <img src="/wallet.svg" />
+      {isOpen && (
+        <div className="absolute top-[40px] right-0 w-[350px] max-w-[80vw] rounded bg-slate-950 py-4">
+          {walletData.accounts.map((account) => {
+            const selectAddress = (address: string) => {
+              dispatch(radixSlice.actions.selectAddress(address));
+            };
+            return (
+              <div
+                className="hover:bg-slate-700"
+                onClick={() => selectAddress(account.address)}
+              >
+                <div className="truncate text-base font-bold px-4 pt-2">
+                  {account.label}
+                  {account.address === selectedAddress ? (
+                    <span className="pl-2 bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base">
+                      (CURRENT)
+                    </span>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+                <div className="truncate text-sm font-light px-4 pb-2">
+                  {account.address}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
