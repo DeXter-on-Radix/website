@@ -2,6 +2,7 @@ import {
   displayNumber,
   formatNumericString,
   truncateWithPrecision,
+  toFixedRoundDown,
 } from "./utils";
 
 // the separators are set to "." and " " for testing purposes
@@ -271,5 +272,58 @@ describe("formatNumericString", () => {
   it("enforces scale limits correctly without rounding", () => {
     expect(formatNumericString("1234.56789", ".", 3)).toBe("1234.567");
     expect(formatNumericString("1234,5678901234", ",", 1)).toBe("1234,5");
+  });
+});
+
+describe("toFixedRoundDown", () => {
+  it("should handle numbers without decimal part", () => {
+    const result = toFixedRoundDown(1234567890, 2);
+    expect(result).toBe(1234567890);
+  });
+
+  it("should handle zero decimal places", () => {
+    const result = toFixedRoundDown(123.456, 0);
+    expect(result).toBe(123);
+  });
+
+  it("should truncate correctly without rounding", () => {
+    const result = toFixedRoundDown(123.456789, 2);
+    expect(result).toBe(123.45);
+  });
+
+  it("should handle numbers with fewer decimal places than required", () => {
+    const result = toFixedRoundDown(123.4, 2);
+    expect(result).toBe(123.4);
+  });
+
+  it("should handle numbers with exactly the required decimal places", () => {
+    const result = toFixedRoundDown(123.45, 2);
+    expect(result).toBe(123.45);
+  });
+
+  it("should handle negative numbers correctly", () => {
+    const result = toFixedRoundDown(-123.456789, 2);
+    expect(result).toBe(-123.45);
+  });
+
+  it("should handle very small numbers correctly", () => {
+    const result = toFixedRoundDown(0.000127456, 5);
+    expect(result).toBe(0.00012);
+  });
+
+  it("should handle whole numbers", () => {
+    const result = toFixedRoundDown(123, 2);
+    expect(result).toBe(123);
+  });
+
+  it("should handle zero correctly", () => {
+    const result = toFixedRoundDown(0, 2);
+    expect(result).toBe(0);
+  });
+
+  it("should throw for negative precision", () => {
+    expect(() => toFixedRoundDown(0, -2)).toThrow(
+      "Precision cannot be negative"
+    );
   });
 });
