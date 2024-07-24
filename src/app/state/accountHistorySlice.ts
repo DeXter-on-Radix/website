@@ -33,6 +33,8 @@ export interface AccountHistoryState {
   selectedOrdersToCancel: Record<string, Order>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
   hideOtherPairs: boolean;
   orderHistoryAllPairs: adex.OrderReceipt[];
+  error: string | null;
+  loading: boolean;
 }
 
 // INITIAL STATE
@@ -44,6 +46,8 @@ const initialState: AccountHistoryState = {
   selectedOrdersToCancel: {},
   hideOtherPairs: true,
   orderHistoryAllPairs: [],
+  error: null,
+  loading: false,
 };
 
 // ASYNC THUNKS
@@ -70,7 +74,7 @@ export const fetchAccountHistory = createAsyncThunk<
 });
 
 export const fetchAccountHistoryAllPairs = createAsyncThunk<
-  SdkResult,
+  adex.OrderReceipt[],
   undefined,
   { state: RootState }
 >("accountHistory/fetchAccountHistoryAllPairs", async (_, thunkAPI) => {
@@ -80,38 +84,26 @@ export const fetchAccountHistoryAllPairs = createAsyncThunk<
   );
   const account = state.radix?.walletData.accounts[0]?.address || "";
 
-  try {
-    const orderHistoryPromises = pairAddresses.map((pairAddress) =>
-      adex.getAccountOrders(account, pairAddress, 0)
-    );
+  const orderHistoryPromises = pairAddresses.map((pairAddress) =>
+    adex.getAccountOrders(account, pairAddress, 0)
+  );
 
-    const apiResponses = await Promise.all(orderHistoryPromises);
-    const allOrders: adex.OrderReceipt[] = [];
+  const apiResponses = await Promise.all(orderHistoryPromises);
+  const allOrders: adex.OrderReceipt[] = [];
 
-    apiResponses.forEach((apiResponse) => {
-      const plainApiResponse: SdkResult = JSON.parse(
-        JSON.stringify(apiResponse)
+  apiResponses.forEach((apiResponse) => {
+    const plainApiResponse: SdkResult = JSON.parse(JSON.stringify(apiResponse));
+
+    if (plainApiResponse.status === "SUCCESS") {
+      allOrders.push(...plainApiResponse.data.orders);
+    } else {
+      console.error(
+        `Error fetching orders for pair: ${plainApiResponse.message}`
       );
+    }
+  });
 
-      if (plainApiResponse.status === "SUCCESS") {
-        allOrders.push(...plainApiResponse.data.orders);
-      } else {
-        console.error(
-          `Error fetching orders for pair: ${plainApiResponse.message}`
-        );
-      }
-    });
-
-    return {
-      status: "SUCCESS",
-      data: allOrders,
-    } as SdkResult;
-  } catch (error) {
-    return {
-      status: "ERROR",
-      message: "Failed to fetch account history",
-    } as SdkResult;
-  }
+  return allOrders;
 });
 
 export const batchCancel = createAsyncThunk<
@@ -229,21 +221,20 @@ export const accountHistorySlice = createSlice({
       .addCase(fetchAccountHistory.fulfilled, (state, action) => {
         state.orderHistory = action.payload.data.orders;
       })
+      .addCase(fetchAccountHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAccountHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to fetch account history";
+      })
       .addCase(batchCancel.fulfilled, (state) => {
         state.selectedOrdersToCancel = {};
       })
-      .addCase(
-        fetchAccountHistoryAllPairs.fulfilled,
-        (state, action: PayloadAction<SdkResult>) => {
-          if (action.payload.status === "SUCCESS") {
-            state.orderHistoryAllPairs = action.payload.data;
-          } else {
-            console.error(
-              `Failed to fetch account history: ${action.payload.message}`
-            );
-          }
-        }
-      );
+      .addCase(fetchAccountHistoryAllPairs.fulfilled, (state, action) => {
+        state.orderHistoryAllPairs = action.payload;
+      });
   },
 });
 
