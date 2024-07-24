@@ -232,8 +232,8 @@ function LanguageSelection() {
   let { language } = useAppSelector((state) => state.i18n);
 
   const handleLanguageChange = (lang: string) => {
+    Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
     dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
-    Cookies.set("userLanguage", lang, { expires: 365, partitioned: true }); // Set a cookie for 1 year
   };
 
   return (

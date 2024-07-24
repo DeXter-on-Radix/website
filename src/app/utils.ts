@@ -487,3 +487,22 @@ export function setQueryParam(key: string, value: string) {
   url.searchParams.set(key, value);
   history.pushState({}, "", url);
 }
+
+// Mimicks function .toFixed(n) but always rounds down and returns a number (not a string)
+export function toFixedRoundDown(number: number, decimals: number): number {
+  if (decimals < 0) {
+    throw new Error("Precision cannot be negative");
+  }
+  let numberParts = number.toString().split(".");
+  // If there's no decimal part or decimals is zero, just return the integer part
+  if (numberParts.length === 1 || decimals === 0) {
+    return Number(numberParts[0]);
+  }
+  let integerPart = numberParts[0];
+  let decimalPart = numberParts[1].substring(0, decimals);
+  // Ensure the decimal part has enough digits
+  if (decimalPart.length < decimals) {
+    decimalPart = decimalPart + "0".repeat(decimals - decimalPart.length);
+  }
+  return Number(integerPart + "." + decimalPart);
+}
