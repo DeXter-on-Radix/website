@@ -32,6 +32,7 @@ export interface AccountHistoryState {
   tables: Tables[];
   selectedOrdersToCancel: Record<string, Order>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
   hideOtherPairs: boolean;
+  orderHistoryAllPairs: adex.OrderReceipt[];
 }
 
 // INITIAL STATE
@@ -42,6 +43,7 @@ const initialState: AccountHistoryState = {
   tables: Object.values(Tables),
   selectedOrdersToCancel: {},
   hideOtherPairs: true,
+  orderHistoryAllPairs: [],
 };
 
 // ASYNC THUNKS
@@ -64,6 +66,51 @@ export const fetchAccountHistory = createAsyncThunk<
     return plainApiResponse;
   } else {
     throw new Error(plainApiResponse.message);
+  }
+});
+
+export const fetchAccountHistoryAllPairs = createAsyncThunk<
+  SdkResult,
+  undefined,
+  { state: RootState }
+>("accountHistory/fetchAccountHistoryAllPairs", async (_, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const pairAddresses = state.pairSelector.pairsList.map(
+    (pairInfo) => pairInfo.address
+  );
+  const account = state.radix?.walletData.accounts[0]?.address || "";
+
+  try {
+    const orderHistoryPromises = pairAddresses.map((pairAddress) =>
+      adex.getAccountOrders(account, pairAddress, 0)
+    );
+
+    const apiResponses = await Promise.all(orderHistoryPromises);
+    const allOrders: adex.OrderReceipt[] = [];
+
+    apiResponses.forEach((apiResponse) => {
+      const plainApiResponse: SdkResult = JSON.parse(
+        JSON.stringify(apiResponse)
+      );
+
+      if (plainApiResponse.status === "SUCCESS") {
+        allOrders.push(...plainApiResponse.data.orders);
+      } else {
+        console.error(
+          `Error fetching orders for pair: ${plainApiResponse.message}`
+        );
+      }
+    });
+
+    return {
+      status: "SUCCESS",
+      data: allOrders,
+    } as SdkResult;
+  } catch (error) {
+    return {
+      status: "ERROR",
+      message: "Failed to fetch account history",
+    } as SdkResult;
   }
 });
 
@@ -178,12 +225,25 @@ export const accountHistorySlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(fetchAccountHistory.fulfilled, (state, action) => {
-      state.orderHistory = action.payload.data.orders;
-    });
-    builder.addCase(batchCancel.fulfilled, (state) => {
-      state.selectedOrdersToCancel = {};
-    });
+    builder
+      .addCase(fetchAccountHistory.fulfilled, (state, action) => {
+        state.orderHistory = action.payload.data.orders;
+      })
+      .addCase(batchCancel.fulfilled, (state) => {
+        state.selectedOrdersToCancel = {};
+      })
+      .addCase(
+        fetchAccountHistoryAllPairs.fulfilled,
+        (state, action: PayloadAction<SdkResult>) => {
+          if (action.payload.status === "SUCCESS") {
+            state.orderHistoryAllPairs = action.payload.data;
+          } else {
+            console.error(
+              `Failed to fetch account history: ${action.payload.message}`
+            );
+          }
+        }
+      );
   },
 });
 
@@ -217,5 +277,24 @@ export const selectOrderHistory = createSelector(
   (orderHistory) => orderHistory.filter((order) => order.status !== "PENDING")
 );
 
+export const selectCurrentPairAddress = (state: RootState) =>
+  state.pairSelector.address;
+
+export const selectCombinedOrderHistory = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (state: RootState) => state.accountHistory.orderHistoryAllPairs,
+  (state: RootState) => state.accountHistory.hideOtherPairs,
+  (state: RootState) => selectCurrentPairAddress(state),
+  (orderHistory, orderHistoryAllPairs, hideOtherPairs) => {
+    if (hideOtherPairs) {
+      return orderHistory;
+    } else {
+      return [...orderHistoryAllPairs];
+    }
+  }
+);
+
 export const selectTables = (state: RootState) => state.accountHistory.tables;
+
 export const { setHideOtherPairs } = accountHistorySlice.actions;
+export const { actions, reducer } = accountHistorySlice;

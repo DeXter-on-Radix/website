@@ -28,7 +28,11 @@ import {
   calculateTotalFees,
 } from "../utils";
 
-import { setHideOtherPairs } from "../state/accountHistorySlice";
+import {
+  setHideOtherPairs,
+  selectCombinedOrderHistory,
+  fetchAccountHistoryAllPairs,
+} from "../state/accountHistorySlice";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -204,13 +208,26 @@ function DisplayTable() {
   const hideOtherPairs = useAppSelector(
     (state) => state.accountHistory.hideOtherPairs
   );
-  const selectedPair = useAppSelector((state) => state.pairSelector.name);
+  const combinedOrderHistory = useAppSelector(selectCombinedOrderHistory);
 
-  // console.log("orderHistory:", orderHistory);
-  // console.log("hideOtherPairs:", hideOtherPairs);
+  useEffect(() => {
+    const showAllPairs = !hideOtherPairs;
+    if (showAllPairs) {
+      dispatch(fetchAccountHistoryAllPairs());
+    }
+
+    const intervalId = setInterval(() => {
+      if (showAllPairs) {
+        dispatch(fetchAccountHistoryAllPairs());
+      }
+    }, 120000); // Dispatch every 2 mins (120 seconds)
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [dispatch, hideOtherPairs]);
+
+  // console.log("combinedOrderHistory:", combinedOrderHistory);
 
   const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log("Toggle Change:", e.target.checked);
     dispatch(setHideOtherPairs(e.target.checked));
   };
 
@@ -225,7 +242,7 @@ function DisplayTable() {
       case Tables.ORDER_HISTORY:
         const filteredRows = hideOtherPairs
           ? orderHistory
-          : orderHistory.filter((order) => order.pairAddress === selectedPair);
+          : combinedOrderHistory;
         return {
           headers: headers[Tables.ORDER_HISTORY],
           rows: <OrderHistoryRows data={filteredRows} />,
@@ -237,7 +254,13 @@ function DisplayTable() {
           rows: <></>,
         };
     }
-  }, [openOrders, orderHistory, selectedTable, hideOtherPairs, selectedPair]);
+  }, [
+    openOrders,
+    orderHistory,
+    selectedTable,
+    hideOtherPairs,
+    combinedOrderHistory,
+  ]);
 
   return (
     <div className="overflow-x-auto scrollbar-none">
