@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "hooks";
+import { useTranslations, useHydrationErrorFix } from "hooks";
 
 enum Device {
   MOBILE = "MOBILE",
@@ -68,6 +68,9 @@ export default function Landing() {
 
 function HeroSection() {
   const t = useTranslations();
+  const isClient = useHydrationErrorFix();
+
+  if (!isClient) return <></>;
   return (
     <div
       className={
@@ -223,6 +226,8 @@ function TopicSection({
   buttonText,
   reversed,
 }: TopicSectionProps): JSX.Element {
+  const isClient = useHydrationErrorFix();
+  if (!isClient) return <></>;
   return (
     <div
       className={`${backgroundColor} py-20 max-[820px]:py-10 z-[100] relative`}
