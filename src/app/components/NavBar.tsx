@@ -288,7 +288,7 @@ function LanguageSelection() {
   const dispatch = useAppDispatch();
   const supportedLanguagesStr = useSelector(getSupportedLanguagesAsString);
   const supportedLanguages = supportedLanguagesStr.split(",");
-  let { language } = useAppSelector((state) => state.i18n);
+  const { language } = useAppSelector((state) => state.i18n);
 
   const handleLanguageChange = (lang: string) => {
     Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
