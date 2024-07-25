@@ -33,8 +33,6 @@ export interface AccountHistoryState {
   selectedOrdersToCancel: Record<string, Order>; // the key is `${orderRecieptAddress}_${nftRecieptId}`
   hideOtherPairs: boolean;
   orderHistoryAllPairs: adex.OrderReceipt[];
-  error: string | null;
-  loading: boolean;
 }
 
 // INITIAL STATE
@@ -46,8 +44,6 @@ const initialState: AccountHistoryState = {
   selectedOrdersToCancel: {},
   hideOtherPairs: true,
   orderHistoryAllPairs: [],
-  error: null,
-  loading: false,
 };
 
 // ASYNC THUNKS
@@ -221,19 +217,14 @@ export const accountHistorySlice = createSlice({
       .addCase(fetchAccountHistory.fulfilled, (state, action) => {
         state.orderHistory = action.payload.data.orders;
       })
-      .addCase(fetchAccountHistory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAccountHistory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch account history";
-      })
       .addCase(batchCancel.fulfilled, (state) => {
         state.selectedOrdersToCancel = {};
       })
       .addCase(fetchAccountHistoryAllPairs.fulfilled, (state, action) => {
         state.orderHistoryAllPairs = action.payload;
+      })
+      .addCase(fetchAccountHistoryAllPairs.rejected, (state, action) => {
+        console.error("Failed to fetch account history:", action.error.message);
       });
   },
 });
