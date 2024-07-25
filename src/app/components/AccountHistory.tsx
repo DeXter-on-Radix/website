@@ -27,6 +27,7 @@ import {
   calculateAvgFilled,
   calculateTotalFees,
 } from "../utils";
+import ExportCsvButton from "./ExportCsvButton";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -239,6 +240,11 @@ function DisplayTable() {
         </thead>
         <tbody>{tableToShow.rows}</tbody>
       </table>
+      {selectedTable === Tables.ORDER_HISTORY && (
+        <div className="flex m-2">
+          <ExportCsvButton />
+        </div>
+      )}
     </div>
   );
 }
