@@ -55,13 +55,6 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // HNY liquidity incentive program
-          {
-            imageUrl: "/promo-banners/honey-desktop.svg",
-            imageUrlMobile: "/promo-banners/honey-mobile.svg",
-            redirectUrl: "https://dexteronradix.com/trade?pair=hny-xrd",
-            redirectOpensInSameTab: true,
-          },
           // tokentrek banner
           {
             imageUrl: "/promo-banners/tokentrek-desktop.svg",
