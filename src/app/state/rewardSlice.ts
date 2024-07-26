@@ -182,11 +182,9 @@ export const fetchReciepts = createAsyncThunk<
   }
 >("rewards/fetchReciepts", async (pairsList, thunkAPI) => {
   const gatewayApiClient = getGatewayApiClientOrThrow();
-  // const walletData = rdt.walletApi.getWalletData();
   const state = thunkAPI.getState();
-  const accounts = state.radix.walletData.accounts;
-  // Todo support multiple wallets ids
-  const accountAddress = accounts[0].address;
+  const account = state.radix.selectedAccount;
+  const accountAddress = account.address;
   // get all NFTs from your wallet
   const { items } =
     await gatewayApiClient.state.innerClient.entityNonFungiblesPage({
@@ -230,18 +228,15 @@ export const fetchAccountRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAccountRewards", async (_, thunkAPI) => {
-  // const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardNFTAddress) {
     throw new Error("Missing rewardNFTAddress");
   }
-  // const walletData = rdt.walletApi.getWalletData();
-  const accounts = state.radix.walletData.accounts;
-  if (accounts.length == 0) {
-    throw new Error("No accounts connected");
+  const account = state.radix.selectedAccount;
+  if (!account) {
+    throw new Error("No account connected");
   }
-  //Todo support multiple wallets ids
-  const accountAddress = accounts[0].address;
+  const accountAddress = account.address;
   return await getAccountRewards(
     [accountAddress],
     state.rewardSlice.config.rewardNFTAddress
