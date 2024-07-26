@@ -64,7 +64,7 @@ function AppBody({ children }: { children: React.ReactNode }) {
         dispatch(i18nSlice.actions.changeLanguage(browserLang));
       }
     }
-  }, [dispatch]);
+  }, [dispatch, supportedLanguages]);
 
   return (
     <body>
