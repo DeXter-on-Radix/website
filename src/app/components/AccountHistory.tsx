@@ -27,7 +27,7 @@ import {
   calculateAvgFilled,
   calculateTotalFees,
 } from "../utils";
-import ExportCsvButton from "./ExportCsvButton";
+import Papa from "papaparse";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -238,13 +238,23 @@ function DisplayTable() {
             ))}
           </tr>
         </thead>
-        <tbody>{tableToShow.rows}</tbody>
+        <tbody>
+          {tableToShow.rows}
+          {selectedTable === Tables.ORDER_HISTORY && (
+            <tr className="!bg-transparent">
+              <td className="lg:hidden">
+                <ExportCsvButton />
+              </td>
+              {headers[Tables.ORDER_HISTORY].slice(1).map((_, index) => (
+                <td key={index}></td>
+              ))}
+              <td className="max-lg:hidden">
+                <ExportCsvButton />
+              </td>
+            </tr>
+          )}
+        </tbody>
       </table>
-      {selectedTable === Tables.ORDER_HISTORY && (
-        <div className="flex m-2">
-          <ExportCsvButton />
-        </div>
-      )}
     </div>
   );
 }
@@ -546,3 +556,58 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
     </tr>
   );
 };
+
+const ExportCsvButton = () => {
+  const { orderHistory } = useAppSelector((state) => state.accountHistory);
+
+  const handleExport = () => {
+    try {
+      const formatedOrderHistory = orderHistory.map((order) => {
+        return {
+          ...order,
+          specifiedToken: order.specifiedToken.symbol,
+          unclaimedToken: order.unclaimedToken.symbol,
+        };
+      });
+
+      // Convert orderHistory array to CSV format
+      const csv = Papa.unparse(formatedOrderHistory);
+
+      // Create a blob from the CSV data
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+      // Create a link element and trigger the download
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        const filename = `dexter-order-history-${
+          new Date().toISOString().split("T")[0]
+        }.csv`;
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      // TODO: add toast notification ?
+      console.error("Error exporting CSV:", error);
+    }
+  };
+
+  // do not display the button if orderHistory is empty
+  if (!orderHistory || orderHistory.length === 0) {
+    return null;
+  }
+
+  return (
+    <button
+      onClick={handleExport}
+      className="whitespace-nowrap text-sm font-bold hover:text-dexter-gradient-green"
+    >
+      export as csv
+    </button>
+  );
+};
+
+export default ExportCsvButton;
