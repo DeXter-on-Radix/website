@@ -174,7 +174,7 @@ export function generateBatchOrderManifest({
   const token1total = batchOrderItems
     .filter((o) => o.side === "SELL")
     .map((o) => roundTo(o.token1amount || 0, 8, RoundType.NEAREST))
-    .reduce((a, b) => a + b);
+    .reduce((a, b) => Calculator.add(a, b));
   const token2total = batchOrderItems
     .filter((o) => o.side === "BUY")
     .map((o) =>
@@ -183,7 +183,7 @@ export function generateBatchOrderManifest({
         o.price
       )
     )
-    .reduce((a, b) => a + b);
+    .reduce((a, b) => Calculator.add(a, b));
 
   const individualOrderManifests = batchOrderItems
     .map((i) => generateOrderManifest(i, userAddress))
@@ -207,6 +207,7 @@ export function generateBatchOrderManifest({
       Address("${userAddress}") 
       "deposit_batch" 
       Expression("ENTIRE_WORKTOP");`;
+  console.log(batchOrderManifest);
   return batchOrderManifest;
 }
 
