@@ -103,7 +103,7 @@ function WalletSelector() {
     >
       <img src="/wallet.svg" alt="wallet icon" />
       {isOpen && (
-        <div className="absolute top-[40px] right-0 w-[350px] max-w-[80vw] rounded bg-slate-950 py-4">
+        <div className="absolute top-[50px] right-0 w-[350px] max-w-[80vw] rounded bg-[#191b1d]">
           {walletData.accounts.map((account, indx) => {
             const selectAccount = (account: WalletDataStateAccount) => {
               dispatch(radixSlice.actions.selectAccount(account));
@@ -112,7 +112,7 @@ function WalletSelector() {
             };
             return (
               <div
-                className="hover:bg-slate-700"
+                className={"hover:bg-slate-700"}
                 onClick={() => selectAccount(account)}
                 key={indx}
               >
