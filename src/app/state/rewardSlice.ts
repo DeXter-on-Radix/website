@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import { AppDispatch, RootState } from "./store";
 import { getGatewayApiClientOrThrow, getRdtOrThrow } from "../subscriptions";
 import {
   AccountRewards,
@@ -101,6 +101,9 @@ export const rewardSlice = createSlice({
       };
       state.showSuccessUi = false;
     },
+    resetShowSuccessUi: (state) => {
+      state.showSuccessUi = false;
+    },
   },
 
   extraReducers: (builder) => {
@@ -123,6 +126,7 @@ export const rewardSlice = createSlice({
       // fetchReciepts
       .addCase(fetchReciepts.pending, (state) => {
         state.recieptIds = [];
+        state.showSuccessUi = false;
       })
       .addCase(fetchReciepts.fulfilled, (state, action) => {
         state.recieptIds = action.payload;
@@ -331,8 +335,7 @@ export const claimRewards = createAsyncThunk<
 
   let claimRewardsManifest = "";
   // create a manifest to create a proof of all accountRewardNfts in the current account
-  const walletData = rdt.walletApi.getWalletData();
-  const accountAddress = walletData?.accounts[0].address;
+  const accountAddress = thunkAPI.getState().radix.selectedAccount?.address;
   let accountNftIds = state.rewardData.accountsRewards.map(
     (accountRewards) =>
       `NonFungibleLocalId("${createAccountNftId(

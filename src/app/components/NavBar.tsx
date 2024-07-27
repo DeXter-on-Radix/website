@@ -19,6 +19,7 @@ import {
 import { pairSelectorSlice } from "../state/pairSelectorSlice";
 // eslint-disable-next-line no-restricted-imports
 import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
+import { rewardSlice } from "state/rewardSlice";
 
 interface NavbarItemProps {
   title: string;
@@ -107,6 +108,7 @@ function WalletSelector() {
             const selectAccount = (account: WalletDataStateAccount) => {
               dispatch(radixSlice.actions.selectAccount(account));
               dispatch(fetchAccountHistory());
+              dispatch(rewardSlice.actions.resetShowSuccessUi());
             };
             return (
               <div
