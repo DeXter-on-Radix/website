@@ -55,6 +55,14 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
+          // mox liquidity incentive banner
+          {
+            imageUrl: "/promo-banners/mox-desktop.png",
+            imageUrlMobile: "/promo-banners/mox-mobile.png",
+            redirectUrl: "https://dexteronradix.com/trade?pair=mox-xrd",
+            backgroundColor: "bg-[#FF5634]",
+            redirectOpensInSameTab: true,
+          },
           // tokentrek banner
           {
             imageUrl: "/promo-banners/tokentrek-desktop.svg",
