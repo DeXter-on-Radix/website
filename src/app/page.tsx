@@ -1,5 +1,6 @@
 "use client";
 
+import StatsWidget from "components/StatsWidget";
 import { useTranslations, useHydrationErrorFix } from "hooks";
 
 enum Device {
@@ -58,6 +59,7 @@ export default function Landing() {
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
+      <StatsWidget />
       <TopicSection {...tokenomicsProps} />
       <TopicSection {...tradeProps} />
       <TopicSection {...stakeProps} />
