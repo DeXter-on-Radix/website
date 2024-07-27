@@ -75,9 +75,10 @@ export const fetchAccountHistoryAllPairs = createAsyncThunk<
   { state: RootState }
 >("accountHistory/fetchAccountHistoryAllPairs", async (_, thunkAPI) => {
   const state = thunkAPI.getState();
-  const pairAddresses = state.pairSelector.pairsList.map(
-    (pairInfo) => pairInfo.address
-  );
+  const pairAddresses = state.pairSelector.pairsList
+    .map((pairInfo) => pairInfo.address)
+    .filter((pairAddress) => pairAddress !== state.pairSelector.address);
+
   const account = state.radix?.walletData.accounts[0]?.address || "";
 
   const orderHistoryPromises = pairAddresses.map((pairAddress) =>
@@ -259,20 +260,31 @@ export const selectOrderHistory = createSelector(
   (orderHistory) => orderHistory.filter((order) => order.status !== "PENDING")
 );
 
-export const selectCurrentPairAddress = (state: RootState) =>
-  state.pairSelector.address;
-
 export const selectCombinedOrderHistory = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
   (state: RootState) => state.accountHistory.orderHistoryAllPairs,
-  (state: RootState) => state.accountHistory.hideOtherPairs,
-  (state: RootState) => selectCurrentPairAddress(state),
-  (orderHistory, orderHistoryAllPairs, hideOtherPairs) => {
-    if (hideOtherPairs) {
-      return orderHistory;
-    } else {
-      return [...orderHistoryAllPairs];
-    }
+  (orderHistory, orderHistoryAllPairs) => {
+    const filteredOrderHistory = orderHistory.filter(
+      (order) => order.status !== "PENDING"
+    );
+    const filteredOrderHistoryAllPairs = orderHistoryAllPairs.filter(
+      (order) => order.status !== "PENDING"
+    );
+    return [...filteredOrderHistoryAllPairs, ...filteredOrderHistory];
+  }
+);
+
+export const selectCombinedOpenOrders = createSelector(
+  (state: RootState) => state.accountHistory.orderHistory,
+  (state: RootState) => state.accountHistory.orderHistoryAllPairs,
+  (orderHistory, orderHistoryAllPairs) => {
+    const filteredOrderHistory = orderHistory.filter(
+      (order) => order.status === "PENDING"
+    );
+    const filteredOrderHistoryAllPairs = orderHistoryAllPairs.filter(
+      (order) => order.status === "PENDING"
+    );
+    return [...filteredOrderHistoryAllPairs, ...filteredOrderHistory];
   }
 );
 

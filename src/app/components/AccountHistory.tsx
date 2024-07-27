@@ -31,7 +31,7 @@ import {
 import {
   setHideOtherPairs,
   selectCombinedOrderHistory,
-  fetchAccountHistoryAllPairs,
+  selectCombinedOpenOrders,
 } from "../state/accountHistorySlice";
 
 function createOrderReceiptAddressLookup(
@@ -209,23 +209,7 @@ function DisplayTable() {
     (state) => state.accountHistory.hideOtherPairs
   );
   const combinedOrderHistory = useAppSelector(selectCombinedOrderHistory);
-
-  useEffect(() => {
-    const showAllPairs = !hideOtherPairs;
-    if (showAllPairs) {
-      dispatch(fetchAccountHistoryAllPairs());
-    }
-
-    const intervalId = setInterval(() => {
-      if (showAllPairs) {
-        dispatch(fetchAccountHistoryAllPairs());
-      }
-    }, 120000); // Dispatch every 2 mins (120 seconds)
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, [dispatch, hideOtherPairs]);
-
-  // console.log("combinedOrderHistory:", combinedOrderHistory);
+  const combinedOpenOrders = useAppSelector(selectCombinedOpenOrders);
 
   const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setHideOtherPairs(e.target.checked));
@@ -234,18 +218,21 @@ function DisplayTable() {
   const tableToShow = useMemo(() => {
     switch (selectedTable) {
       case Tables.OPEN_ORDERS:
+        const filteredRowsForOpenOrders = hideOtherPairs
+          ? openOrders
+          : combinedOpenOrders;
         return {
           headers: headers[Tables.OPEN_ORDERS],
-          rows: <OpenOrdersRows data={openOrders} />,
+          rows: <OpenOrdersRows data={filteredRowsForOpenOrders} />,
         };
 
       case Tables.ORDER_HISTORY:
-        const filteredRows = hideOtherPairs
+        const filteredRowsForOrderHistory = hideOtherPairs
           ? orderHistory
           : combinedOrderHistory;
         return {
           headers: headers[Tables.ORDER_HISTORY],
-          rows: <OrderHistoryRows data={filteredRows} />,
+          rows: <OrderHistoryRows data={filteredRowsForOrderHistory} />,
         };
 
       default:
@@ -260,6 +247,7 @@ function DisplayTable() {
     selectedTable,
     hideOtherPairs,
     combinedOrderHistory,
+    combinedOpenOrders,
   ]);
 
   return (
