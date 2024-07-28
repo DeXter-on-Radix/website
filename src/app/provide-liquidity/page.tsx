@@ -7,7 +7,7 @@ import {
   Distribution,
 } from "./ProvideLiquidityContext";
 import { Time, createChart } from "lightweight-charts";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ChangeEvent } from "react";
 import {
   OrderSide,
   generateBatchOrderManifest,
@@ -18,6 +18,7 @@ import { PairSelector } from "components/PairSelector";
 import { Calculator } from "services/Calculator";
 import { getRdtOrThrow } from "subscriptions";
 import { DexterToast } from "components/DexterToaster";
+import { formatNumericString } from "../utils";
 
 export default function ProvideLiquidity() {
   return (
@@ -229,12 +230,12 @@ function BatchOrderForm() {
         >
           Last Price: {lastPrice}
         </p>
-        <input
-          className="text-right w-20 !bg-base-100"
-          type="text"
+        <CustomNumericIMask
           value={midPrice}
-          onChange={(e) => setMidPrice(parseFloat(e.target.value) || 0)}
-          autoComplete="off"
+          separator={"."}
+          scale={4}
+          onAccept={(e) => setMidPrice(parseFloat(e.toString()) || 0)}
+          className="text-right w-20 !bg-base-100"
         />
       </div>
 
@@ -446,6 +447,62 @@ function BarChart({ prices, amounts }: BarChartProps) {
       className="barchart w-full h-72 relative"
       ref={chartContainerRef}
     ></div>
+  );
+}
+
+interface CustomNumericIMaskProps {
+  value: number;
+  separator: string;
+  scale: number;
+  className: string;
+  onAccept: (value: number) => void;
+}
+
+function CustomNumericIMask({
+  value,
+  separator,
+  scale,
+  onAccept,
+  className,
+}: CustomNumericIMaskProps): JSX.Element | null {
+  const [inputValue, setInputValue] = useState(value.toString());
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let { value } = e.target;
+    // Automatically convert "," to "."
+    value = value.replace(/,/g, separator).replace(/-/g, "");
+    if (value.startsWith(".") || value.startsWith(",")) {
+      value = value.substring(1, value.length);
+    }
+    if (value === "") {
+      // If the input is cleared, set the internal state to an empty string
+      // and reset token amount state to 0
+      setInputValue("");
+      onAccept(-1);
+      return; // Exit early as there's no further processing needed
+    }
+    const formattedValue = formatNumericString(value, separator, scale);
+    setInputValue(formattedValue);
+    // Regex that limits precision to defined "scale" and allows a single
+    // dot between digits or at the very end
+    const regexForAccept = new RegExp(`^\\d+(\\.\\d{1,${scale}})?$`);
+    if (regexForAccept.test(formattedValue)) {
+      onAccept(parseFloat(formattedValue));
+    }
+  };
+
+  // Update local state when the prop value changes
+  useEffect(() => {
+    setInputValue(formatNumericString(value.toString(), separator, scale));
+  }, [value, separator, scale]);
+
+  return (
+    <input
+      type="text"
+      value={inputValue === "-1" ? "" : inputValue}
+      onChange={handleChange}
+      className={className} // Add TailwindCSS classes here
+    />
   );
 }
 
