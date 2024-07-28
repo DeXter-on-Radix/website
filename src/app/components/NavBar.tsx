@@ -132,14 +132,14 @@ function WalletSelector() {
 
   return (
     <div
-      className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 mx-2 rounded "
+      className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 mx-2 rounded"
       onClick={() => setIsOpen(!isOpen)}
     >
       <img ref={iconRef} src="/wallet.svg" alt="wallet icon" />
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute top-[64px] right-[14px] w-[350px] max-w-[80vw] rounded bg-[#191b1d]"
+          className="absolute top-[64px] right-0 w-[350px] max-[500px]:pl-4 max-[500px]:w-[100vw] max-w-[100vw] max-h-[50vh] overflow-hidden rounded bg-[#232629] overflow-y-scroll scrollbar-thin border-red"
         >
           {walletData.accounts.map((account, indx) => {
             const selectAccount = (account: WalletDataStateAccount) => {
@@ -153,8 +153,8 @@ function WalletSelector() {
                 onClick={() => selectAccount(account)}
                 key={indx}
               >
-                <div className="truncate text-base font-bold px-4 pt-2">
-                  {account.label}
+                <div className="truncate text-base font-bold px-4 pt-3 flex justify-between">
+                  <span>{account.label}</span>
                   {account.address === selectedAccount.address ? (
                     <span className="pl-2 bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base">
                       (CURRENT)
@@ -163,7 +163,7 @@ function WalletSelector() {
                     <></>
                   )}
                 </div>
-                <div className="truncate text-sm font-light px-4 pb-2">
+                <div className="truncate text-sm font-light px-4 pb-3">
                   {account.address}
                 </div>
               </div>
