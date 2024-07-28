@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -70,14 +70,14 @@ export function Navbar() {
         <Logo />
         <NavbarItemsDesktop />
       </div>
-      <div className="flex items-center content-center">
+      <div className="flex items-center content-center h-full relative">
         <div className="flex pr-4">
           <HideOnSmallScreens>
             <LanguageSelection />
           </HideOnSmallScreens>
           {/* ensure radix connect button is only initialized once */}
-          <radix-connect-button></radix-connect-button>
           <WalletSelector />
+          <radix-connect-button></radix-connect-button>
         </div>
         <HamburgerMenu />
       </div>
@@ -92,18 +92,55 @@ function WalletSelector() {
     (state) => state.radix
   );
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLImageElement>(null);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target as Node) &&
+      iconRef.current &&
+      !iconRef.current.contains(event.target as Node)
+    ) {
+      setIsOpen(false);
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
   if (!isConnected) {
     return <></>;
   }
 
   return (
     <div
-      className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 ml-2 rounded relative "
+      className="flex justify-center items-center cursor-pointer hover:bg-slate-700 px-2 mx-2 rounded "
       onClick={() => setIsOpen(!isOpen)}
     >
-      <img src="/wallet.svg" alt="wallet icon" />
+      <img ref={iconRef} src="/wallet.svg" alt="wallet icon" />
       {isOpen && (
-        <div className="absolute top-[50px] right-0 w-[350px] max-w-[80vw] rounded bg-[#191b1d]">
+        <div
+          ref={menuRef}
+          className="absolute top-[64px] right-[14px] w-[350px] max-w-[80vw] rounded bg-[#191b1d]"
+        >
           {walletData.accounts.map((account, indx) => {
             const selectAccount = (account: WalletDataStateAccount) => {
               dispatch(radixSlice.actions.selectAccount(account));
