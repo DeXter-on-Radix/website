@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { AppDispatch, RootState } from "./store";
+import { RootState } from "./store";
 import { getGatewayApiClientOrThrow, getRdtOrThrow } from "../subscriptions";
 import {
   AccountRewards,
