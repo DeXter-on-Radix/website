@@ -11,7 +11,7 @@ import { radixSlice } from "../state/radixSlice";
 
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
-import { isMobile } from "../utils";
+import { isMobile, shortenWalletAddress } from "../utils";
 import {
   fetchAccountHistory,
   accountHistorySlice,
@@ -149,22 +149,30 @@ function WalletSelector() {
             };
             return (
               <div
-                className={"hover:bg-slate-700"}
+                className={"hover:bg-slate-700 px-4"}
                 onClick={() => selectAccount(account)}
                 key={indx}
               >
-                <div className="truncate text-base font-bold px-4 pt-3 flex justify-between">
-                  <span>{account.label}</span>
+                <div className="text-base font-bold pt-3 flex justify-between">
+                  <span
+                    className={`truncate ${
+                      account.address === selectedAccount.address
+                        ? "bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base"
+                        : ""
+                    }`}
+                  >
+                    {account.label}
+                  </span>
                   {account.address === selectedAccount.address ? (
-                    <span className="pl-2 bg-gradient-to-r from-dexter-gradient-blue to-dexter-gradient-green to-80% bg-clip-text text-transparent font-base">
-                      (CURRENT)
+                    <span className="pl-2 font-base font-normal">
+                      (current)
                     </span>
                   ) : (
                     <></>
                   )}
                 </div>
-                <div className="truncate text-sm font-light px-4 pb-3">
-                  {account.address}
+                <div className="truncate text-sm font-light opacity-80 pb-3 border-b-[1px] border-b-[#5d5d5d7a]">
+                  {shortenWalletAddress(account.address)}
                 </div>
               </div>
             );
