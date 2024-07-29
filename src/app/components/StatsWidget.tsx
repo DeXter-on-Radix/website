@@ -48,101 +48,74 @@ const StatsWidget = () => {
   // Number of pairs listed
   const numOfPairs = pairsList.length;
 
-  // DEXTR/XRD pairInfo
-  const dextrXrdPairInfo = pairsList.find((pair) => pair.name === "DEXTR/XRD");
-  // Trade volume in the last 24 hours
-  const dextrVol24h = dextrXrdPairInfo?.quantity24h ?? 0;
-  const xrdVol24h = dextrXrdPairInfo?.value24h ?? 0;
-
-  // Trade volume in the last 7d (available soon) or use GoogleSheet data ?
-
-  // Average weekly trade volume since inception (in XRD and USD)
-
-  const stats = [
-    {
-      id: 1,
-      label: "Total Pairs",
-      value: numOfPairs,
-      prefix: "",
-    },
-    {
-      id: 2,
-      label: "Total Volume",
-      value: tradeVolumeTotalXrd,
-      prefix: "XRD",
-    },
-    {
-      id: 3,
-      label: "Total Volume",
-      value: tradeVolumeTotalUsd,
-      prefix: "$",
-    },
-    {
-      id: 4,
-      label: "Weekly Volume",
-      value: tradeVolumeWeeklyXrd,
-      prefix: "XRD",
-    },
-    {
-      id: 5,
-      label: "Weekly Volume",
-      value: tradeVolumeWeeklyUsd,
-      prefix: "$",
-    },
-    {
-      id: 6,
-      label: "24h Volume",
-      value: xrdVol24h,
-      prefix: "XRD",
-    },
-    {
-      id: 7,
-      label: "24h Volume",
-      value: dextrVol24h,
-      prefix: "DEXTR",
-    },
-  ];
-
   return (
-    <div className="flex flex-col gap-y-16 mx-auto justify-center items-center my-8">
-      {/* stats */}
-      <div className="flex gap-x-16">
-        <>
-          {stats?.length > 0
-            ? stats.map((stat) => {
-                return stat?.value ? (
-                  <div
-                    key={stat.id}
-                    className="flex flex-col items-center justify-center"
-                  >
-                    <span className="min-w-44 text-3xl font-bold text-dexter-gradient-green text-center">
-                      <span className="mr-2">{stat.prefix}</span>
-                      <span>{simpleFormatNumber(stat.value)}</span>
-                    </span>
-
-                    <span className="text-lg">{stat.label}</span>
-                  </div>
-                ) : null;
-              })
-            : null}
-        </>
-      </div>
-
+    <div className="flex opacity-80 flex-col gap-y-8 mx-auto justify-center items-center my-8">
       {/* users */}
       {totalNumOfFollowers ? (
-        <div className="text-6xl flex flex-col justify-center items-center gap-y-2">
+        <>
           <AnimatedCounter
             value={totalNumOfFollowers}
             formatNumberCallback={(num) => simpleFormatNumber(num, 2)}
-            wrapperClassName="flex flex-col items-center gap-y-2"
-            counterClassName="text-dexter-gradient-green font-bold"
+            wrapperClassName="flex max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"
+            counterClassName="text-dexter-gradient-green font-bold w-44 max-md:text-center md:text-right"
           >
-            <span className="uppercase font-bold">users trust us</span>
+            <span className="uppercase">users trust us</span>
           </AnimatedCounter>
-        </div>
+        </>
       ) : null}
+
+      {/* trade */}
+      <div className="flex flex-wrap justify-center gap-4">
+        {numOfPairs ? (
+          <StatCard label="Pairs" value={<>{numOfPairs}</>} />
+        ) : null}
+
+        {tradeVolumeWeeklyXrd && tradeVolumeWeeklyUsd ? (
+          <StatCard
+            label="Weekly Trading Volume"
+            value={
+              <span className="flex gap-x-2">
+                <span>{simpleFormatNumber(tradeVolumeWeeklyXrd)} XRD</span>
+                <span className="text-secondary-content">/</span>
+                <span>${simpleFormatNumber(tradeVolumeWeeklyUsd)}</span>
+              </span>
+            }
+          />
+        ) : null}
+
+        {tradeVolumeTotalXrd && tradeVolumeTotalUsd ? (
+          <StatCard
+            label="Total Trading Volume"
+            value={
+              <span className="flex gap-x-2">
+                <span>{simpleFormatNumber(tradeVolumeTotalXrd)} XRD</span>
+                <span className="text-secondary-content">/</span>
+                <span>${simpleFormatNumber(tradeVolumeTotalUsd)}</span>
+              </span>
+            }
+          />
+        ) : null}
+      </div>
     </div>
   );
 };
 
 export default StatsWidget;
+
+const StatCard = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) => {
+  return (
+    <div className="font-bold flex flex-col items-center justify-center gap-y-2 w-80 h-32 rounded-lg border border-secondary-content border-opacity-50">
+      <span className="text-2xl text-dexter-gradient-green text-center">
+        {value}
+      </span>
+
+      <span className="text-lg">{label}</span>
+    </div>
+  );
+};
