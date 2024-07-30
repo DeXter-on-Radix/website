@@ -1,53 +1,63 @@
-"use client";
+import CountUp from "react-countup";
 
-import { useEffect, useRef } from "react";
-import { useInView, useMotionValue, useSpring } from "framer-motion";
-
-export default function AnimatedCounter({
-  value,
-  direction = "up",
-  wrapperClassName = "",
-  counterClassName = "",
-  formatNumberCallback = (num: number) =>
-    Intl.NumberFormat("en-US").format(num),
-  children,
-}: {
-  value: number;
-  direction?: "up" | "down";
+type TProps = {
   wrapperClassName?: string;
   counterClassName?: string;
-  formatNumberCallback?: (num: number) => string;
-  children?: React.ReactNode;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === "down" ? value : 0);
-  const springValue = useSpring(motionValue, {
-    damping: 100,
-    stiffness: 100,
-  });
+  labelClassName?: string;
+  label?: React.ReactNode;
+  start?: number;
+  end: number;
+  duration?: number;
+  separator?: string;
+  decimals?: number;
+  decimal?: string;
+  prefix?: string;
+  suffix?: string;
+  enableScrollSpy?: boolean;
+  scrollSpyDelay?: number;
+  delay?: number;
+};
 
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  useEffect(() => {
-    if (isInView) {
-      motionValue.set(direction === "down" ? 0 : value);
-    }
-  }, [motionValue, isInView, direction, value]);
-
-  useEffect(
-    () =>
-      springValue.on("change", (latest) => {
-        if (ref.current) {
-          ref.current.textContent = formatNumberCallback(latest);
-        }
-      }),
-    [springValue, formatNumberCallback]
-  );
-
+const AnimatedCounter = ({
+  wrapperClassName = "",
+  counterClassName = "",
+  labelClassName = "",
+  label,
+  start = 0,
+  end,
+  duration = 5,
+  separator = " ",
+  decimals = 4,
+  decimal = ",",
+  prefix = "",
+  suffix = "",
+  enableScrollSpy = true,
+  scrollSpyDelay = 0,
+  delay = 0,
+}: TProps) => {
   return (
     <div className={wrapperClassName}>
-      <span ref={ref} className={counterClassName} />
-      {isInView && <span>{children}</span>}
+      <CountUp
+        start={start}
+        end={end}
+        duration={duration}
+        separator={separator}
+        decimals={decimals}
+        decimal={decimal}
+        prefix={prefix}
+        suffix={suffix}
+        enableScrollSpy={enableScrollSpy} // enable scroll spy functionality (using Intersection Observer). Default is `true`.
+        scrollSpyDelay={scrollSpyDelay}
+        delay={delay}
+      >
+        {({ countUpRef }) => {
+          return <span ref={countUpRef} className={counterClassName} />;
+        }}
+      </CountUp>
+
+      {label && <span className={labelClassName}>{label}</span>}
     </div>
   );
-}
+};
+
+export default AnimatedCounter;
