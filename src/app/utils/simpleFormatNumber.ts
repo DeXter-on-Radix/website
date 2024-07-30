@@ -10,7 +10,7 @@
  * @param {number} [maxDigit=1] - The maximum number of decimal places to display. Defaults to 1.
  * @returns {string} The formatted number as a string.
  */
-export function simpleFormatNumber(num: number, maxDigit: number = 1) {
+export function simpleFormatNumber(num: number, maxDigit: number = 1): string {
   const formatter = new Intl.NumberFormat("en", {
     notation: "compact",
     maximumFractionDigits: maxDigit,
