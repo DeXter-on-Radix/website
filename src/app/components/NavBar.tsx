@@ -146,6 +146,9 @@ function WalletSelector() {
               dispatch(radixSlice.actions.selectAccount(account));
               dispatch(fetchAccountHistory());
               dispatch(rewardSlice.actions.resetShowSuccessUi());
+              dispatch(
+                accountHistorySlice.actions.resetSelectedOrdersToCancel()
+              );
             };
             return (
               <div
