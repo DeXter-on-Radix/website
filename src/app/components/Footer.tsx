@@ -32,12 +32,16 @@ export function Footer() {
     title: t("developers"),
     links: [
       {
-        text: t("contribute"),
-        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
+        text: t("contribute_now"),
+        url: "https://github.com/DeXter-on-Radix/website/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22",
       },
       {
         text: "Github",
-        url: "https://github.com/DeXter-on-Radix",
+        url: "https://github.com/DeXter-on-Radix/website",
+      },
+      {
+        text: t("how_to_contribute"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       },
     ],
   };
