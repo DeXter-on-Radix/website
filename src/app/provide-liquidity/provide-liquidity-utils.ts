@@ -1,5 +1,6 @@
 import { Calculator } from "../services/Calculator";
 import { Distribution } from "./ProvideLiquidityContext";
+import { roundTo, RoundType } from "utils";
 
 export enum OrderSide {
   BUY = "BUY",
@@ -73,8 +74,8 @@ function distributeLinearLiquidity(
       bins
     );
     batchOrderItem.token2amount = Calculator.multiply(
-      batchOrderItem.token1amount,
-      batchOrderItem.price
+      roundTo(batchOrderItem.token1amount, 8, RoundType.NEAREST),
+      roundTo(batchOrderItem.price, 4, RoundType.NEAREST)
     );
   });
   return batchOrders;
@@ -98,10 +99,11 @@ function distributeExponentialLiqudity(
   const sellAmounts = normalizedRatios.map((ratio) => ratio * sellSideLiq);
   const fullAmounts = [buyAmounts.reverse(), sellAmounts].flat();
   fullAmounts.forEach((amount, index) => {
-    batchOrderItems[index].token1amount = amount;
-    batchOrderItems[index].token2amount = Calculator.multiply(
-      amount,
-      batchOrderItems[index].price
+    batchOrderItems[index].token1amount = roundTo(amount, 8, RoundType.NEAREST);
+    batchOrderItems[index].token2amount = roundTo(
+      Calculator.multiply(amount, batchOrderItems[index].price),
+      8,
+      RoundType.NEAREST
     );
   });
   return batchOrderItems;
@@ -128,9 +130,13 @@ function getInitializedBatchOrderItems(
       side: i < 0 ? OrderSide.BUY : OrderSide.SELL,
       id: `Bucket_${bucketCount++}`,
       index: i,
-      price: Calculator.add(
-        midPrice,
-        Calculator.multiply(Calculator.multiply(midPrice, i), percSteps)
+      price: roundTo(
+        Calculator.add(
+          midPrice,
+          Calculator.multiply(Calculator.multiply(midPrice, i), percSteps)
+        ),
+        4,
+        RoundType.NEAREST
       ),
       token1address,
       token2address,
@@ -167,12 +173,17 @@ export function generateBatchOrderManifest({
   const { token1address, token2address } = batchOrderItems[0];
   const token1total = batchOrderItems
     .filter((o) => o.side === "SELL")
-    .map((o) => o.token1amount || 0)
-    .reduce((a, b) => a + b);
+    .map((o) => roundTo(o.token1amount || 0, 8, RoundType.NEAREST))
+    .reduce((a, b) => Calculator.add(a, b));
   const token2total = batchOrderItems
     .filter((o) => o.side === "BUY")
-    .map((o) => o.token2amount || 0)
-    .reduce((a, b) => a + b);
+    .map((o) =>
+      Calculator.multiply(
+        roundTo(o.token1amount || 0, 8, RoundType.NEAREST),
+        o.price
+      )
+    )
+    .reduce((a, b) => Calculator.add(a, b));
 
   const individualOrderManifests = batchOrderItems
     .map((i) => generateOrderManifest(i, userAddress))
@@ -191,11 +202,12 @@ export function generateBatchOrderManifest({
       Decimal("${token2total}");
 
     ${individualOrderManifests}
-
+    
     CALL_METHOD 
       Address("${userAddress}") 
       "deposit_batch" 
       Expression("ENTIRE_WORKTOP");`;
+  console.log(batchOrderManifest);
   return batchOrderManifest;
 }
 
@@ -211,16 +223,22 @@ export function generateOrderManifest(
     price,
     side,
     token1amount,
-    token2amount,
+    //token2amount,
     token1address,
     token2address,
     pairAddress,
   } = batchOrderItem;
 
+  //Adjust for rounding
+
+  const adjustedAmount =
+    (side === "BUY"
+      ? Calculator.multiply(token1amount || 0, price)
+      : token1amount) || 0;
   return `
       TAKE_FROM_WORKTOP 
         Address("${side === "BUY" ? token2address : token1address}") 
-        Decimal("${side === "BUY" ? token2amount : token1amount}") 
+        Decimal("${adjustedAmount}") 
         Bucket("${id}");
       CALL_METHOD
         Address("${pairAddress}")
