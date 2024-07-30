@@ -1,12 +1,14 @@
 "use client";
 
-import { useAppSelector } from "hooks";
+import { useAppSelector, useTranslations } from "hooks";
 import { fetchKpiData, KpiData } from "kpis/kpis-utils";
 import { useEffect, useState } from "react";
 import { simpleFormatNumber } from "utils/simpleFormatNumber";
 import AnimatedCounter from "./AnimatedCounter";
+import { DexterButton } from "./DexterButton";
 
 const StatsWidget = () => {
+  const t = useTranslations();
   // google sheet data
   const [kpiData, setKpiData] = useState<KpiData | null>(null);
   // alphadex data
@@ -24,6 +26,7 @@ const StatsWidget = () => {
     })();
   }, []);
 
+  // TODO: compute actual users with a script fetching all orders on adex.
   // 1. google sheet data
   // 1.1. socials data
   const socials = kpiData?.socials;
@@ -49,30 +52,29 @@ const StatsWidget = () => {
   const numOfPairs = pairsList.length;
 
   return (
-    <div className="flex opacity-80 flex-col gap-y-8 mx-auto justify-center items-center my-8">
+    <div className="flex w-full opacity-80 flex-col gap-y-8 mx-auto justify-center items-center mt-8 mb-32">
       {/* users */}
       {totalNumOfFollowers ? (
         <>
           <AnimatedCounter
-            value={totalNumOfFollowers}
-            formatNumberCallback={(num) => simpleFormatNumber(num, 2)}
-            wrapperClassName="flex max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"
-            counterClassName="text-dexter-gradient-green font-bold w-44 max-md:text-center md:text-right"
-          >
-            <span className="uppercase">users trust us</span>
-          </AnimatedCounter>
+            end={totalNumOfFollowers}
+            decimals={0}
+            label={<span className="uppercase">{t("users_trust_us")}</span>}
+            wrapperClassName="w-full flex justify-center max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"
+            counterClassName="text-dexter-gradient-green font-bold min-w-44 max-md:text-center md:text-right"
+          />
         </>
       ) : null}
 
       {/* trade */}
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="grid max-lg:px-8 max-lg:grid-cols-1 lg:grid-cols-3 max-lg:w-full justify-center gap-8">
         {numOfPairs ? (
-          <StatCard label="Pairs" value={<>{numOfPairs}</>} />
+          <StatCard label={t("pairs")} value={<>{numOfPairs}</>} />
         ) : null}
 
         {tradeVolumeWeeklyXrd && tradeVolumeWeeklyUsd ? (
           <StatCard
-            label="Weekly Trading Volume"
+            label={t("weekly_trading_volume")}
             value={
               <span className="flex gap-x-2">
                 <span>{simpleFormatNumber(tradeVolumeWeeklyXrd)} XRD</span>
@@ -85,7 +87,7 @@ const StatsWidget = () => {
 
         {tradeVolumeTotalXrd && tradeVolumeTotalUsd ? (
           <StatCard
-            label="Total Trading Volume"
+            label={t("total_trading_volume")}
             value={
               <span className="flex gap-x-2">
                 <span>{simpleFormatNumber(tradeVolumeTotalXrd)} XRD</span>
@@ -96,6 +98,13 @@ const StatsWidget = () => {
           />
         ) : null}
       </div>
+
+      {/* show more */}
+      <DexterButton
+        title={t("explore_our_metrics")}
+        targetUrl="/kpis"
+        maxWidth="w-[240px]"
+      />
     </div>
   );
 };
@@ -110,7 +119,7 @@ const StatCard = ({
   value: React.ReactNode;
 }) => {
   return (
-    <div className="font-bold flex flex-col items-center justify-center gap-y-2 w-80 h-32 rounded-lg border border-secondary-content border-opacity-50">
+    <div className="lg:w-80 font-bold flex flex-col items-center justify-center gap-y-2 h-32 rounded-lg border border-secondary-content border-opacity-50">
       <span className="text-2xl text-dexter-gradient-green text-center">
         {value}
       </span>
