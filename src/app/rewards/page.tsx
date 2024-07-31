@@ -98,8 +98,10 @@ function HeaderComponent() {
 function RewardsCard() {
   const isClient = useHydrationErrorFix(); // to fix HydrationError
   const dispatch = useAppDispatch();
-  const { isConnected, walletData } = useAppSelector((state) => state.radix);
-  const account = walletData.accounts[0]?.address;
+  const { isConnected, selectedAccount } = useAppSelector(
+    (state) => state.radix
+  );
+  const account = selectedAccount?.address;
   const t = useTranslations();
   const { rewardData, pairsList } = useAppSelector(
     (state) => state.rewardSlice

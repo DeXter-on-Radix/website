@@ -50,7 +50,7 @@ export const fetchAccountHistory = createAsyncThunk<
 >("accountHistory/fetchAccountHistory", async (_, thunkAPI) => {
   const state = thunkAPI.getState();
   const pairAddress = state.pairSelector.address;
-  const account = state.radix?.walletData.accounts[0]?.address || "";
+  const account = state.radix?.selectedAccount?.address || "";
 
   if (!account || !pairAddress) {
     return thunkAPI.rejectWithValue("Account or pairAddress missing");

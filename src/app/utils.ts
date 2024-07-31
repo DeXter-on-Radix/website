@@ -506,3 +506,14 @@ export function toFixedRoundDown(number: number, decimals: number): number {
   }
   return Number(integerPart + "." + decimalPart);
 }
+
+// SHortens radix wallet address
+export function shortenWalletAddress(address: string): string {
+  // minimal length is 35 chars
+  if (address.length < 35) {
+    return address;
+  }
+  const firstPart = address.slice(0, 8);
+  const lastPart = address.slice(-20);
+  return `${firstPart}...${lastPart}`;
+}
