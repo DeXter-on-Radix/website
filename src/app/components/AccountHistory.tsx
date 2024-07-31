@@ -28,6 +28,7 @@ import {
   calculateTotalFees,
 } from "../utils";
 import Papa from "papaparse";
+import HoverGradientButton from "./HoverGradientButton";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -558,6 +559,7 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
 };
 
 const ExportCsvButton = () => {
+  const t = useTranslations();
   const { orderHistory } = useAppSelector((state) => state.accountHistory);
 
   const handleExport = () => {
@@ -601,12 +603,10 @@ const ExportCsvButton = () => {
   }
 
   return (
-    <button
-      onClick={handleExport}
-      className="whitespace-nowrap text-sm font-bold hover:text-dexter-gradient-green"
-    >
-      export as csv
-    </button>
+    <HoverGradientButton
+      handleClick={handleExport}
+      label={t("export_as_csv")}
+    />
   );
 };
 
