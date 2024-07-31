@@ -5,7 +5,8 @@ import { fetchKpiData, KpiData } from "kpis/kpis-utils";
 import { useEffect, useState } from "react";
 import { simpleFormatNumber } from "utils/simpleFormatNumber";
 import AnimatedCounter from "./AnimatedCounter";
-import { DexterButton } from "./DexterButton";
+import Link from "next/link";
+import HoverGradientButton from "./HoverGradientButton";
 
 const StatsWidget = () => {
   const t = useTranslations();
@@ -40,11 +41,9 @@ const StatsWidget = () => {
   const tradeVolume = kpiData?.tradeVolume;
 
   // total
-  const tradeVolumeTotalXrd = tradeVolume?.total?.XRD ?? 0;
   const tradeVolumeTotalUsd = tradeVolume?.total?.USD ?? 0;
 
   // weekly
-  const tradeVolumeWeeklyXrd = tradeVolume?.weekly?.XRD?.at(-1)?.value ?? 0;
   const tradeVolumeWeeklyUsd = tradeVolume?.weekly?.USD?.at(-1)?.value ?? 0;
 
   // 2. alphadex data
@@ -61,7 +60,8 @@ const StatsWidget = () => {
             decimals={0}
             label={<span className="uppercase">{t("users_trust_us")}</span>}
             wrapperClassName="w-full flex justify-center max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"
-            counterClassName="text-dexter-gradient-green font-bold min-w-44 max-md:text-center md:text-right"
+            counterClassName="text-dexter-green-OG font-bold min-w-44 max-md:text-center md:text-right"
+            labelClassName="ml-2"
           />
         </>
       ) : null}
@@ -72,27 +72,23 @@ const StatsWidget = () => {
           <StatCard label={t("pairs")} value={<>{numOfPairs}</>} />
         ) : null}
 
-        {tradeVolumeWeeklyXrd && tradeVolumeWeeklyUsd ? (
+        {tradeVolumeWeeklyUsd ? (
           <StatCard
             label={t("weekly_trading_volume")}
             value={
               <span className="flex gap-x-2">
-                <span>{simpleFormatNumber(tradeVolumeWeeklyXrd)} XRD</span>
-                <span className="text-secondary-content">/</span>
-                <span>${simpleFormatNumber(tradeVolumeWeeklyUsd)}</span>
+                ${simpleFormatNumber(tradeVolumeWeeklyUsd)}
               </span>
             }
           />
         ) : null}
 
-        {tradeVolumeTotalXrd && tradeVolumeTotalUsd ? (
+        {tradeVolumeTotalUsd ? (
           <StatCard
             label={t("total_trading_volume")}
             value={
               <span className="flex gap-x-2">
-                <span>{simpleFormatNumber(tradeVolumeTotalXrd)} XRD</span>
-                <span className="text-secondary-content">/</span>
-                <span>${simpleFormatNumber(tradeVolumeTotalUsd)}</span>
+                ${simpleFormatNumber(tradeVolumeTotalUsd)}
               </span>
             }
           />
@@ -100,11 +96,9 @@ const StatsWidget = () => {
       </div>
 
       {/* show more */}
-      <DexterButton
-        title={t("explore_our_metrics")}
-        targetUrl="/kpis"
-        maxWidth="w-[240px]"
-      />
+      <Link href="/kpis">
+        <HoverGradientButton label={t("explore_more_metrics")} />
+      </Link>
     </div>
   );
 };
@@ -120,9 +114,7 @@ const StatCard = ({
 }) => {
   return (
     <div className="lg:w-80 font-bold flex flex-col items-center justify-center gap-y-2 h-32 rounded-lg border border-secondary-content border-opacity-50">
-      <span className="text-2xl text-dexter-gradient-green text-center">
-        {value}
-      </span>
+      <span className="text-2xl text-dexter-green-OG text-center">{value}</span>
 
       <span className="text-lg">{label}</span>
     </div>
