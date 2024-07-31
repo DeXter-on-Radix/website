@@ -72,23 +72,23 @@ const StatsWidget = () => {
           <StatCard label={t("pairs")} value={<>{numOfPairs}</>} />
         ) : null}
 
-        {tradeVolumeWeeklyUsd ? (
-          <StatCard
-            label={t("weekly_trading_volume")}
-            value={
-              <span className="flex gap-x-2">
-                ${simpleFormatNumber(tradeVolumeWeeklyUsd)}
-              </span>
-            }
-          />
-        ) : null}
-
         {tradeVolumeTotalUsd ? (
           <StatCard
             label={t("total_trading_volume")}
             value={
               <span className="flex gap-x-2">
                 ${simpleFormatNumber(tradeVolumeTotalUsd)}
+              </span>
+            }
+          />
+        ) : null}
+
+        {tradeVolumeWeeklyUsd ? (
+          <StatCard
+            label={t("weekly_trading_volume")}
+            value={
+              <span className="flex gap-x-2">
+                ${simpleFormatNumber(tradeVolumeWeeklyUsd)}
               </span>
             }
           />
@@ -116,7 +116,7 @@ const StatCard = ({
     <div className="lg:w-80 font-bold flex flex-col items-center justify-center gap-y-2 h-32 rounded-lg border border-secondary-content border-opacity-50">
       <span className="text-2xl text-dexter-green-OG text-center">{value}</span>
 
-      <span className="text-lg">{label}</span>
+      <span className="text-lg text-center">{label}</span>
     </div>
   );
 };
