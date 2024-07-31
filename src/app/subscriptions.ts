@@ -3,6 +3,7 @@ import {
   DataRequestBuilder,
   RadixDappToolkit,
   RadixNetwork,
+  WalletDataStateAccount,
 } from "@radixdlt/radix-dapp-toolkit";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import * as adex from "alphadex-sdk-js";
@@ -16,6 +17,7 @@ import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
 import { rewardSlice } from "./state/rewardSlice";
+import Cookies from "js-cookie";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
@@ -79,7 +81,17 @@ export function initializeSubscriptions(store: AppStore) {
     rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
-
+      // Get selected address from cookies if exists
+      const selectedAddressCookie = Cookies.get("selectedAddress");
+      if (selectedAddressCookie) {
+        const account =
+          data.accounts.find(
+            (account) => account.address === selectedAddressCookie
+          ) || ({} as WalletDataStateAccount);
+        if (account.address) {
+          store.dispatch(radixSlice.actions.selectAccount(account));
+        }
+      }
       // TODO: can we subscribe to balances from somewhere?
       store.dispatch(fetchBalances());
     })

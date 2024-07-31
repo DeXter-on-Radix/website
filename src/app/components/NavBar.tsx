@@ -16,7 +16,7 @@ import {
   fetchAccountHistory,
   accountHistorySlice,
 } from "../state/accountHistorySlice";
-import { pairSelectorSlice } from "../state/pairSelectorSlice";
+import { fetchBalances, pairSelectorSlice } from "../state/pairSelectorSlice";
 // eslint-disable-next-line no-restricted-imports
 import { WalletDataStateAccount } from "@radixdlt/radix-dapp-toolkit";
 import { rewardSlice } from "state/rewardSlice";
@@ -143,12 +143,14 @@ function WalletSelector() {
         >
           {walletData.accounts.map((account, indx) => {
             const selectAccount = (account: WalletDataStateAccount) => {
+              Cookies.set("selectedAddress", account.address, { expires: 365 });
               dispatch(radixSlice.actions.selectAccount(account));
-              dispatch(fetchAccountHistory());
+              dispatch(fetchBalances());
               dispatch(rewardSlice.actions.resetShowSuccessUi());
               dispatch(
                 accountHistorySlice.actions.resetSelectedOrdersToCancel()
               );
+              dispatch(fetchAccountHistory());
             };
             return (
               <div
