@@ -559,6 +559,7 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
 };
 
 const ExportCsvButton = () => {
+  const t = useTranslations();
   const { orderHistory } = useAppSelector((state) => state.accountHistory);
 
   const handleExport = () => {
@@ -602,7 +603,10 @@ const ExportCsvButton = () => {
   }
 
   return (
-    <HoverGradientButton handleClick={handleExport} label="export as csv" />
+    <HoverGradientButton
+      handleClick={handleExport}
+      label={t("export_as_csv")}
+    />
   );
 };
 
