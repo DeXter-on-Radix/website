@@ -264,13 +264,15 @@ export const selectCombinedOrderHistory = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
   (state: RootState) => state.accountHistory.orderHistoryAllPairs,
   (orderHistory, orderHistoryAllPairs) => {
-    const filteredOrderHistory = orderHistory.filter(
-      (order) => order.status !== "PENDING"
+    const combinedOrderHistory = [
+      ...orderHistory.filter((order) => order.status !== "PENDING"),
+      ...orderHistoryAllPairs.filter((order) => order.status !== "PENDING"),
+    ];
+    return combinedOrderHistory.sort(
+      (a, b) =>
+        new Date(b.timeSubmitted).getTime() -
+        new Date(a.timeSubmitted).getTime()
     );
-    const filteredOrderHistoryAllPairs = orderHistoryAllPairs.filter(
-      (order) => order.status !== "PENDING"
-    );
-    return [...filteredOrderHistoryAllPairs, ...filteredOrderHistory];
   }
 );
 
@@ -278,13 +280,15 @@ export const selectCombinedOpenOrders = createSelector(
   (state: RootState) => state.accountHistory.orderHistory,
   (state: RootState) => state.accountHistory.orderHistoryAllPairs,
   (orderHistory, orderHistoryAllPairs) => {
-    const filteredOrderHistory = orderHistory.filter(
-      (order) => order.status === "PENDING"
+    const combinedOpenOrders = [
+      ...orderHistory.filter((order) => order.status === "PENDING"),
+      ...orderHistoryAllPairs.filter((order) => order.status === "PENDING"),
+    ];
+    return combinedOpenOrders.sort(
+      (a, b) =>
+        new Date(b.timeSubmitted).getTime() -
+        new Date(a.timeSubmitted).getTime()
     );
-    const filteredOrderHistoryAllPairs = orderHistoryAllPairs.filter(
-      (order) => order.status === "PENDING"
-    );
-    return [...filteredOrderHistoryAllPairs, ...filteredOrderHistory];
   }
 );
 
