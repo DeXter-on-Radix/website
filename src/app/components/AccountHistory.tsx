@@ -88,7 +88,7 @@ function OrdersTabs() {
 export function AccountHistory() {
   const dispatch = useAppDispatch();
   const account = useAppSelector(
-    (state) => state.radix?.walletData.accounts[0]?.address
+    (state) => state.radix?.selectedAccount?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
