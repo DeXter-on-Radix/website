@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const fetchUsers = async () => {
   // fetch all pairs
   const pairsList = await fetchAllPairs();
@@ -16,15 +19,12 @@ const fetchUsers = async () => {
   // Process orders to count wallet addresses
   const usersDict = {};
   for (let i = 0; i < allOrders.length; i++) {
-    console.log(allOrders[i]);
     const radixWalletAddress = allOrders[i].settlementAccount; // account address for this order
-    console.log({ radixWalletAddress });
     if (!radixWalletAddress) {
       continue;
     }
     usersDict[radixWalletAddress] = usersDict[radixWalletAddress] ? usersDict[radixWalletAddress] + 1 : 1;
   }
-  console.log({ usersDict });
 
   return {
     usersDict: usersDict,
@@ -98,9 +98,46 @@ const getChunkArray = (array, size) => {
   return chunkArray;
 };
 
+const getTimestampedFileName = () => {
+  // Get the current date and time
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  // Format the filename
+  return `${year}-${month}-${day}_${hours}${minutes}${seconds}_fetchUsers-output.json`;
+}
+
+const getFilePath = () => {
+  const filename = getTimestampedFileName();
+  const directory = path.join(__dirname, '.scriptOutputs');
+  // Ensure the directory exists
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+  // Return the full path for the file
+  return path.join(directory, filename);
+}
+
+const writeObjectToFile = (obj) => {
+  const jsonString = JSON.stringify(obj, null, 2);
+  const filePath = getFilePath();
+  fs.writeFile(filePath, jsonString, (err) => {
+    if (err) {
+      console.error('Error writing file:', err);
+    } else {
+      console.log(`Successfully saved output to file: ${filePath}`);
+    }
+  });
+}
+
 
 // RUN SCRIPT
 (async () => {
   const result = await fetchUsers();
-  console.log(result)
+  console.log(result);
+  writeObjectToFile(result);
 })();
