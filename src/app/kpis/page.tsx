@@ -66,7 +66,7 @@ function KpiDashboard({
                   TOTAL Trade Volume (USD)
                 </p>
                 {isLoading ? (
-                  <SkeletonRectangle height="h-4" />
+                  <SkeletonRectangle width="w-32" height="h-7" />
                 ) : isOk ? (
                   <p className="text-xl">
                     {Math.round(
@@ -80,7 +80,7 @@ function KpiDashboard({
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
                 {isLoading ? (
                   <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
-                    <SkeletonRectangle height="h-4" />
+                    <SkeletonRectangle width="w-44" height="h-6" />
                     <SkeletonRectangle width="w-full" height="h-full" />
                   </div>
                 ) : isOk ? (
@@ -101,7 +101,7 @@ function KpiDashboard({
                   TOTAL Trade Volume (XRD)
                 </p>
                 {isLoading ? (
-                  <SkeletonRectangle height="h-4" />
+                  <SkeletonRectangle width="w-32" height="h-7" />
                 ) : isOk ? (
                   <p className="text-xl">
                     {Math.round(kpiData.tradeVolume.total.XRD).toLocaleString(
@@ -114,7 +114,7 @@ function KpiDashboard({
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
                 {isLoading ? (
                   <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
-                    <SkeletonRectangle height="h-4" />
+                    <SkeletonRectangle width="w-44" height="h-6" />
                     <SkeletonRectangle width="w-full" height="h-full" />
                   </div>
                 ) : isOk ? (
@@ -137,7 +137,7 @@ function KpiDashboard({
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
               {isLoading ? (
                 <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
-                  <SkeletonRectangle height="h-4" />
+                  <SkeletonRectangle width="w-44" height="h-6" />
                   <SkeletonRectangle width="w-full" height="h-full" />
                 </div>
               ) : isOk ? (
@@ -151,7 +151,7 @@ function KpiDashboard({
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
               {isLoading ? (
                 <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
-                  <SkeletonRectangle height="h-4" />
+                  <SkeletonRectangle width="w-44" height="h-6" />
                   <SkeletonRectangle width="w-full" height="h-full" />
                 </div>
               ) : isOk ? (
@@ -175,7 +175,7 @@ function KpiDashboard({
               <div className="pl-2">
                 <p className="text-[11px]">Subscribers</p>
                 {isLoading ? (
-                  <SkeletonRectangle height="h-8" width="w-16" />
+                  <SkeletonRectangle width="w-24" height="h-7" />
                 ) : isOk ? (
                   <p className="text-2xl text-[#FFFFFF]">
                     {kpiData.socials.youtubeSubscribers}
@@ -188,7 +188,7 @@ function KpiDashboard({
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
                 {isLoading ? (
-                  <SkeletonRectangle height="h-8" width="w-16" />
+                  <SkeletonRectangle width="w-24" height="h-7" />
                 ) : isOk ? (
                   <p className="text-2xl text-[#FFFFFF]">
                     {kpiData.socials.instagramFollowers}
@@ -201,7 +201,7 @@ function KpiDashboard({
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
                 {isLoading ? (
-                  <SkeletonRectangle height="h-8" width="w-16" />
+                  <SkeletonRectangle width="w-24" height="h-7" />
                 ) : isOk ? (
                   <p className="text-2xl text-[#FFFFFF]">
                     {kpiData.socials.twitterFollowers}
