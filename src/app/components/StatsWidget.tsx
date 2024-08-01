@@ -61,7 +61,7 @@ const StatsWidget = () => {
             label={<span className="uppercase">{t("users_trust_us")}</span>}
             wrapperClassName="w-full flex justify-center max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"
             counterClassName="text-dexter-green-OG font-bold min-w-44 max-md:text-center md:text-right"
-            labelClassName="ml-2"
+            labelClassName="md:ml-2 text-center"
           />
         </>
       ) : null}
