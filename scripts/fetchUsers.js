@@ -1,58 +1,35 @@
 const fetchUsers = async () => {
-  try {
-    // fetch all pairs
-    const pairsList = await fetchAllPairs();
+  // fetch all pairs
+  const pairsList = await fetchAllPairs();
 
-    // Aggregate all pairs info
-    const pairsInfo = pairsList.map((pair) => ({
-      pairAddress: pair.address,
-      lastOrderId: pair.lastOrderId,
-    }));
+  // fetch all orders for all pairs
+  const allOrders = await Promise.all(
+    pairsList.map((pair) => {
+      const { address, lastOrderId } = pair;
+      const orderIds = Array.from({ length: lastOrderId }, (_, i) => i + 1); // [1, ..., lastOrderId]
 
-    // fetch all orders for all pairs
-    const allOrdersByPair = await Promise.all(
-      pairsInfo.map((pair) => {
-        const { pairAddress, lastOrderId } = pair;
-        const orderIds = Array.from({ length: lastOrderId }, (_, i) => i + 1); // [1, ..., lastOrderId]
+      return fetchOrdersByPair(address, orderIds);
+    })
+  ).flat();
 
-        return fetchOrdersByPair(pairAddress, orderIds);
-      })
-    );
-
-    // Process orders to count wallet addresses
-    const usersFreqCounter = allOrdersByPair.reduce((acc, curr) => {
-      if (!curr?.orders?.length) return acc;
-
-      // process all orders for each pair
-      const orders = curr.orders;
-
-      for (const order of orders) {
-        const radixWalletAddress = order?.settlementAccount; // account address for this order
-
-        if (!radixWalletAddress) continue;
-        else {
-          acc[radixWalletAddress] = (acc[radixWalletAddress] || 0) + 1;
-        }
-      }
-      return acc;
-    }, {});
-
-    // get total unique users count
-    const totalUsersCount = Object.values(usersFreqCounter).reduce(
-      (acc, curr) => {
-        return acc + curr;
-      },
-      0
-    );
-
-    return { usersFreqCounter, totalUsersCount };
-  } catch (error) {
-    console.error("fetchUsers -> error", error);
-    return { usersFreqCounter: {}, totalUsersCount: 0 };
+  // Process orders to count wallet addresses
+  const usersDict = {};
+  for (let i = 0; i < allOrders.length; i++) {
+    const radixWalletAddress = order[i]?.settlementAccount; // account address for this order
+    if (!radixWalletAddress) {
+      continue;
+    }
+    usersDict[radixWalletAddress] = usersDict[radixWalletAddress]
+      ? usersDict[radixWalletAddress] + 1
+      : 1;
   }
-};
 
-export default fetchUsers;
+  return {
+    usersDict: usersDict,
+    totalUsers: Object.keys(usersDict).length,
+    totalOrders: Object.values(usersDict).reduce((a, b) => a + b),
+  };
+};
 
 //** Helpers */
 // fetch all pairs
