@@ -29,6 +29,7 @@ import {
 } from "../utils";
 import Papa from "papaparse";
 import HoverGradientButton from "./HoverGradientButton";
+import { twMerge } from "tailwind-merge";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -55,11 +56,11 @@ function OrdersTabs() {
   const openOrders = useAppSelector(selectOpenOrders);
 
   function tabClass(isActive: boolean) {
-    return (
-      "tab w-max no-underline h-full py-3 tab-border-1 font-bold text-sm uppercase leading-4" +
-      (isActive
-        ? " tab-active tab-bordered text-accent-focus !border-accent"
-        : "")
+    return twMerge(
+      "px-4 text-secondary-content cursor-pointer w-max no-underline h-full py-3 font-bold text-sm uppercase leading-4",
+      isActive
+        ? "tab-active text-[#CBFC42] border-b-2 border-[#CBFC42]"
+        : "hover:text-base-content"
     );
   }
 
