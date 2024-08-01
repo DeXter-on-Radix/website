@@ -3,31 +3,33 @@ const fetchUsers = async () => {
   const pairsList = await fetchAllPairs();
 
   // fetch all orders for all pairs
-  const allOrders = await Promise.all(
+  const allOrdersByPairs = await Promise.all(
     pairsList.map((pair) => {
       const { address, lastOrderId } = pair;
       const orderIds = Array.from({ length: lastOrderId }, (_, i) => i + 1); // [1, ..., lastOrderId]
 
       return fetchOrdersByPair(address, orderIds);
     })
-  ).flat();
+  );
+  const allOrders = allOrdersByPairs.flat();
 
   // Process orders to count wallet addresses
   const usersDict = {};
   for (let i = 0; i < allOrders.length; i++) {
-    const radixWalletAddress = order[i]?.settlementAccount; // account address for this order
+    console.log(allOrders[i]);
+    const radixWalletAddress = allOrders[i].settlementAccount; // account address for this order
+    console.log({ radixWalletAddress });
     if (!radixWalletAddress) {
       continue;
     }
-    usersDict[radixWalletAddress] = usersDict[radixWalletAddress]
-      ? usersDict[radixWalletAddress] + 1
-      : 1;
+    usersDict[radixWalletAddress] = usersDict[radixWalletAddress] ? usersDict[radixWalletAddress] + 1 : 1;
   }
+  console.log({ usersDict });
 
   return {
     usersDict: usersDict,
     totalUsers: Object.keys(usersDict).length,
-    totalOrders: Object.values(usersDict).reduce((a, b) => a + b),
+    totalOrders: Object.values(usersDict).reduce((a, b) => a + b, 0),
   };
 };
 
@@ -84,7 +86,7 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
     }
   }
 
-  return { orders: allOrders };
+  return allOrders;
 };
 
 const getChunkArray = (array, size) => {
