@@ -61,12 +61,13 @@ const fetchAllPairs = async () => {
 
 // fetch orders
 const fetchOrdersByPair = async (pairAddress, orderIds) => {
-  try {
-    const allOrders = [];
-    const chunks = getChunkArray(orderIds, 99);
+  const allOrders = [];
+  const chunks = getChunkArray(orderIds, 99);
 
-    // fetch all orders by batches of 99 orders
-    for (const chunkOrderIds of chunks) {
+  // fetch all orders by batches of 99 orders
+  for (const chunkOrderIds of chunks) {
+    try {
+      console.log("Fetching batch for " + pairAddress);
       const response = await fetch("https://api.alphadex.net/v0/pair/orders", {
         method: "POST",
         headers: {
@@ -75,19 +76,15 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
         body: JSON.stringify({ pairAddress, orderIds: chunkOrderIds }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error while fetching orders by pair");
-      }
-
       const data = await response.json();
       allOrders.push(...data.orders);
-    }
 
-    return { orders: allOrders };
-  } catch (error) {
-    console.error("fetchOrdersByPair -> error", error);
-    return { orders: [] };
+    } catch (err) {
+      console.log(err);
+    }
   }
+
+  return { orders: allOrders };
 };
 
 const getChunkArray = (array, size) => {
