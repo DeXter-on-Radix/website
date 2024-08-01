@@ -95,3 +95,10 @@ const getChunkArray = (array, size) => {
 
   return chunkArray;
 };
+
+
+// RUN SCRIPT
+(async () => {
+  const result = await fetchUsers();
+  console.log(result)
+})();
