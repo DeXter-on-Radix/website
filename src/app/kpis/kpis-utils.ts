@@ -18,6 +18,8 @@ export interface KpiData {
     uniqueVisitors: WeeklySnapshot[];
     pageRequests: WeeklySnapshot[];
   };
+  totalUsers: number;
+  totalOrders: number;
 }
 
 interface WeeklySnapshot {
@@ -113,6 +115,10 @@ function extractData(rawData: string): KpiData {
   const instagramFollowers = extractNumbersFromRow(rows[7]).slice(-1)[0];
   const twitterFollowers = extractNumbersFromRow(rows[6]).slice(-1)[0];
 
+  // Get User + Order Count
+  const totalUsers = extractNumbersFromRow(rows[2]).slice(-1)[0];
+  const totalOrders = extractNumbersFromRow(rows[3]).slice(-1)[0];
+
   return {
     tradeVolume: {
       total: {
@@ -133,5 +139,7 @@ function extractData(rawData: string): KpiData {
       twitterFollowers,
       instagramFollowers,
     },
+    totalUsers: totalUsers,
+    totalOrders: totalOrders,
   } as KpiData;
 }
