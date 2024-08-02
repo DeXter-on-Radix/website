@@ -27,15 +27,10 @@ const StatsWidget = () => {
     })();
   }, []);
 
-  // TODO: compute actual users with a script fetching all orders on adex.
   // 1. google sheet data
-  // 1.1. socials data
-  const socials = kpiData?.socials;
-  const numOfIgFollowers = socials?.instagramFollowers ?? 0;
-  const numOfXFollowers = socials?.twitterFollowers ?? 0;
-  const numOfUTubeFollowers = socials?.youtubeSubscribers ?? 0;
-  const totalNumOfFollowers =
-    numOfIgFollowers + numOfXFollowers + numOfUTubeFollowers;
+  // 1.1. total users + total orders
+  const totalUsers = kpiData?.totalUsers;
+  // const totalOrders = kpiData?.totalOrders;
 
   // 1.2. trade volume data - total & weekly - XRD & USD
   const tradeVolume = kpiData?.tradeVolume;
@@ -53,10 +48,10 @@ const StatsWidget = () => {
   return (
     <div className="flex w-full opacity-80 flex-col gap-y-8 mx-auto justify-center items-center mt-8 mb-32">
       {/* users */}
-      {totalNumOfFollowers ? (
+      {totalUsers ? (
         <>
           <AnimatedCounter
-            end={totalNumOfFollowers}
+            end={totalUsers}
             decimals={0}
             label={<span className="uppercase">{t("users_trust_us")}</span>}
             wrapperClassName="w-full flex justify-center max-md:flex-col max-md:text-3xl md:text-4xl items-center gap-2 max-md:gap-4"

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchKpiData, KpiData } from "./kpis-utils";
 import { createChart } from "lightweight-charts";
+import { SkeletonRectangle } from "components/Skeleton";
 
 enum Status {
   LOADING = "LOADING",
@@ -28,11 +29,13 @@ export default function Kpis() {
     fetch();
   }, []);
 
+  const isLoading = status === Status.LOADING;
+  const isOk = status === Status.OK;
+
   return (
     <div className="p-10 flex flex-col items-center">
-      {status === Status.LOADING && <LoadingState />}
       {status === Status.ERROR && <ErrorStatus />}
-      {status === Status.OK && <KpiDashboard kpiData={kpiData} />}
+      {<KpiDashboard isLoading={isLoading} isOk={isOk} kpiData={kpiData} />}
     </div>
   );
 }
@@ -41,11 +44,15 @@ function ErrorStatus() {
   return <>Error!</>;
 }
 
-function LoadingState() {
-  return <>Loading...</>;
-}
-
-function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
+function KpiDashboard({
+  kpiData,
+  isLoading = true,
+  isOk = false,
+}: {
+  kpiData: KpiData;
+  isLoading: boolean;
+  isOk: boolean;
+}) {
   return (
     <>
       <div className="xs:w-[400px] sm:w-[400px] md:[800px] lg:w-[800px] max-w-[100vw]">
@@ -58,66 +65,108 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
                 <p className="text-sm text-[#768089] pb-1">
                   TOTAL Trade Volume (USD)
                 </p>
-                <p className="text-xl">
-                  {Math.round(kpiData.tradeVolume.total.USD).toLocaleString(
-                    "en-EN"
-                  )}{" "}
-                  USD
-                </p>
+                {isLoading ? (
+                  <SkeletonRectangle width="w-32" height="h-7" />
+                ) : isOk ? (
+                  <p className="text-xl">
+                    {Math.round(
+                      kpiData?.tradeVolume?.total?.USD
+                    )?.toLocaleString("en-EN")}{" "}
+                    USD
+                  </p>
+                ) : null}
               </div>
+
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
-                <LineChart
-                  title={"Weekly Trade Volume (USD)"}
-                  x={kpiData.tradeVolume.weekly.USD.map(
-                    (o) => o.weekIdentifier
-                  )}
-                  y={kpiData.tradeVolume.weekly.USD.map((o) => o.value)}
-                />
+                {isLoading ? (
+                  <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
+                    <SkeletonRectangle width="w-44" height="h-6" />
+                    <SkeletonRectangle width="w-full" height="h-full" />
+                  </div>
+                ) : isOk ? (
+                  <LineChart
+                    title={"Weekly Trade Volume (USD)"}
+                    x={kpiData?.tradeVolume?.weekly?.USD?.map(
+                      (o) => o.weekIdentifier
+                    )}
+                    y={kpiData?.tradeVolume?.weekly?.USD?.map((o) => o.value)}
+                  />
+                ) : null}
               </div>
             </div>
+
             <div className="m-1">
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mb-1">
                 <p className="text-sm text-[#768089] pb-1">
                   TOTAL Trade Volume (XRD)
                 </p>
-                <p className="text-xl">
-                  {Math.round(kpiData.tradeVolume.total.XRD).toLocaleString(
-                    "en-EN"
-                  )}{" "}
-                  XRD
-                </p>
+                {isLoading ? (
+                  <SkeletonRectangle width="w-32" height="h-7" />
+                ) : isOk ? (
+                  <p className="text-xl">
+                    {Math.round(kpiData.tradeVolume.total.XRD).toLocaleString(
+                      "en-EN"
+                    )}{" "}
+                    XRD
+                  </p>
+                ) : null}
               </div>
               <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl mt-1">
-                <LineChart
-                  title={"Weekly Trade Volume (XRD)"}
-                  x={kpiData.tradeVolume.weekly.XRD.map(
-                    (o) => o.weekIdentifier
-                  )}
-                  y={kpiData.tradeVolume.weekly.XRD.map((o) => o.value)}
-                />
+                {isLoading ? (
+                  <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
+                    <SkeletonRectangle width="w-44" height="h-6" />
+                    <SkeletonRectangle width="w-full" height="h-full" />
+                  </div>
+                ) : isOk ? (
+                  <LineChart
+                    title={"Weekly Trade Volume (XRD)"}
+                    x={kpiData.tradeVolume.weekly.XRD.map(
+                      (o) => o.weekIdentifier
+                    )}
+                    y={kpiData.tradeVolume.weekly.XRD.map((o) => o.value)}
+                  />
+                ) : null}
               </div>
             </div>
           </div>
         </div>
+
         <div className="flex flex-col mt-8">
           <p className="text-2xl m-1 !mb-1">Website</p>
           <div className="flex flex-wrap">
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
-              <LineChart
-                title={"Page Requests (Weekly)"}
-                x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
-                y={kpiData.website.pageRequests.map((o) => o.value)}
-              />
+              {isLoading ? (
+                <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
+                  <SkeletonRectangle width="w-44" height="h-6" />
+                  <SkeletonRectangle width="w-full" height="h-full" />
+                </div>
+              ) : isOk ? (
+                <LineChart
+                  title={"Page Requests (Weekly)"}
+                  x={kpiData.website.pageRequests.map((o) => o.weekIdentifier)}
+                  y={kpiData.website.pageRequests.map((o) => o.value)}
+                />
+              ) : null}
             </div>
             <div className="border-[#2e2e2e] border-[2px] p-4 rounded-xl m-1">
-              <LineChart
-                title={"Unique Visitors (Weekly)"}
-                x={kpiData.website.uniqueVisitors.map((o) => o.weekIdentifier)}
-                y={kpiData.website.uniqueVisitors.map((o) => o.value)}
-              />
+              {isLoading ? (
+                <div className="flex flex-col gap-y-4 w-[357px] h-[280px]">
+                  <SkeletonRectangle width="w-44" height="h-6" />
+                  <SkeletonRectangle width="w-full" height="h-full" />
+                </div>
+              ) : isOk ? (
+                <LineChart
+                  title={"Unique Visitors (Weekly)"}
+                  x={kpiData.website.uniqueVisitors.map(
+                    (o) => o.weekIdentifier
+                  )}
+                  y={kpiData.website.uniqueVisitors.map((o) => o.value)}
+                />
+              ) : null}
             </div>
           </div>
         </div>
+
         <div className="flex flex-col mt-8 pb-24 w-full">
           <p className="text-2xl">Socials</p>
           <div className="flex w-full justify-between flex-wrap">
@@ -125,27 +174,39 @@ function KpiDashboard({ kpiData }: { kpiData: KpiData }) {
               <img src="/socials/youtube.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Subscribers</p>
-                <p className="text-2xl text-[#FFFFFF]">
-                  {kpiData.socials.youtubeSubscribers}
-                </p>
+                {isLoading ? (
+                  <SkeletonRectangle width="w-24" height="h-7" />
+                ) : isOk ? (
+                  <p className="text-2xl text-[#FFFFFF]">
+                    {kpiData.socials.youtubeSubscribers}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2 border-[#2e2e2e] border-[2px] p-4 rounded-xl ">
               <img src="/socials/instagram.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
-                <p className="text-2xl text-[#FFFFFF]">
-                  {kpiData.socials.instagramFollowers}
-                </p>
+                {isLoading ? (
+                  <SkeletonRectangle width="w-24" height="h-7" />
+                ) : isOk ? (
+                  <p className="text-2xl text-[#FFFFFF]">
+                    {kpiData.socials.instagramFollowers}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="flex lg:w-[265px] sm:w-[400px] xs:w-[400px] sm:mt-2 xs:mt-2 border-[#2e2e2e] border-[2px] p-4 rounded-xl ">
               <img src="/socials/twitter.png" width={56} height={56} alt="" />
               <div className="pl-2">
                 <p className="text-[11px]">Followers</p>
-                <p className="text-2xl text-[#FFFFFF]">
-                  {kpiData.socials.twitterFollowers}
-                </p>
+                {isLoading ? (
+                  <SkeletonRectangle width="w-24" height="h-7" />
+                ) : isOk ? (
+                  <p className="text-2xl text-[#FFFFFF]">
+                    {kpiData.socials.twitterFollowers}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>
