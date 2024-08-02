@@ -6,10 +6,6 @@ import Image from "next/image";
 import React from "react";
 
 import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
-import {
-  fetchAccountHistory,
-  fetchAccountHistoryAllPairs,
-} from "state/accountHistorySlice";
 
 interface PairInfo {
   name: string;
@@ -96,8 +92,6 @@ export function PairSelector() {
           pairName: option["name"],
         })
       );
-      dispatch(fetchAccountHistory);
-      dispatch(fetchAccountHistoryAllPairs);
       setHighlightedIndex(-1);
       setIsOpen(!isOpen);
     },

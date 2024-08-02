@@ -75,9 +75,10 @@ export const fetchAccountHistoryAllPairs = createAsyncThunk<
   { state: RootState }
 >("accountHistory/fetchAccountHistoryAllPairs", async (_, thunkAPI) => {
   const state = thunkAPI.getState();
-  const pairAddresses = state.pairSelector.pairsList
-    .map((pairInfo) => pairInfo.address)
-    .filter((pairAddress) => pairAddress !== state.pairSelector.address);
+  const pairAddresses = state.pairSelector.pairsList.map(
+    (pairInfo) => pairInfo.address
+  );
+  // .filter((pairAddress) => pairAddress !== state.pairSelector.address);
 
   const account = state.radix?.walletData.accounts[0]?.address || "";
 
@@ -267,13 +268,25 @@ export const selectOrderHistory = createSelector(
 // A function that checks an order against a filter condition and returns TRUE if it matches, FALSE otherwise
 type FilterFunction = (order: adex.OrderReceipt) => boolean;
 
-// Selectors can have input arguments
 let selectCombinedOrders = (filterFunction: FilterFunction) =>
   createSelector(
     (state: RootState) => state.accountHistory.orderHistory,
     (state: RootState) => state.accountHistory.orderHistoryAllPairs,
     (orderHistory, orderHistoryAllPairs) => {
-      return [...orderHistoryAllPairs, ...orderHistory]
+      // Create a Map to handle duplicates
+      const orderMap = new Map<number, adex.OrderReceipt>();
+
+      // Add orders from orderHistory
+      orderHistory.forEach((order) => {
+        orderMap.set(order.id, order);
+      });
+
+      // Add orders from orderHistoryAllPairs, will overwrite any duplicates from orderHistory
+      orderHistoryAllPairs.forEach((order) => {
+        orderMap.set(order.id, order);
+      });
+
+      return Array.from(orderMap.values())
         .filter(filterFunction)
         .sort((a, b) => {
           const timeDifference =
