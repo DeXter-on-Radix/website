@@ -28,6 +28,8 @@ import {
   calculateTotalFees,
 } from "../utils";
 import Papa from "papaparse";
+import HoverGradientButton from "./HoverGradientButton";
+import { twMerge } from "tailwind-merge";
 
 import {
   setHideOtherPairs,
@@ -60,11 +62,11 @@ function OrdersTabs() {
   const openOrders = useAppSelector(selectOpenOrders);
 
   function tabClass(isActive: boolean) {
-    return (
-      "tab w-max no-underline h-full py-3 tab-border-1 font-bold text-sm uppercase leading-4" +
-      (isActive
-        ? " tab-active tab-bordered text-accent-focus !border-accent"
-        : "")
+    return twMerge(
+      "px-4 text-secondary-content cursor-pointer w-max no-underline h-full py-3 font-bold text-sm uppercase leading-4",
+      isActive
+        ? "tab-active text-[#CBFC42] border-b-2 border-[#CBFC42]"
+        : "hover:text-base-content"
     );
   }
 
@@ -93,7 +95,7 @@ function OrdersTabs() {
 export function AccountHistory() {
   const dispatch = useAppDispatch();
   const account = useAppSelector(
-    (state) => state.radix?.walletData.accounts[0]?.address
+    (state) => state.radix?.selectedAccount?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
@@ -614,6 +616,7 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
 };
 
 const ExportCsvButton = () => {
+  const t = useTranslations();
   const { orderHistory } = useAppSelector((state) => state.accountHistory);
 
   const handleExport = () => {
@@ -657,12 +660,10 @@ const ExportCsvButton = () => {
   }
 
   return (
-    <button
-      onClick={handleExport}
-      className="whitespace-nowrap text-sm font-bold hover:text-dexter-gradient-green"
-    >
-      export as csv
-    </button>
+    <HoverGradientButton
+      handleClick={handleExport}
+      label={t("export_as_csv")}
+    />
   );
 };
 

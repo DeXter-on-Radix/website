@@ -3,6 +3,7 @@ import {
   formatNumericString,
   truncateWithPrecision,
   toFixedRoundDown,
+  shortenWalletAddress,
 } from "./utils";
 
 // the separators are set to "." and " " for testing purposes
@@ -325,5 +326,21 @@ describe("toFixedRoundDown", () => {
     expect(() => toFixedRoundDown(0, -2)).toThrow(
       "Precision cannot be negative"
     );
+  });
+});
+
+describe("shortenWalletAddress", () => {
+  it("should return the same address if the length is less than 35 characters", () => {
+    const shortAddress = "abc123";
+    const result = shortenWalletAddress(shortAddress);
+    expect(result).toBe(shortAddress);
+  });
+
+  it("should shorten the address correctly", () => {
+    const address =
+      "account_rdx128j46ndap3fvlkdg6llzja9qteamr8ve89cjjyyekh2gggfpw34yxq";
+    const expectedShortened = "account_...cjjyyekh2gggfpw34yxq";
+    const result = shortenWalletAddress(address);
+    expect(result).toBe(expectedShortened);
   });
 });

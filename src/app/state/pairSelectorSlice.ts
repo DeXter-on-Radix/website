@@ -68,7 +68,7 @@ export const fetchBalances = createAsyncThunk<
             await gatewayApiClient.state.innerClient.entityFungibleResourceVaultPage(
               {
                 stateEntityFungibleResourceVaultsPageRequest: {
-                  address: state.radix.walletData.accounts[0].address,
+                  address: state.radix.selectedAccount?.address,
                   // eslint-disable-next-line camelcase
                   resource_address: token.address,
                 },
