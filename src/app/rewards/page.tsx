@@ -103,7 +103,7 @@ function RewardsCard() {
   );
   const account = selectedAccount?.address;
   const t = useTranslations();
-  const { rewardData, pairsList } = useAppSelector(
+  const { rewardData, pairsList, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
@@ -150,6 +150,8 @@ function RewardsCard() {
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
+              : isLoading
+              ? t("loading...")
               : t("no_rewards_to_claim")}
           </h4>
         </div>
@@ -216,7 +218,9 @@ function ClaimButton() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
-  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const { rewardData, isLoading } = useAppSelector(
+    (state) => state.rewardSlice
+  );
   const userHasRewards = getUserHasRewards(rewardData);
   const disabled = !isConnected || !userHasRewards;
 
@@ -252,7 +256,7 @@ function ClaimButton() {
         );
       }}
     >
-      {t("claim_all_rewards")}
+      {isLoading ? t("loading...") : t("claim_all_rewards")}
     </button>
   );
 }
