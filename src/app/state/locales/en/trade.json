@@ -88,5 +88,6 @@
   "failed_to_cancel_orders": "Failed to cancel orders",
   "connect_wallet_to_batch_delete": "Connect wallet to batch delete",
   "recent_trades": "Recent Trades",
-  "time": "Time"
+  "time": "Time",
+  "export_as_csv": "Export as csv"
 }

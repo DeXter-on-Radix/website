@@ -87,7 +87,7 @@
 }
 @media (max-width: 419px) {
   :root {
-    /* --radix-connect-button-width: 36px; */
+    --radix-connect-button-width: 36px;
   }
 }
 
@@ -117,7 +117,7 @@ input[type="number"]::-ms-clear {
 /* Use slightly darker base color for backgrounds by default */
 :root,
 [data-theme] {
-  background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
+  background-color: oklch(var(--b2) / var(--tw-bg-opacity, 1));
 }
 
 /**

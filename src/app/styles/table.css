@@ -4,7 +4,7 @@
 
 .table tr {
   --tw-bg-opacity: 1;
-  background-color: hsl(var(--b2));
+  background-color: oklch(var(--b2));
 
   /* using borders instead of padding (as padding does not work for tr */
   border-color: transparent;
@@ -15,6 +15,6 @@
 .table tr.active:nth-child(even),
 .table-zebra tbody tr:nth-child(even) {
   --tw-bg-opacity: 1;
-  background-color: hsl(var(--b1) / var(--tw-bg-opacity, 1));
-  border-color: hsl(var(--b1) / var(--tw-bg-opacity, 1));
+  background-color: oklch(var(--b1) / var(--tw-bg-opacity, 1));
+  border-color: oklch(var(--b1) / var(--tw-bg-opacity, 1));
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { DexterButton } from "components/DexterButton";
+import StatsWidget from "components/StatsWidget";
 import { useTranslations, useHydrationErrorFix } from "hooks";
 
 enum Device {
@@ -30,12 +32,6 @@ interface IconTitleAndBodyProps {
   body: string;
 }
 
-interface DexterButtonProps {
-  title: string;
-  targetUrl?: string;
-  targetBlank?: boolean;
-}
-
 interface DexterHeadingProps {
   title: string;
 }
@@ -58,6 +54,7 @@ export default function Landing() {
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
+      <StatsWidget />
       <TopicSection {...tokenomicsProps} />
       <TopicSection {...tradeProps} />
       <TopicSection {...stakeProps} />
@@ -275,26 +272,6 @@ function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
         />
       </div>
     </div>
-  );
-}
-
-function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
-  return (
-    <a
-      href={targetUrl}
-      className="z-100 min-w-[220px] max-w-[220px]"
-      target={`${targetBlank ? "_blank" : ""}`}
-    >
-      <button
-        className={
-          `min-h-[44px] w-[220px] px-4 my-6 mt-8 rounded ` +
-          `bg-dexter-green-OG text-black uppercase ` +
-          `opacity-100 cursor-pointer `
-        }
-      >
-        <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
-      </button>
-    </a>
   );
 }
 

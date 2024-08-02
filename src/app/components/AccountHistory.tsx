@@ -27,6 +27,9 @@ import {
   calculateAvgFilled,
   calculateTotalFees,
 } from "../utils";
+import Papa from "papaparse";
+import HoverGradientButton from "./HoverGradientButton";
+import { twMerge } from "tailwind-merge";
 
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
@@ -53,11 +56,11 @@ function OrdersTabs() {
   const openOrders = useAppSelector(selectOpenOrders);
 
   function tabClass(isActive: boolean) {
-    return (
-      "tab w-max no-underline h-full py-3 tab-border-1 font-bold text-sm uppercase leading-4" +
-      (isActive
-        ? " tab-active tab-bordered text-accent-focus !border-accent"
-        : "")
+    return twMerge(
+      "px-4 text-secondary-content cursor-pointer w-max no-underline h-full py-3 font-bold text-sm uppercase leading-4",
+      isActive
+        ? "tab-active text-[#CBFC42] border-b-2 border-[#CBFC42]"
+        : "hover:text-base-content"
     );
   }
 
@@ -86,7 +89,7 @@ function OrdersTabs() {
 export function AccountHistory() {
   const dispatch = useAppDispatch();
   const account = useAppSelector(
-    (state) => state.radix?.walletData.accounts[0]?.address
+    (state) => state.radix?.selectedAccount?.address
   );
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
@@ -237,7 +240,22 @@ function DisplayTable() {
             ))}
           </tr>
         </thead>
-        <tbody>{tableToShow.rows}</tbody>
+        <tbody>
+          {tableToShow.rows}
+          {selectedTable === Tables.ORDER_HISTORY && (
+            <tr className="!bg-transparent">
+              <td className="lg:hidden">
+                <ExportCsvButton />
+              </td>
+              {headers[Tables.ORDER_HISTORY].slice(1).map((_, index) => (
+                <td key={index}></td>
+              ))}
+              <td className="max-lg:hidden">
+                <ExportCsvButton />
+              </td>
+            </tr>
+          )}
+        </tbody>
       </table>
     </div>
   );
@@ -540,3 +558,57 @@ const OrderHistoryRow = ({ order }: { order: any }) => {
     </tr>
   );
 };
+
+const ExportCsvButton = () => {
+  const t = useTranslations();
+  const { orderHistory } = useAppSelector((state) => state.accountHistory);
+
+  const handleExport = () => {
+    try {
+      const formatedOrderHistory = orderHistory.map((order) => {
+        return {
+          ...order,
+          specifiedToken: order.specifiedToken.symbol,
+          unclaimedToken: order.unclaimedToken.symbol,
+        };
+      });
+
+      // Convert orderHistory array to CSV format
+      const csv = Papa.unparse(formatedOrderHistory);
+
+      // Create a blob from the CSV data
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+      // Create a link element and trigger the download
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        const filename = `dexter-order-history-${
+          new Date().toISOString().split("T")[0]
+        }.csv`;
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      // TODO: add toast notification ?
+      console.error("Error exporting CSV:", error);
+    }
+  };
+
+  // do not display the button if orderHistory is empty
+  if (!orderHistory || orderHistory.length === 0) {
+    return null;
+  }
+
+  return (
+    <HoverGradientButton
+      handleClick={handleExport}
+      label={t("export_as_csv")}
+    />
+  );
+};
+
+export default ExportCsvButton;

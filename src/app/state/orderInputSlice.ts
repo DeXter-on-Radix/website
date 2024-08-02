@@ -680,6 +680,7 @@ async function createTx(state: RootState, rdt: RDT) {
     );
   }
   // Adex creates the transaction manifest
+  const accountAddress = state.radix.selectedAccount?.address || "";
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
@@ -689,8 +690,8 @@ async function createTx(state: RootState, rdt: RDT) {
     price,
     getSlippage(state.orderInput.type),
     PLATFORM_BADGE_ID,
-    state.radix?.walletData.accounts[0]?.address || "", // submit account
-    state.radix?.walletData.accounts[0]?.address || "" // settle account
+    accountAddress, // submit account
+    accountAddress // settle account
   );
   // Then submits the order to the wallet
   return await submitTransaction(createOrderResponse.data, rdt);
