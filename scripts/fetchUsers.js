@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const fetchUsers = async () => {
   // fetch all pairs
@@ -23,7 +23,9 @@ const fetchUsers = async () => {
     if (!radixWalletAddress) {
       continue;
     }
-    usersDict[radixWalletAddress] = usersDict[radixWalletAddress] ? usersDict[radixWalletAddress] + 1 : 1;
+    usersDict[radixWalletAddress] = usersDict[radixWalletAddress]
+      ? usersDict[radixWalletAddress] + 1
+      : 1;
   }
 
   return {
@@ -69,6 +71,7 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
   // fetch all orders by batches of 99 orders
   for (const chunkOrderIds of chunks) {
     try {
+      // eslint-disable-next-line no-console
       console.log("Fetching batch for " + pairAddress);
       const response = await fetch("https://api.alphadex.net/v0/pair/orders", {
         method: "POST",
@@ -80,8 +83,8 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
 
       const data = await response.json();
       allOrders.push(...data.orders);
-
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.log(err);
     }
   }
@@ -102,42 +105,43 @@ const getTimestampedFileName = () => {
   // Get the current date and time
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
   // Format the filename
   return `${year}-${month}-${day}_${hours}${minutes}${seconds}_fetchUsers-output.json`;
-}
+};
 
 const getFilePath = () => {
   const filename = getTimestampedFileName();
-  const directory = path.join(__dirname, '.scriptOutputs');
+  const directory = path.join(__dirname, ".scriptOutputs");
   // Ensure the directory exists
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
   // Return the full path for the file
   return path.join(directory, filename);
-}
+};
 
 const writeObjectToFile = (obj) => {
   const jsonString = JSON.stringify(obj, null, 2);
   const filePath = getFilePath();
   fs.writeFile(filePath, jsonString, (err) => {
     if (err) {
-      console.error('Error writing file:', err);
+      console.error("Error writing file:", err);
     } else {
+      // eslint-disable-next-line no-console
       console.log(`Successfully saved output to file: ${filePath}`);
     }
   });
-}
-
+};
 
 // RUN SCRIPT
 (async () => {
   const result = await fetchUsers();
+  // eslint-disable-next-line no-console
   console.log(result);
   writeObjectToFile(result);
 })();
