@@ -1,58 +1,37 @@
+const fs = require('fs');
+const path = require('path');
+
 const fetchUsers = async () => {
-  try {
-    // fetch all pairs
-    const pairsList = await fetchAllPairs();
+  // fetch all pairs
+  const pairsList = await fetchAllPairs();
 
-    // Aggregate all pairs info
-    const pairsInfo = pairsList.map((pair) => ({
-      pairAddress: pair.address,
-      lastOrderId: pair.lastOrderId,
-    }));
+  // fetch all orders for all pairs
+  const allOrdersByPairs = await Promise.all(
+    pairsList.map((pair) => {
+      const { address, lastOrderId } = pair;
+      const orderIds = Array.from({ length: lastOrderId }, (_, i) => i + 1); // [1, ..., lastOrderId]
 
-    // fetch all orders for all pairs
-    const allOrdersByPair = await Promise.all(
-      pairsInfo.map((pair) => {
-        const { pairAddress, lastOrderId } = pair;
-        const orderIds = Array.from({ length: lastOrderId }, (_, i) => i + 1); // [1, ..., lastOrderId]
+      return fetchOrdersByPair(address, orderIds);
+    })
+  );
+  const allOrders = allOrdersByPairs.flat();
 
-        return fetchOrdersByPair(pairAddress, orderIds);
-      })
-    );
-
-    // Process orders to count wallet addresses
-    const usersFreqCounter = allOrdersByPair.reduce((acc, curr) => {
-      if (!curr?.orders?.length) return acc;
-
-      // process all orders for each pair
-      const orders = curr.orders;
-
-      for (const order of orders) {
-        const radixWalletAddress = order?.settlementAccount; // account address for this order
-
-        if (!radixWalletAddress) continue;
-        else {
-          acc[radixWalletAddress] = (acc[radixWalletAddress] || 0) + 1;
-        }
-      }
-      return acc;
-    }, {});
-
-    // get total unique users count
-    const totalUsersCount = Object.values(usersFreqCounter).reduce(
-      (acc, curr) => {
-        return acc + curr;
-      },
-      0
-    );
-
-    return { usersFreqCounter, totalUsersCount };
-  } catch (error) {
-    console.error("fetchUsers -> error", error);
-    return { usersFreqCounter: {}, totalUsersCount: 0 };
+  // Process orders to count wallet addresses
+  const usersDict = {};
+  for (let i = 0; i < allOrders.length; i++) {
+    const radixWalletAddress = allOrders[i].settlementAccount; // account address for this order
+    if (!radixWalletAddress) {
+      continue;
+    }
+    usersDict[radixWalletAddress] = usersDict[radixWalletAddress] ? usersDict[radixWalletAddress] + 1 : 1;
   }
-};
 
-export default fetchUsers;
+  return {
+    usersDict: usersDict,
+    totalUsers: Object.keys(usersDict).length,
+    totalOrders: Object.values(usersDict).reduce((a, b) => a + b, 0),
+  };
+};
 
 //** Helpers */
 // fetch all pairs
@@ -84,12 +63,13 @@ const fetchAllPairs = async () => {
 
 // fetch orders
 const fetchOrdersByPair = async (pairAddress, orderIds) => {
-  try {
-    const allOrders = [];
-    const chunks = getChunkArray(orderIds, 99);
+  const allOrders = [];
+  const chunks = getChunkArray(orderIds, 99);
 
-    // fetch all orders by batches of 99 orders
-    for (const chunkOrderIds of chunks) {
+  // fetch all orders by batches of 99 orders
+  for (const chunkOrderIds of chunks) {
+    try {
+      console.log("Fetching batch for " + pairAddress);
       const response = await fetch("https://api.alphadex.net/v0/pair/orders", {
         method: "POST",
         headers: {
@@ -98,19 +78,15 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
         body: JSON.stringify({ pairAddress, orderIds: chunkOrderIds }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error while fetching orders by pair");
-      }
-
       const data = await response.json();
       allOrders.push(...data.orders);
-    }
 
-    return { orders: allOrders };
-  } catch (error) {
-    console.error("fetchOrdersByPair -> error", error);
-    return { orders: [] };
+    } catch (err) {
+      console.log(err);
+    }
   }
+
+  return allOrders;
 };
 
 const getChunkArray = (array, size) => {
@@ -121,3 +97,47 @@ const getChunkArray = (array, size) => {
 
   return chunkArray;
 };
+
+const getTimestampedFileName = () => {
+  // Get the current date and time
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  // Format the filename
+  return `${year}-${month}-${day}_${hours}${minutes}${seconds}_fetchUsers-output.json`;
+}
+
+const getFilePath = () => {
+  const filename = getTimestampedFileName();
+  const directory = path.join(__dirname, '.scriptOutputs');
+  // Ensure the directory exists
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+  // Return the full path for the file
+  return path.join(directory, filename);
+}
+
+const writeObjectToFile = (obj) => {
+  const jsonString = JSON.stringify(obj, null, 2);
+  const filePath = getFilePath();
+  fs.writeFile(filePath, jsonString, (err) => {
+    if (err) {
+      console.error('Error writing file:', err);
+    } else {
+      console.log(`Successfully saved output to file: ${filePath}`);
+    }
+  });
+}
+
+
+// RUN SCRIPT
+(async () => {
+  const result = await fetchUsers();
+  console.log(result);
+  writeObjectToFile(result);
+})();
