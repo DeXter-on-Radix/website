@@ -101,6 +101,9 @@ export const rewardSlice = createSlice({
       };
       state.showSuccessUi = false;
     },
+    resetShowSuccessUi: (state) => {
+      state.showSuccessUi = false;
+    },
   },
 
   extraReducers: (builder) => {
@@ -123,6 +126,7 @@ export const rewardSlice = createSlice({
       // fetchReciepts
       .addCase(fetchReciepts.pending, (state) => {
         state.recieptIds = [];
+        state.showSuccessUi = false;
       })
       .addCase(fetchReciepts.fulfilled, (state, action) => {
         state.recieptIds = action.payload;
@@ -182,11 +186,9 @@ export const fetchReciepts = createAsyncThunk<
   }
 >("rewards/fetchReciepts", async (pairsList, thunkAPI) => {
   const gatewayApiClient = getGatewayApiClientOrThrow();
-  // const walletData = rdt.walletApi.getWalletData();
   const state = thunkAPI.getState();
-  const accounts = state.radix.walletData.accounts;
-  // Todo support multiple wallets ids
-  const accountAddress = accounts[0].address;
+  const account = state.radix.selectedAccount;
+  const accountAddress = account.address;
   // get all NFTs from your wallet
   const { items } =
     await gatewayApiClient.state.innerClient.entityNonFungiblesPage({
@@ -230,18 +232,15 @@ export const fetchAccountRewards = createAsyncThunk<
     state: RootState;
   }
 >("rewards/fetchAccountRewards", async (_, thunkAPI) => {
-  // const rdt = getRdtOrThrow();
   const state = thunkAPI.getState();
   if (!state.rewardSlice.config.rewardNFTAddress) {
     throw new Error("Missing rewardNFTAddress");
   }
-  // const walletData = rdt.walletApi.getWalletData();
-  const accounts = state.radix.walletData.accounts;
-  if (accounts.length == 0) {
-    throw new Error("No accounts connected");
+  const account = state.radix.selectedAccount;
+  if (!account) {
+    throw new Error("No account connected");
   }
-  //Todo support multiple wallets ids
-  const accountAddress = accounts[0].address;
+  const accountAddress = account.address;
   return await getAccountRewards(
     [accountAddress],
     state.rewardSlice.config.rewardNFTAddress
@@ -336,8 +335,7 @@ export const claimRewards = createAsyncThunk<
 
   let claimRewardsManifest = "";
   // create a manifest to create a proof of all accountRewardNfts in the current account
-  const walletData = rdt.walletApi.getWalletData();
-  const accountAddress = walletData?.accounts[0].address;
+  const accountAddress = thunkAPI.getState().radix.selectedAccount?.address;
   let accountNftIds = state.rewardData.accountsRewards.map(
     (accountRewards) =>
       `NonFungibleLocalId("${createAccountNftId(

@@ -43,14 +43,14 @@ module.exports = {
       {
         dark: {
           // full list of available color vars at https://daisyui.com/docs/colors/
-          ...require("daisyui/src/theming/themes")["[data-theme=dark]"],
+          ...require("daisyui/src/theming/themes")["dark"],
 
           // unused colors not listed
           // override more colors if needed below
 
           "secondary-content": "#858D92",
           accent: "#CBFC42",
-          "accent-focus": "#CBFC42",
+          // "accent-focus": "#CBFC42", // daisyUI 4 : *-focus colors are removed - https://daisyui.com/blog/how-to-update-daisyui-4/
           "accent-content": "#000000",
           primary: "#000000",
           "primary-content": "#FFFFFF",
@@ -80,7 +80,7 @@ module.exports = {
       },
       {
         light: {
-          ...require("daisyui/src/theming/themes")["[data-theme=light]"],
+          ...require("daisyui/src/theming/themes")["light"],
           // TODO: configure these colors when working with light theme
 
           "secondary-content": "#858D92",
@@ -111,7 +111,7 @@ module.exports = {
     base: true, // applies background color and foreground color for root element by default
     styled: true, // include daisyUI colors and design decisions for all components
     utils: true, // adds responsive and modifier utility classes
-    rtl: false, // rotate style direction from left-to-right to right-to-left. You also need to add dir="rtl" to your html tag and install `tailwindcss-flip` plugin for Tailwind CSS.
+    rtl: false, // rotate style direction from left-to-right to right-to-left. You also need to add dir="rtl" to your html tag.
     prefix: "", // prefix for daisyUI classnames (components, modifiers and responsive class names. Not colors)
     logs: true, // Shows info about daisyUI version and used config in the console when building your CSS
   },

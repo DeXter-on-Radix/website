@@ -1,13 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
+import {
+  WalletDataState,
+  WalletDataStateAccount,
+} from "@radixdlt/radix-dapp-toolkit";
 
 export type WalletData = WalletDataState;
 
 export interface RadixState {
   walletData: WalletData;
   isConnected: boolean;
+  selectedAccount: WalletDataStateAccount;
 }
 
 const initialState: RadixState = {
@@ -17,6 +21,7 @@ const initialState: RadixState = {
     proofs: [],
   },
   isConnected: false,
+  selectedAccount: {} as WalletDataStateAccount,
 };
 
 export const radixSlice = createSlice({
@@ -28,6 +33,16 @@ export const radixSlice = createSlice({
     setWalletData: (state: RadixState, action: PayloadAction<WalletData>) => {
       state.isConnected = action.payload.accounts.length > 0;
       state.walletData = action.payload;
+      state.selectedAccount =
+        action.payload.accounts.length > 0
+          ? action.payload.accounts[0]
+          : ({} as WalletDataStateAccount);
+    },
+    selectAccount: (
+      state: RadixState,
+      action: PayloadAction<WalletDataStateAccount>
+    ) => {
+      state.selectedAccount = action.payload;
     },
   },
 });
