@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
@@ -237,41 +239,50 @@ function NavbarItemsDesktop() {
 function HamburgerMenu() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="sm:hidden flex justify-center items-center mr-6 ml-4">
+    <div className="sm:hidden flex justify-center items-center mr-6 ml-4 relative right-4">
       <button onClick={() => setMenuOpen(true)}>
-        <Image
-          src="/hamburger-icon.svg"
-          alt="menu"
-          width="32"
-          height="32"
-          className="h-auto color-white"
-        />
+        <AnimatedBurger menuOpen={menuOpen} />
       </button>
-      {menuOpen && <MobileMenu setMenuOpen={setMenuOpen} />}
+      <MobileMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
     </div>
   );
 }
 
 function MobileMenu({
+  menuOpen,
   setMenuOpen,
 }: {
+  menuOpen: boolean;
   setMenuOpen: (newMenuOpen: boolean) => void;
 }) {
+  const isClient = useHydrationErrorFix();
+  if (!isClient) return null;
+
   return (
     <div
-      className={`flex flex-col items-end w-[100vw] h-[100vh] bg-[rgba(0,0,0,0.8)] overflow-hidden z-[1000] fixed top-0 left-0 backdrop-blur-lg py-5 ${
-        isMobile() ? "px-6" : "px-10"
-      }`}
+      className={`flex flex-col 
+          items-end 
+          w-[100vw] h-[100vh] 
+          overflow-hidden 
+          z-[1000] 
+          fixed top-0 left-0 
+          py-5
+          bg-[rgba(0,0,0,0.8)] backdrop-blur-lg
+           ${isMobile() ? "px-6" : "px-10"}
+            ${
+              menuOpen
+                ? "opacity-100 scale-100"
+                : "opacity-0 scale-95 pointer-events-none"
+            }
+            transition-all duration-300
+           `}
     >
       {/* Close Menu Button */}
-      <button onClick={() => setMenuOpen(false)}>
-        <Image
-          src="/close-x.svg"
-          alt="menu"
-          width="32"
-          height="32"
-          className="h-auto color-white opacity-70"
-        />
+      <button
+        onClick={() => setMenuOpen(false)}
+        className="absolute top-8 w-7 right-4"
+      >
+        <AnimatedBurger menuOpen={menuOpen} isInModal={true} />
       </button>
       {/* Navbar Items */}
       <div className="mt-10 w-full">
@@ -372,3 +383,50 @@ function LanguageSelection({
 function HideOnSmallScreens({ children }: { children: React.ReactNode }) {
   return <div className="hidden sm:flex">{children}</div>;
 }
+
+const AnimatedBurger = ({
+  menuOpen,
+  isInModal = false,
+}: {
+  menuOpen: boolean;
+  isInModal?: boolean;
+}) => {
+  return (
+    <div
+      className={`
+            absolute 
+            top-1/2 
+            ${menuOpen ? "-translate-y-2.5" : "-translate-y-1/2"}
+            h-[0.175rem] w-7 
+
+            rounded-sm
+            ${menuOpen ? "bg-transparent" : "bg-secondary-content"}
+            transition-all
+            duration-500
+            
+            before:absolute 
+            before:content-[""]
+            before:h-[0.175rem] before:w-7
+            before:-translate-x-3.5
+            before:-translate-y-2.5
+            before:rounded-sm
+            before:bg-secondary-content
+            before:transition-all
+            before:duration-500
+            ${menuOpen ? "before:rotate-45" : ""}
+            ${isInModal ? "before:translate-y-2.5" : ""}
+
+            after:absolute 
+            after:content-[""]
+            after:h-[0.175rem] after:w-7
+            after:-translate-x-3.5
+            after:translate-y-2.5
+            after:rounded-sm
+            after:bg-secondary-content
+            after:transition-all after:duration-500
+            ${menuOpen ? "after:-translate-y-2.5 after:-rotate-45" : ""}
+            
+            `}
+    ></div>
+  );
+};
