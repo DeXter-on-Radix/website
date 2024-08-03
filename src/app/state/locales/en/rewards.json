@@ -13,5 +13,6 @@
   "rewards_claimed": "Rewards claimed",
   "continue_trading_to_earn_more": "Continue trading or staking to earn more and come back later.",
   "go_back": "Go back",
-  "no_rewards_to_claim": "No rewards to claim"
+  "no_rewards_to_claim": "No rewards to claim",
+  "loading...": "Loading..."
 }
