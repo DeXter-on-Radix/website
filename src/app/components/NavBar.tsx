@@ -291,7 +291,7 @@ function MobileMenu({
         <h3 className="w-full text-center text-secondary-content font-light text-base">
           Language Selection
         </h3>
-        <LanguageSelection />
+        <LanguageSelection setMenuOpen={setMenuOpen} />
       </div>
     </div>
   );
@@ -336,7 +336,11 @@ function NavbarItemMobile({
   );
 }
 
-function LanguageSelection() {
+function LanguageSelection({
+  setMenuOpen,
+}: {
+  setMenuOpen?: (newMenuOpen: boolean) => void;
+}) {
   const dispatch = useAppDispatch();
   const supportedLanguagesStr = useSelector(getSupportedLanguagesAsString);
   const supportedLanguages = supportedLanguagesStr.split(",");
@@ -345,6 +349,7 @@ function LanguageSelection() {
   const handleLanguageChange = (lang: string) => {
     Cookies.set("userLanguage", lang, { expires: 365 }); // Set a cookie for 1 year
     dispatch(i18nSlice.actions.changeLanguage(lang.toLowerCase()));
+    setMenuOpen && setMenuOpen(false); // close mobile menu
   };
 
   return (
