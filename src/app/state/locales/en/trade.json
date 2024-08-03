@@ -89,5 +89,6 @@
   "connect_wallet_to_batch_delete": "Connect wallet to batch delete",
   "recent_trades": "Recent Trades",
   "time": "Time",
-  "export_as_csv": "Export as csv"
+  "export_as_csv": "Export as csv",
+  "pair_info": "Pair info"
 }

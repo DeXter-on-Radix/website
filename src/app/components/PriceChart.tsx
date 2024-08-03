@@ -1,5 +1,5 @@
 import { createChart } from "lightweight-charts";
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
   OHLCVData,
@@ -11,6 +11,7 @@ import {
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
+// import { twMerge } from "tailwind-merge";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -260,35 +261,46 @@ function PriceChartCanvas(props: PriceChartProps) {
   );
 }
 
+enum ChartTabOptions {
+  TRADING_CHART = "TRADING_CHART",
+  PAIR_INFO = "PAIR_INFO",
+}
+
 export function PriceChart() {
   const t = useTranslations();
-  const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
-
-  const candlePrice = useAppSelector(
-    (state) => state.priceChart.legendCandlePrice
-  );
-  const change = useAppSelector((state) => state.priceChart.legendChange);
-  const percChange = useAppSelector(
-    (state) => state.priceChart.legendPercChange
-  );
-  const currentVolume = useAppSelector(
-    (state) => state.priceChart.legendCurrentVolume
-  );
 
   // Set default candlePeriod state as defined in initialState of priceChartSlice
   useEffect(() => {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
   }, [dispatch]);
 
+  const [currentTab, setCurrentTab] = useState(ChartTabOptions.TRADING_CHART);
+
   return (
-    <>
+    <div>
       <div className="flex items-center justify-between sm:pr-10 pr-4">
-        <div className="">
-          <span className="block text-secondary-content text-sm font-bold uppercase">
-            {t("trading_chart")}
-          </span>
+        <div className="flex space-x-5 p-4">
+          {[
+            [t("trading_chart"), ChartTabOptions.TRADING_CHART],
+            [t("pair_info"), ChartTabOptions.PAIR_INFO],
+          ].map(([title, tab], indx) => {
+            const isActive = tab === currentTab;
+            return (
+              <span
+                key={indx}
+                className={`text-base ${
+                  isActive
+                    ? "text-dexter-green-OG border-b border-[#cafc40]"
+                    : "text-[#768089]"
+                } cursor-pointer`}
+                onClick={() => setCurrentTab(tab as ChartTabOptions)}
+              >
+                {title}
+              </span>
+            );
+          })}
         </div>
         <div className="">
           {CANDLE_PERIODS.map((period) => (
@@ -306,6 +318,31 @@ export function PriceChart() {
           ))}
         </div>
       </div>
+      <div>
+        {currentTab === ChartTabOptions.TRADING_CHART && <TradingChart />}
+        {currentTab === ChartTabOptions.PAIR_INFO && <PairInfoTab />}
+      </div>
+    </div>
+  );
+}
+
+export default PriceChart;
+
+export function TradingChart() {
+  const state = useAppSelector((state) => state.priceChart);
+  const candlePrice = useAppSelector(
+    (state) => state.priceChart.legendCandlePrice
+  );
+  const change = useAppSelector((state) => state.priceChart.legendChange);
+  const percChange = useAppSelector(
+    (state) => state.priceChart.legendPercChange
+  );
+  const currentVolume = useAppSelector(
+    (state) => state.priceChart.legendCurrentVolume
+  );
+
+  return (
+    <>
       <PriceChartCanvas
         data={state.ohlcv}
         candlePrice={candlePrice}
@@ -314,5 +351,11 @@ export function PriceChart() {
         volume={currentVolume}
       />
     </>
+  );
+}
+
+export function PairInfoTab() {
+  return (
+    <div className="p-2 !pt-0 text-sx text-primary-content">pair info</div>
   );
 }
