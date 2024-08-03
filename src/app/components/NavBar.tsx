@@ -240,7 +240,10 @@ function HamburgerMenu() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="sm:hidden flex justify-center items-center mr-6 ml-4 relative right-4">
-      <button onClick={() => setMenuOpen(true)}>
+      <button
+        onClick={() => setMenuOpen((prev) => !prev)}
+        className={`absolute right-2 z-[9999] top-1/2 -translate-y-1/2`}
+      >
         <AnimatedBurger menuOpen={menuOpen} />
       </button>
       <MobileMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
@@ -277,13 +280,6 @@ function MobileMenu({
             transition-all duration-300
            `}
     >
-      {/* Close Menu Button */}
-      <button
-        onClick={() => setMenuOpen(false)}
-        className="absolute top-8 w-7 right-4"
-      >
-        <AnimatedBurger menuOpen={menuOpen} isInModal={true} />
-      </button>
       {/* Navbar Items */}
       <div className="mt-10 w-full">
         {NavItems.map((navItem, indx) => {
@@ -386,7 +382,6 @@ function HideOnSmallScreens({ children }: { children: React.ReactNode }) {
 
 const AnimatedBurger = ({
   menuOpen,
-  isInModal = false,
 }: {
   menuOpen: boolean;
   isInModal?: boolean;
@@ -394,9 +389,10 @@ const AnimatedBurger = ({
   return (
     <div
       className={`
+            z-[9999]
             absolute 
             top-1/2 
-            ${menuOpen ? "-translate-y-2.5" : "-translate-y-1/2"}
+            ${menuOpen ? "-translate-y-1" : ""}
             h-[0.175rem] w-7 
 
             rounded-sm
@@ -408,24 +404,23 @@ const AnimatedBurger = ({
             before:content-[""]
             before:h-[0.175rem] before:w-7
             before:-translate-x-3.5
-            before:-translate-y-2.5
+            before:-translate-y-[0.65rem]
             before:rounded-sm
             before:bg-secondary-content
             before:transition-all
             before:duration-500
-            ${menuOpen ? "before:rotate-45" : ""}
-            ${isInModal ? "before:translate-y-2.5" : ""}
+            ${menuOpen ? "before:rotate-45 before:translate-y-[45%]" : ""}
 
             after:absolute 
             after:content-[""]
             after:h-[0.175rem] after:w-7
             after:-translate-x-3.5
-            after:translate-y-2.5
+            after:translate-y-[0.65rem]
             after:rounded-sm
             after:bg-secondary-content
             after:transition-all after:duration-500
-            ${menuOpen ? "after:-translate-y-2.5 after:-rotate-45" : ""}
-            
+            ${menuOpen ? "after:translate-y-[65%] after:-rotate-45" : ""}
+
             `}
     ></div>
   );
