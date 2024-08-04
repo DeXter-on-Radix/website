@@ -31,6 +31,12 @@ import Papa from "papaparse";
 import HoverGradientButton from "./HoverGradientButton";
 import { twMerge } from "tailwind-merge";
 
+import {
+  setHideOtherPairs,
+  selectCombinedOrderHistory,
+  selectCombinedOpenOrders,
+} from "../state/accountHistorySlice";
+
 function createOrderReceiptAddressLookup(
   pairsList: PairInfo[]
 ): Record<string, string> {
@@ -201,19 +207,35 @@ function DisplayTable() {
   );
   const openOrders = useAppSelector(selectOpenOrders);
   const orderHistory = useAppSelector(selectOrderHistory);
+  const dispatch = useAppDispatch();
+  const hideOtherPairs = useAppSelector(
+    (state) => state.accountHistory.hideOtherPairs
+  );
+  const combinedOrderHistory = useAppSelector(selectCombinedOrderHistory);
+  const combinedOpenOrders = useAppSelector(selectCombinedOpenOrders);
+
+  const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setHideOtherPairs(e.target.checked));
+  };
 
   const tableToShow = useMemo(() => {
     switch (selectedTable) {
       case Tables.OPEN_ORDERS:
+        const filteredRowsForOpenOrders = hideOtherPairs
+          ? openOrders
+          : combinedOpenOrders;
         return {
           headers: headers[Tables.OPEN_ORDERS],
-          rows: <OpenOrdersRows data={openOrders} />,
+          rows: <OpenOrdersRows data={filteredRowsForOpenOrders} />,
         };
 
       case Tables.ORDER_HISTORY:
+        const filteredRowsForOrderHistory = hideOtherPairs
+          ? orderHistory
+          : combinedOrderHistory;
         return {
           headers: headers[Tables.ORDER_HISTORY],
-          rows: <OrderHistoryRows data={orderHistory} />,
+          rows: <OrderHistoryRows data={filteredRowsForOrderHistory} />,
         };
 
       default:
@@ -222,10 +244,44 @@ function DisplayTable() {
           rows: <></>,
         };
     }
-  }, [openOrders, orderHistory, selectedTable]);
+  }, [
+    openOrders,
+    orderHistory,
+    selectedTable,
+    hideOtherPairs,
+    combinedOrderHistory,
+    combinedOpenOrders,
+  ]);
 
   return (
     <div className="overflow-x-auto scrollbar-none">
+      <div className="flex flex-col md:items-end xs:items-start">
+        <label className="label cursor-pointer">
+          <input
+            type="checkbox"
+            className="peer hidden"
+            checked={hideOtherPairs}
+            role="switch"
+            onChange={handleToggleChange}
+          />
+          <span
+            className={`relative inline-flex items-center w-8 h-4 rounded-lg transition-colors duration-300 ease-in-out xs:ml-4 ${
+              hideOtherPairs ? "bg-content-dark" : "border border-white"
+            }`}
+          >
+            <span
+              className={`absolute left-0.5 top-0.3 w-3 h-3 rounded-lg shadow-md transform transition-transform duration-300 ease-in-out  ${
+                hideOtherPairs
+                  ? "translate-x-4 bg-dexter-green"
+                  : "translate-x-0 bg-gray-200"
+              }`}
+            />
+          </span>
+          <span className="label-text text-xs md:pl-0 mr-16 xs:ml-2">
+            Hide other pairs
+          </span>
+        </label>
+      </div>
       <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
           <tr className="h-12">
