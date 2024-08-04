@@ -3,6 +3,9 @@
 # instead of duplicating the .gitignore file,
 # but duplicating way is more IDE friendly
 
+# fetchUsers json output
+scripts/.scriptOutputs/
+
 # dependencies
 /node_modules
 /.pnp

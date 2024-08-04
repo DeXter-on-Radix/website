@@ -88,5 +88,6 @@
   "failed_to_cancel_orders": "Falha ao cancelar pedidos",
   "connect_wallet_to_batch_delete": "Conectar carteira para exclusão em lote",
   "recent_trades": "Negocia. Recentes",
-  "time": "Hora"
+  "time": "Hora",
+  "export_as_csv": "Exportar como csv"
 }
