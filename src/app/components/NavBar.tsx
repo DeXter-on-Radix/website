@@ -81,7 +81,9 @@ export function Navbar() {
           <WalletSelector />
           <radix-connect-button></radix-connect-button>
         </div>
-        <HamburgerMenu />
+        <span className="pl-2">
+          <HamburgerMenu />
+        </span>
       </div>
     </nav>
   );
@@ -242,7 +244,7 @@ function HamburgerMenu() {
     <div className="sm:hidden flex justify-center items-center mr-6 ml-4 relative right-4">
       <button
         onClick={() => setMenuOpen((prev) => !prev)}
-        className={`absolute right-2 z-[9999] top-1/2 -translate-y-1/2`}
+        className={`z-[9999] w-8 h-8 relative left-[16%] top-1/2 flex justify-center items-center`}
       >
         <AnimatedBurger menuOpen={menuOpen} />
       </button>
@@ -380,12 +382,7 @@ function HideOnSmallScreens({ children }: { children: React.ReactNode }) {
   return <div className="hidden sm:flex">{children}</div>;
 }
 
-const AnimatedBurger = ({
-  menuOpen,
-}: {
-  menuOpen: boolean;
-  isInModal?: boolean;
-}) => {
+const AnimatedBurger = ({ menuOpen }: { menuOpen: boolean }) => {
   return (
     <div
       className={`
@@ -409,7 +406,11 @@ const AnimatedBurger = ({
             before:bg-secondary-content
             before:transition-all
             before:duration-500
-            ${menuOpen ? "before:rotate-45 before:translate-y-[45%]" : ""}
+            ${
+              menuOpen
+                ? "before:bg-dexter-green-OG/80 before:rotate-45 before:translate-y-[45%]"
+                : ""
+            }
 
             after:absolute 
             after:content-[""]
@@ -419,8 +420,11 @@ const AnimatedBurger = ({
             after:rounded-sm
             after:bg-secondary-content
             after:transition-all after:duration-500
-            ${menuOpen ? "after:translate-y-[65%] after:-rotate-45" : ""}
-
+            ${
+              menuOpen
+                ? "after:bg-dexter-green-OG/80 after:translate-y-[65%] after:-rotate-45"
+                : ""
+            }
             `}
     ></div>
   );
