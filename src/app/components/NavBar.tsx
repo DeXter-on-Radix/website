@@ -403,13 +403,12 @@ const AnimatedBurger = ({ menuOpen }: { menuOpen: boolean }) => {
             before:-translate-x-3.5
             before:-translate-y-[0.65rem]
             before:rounded-sm
-            before:bg-secondary-content
             before:transition-all
             before:duration-500
             ${
               menuOpen
                 ? "before:bg-dexter-green-OG/80 before:rotate-45 before:translate-y-[45%]"
-                : ""
+                : "before:bg-secondary-content"
             }
 
             after:absolute 
@@ -418,12 +417,11 @@ const AnimatedBurger = ({ menuOpen }: { menuOpen: boolean }) => {
             after:-translate-x-3.5
             after:translate-y-[0.65rem]
             after:rounded-sm
-            after:bg-secondary-content
             after:transition-all after:duration-500
             ${
               menuOpen
                 ? "after:bg-dexter-green-OG/80 after:translate-y-[65%] after:-rotate-45"
-                : ""
+                : "after:bg-secondary-content"
             }
             `}
     ></div>
