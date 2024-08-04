@@ -78,7 +78,6 @@ export const fetchAccountHistoryAllPairs = createAsyncThunk<
   const pairAddresses = state.pairSelector.pairsList.map(
     (pairInfo) => pairInfo.address
   );
-  // .filter((pairAddress) => pairAddress !== state.pairSelector.address);
 
   const account = state.radix?.walletData.accounts[0]?.address || "";
 
@@ -274,16 +273,20 @@ let selectCombinedOrders = (filterFunction: FilterFunction) =>
     (state: RootState) => state.accountHistory.orderHistoryAllPairs,
     (orderHistory, orderHistoryAllPairs) => {
       // Create a Map to handle duplicates
-      const orderMap = new Map<number, adex.OrderReceipt>();
+      const orderMap = new Map<string, adex.OrderReceipt>();
+
+      // Generate unique orderId helper
+      const getUniqueOrderId = (order: adex.OrderReceipt) =>
+        `${order.pairName}_${order.id}`;
 
       // Add orders from orderHistory
       orderHistory.forEach((order) => {
-        orderMap.set(order.id, order);
+        orderMap.set(getUniqueOrderId(order), order);
       });
 
       // Add orders from orderHistoryAllPairs, will overwrite any duplicates from orderHistory
       orderHistoryAllPairs.forEach((order) => {
-        orderMap.set(order.id, order);
+        orderMap.set(getUniqueOrderId(order), order);
       });
 
       return Array.from(orderMap.values())
@@ -308,50 +311,6 @@ export const selectCombinedOrderHistory = selectCombinedOrders(
 export const selectCombinedOpenOrders = selectCombinedOrders(
   (order) => order.status === "PENDING"
 );
-
-// export const selectCombinedOrderHistory = createSelector(
-//   (state: RootState) => state.accountHistory.orderHistory,
-//   (state: RootState) => state.accountHistory.orderHistoryAllPairs,
-//   (orderHistory, orderHistoryAllPairs) => {
-//     const combinedOrderHistory = [
-//       ...orderHistory.filter((order) => order.status !== "PENDING"),
-//       ...orderHistoryAllPairs.filter((order) => order.status !== "PENDING"),
-//     ];
-
-//     return combinedOrderHistory.sort((a, b) => {
-//       const timeDifference =
-//         new Date(b.timeSubmitted).getTime() -
-//         new Date(a.timeSubmitted).getTime();
-//       if (timeDifference !== 0) {
-//         return timeDifference;
-//       } else {
-//         return b.id - a.id;
-//       }
-//     });
-//   }
-// );
-
-// export const selectCombinedOpenOrders = createSelector(
-//   (state: RootState) => state.accountHistory.orderHistory,
-//   (state: RootState) => state.accountHistory.orderHistoryAllPairs,
-//   (orderHistory, orderHistoryAllPairs) => {
-//     const combinedOpenOrders = [
-//       ...orderHistory.filter((order) => order.status === "PENDING"),
-//       ...orderHistoryAllPairs.filter((order) => order.status === "PENDING"),
-//     ];
-
-//     return combinedOpenOrders.sort((a, b) => {
-//       const timeDifference =
-//         new Date(b.timeSubmitted).getTime() -
-//         new Date(a.timeSubmitted).getTime();
-//       if (timeDifference !== 0) {
-//         return timeDifference;
-//       } else {
-//         return b.id - a.id;
-//       }
-//     });
-//   }
-// );
 
 export const selectTables = (state: RootState) => state.accountHistory.tables;
 

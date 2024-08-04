@@ -49,16 +49,17 @@ export default function Trade() {
     }
   }, [pairsList, dispatch, searchParams]);
 
+  // Update orders of selected pair every 5 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
       dispatch(fetchBalances());
       dispatch(fetchAccountHistory());
-      // console.log("5 seconds");
     }, 5000); // Dispatch every 5000 milliseconds (5 second)
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, [dispatch]);
 
+  // Update orders of all pairs every 2 mins (if selected)
   useEffect(() => {
     const showAllPairs = !hideOtherPairs;
     if (showAllPairs) {
@@ -69,7 +70,6 @@ export default function Trade() {
       if (showAllPairs) {
         dispatch(fetchAccountHistoryAllPairs());
       }
-      // console.log("120 seconds");
     }, 120000); // Dispatch every 2 mins (120 seconds)
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
