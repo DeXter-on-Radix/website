@@ -27,6 +27,7 @@ export async function GET() {
   //   });
   // }
 
+  bot.get;
   bot.sendMessage("@deXterAlert_bot", "Hello Bot");
   // const res = await fetch(
   //   `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/${sendMessage({
