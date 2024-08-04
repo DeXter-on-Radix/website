@@ -47,6 +47,8 @@ export function PairSelector() {
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
 
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -187,8 +189,26 @@ export function PairSelector() {
     }
   }, [isOpen, options, setFilteredOptions, setHighlightedIndex]);
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <div
+      ref={menuRef}
       className={
         "w-full h-full relative uppercase" + (isOpen ? " bg-base-100" : "")
       }
