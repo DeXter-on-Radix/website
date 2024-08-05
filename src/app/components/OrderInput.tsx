@@ -96,17 +96,9 @@ export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const { walletData } = useAppSelector((state) => state.radix);
-  const {
-    type,
-    side,
-    token1,
-    token2,
-    price,
-    specifiedToken,
-    validationPrice,
-    validationToken1,
-    validationToken2,
-  } = useAppSelector((state) => state.orderInput);
+  const { type, side, token1, token2, price, specifiedToken } = useAppSelector(
+    (state) => state.orderInput
+  );
 
   // for better readibility
   const isMarketOrder = type === "MARKET";
