@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  usePagination,
+  useTranslations,
+} from "hooks";
 import { DexterToast } from "./DexterToaster";
 import { PairInfo } from "alphadex-sdk-js/lib/models/pair-info";
 import "../styles/table.css";
@@ -30,6 +35,7 @@ import {
 import Papa from "papaparse";
 import HoverGradientButton from "./HoverGradientButton";
 import { twMerge } from "tailwind-merge";
+import Pagination from "./Pagination";
 
 import {
   setHideOtherPairs,
@@ -97,6 +103,7 @@ export function AccountHistory() {
   const account = useAppSelector(
     (state) => state.radix?.selectedAccount?.address
   );
+
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
 
   useEffect(() => {
@@ -214,8 +221,16 @@ function DisplayTable() {
   const combinedOrderHistory = useAppSelector(selectCombinedOrderHistory);
   const combinedOpenOrders = useAppSelector(selectCombinedOpenOrders);
 
+  const paginationConf = usePagination(
+    hideOtherPairs ? orderHistory : combinedOrderHistory
+  );
+
+  const { paginatedData: filteredRowsForOrderHistory, setCurrentPage } =
+    paginationConf;
+
   const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setHideOtherPairs(e.target.checked));
+    setCurrentPage(0);
   };
 
   const tableToShow = useMemo(() => {
@@ -230,9 +245,6 @@ function DisplayTable() {
         };
 
       case Tables.ORDER_HISTORY:
-        const filteredRowsForOrderHistory = hideOtherPairs
-          ? orderHistory
-          : combinedOrderHistory;
         return {
           headers: headers[Tables.ORDER_HISTORY],
           rows: <OrderHistoryRows data={filteredRowsForOrderHistory} />,
@@ -249,8 +261,7 @@ function DisplayTable() {
     orderHistory,
     selectedTable,
     hideOtherPairs,
-    combinedOrderHistory,
-    combinedOpenOrders,
+    filteredRowsForOrderHistory,
   ]);
 
   return (
@@ -282,6 +293,13 @@ function DisplayTable() {
           </span>
         </label>
       </div>
+      {selectedTable === Tables.ORDER_HISTORY && (
+        <div className="mr-[1%] py-2">
+          <div className="flex justify-end items-center ">
+            <Pagination {...paginationConf} />
+          </div>
+        </div>
+      )}
       <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
         <thead>
           <tr className="h-12">
@@ -298,6 +316,7 @@ function DisplayTable() {
         </thead>
         <tbody>
           {tableToShow.rows}
+
           {selectedTable === Tables.ORDER_HISTORY && (
             <tr className="!bg-transparent">
               <td className="lg:hidden">
