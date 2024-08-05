@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector, useHydrationErrorFix, useTranslations } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useHydrationErrorFix,
+  useTranslations,
+} from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
