@@ -90,5 +90,8 @@
   "recent_trades": "Recent Trades",
   "time": "Time",
   "export_as_csv": "Export as csv",
-  "pair_info": "Pair info"
+  "pair_info": "Pair info",
+  "pair_resource": "Pair resource",
+  "order_receipt_address": "Order receipt address",
+  "resource": "Resource"
 }

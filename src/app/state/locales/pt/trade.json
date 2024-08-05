@@ -89,5 +89,9 @@
   "connect_wallet_to_batch_delete": "Conectar carteira para exclusão em lote",
   "recent_trades": "Negocia. Recentes",
   "time": "Hora",
-  "export_as_csv": "Exportar como csv"
+  "export_as_csv": "Exportar como csv",
+  "pair_info": "Informações do par",
+  "pair_resource": "Recurso de par",
+  "order_receipt_address": "Endereço de receção do pedido",
+  "resource": "Recurso"
 }

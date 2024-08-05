@@ -11,7 +11,8 @@ import {
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
-// import { twMerge } from "tailwind-merge";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { MdContentCopy } from "react-icons/md";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -280,8 +281,8 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="flex items-center justify-between sm:pr-10 pr-4">
-        <div className="flex space-x-5 p-4">
+      <div className="flex items-center justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
+        <div className="flex space-x-5 pb-0 pt-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
             [t("pair_info"), ChartTabOptions.PAIR_INFO],
@@ -290,7 +291,7 @@ export function PriceChart() {
             return (
               <span
                 key={indx}
-                className={`text-base ${
+                className={`text-base pb-3 ${
                   isActive
                     ? "text-dexter-green-OG border-b border-[#cafc40]"
                     : "text-[#768089]"
@@ -302,7 +303,7 @@ export function PriceChart() {
             );
           })}
         </div>
-        <div className="">
+        <div className="flex align-center flex-end">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
@@ -325,8 +326,6 @@ export function PriceChart() {
     </div>
   );
 }
-
-export default PriceChart;
 
 export function TradingChart() {
   const state = useAppSelector((state) => state.priceChart);
@@ -355,7 +354,128 @@ export function TradingChart() {
 }
 
 export function PairInfoTab() {
+  const t = useTranslations();
+  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const selectedPairAddress = useAppSelector(
+    (state) => state.pairSelector.address
+  );
+  const pairInfo = pairsList.find(
+    (pairInfo) => pairInfo.address === selectedPairAddress
+  );
+
+  let name, address, orderReceiptAddress, token1, token2;
+  if (pairInfo) {
+    ({ name, address, orderReceiptAddress, token1, token2 } = pairInfo);
+  } else {
+    return "Selected pair not found in pairsList";
+  }
+
+  const shortenAddress = (address: any) => {
+    if (!address) return "";
+    return `${address.slice(0, 40)}...`;
+  };
+
   return (
-    <div className="p-2 !pt-0 text-sx text-primary-content">pair info</div>
+    <>
+      <div className="p-2 !pt-8 text-sx text-primary-content">
+        {name}
+        <div className="border-b-[1px] border-b-[rgba(255,255,255,0.08)] pb-10">
+          <div className="pt-6 text-sm tracking-[0.5px] opacity-50 font-normal">
+            {t("pair_resource")}
+          </div>
+          <div className="flex flex-row">
+            <div className="pt-1 text-base">{address}</div>
+            <CopyToClipboard text={address}>
+              <MdContentCopy
+                className="ml-2 cursor-pointer text-base"
+                title="Copy to clipboard"
+              />
+            </CopyToClipboard>
+          </div>
+          <div className="pt-6 text-sm tracking-[0.5px] opacity-50 font-normal">
+            {t("order_receipt_address")}
+          </div>
+          <div className="pt-1 text-base">
+            <div className="flex flex-row">
+              {orderReceiptAddress}
+              <CopyToClipboard text={orderReceiptAddress}>
+                <MdContentCopy
+                  className="ml-2 cursor-pointer text-base"
+                  title="Copy to clipboard"
+                />
+              </CopyToClipboard>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-row justify-start">
+          <div className="flex flex-row items-center pt-8">
+            <div className="flex flex-col">
+              <span className="flex flex-row">
+                <img
+                  src={token1?.iconUrl}
+                  alt={token1?.symbol}
+                  className="w-8 h-8 rounded-full"
+                />
+                <p className="pl-3">
+                  {token1?.name.split(" ")[0]} ({token1?.symbol})
+                </p>
+              </span>
+              <div className="flex flex-col pt-8">
+                <p className="text-sm tracking-[0.5px] opacity-50 font-normal">
+                  {t("resource")}
+                </p>
+                <div className="flex flex-row">
+                  <p className="text-base">{shortenAddress(token1?.address)}</p>
+                  <CopyToClipboard text={token1?.address}>
+                    <MdContentCopy
+                      className="ml-2 cursor-pointer text-base"
+                      title="Copy to clipboard"
+                    />
+                  </CopyToClipboard>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-r-2 border-[rgba(255,255,255,0.05)] min-h-[100px] max-h-[200px] ml-10"></div>
+
+          <div className="flex flex-row ml-9">
+            <div className="flex flex-row justify-start pt-8">
+              <div className="flex flex-col">
+                <span className="flex flex-row items-center">
+                  <img
+                    src={token2?.iconUrl}
+                    alt=""
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <p className="pl-3">
+                    {token2?.name.split(" ")[0]} ({token2?.symbol})
+                  </p>
+                </span>
+                <div className="flex flex-col pt-8">
+                  <p className="text-sm tracking-[0.5px] opacity-50 font-normal">
+                    {t("resource")}
+                  </p>
+                  <div className="flex flex-row">
+                    <p className="text-base">
+                      {shortenAddress(token2?.address)}
+                    </p>
+                    <CopyToClipboard text={token2?.address}>
+                      <MdContentCopy
+                        className="ml-2 cursor-pointer text-base"
+                        title="Copy to clipboard"
+                      />
+                    </CopyToClipboard>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
+
+export default PriceChart;
