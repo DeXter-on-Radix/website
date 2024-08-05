@@ -293,14 +293,8 @@ function DisplayTable() {
           </span>
         </label>
       </div>
-      {selectedTable === Tables.ORDER_HISTORY && (
-        <div className="mr-[1%] py-2">
-          <div className="flex justify-end items-center ">
-            <Pagination {...paginationConf} />
-          </div>
-        </div>
-      )}
-      <table className="table table-zebra table-xs !mt-0 mb-16 w-full max-w-[100%]">
+
+      <table className="table table-zebra table-xs !mt-0 w-full max-w-[100%]">
         <thead>
           <tr className="h-12">
             {tableToShow.headers.map((header, i) => (
@@ -332,6 +326,11 @@ function DisplayTable() {
           )}
         </tbody>
       </table>
+      {selectedTable === Tables.ORDER_HISTORY && (
+        <div className="flex justify-center items-center mb-16">
+          <Pagination {...paginationConf} />
+        </div>
+      )}
     </div>
   );
 }

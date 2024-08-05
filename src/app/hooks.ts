@@ -37,8 +37,9 @@ export const useHydrationErrorFix = () => {
 
 export function usePagination<T>(data: T[], paginationId?: string) {
   const [currentPage, setCurrentPage] = useState(0);
+
   const [pageSize, setPageSize] = useState(
-    getLocalStoragePaginationValue() ?? 10
+    getLocalStoragePaginationValue() ?? 25
   );
   const totalDataLength = useMemo(() => data.length, [data]);
 

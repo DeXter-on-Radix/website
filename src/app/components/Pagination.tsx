@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
 interface PaginationProps {
   currentPage: number;
@@ -94,7 +93,8 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className="flex flex-row itemcs-center space-x-4 relative">
       <div className="relative">
-        <button
+        {/* !TODO: Uncomment after design iteration */}
+        {/* <button
           onClick={() => {
             setIsDropdownOpen(!isDropdownOpen);
           }}
@@ -102,6 +102,7 @@ const Pagination: React.FC<PaginationProps> = ({
         >
           <div className="pl-2">{pageSize}</div>
           <div>
+            <div className="w-6 h-8"></div>
             <Image
               src="/chevron-down.svg"
               alt="chevron down"
@@ -109,7 +110,7 @@ const Pagination: React.FC<PaginationProps> = ({
               height="25"
             />
           </div>
-        </button>
+        </button> */}
         {isDropdownOpen && (
           <div
             ref={dropdownRef}
