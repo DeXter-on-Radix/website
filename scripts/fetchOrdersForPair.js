@@ -9,6 +9,7 @@ const getLastOrderId = () => {
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, "utf8");
       const { lastOrderId } = JSON.parse(data);
+      // eslint-disable-next-line no-console
       console.log("Retrieved previously saved lastOrderId: ", lastOrderId);
       return lastOrderId || 0;
     } else {
@@ -23,6 +24,7 @@ const getLastOrderId = () => {
 // Function to save the lastOrderId to the file sytem
 const saveLastOrderId = (lastOrderId) => {
   try {
+    // eslint-disable-next-line no-console
     console.log("Saving new lastOrderId: ", lastOrderId);
     fs.writeFileSync(filePath, JSON.stringify({ lastOrderId }), "utf8");
   } catch (error) {
@@ -59,7 +61,8 @@ const fetchOrdersByPair = async (pairAddress, orderIds) => {
 
   for (const chunkOrderIds of chunks) {
     try {
-      console.log("Fetching batch for " + pairAddress);
+      // eslint-disable-next-line no-console
+      console.log("fetchOrdersByPair -> fetching batch for " + pairAddress);
       const response = await fetch("https://api.alphadex.net/v0/pair/orders", {
         method: "POST",
         headers: {
@@ -96,25 +99,39 @@ export const fetchOrdersForPair = async (pairAddress) => {
 
   // Get the last stored orderId
   const lastStoredOrderId = getLastOrderId();
+  // eslint-disable-next-line no-console
+  console.log("fetchOrdersForPair -> lastStoredOrderId", lastStoredOrderId);
 
   // Create new orderIds [lastStoredOrderId + 1 .... lastOrderId]
-  const orderIds = Array.from(
-    { length: lastOrderId - lastStoredOrderId },
-    (_, i) => i + 1 + lastStoredOrderId
-  );
+  let orderIds = [];
 
-  // Fetch all orders for pairAddress
-  console.log(
-    `Fetching orders from ${lastStoredOrderId + 1} to ${lastOrderId}`
-  );
-  const allOrders = await fetchOrdersByPair(pairAddress, orderIds);
-
-  // Save the last orderId
-  if (allOrders.length > 0) {
-    saveLastOrderId(lastOrderId);
+  if (lastStoredOrderId < lastOrderId) {
+    orderIds = Array.from(
+      { length: lastOrderId - lastStoredOrderId },
+      (_, i) => i + 1 + lastStoredOrderId
+    );
   }
 
-  console.log("=== allOrders", allOrders);
+  // Fetch all orders for pairAddress
+  let allOrders = [];
+
+  if (lastStoredOrderId < lastOrderId) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `fetchOrdersForPair -> Fetching orders from ${
+        lastStoredOrderId + 1
+      } to ${lastOrderId}`
+    );
+    allOrders = await fetchOrdersByPair(pairAddress, orderIds);
+
+    // Save the last orderId
+    if (allOrders.length > 0) {
+      saveLastOrderId(lastOrderId);
+    }
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("fetchOrdersForPair -> allOrders", allOrders);
 
   return allOrders;
 };
