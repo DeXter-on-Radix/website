@@ -46,7 +46,7 @@ const StatsWidget = () => {
   const numOfPairs = pairsList.length;
 
   return (
-    <div className="flex w-full opacity-80 flex-col gap-y-8 mx-auto justify-center items-center mt-8 mb-32">
+    <div className="flex w-full opacity-80 flex-col gap-y-8 mx-auto justify-center items-center py-32 bg-dexter-grey-dark">
       {/* users */}
       {totalUsers ? (
         <>
