@@ -282,7 +282,7 @@ export function PriceChart() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
-        <div className="flex flex-wrap space-x-4 sm:space-x-5 pb-0 pt-2">
+        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
             [t("pair_info"), ChartTabOptions.PAIR_INFO],
