@@ -345,7 +345,7 @@ function getTokenomicsTopicSectionProps(
     </>
   );
   return {
-    backgroundColor: "bg-dexter-grey-dark",
+    backgroundColor: "bg-dexter-grey-light",
     title: t("dextr_token"),
     body: tokenomicsBody,
     imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
@@ -360,7 +360,7 @@ function getTradeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-light",
+    backgroundColor: "bg-dexter-grey-dark",
     title: t("earn_rewards_by_trading"),
     body: <DexterParagraph text={t("earn_rewards_by_trading_and")} />,
     imageUrl: "/landing/sections/treasury-earn-by-trading.png",
@@ -375,7 +375,7 @@ function getStakeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-dark",
+    backgroundColor: "bg-dexter-grey-light",
     title: t("stake_xrd_to_earn_dextr"),
     body: <DexterParagraph text={t("delegate_your_xrd_to_our")} />,
     imageUrl: "/landing/sections/staking-safe.png",
@@ -390,7 +390,7 @@ function getContributeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-light",
+    backgroundColor: "bg-dexter-grey-dark",
     title: t("earn_dextr_by_contributing"),
     body: <DexterParagraph text={t("whether_you_are_a_developer")} />,
     imageUrl: "/landing/sections/hands.png",
