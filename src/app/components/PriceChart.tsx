@@ -281,8 +281,8 @@ export function PriceChart() {
 
   return (
     <div>
-      <div className="flex items-center justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
-        <div className="flex space-x-5 pb-0 pt-2">
+      <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
+        <div className="flex flex-wrap space-x-4 sm:space-x-5 pb-0 pt-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
             [t("pair_info"), ChartTabOptions.PAIR_INFO],
@@ -291,7 +291,7 @@ export function PriceChart() {
             return (
               <span
                 key={indx}
-                className={`text-base pb-3 ${
+                className={`text-sm sm:text-base pb-2 sm:pb-3 ${
                   isActive
                     ? "text-dexter-green-OG border-b border-[#cafc40]"
                     : "text-[#768089]"
@@ -303,11 +303,11 @@ export function PriceChart() {
             );
           })}
         </div>
-        <div className="flex align-center flex-end">
+        <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
           {CANDLE_PERIODS.map((period) => (
             <button
               key={period}
-              className={`btn btn-sm text-secondary-content focus-within:-outline-offset-2 ${
+              className={`btn btn-xs sm:btn-sm text-secondary-content focus-within:outline-none ${
                 candlePeriod === period
                   ? "!text-primary-content underline underline-offset-8 decoration-accent"
                   : ""
@@ -319,7 +319,7 @@ export function PriceChart() {
           ))}
         </div>
       </div>
-      <div>
+      <div className="mt-4">
         {currentTab === ChartTabOptions.TRADING_CHART && <TradingChart />}
         {currentTab === ChartTabOptions.PAIR_INFO && <PairInfoTab />}
       </div>
@@ -377,30 +377,34 @@ export function PairInfoTab() {
 
   return (
     <>
-      <div className="p-2 !pt-8 text-sx text-primary-content">
-        {name}
-        <div className="border-b-[1px] border-b-[rgba(255,255,255,0.08)] pb-10">
-          <div className="pt-6 text-sm tracking-[0.5px] opacity-50 font-normal">
+      <div className="sm:p-4 xs:p-0 text-primary-content">
+        <div className="text-lg font-normal mb-4">{name}</div>
+        <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-2">
             {t("pair_resource")}
           </div>
-          <div className="flex flex-row">
-            <div className="pt-1 text-base">{address}</div>
-            <CopyToClipboard text={address}>
-              <MdContentCopy
-                className="ml-2 cursor-pointer text-base"
-                title="Copy to clipboard"
-              />
-            </CopyToClipboard>
+          <div className="flex flex-row items-start mb-4">
+            <div className="text-base flex items-center">
+              <span className="mr-2">{shortenAddress(address)}</span>
+              <CopyToClipboard text={address}>
+                <MdContentCopy
+                  className="cursor-pointer text-base"
+                  title="Copy to clipboard"
+                />
+              </CopyToClipboard>
+            </div>
           </div>
-          <div className="pt-6 text-sm tracking-[0.5px] opacity-50 font-normal">
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-2">
             {t("order_receipt_address")}
           </div>
-          <div className="pt-1 text-base">
-            <div className="flex flex-row">
-              {orderReceiptAddress}
+          <div className="flex flex-col sm:flex-row items-start">
+            <div className="text-base flex items-center">
+              <span className="mr-2">
+                {shortenAddress(orderReceiptAddress)}
+              </span>
               <CopyToClipboard text={orderReceiptAddress}>
                 <MdContentCopy
-                  className="ml-2 cursor-pointer text-base"
+                  className="cursor-pointer text-base"
                   title="Copy to clipboard"
                 />
               </CopyToClipboard>
@@ -408,67 +412,59 @@ export function PairInfoTab() {
           </div>
         </div>
 
-        <div className="flex flex-row justify-start">
-          <div className="flex flex-row items-center pt-8">
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex flex-col items-start mb-4 sm:mb-0">
+            <div className="flex items-start mb-2 pt-8">
+              <img
+                src={token1?.iconUrl}
+                alt={token1?.symbol}
+                className="w-8 h-8 rounded-full"
+              />
+              <p className="pl-2 text-base">
+                {token1?.name.split(" ")[0]} ({token1?.symbol})
+              </p>
+            </div>
             <div className="flex flex-col">
-              <span className="flex flex-row">
-                <img
-                  src={token1?.iconUrl}
-                  alt={token1?.symbol}
-                  className="w-8 h-8 rounded-full"
-                />
-                <p className="pl-3">
-                  {token1?.name.split(" ")[0]} ({token1?.symbol})
-                </p>
-              </span>
-              <div className="flex flex-col pt-8">
-                <p className="text-sm tracking-[0.5px] opacity-50 font-normal">
-                  {t("resource")}
-                </p>
-                <div className="flex flex-row">
-                  <p className="text-base">{shortenAddress(token1?.address)}</p>
-                  <CopyToClipboard text={token1?.address}>
-                    <MdContentCopy
-                      className="ml-2 cursor-pointer text-base"
-                      title="Copy to clipboard"
-                    />
-                  </CopyToClipboard>
-                </div>
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4">
+                {t("resource")}
+              </p>
+              <div className="flex items-start">
+                <p className="text-base">{shortenAddress(token1?.address)}</p>
+                <CopyToClipboard text={token1?.address}>
+                  <MdContentCopy
+                    className="ml-2 cursor-pointer text-base"
+                    title="Copy to clipboard"
+                  />
+                </CopyToClipboard>
               </div>
             </div>
           </div>
 
-          <div className="border-r-2 border-[rgba(255,255,255,0.05)] min-h-[100px] max-h-[200px] ml-10"></div>
+          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-4 sm:min-h-[150px] sm:max-h-[200px]"></div>
 
-          <div className="flex flex-row ml-9">
-            <div className="flex flex-row justify-start pt-8">
-              <div className="flex flex-col">
-                <span className="flex flex-row items-center">
-                  <img
-                    src={token2?.iconUrl}
-                    alt=""
-                    className="w-8 h-8 rounded-full"
+          <div className="flex flex-col items-start xs:pl-0 sm:pl-4">
+            <div className="flex items-center sm:mb-2 sm:pt-8 xs:pt-4">
+              <img
+                src={token2?.iconUrl}
+                alt=""
+                className="w-8 h-8 rounded-full"
+              />
+              <p className="pl-2 text-base">
+                {token2?.name.split(" ")[0]} ({token2?.symbol})
+              </p>
+            </div>
+            <div className="flex flex-col xs:mb-12 sm:mb-0">
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4">
+                {t("resource")}
+              </p>
+              <div className="flex items-center">
+                <p className="text-base">{shortenAddress(token2?.address)}</p>
+                <CopyToClipboard text={token2?.address}>
+                  <MdContentCopy
+                    className="ml-2 cursor-pointer text-base"
+                    title="Copy to clipboard"
                   />
-                  <p className="pl-3">
-                    {token2?.name.split(" ")[0]} ({token2?.symbol})
-                  </p>
-                </span>
-                <div className="flex flex-col pt-8">
-                  <p className="text-sm tracking-[0.5px] opacity-50 font-normal">
-                    {t("resource")}
-                  </p>
-                  <div className="flex flex-row">
-                    <p className="text-base">
-                      {shortenAddress(token2?.address)}
-                    </p>
-                    <CopyToClipboard text={token2?.address}>
-                      <MdContentCopy
-                        className="ml-2 cursor-pointer text-base"
-                        title="Copy to clipboard"
-                      />
-                    </CopyToClipboard>
-                  </div>
-                </div>
+                </CopyToClipboard>
               </div>
             </div>
           </div>
