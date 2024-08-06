@@ -303,21 +303,23 @@ export function PriceChart() {
             );
           })}
         </div>
-        <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
-          {CANDLE_PERIODS.map((period) => (
-            <button
-              key={period}
-              className={`btn btn-xs sm:btn-sm text-secondary-content focus-within:outline-none ${
-                candlePeriod === period
-                  ? "!text-primary-content underline underline-offset-8 decoration-accent"
-                  : ""
-              }`}
-              onClick={() => dispatch(setCandlePeriod(period))}
-            >
-              {t(period)}
-            </button>
-          ))}
-        </div>
+        {currentTab === ChartTabOptions.TRADING_CHART && (
+          <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
+            {CANDLE_PERIODS.map((period) => (
+              <button
+                key={period}
+                className={`btn btn-xs sm:btn-sm text-secondary-content focus-within:outline-none ${
+                  candlePeriod === period
+                    ? "!text-primary-content underline underline-offset-8 decoration-accent"
+                    : ""
+                }`}
+                onClick={() => dispatch(setCandlePeriod(period))}
+              >
+                {t(period)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="mt-4">
         {currentTab === ChartTabOptions.TRADING_CHART && <TradingChart />}
