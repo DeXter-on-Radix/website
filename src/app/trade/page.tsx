@@ -11,7 +11,10 @@ import { AccountHistory } from "../components/AccountHistory";
 import { PriceInfo } from "../components/PriceInfo";
 import { fetchBalances, selectPair } from "state/pairSelectorSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchAccountHistory } from "../state/accountHistorySlice";
+import {
+  fetchAccountHistory,
+  fetchAccountHistoryAllPairs,
+} from "../state/accountHistorySlice";
 
 import { PromoBannerCarousel } from "../components/PromoBannerCarousel";
 
@@ -21,6 +24,10 @@ export default function Trade() {
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const pairName = pairSelector.name;
   const pairsList = pairSelector.pairsList;
+
+  const hideOtherPairs = useAppSelector(
+    (state) => state.accountHistory.hideOtherPairs
+  );
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
@@ -42,6 +49,7 @@ export default function Trade() {
     }
   }, [pairsList, dispatch, searchParams]);
 
+  // Update orders of selected pair every 5 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
       dispatch(fetchBalances());
@@ -50,6 +58,22 @@ export default function Trade() {
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, [dispatch]);
+
+  // Update orders of all pairs every 2 mins (if selected)
+  useEffect(() => {
+    const showAllPairs = !hideOtherPairs;
+    if (showAllPairs) {
+      dispatch(fetchAccountHistoryAllPairs());
+    }
+
+    const intervalId = setInterval(() => {
+      if (showAllPairs) {
+        dispatch(fetchAccountHistoryAllPairs());
+      }
+    }, 120000); // Dispatch every 2 mins (120 seconds)
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [dispatch, hideOtherPairs]);
 
   return (
     <div className="grow">

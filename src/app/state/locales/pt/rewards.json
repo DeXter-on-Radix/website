@@ -13,5 +13,6 @@
   "rewards_claimed": "Recompensas resgatadas",
   "continue_trading_to_earn_more": "Continue negociando ou fazendo staking para ganhar mais e volte mais tarde.",
   "go_back": "Voltar",
-  "no_rewards_to_claim": "Sem recompensas para reivindica"
+  "no_rewards_to_claim": "Sem recompensas para reivindica",
+  "loading...": "Carregamento..."
 }

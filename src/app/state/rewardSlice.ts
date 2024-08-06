@@ -19,6 +19,7 @@ export interface RewardState {
   pairsList: adex.PairInfo[];
   config: RewardConfig;
   showSuccessUi: boolean;
+  isLoading: boolean;
 }
 
 interface RewardConfig {
@@ -69,6 +70,7 @@ const initialState: RewardState = {
     rewardVaultAddress: "",
   },
   showSuccessUi: false,
+  isLoading: false,
 };
 
 type NonFungibleResource = NonFungibleResourcesCollectionItem & {
@@ -100,6 +102,7 @@ export const rewardSlice = createSlice({
         ordersRewards: [],
       };
       state.showSuccessUi = false;
+      state.isLoading = false;
     },
     resetShowSuccessUi: (state) => {
       state.showSuccessUi = false;
@@ -109,7 +112,9 @@ export const rewardSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // fetchAddresses
-      .addCase(fetchAddresses.pending, () => {})
+      .addCase(fetchAddresses.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(
         fetchAddresses.fulfilled,
         (state, action: PayloadAction<FetchAddressesResult>) => {
@@ -120,6 +125,7 @@ export const rewardSlice = createSlice({
       )
       .addCase(fetchAddresses.rejected, (state, action) => {
         DexterToast.error("Error fetching claim component addresses");
+        state.isLoading = false;
         console.error(action.error);
       })
 
@@ -127,39 +133,48 @@ export const rewardSlice = createSlice({
       .addCase(fetchReciepts.pending, (state) => {
         state.recieptIds = [];
         state.showSuccessUi = false;
+        state.isLoading = true;
       })
       .addCase(fetchReciepts.fulfilled, (state, action) => {
         state.recieptIds = action.payload;
       })
-      .addCase(fetchReciepts.rejected, (_, action) => {
+      .addCase(fetchReciepts.rejected, (state, action) => {
         DexterToast.error("Error fetching order receipts");
         console.error(action.error);
+        state.isLoading = false;
       })
 
       // fetchAccountRewards
-      .addCase(fetchAccountRewards.pending, () => {})
+      .addCase(fetchAccountRewards.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(
         fetchAccountRewards.fulfilled,
         (state, action: PayloadAction<AccountRewards[]>) => {
           state.rewardData.accountsRewards = action.payload;
         }
       )
-      .addCase(fetchAccountRewards.rejected, (_, action) => {
+      .addCase(fetchAccountRewards.rejected, (state, action) => {
         DexterToast.error("Error fetching account rewards");
         console.error(action.error);
+        state.isLoading = false;
       })
 
       // fetchOrderRewards
-      .addCase(fetchOrderRewards.pending, () => {})
+      .addCase(fetchOrderRewards.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(
         fetchOrderRewards.fulfilled,
         (state, action: PayloadAction<OrderRewards[]>) => {
           state.rewardData.ordersRewards = action.payload;
+          state.isLoading = false;
         }
       )
       .addCase(fetchOrderRewards.rejected, (state, action) => {
         DexterToast.error("Error fetching order rewards ");
         console.error(action.error);
+        state.isLoading = false;
       })
 
       // claimRewards
