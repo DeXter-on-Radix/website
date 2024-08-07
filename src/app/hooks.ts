@@ -39,7 +39,7 @@ export function usePagination<T>(data: T[], paginationId?: string) {
   const [currentPage, setCurrentPage] = useState(0);
 
   const [pageSize, setPageSize] = useState(
-    getLocalStoragePaginationValue() ?? 25
+    getLocalStoragePaginationValue() ?? 20
   );
   const totalDataLength = useMemo(() => data.length, [data]);
 

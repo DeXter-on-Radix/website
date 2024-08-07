@@ -306,10 +306,7 @@ function DisplayTable() {
   }, []);
 
   return (
-    <div
-      ref={tableContainerRef}
-      className="overflow-x-auto scrollbar-none w-full"
-    >
+    <div ref={tableContainerRef} className="overflow-x-auto scrollbar-none">
       <div className="flex flex-col md:items-end xs:items-start">
         <label className="label cursor-pointer">
           <input
