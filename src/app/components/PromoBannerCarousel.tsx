@@ -26,9 +26,8 @@ export function PromoBannerCarousel({
   items,
   interval = 10000,
 }: PromoBannerCarouselProps) {
-  const currentDate = new Date();
-
   // Filter items based on startDate and expirationDate
+  const currentDate = new Date();
   const validItems = useMemo(() => {
     return items.filter((item) => {
       const startDateValid = !item.startDate || item.startDate <= currentDate;
