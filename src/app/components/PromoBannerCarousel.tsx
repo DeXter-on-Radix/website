@@ -27,15 +27,15 @@ export function PromoBannerCarousel({
   interval = 10000,
 }: PromoBannerCarouselProps) {
   // Filter items based on startDate and expirationDate
-  const currentDate = new Date();
   const validItems = useMemo(() => {
     return items.filter((item) => {
+      const currentDate = new Date();
       const startDateValid = !item.startDate || item.startDate <= currentDate;
       const expirationDateValid =
         !item.expirationDate || item.expirationDate >= currentDate;
       return startDateValid && expirationDateValid;
     });
-  }, [items, currentDate]);
+  }, [items]);
 
   // Return null if no valid items are available
   if (validItems.length === 0) {
