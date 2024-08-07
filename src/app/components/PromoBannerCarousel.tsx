@@ -37,11 +37,6 @@ export function PromoBannerCarousel({
     });
   }, [items]);
 
-  // Return null if no valid items are available
-  if (validItems.length === 0) {
-    return null;
-  }
-
   // Use null initially to not show any image and prevent hydration error
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -116,6 +111,11 @@ export function PromoBannerCarousel({
 
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
+  }
+
+  // Return null if no valid items are available
+  if (validItems.length === 0) {
+    return null;
   }
 
   return (
