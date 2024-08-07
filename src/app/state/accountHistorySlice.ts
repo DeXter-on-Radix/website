@@ -79,7 +79,7 @@ export const fetchAccountHistoryAllPairs = createAsyncThunk<
     (pairInfo) => pairInfo.address
   );
 
-  const account = state.radix?.walletData.accounts[0]?.address || "";
+  const account = state.radix?.selectedAccount?.address || "";
 
   const orderHistoryPromises = pairAddresses.map((pairAddress) =>
     adex.getAccountOrders(account, pairAddress, 0)
