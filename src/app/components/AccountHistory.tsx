@@ -209,6 +209,10 @@ function ActionButton({
 
 function DisplayTable() {
   const t = useTranslations();
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [paginationLeft, setPaginationLeft] = useState(0);
+
+  const timeoutRef = useRef<number | null>(0);
   const selectedTable = useAppSelector(
     (state) => state.accountHistory.selectedTable
   );
@@ -264,8 +268,48 @@ function DisplayTable() {
     filteredRowsForOrderHistory,
   ]);
 
+  useEffect(() => {
+    function calcPaginationWidth() {
+      if (tableContainerRef.current !== null) {
+        if (timeoutRef.current !== null) {
+          clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = window.setTimeout(() => {
+          if (tableContainerRef.current) {
+            const scrollLeft = tableContainerRef.current.scrollLeft;
+            const containerWidth = tableContainerRef.current.offsetWidth;
+            const leftPosition = scrollLeft + containerWidth / 2;
+
+            setPaginationLeft(leftPosition);
+          }
+        }, 300);
+      }
+    }
+
+    calcPaginationWidth();
+    if (tableContainerRef.current) {
+      tableContainerRef.current.addEventListener("scroll", calcPaginationWidth);
+    }
+
+    window.addEventListener("resize", calcPaginationWidth);
+    return () => {
+      if (tableContainerRef.current) {
+        tableContainerRef.current.removeEventListener(
+          "scroll",
+          calcPaginationWidth
+        );
+      }
+
+      window.removeEventListener("resize", calcPaginationWidth);
+    };
+  }, []);
+
   return (
-    <div className="overflow-x-auto scrollbar-none">
+    <div
+      ref={tableContainerRef}
+      className="overflow-x-auto scrollbar-none w-full"
+    >
       <div className="flex flex-col md:items-end xs:items-start">
         <label className="label cursor-pointer">
           <input
@@ -327,8 +371,13 @@ function DisplayTable() {
         </tbody>
       </table>
       {selectedTable === Tables.ORDER_HISTORY && (
-        <div className="flex justify-center items-center mb-16">
-          <Pagination {...paginationConf} />
+        <div className="relative h-8 mb-8">
+          <div
+            className="absolute -translate-x-1/2"
+            style={{ left: `${paginationLeft}px` }}
+          >
+            <Pagination {...paginationConf} />
+          </div>
         </div>
       )}
     </div>
