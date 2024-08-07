@@ -9,6 +9,8 @@ export interface PromoBannerProps {
   redirectUrl: string; // target redirect address when banner is clicked
   redirectOpensInSameTab?: boolean; // redirection should not be "_blank" but samepage
   backgroundColor?: string; // background color, in the format of bg-[#fff]
+  startDate?: Date; // banner won't be shown before this date is reached
+  expirationDate?: Date; // banner won't be shown after this date is reached
 }
 
 interface PromoBannerCarouselProps {
@@ -24,28 +26,39 @@ export function PromoBannerCarousel({
   items,
   interval = 10000,
 }: PromoBannerCarouselProps) {
+  // Filter items based on startDate and expirationDate
+  const validItems = useMemo(() => {
+    return items.filter((item) => {
+      const currentDate = new Date();
+      const startDateValid = !item.startDate || item.startDate <= currentDate;
+      const expirationDateValid =
+        !item.expirationDate || item.expirationDate >= currentDate;
+      return startDateValid && expirationDateValid;
+    });
+  }, [items]);
+
   // Use null initially to not show any image and prevent hydration error
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [backgroundColor, setBackgroundColor] = useState(
-    items[0].backgroundColor || DEFAULT_GRADIENT_BACKGROUND
+    validItems[0]?.backgroundColor || DEFAULT_GRADIENT_BACKGROUND
   );
   const [fade, setFade] = useState(true);
 
-  const hasRedirectUrl = items[activeIndex].redirectUrl !== "";
+  const hasRedirectUrl = validItems[activeIndex].redirectUrl !== "";
   const redirectOpensInSameTab =
-    items[activeIndex].redirectOpensInSameTab || false;
+    validItems[activeIndex].redirectOpensInSameTab || false;
 
   const { imageUrlMobile, imageUrl, redirectUrl } = useMemo(
-    () => items[activeIndex],
-    [items, activeIndex]
+    () => validItems[activeIndex],
+    [validItems, activeIndex]
   );
 
   const moveToNextSlide = useCallback(() => {
     setActiveIndex((prevIndex) =>
-      prevIndex === items.length - 1 ? 0 : prevIndex + 1
+      prevIndex === validItems.length - 1 ? 0 : prevIndex + 1
     );
-  }, [items.length]);
+  }, [validItems.length]);
 
   const handleRedirect = () => {
     if (hasRedirectUrl && typeof window !== "undefined") {
@@ -65,13 +78,13 @@ export function PromoBannerCarousel({
   };
 
   useEffect(() => {
-    const selectedBg = items[activeIndex].backgroundColor;
+    const selectedBg = validItems[activeIndex].backgroundColor;
     if (selectedBg) {
       setBackgroundColor(selectedBg);
     } else {
       setBackgroundColor(DEFAULT_GRADIENT_BACKGROUND);
     }
-  }, [activeIndex, items]);
+  }, [activeIndex, validItems]);
 
   useEffect(() => {
     // Determine which image to show based on the client's screen size
@@ -96,16 +109,13 @@ export function PromoBannerCarousel({
     return () => clearInterval(intervalId);
   }, [moveToNextSlide, interval]);
 
-  // const handleDotClick = useCallback((idx: number) => {
-  //   setFade(false);
-  //   setTimeout(() => {
-  //     setActiveIndex(idx);
-  //     setFade(true);
-  //   }, 500); // Duration of the fade out
-  // }, []);
-
   if (currentImageSrc === null || currentImageSrc === "") {
     return null; // Return null if no image should be shown
+  }
+
+  // Return null if no valid items are available
+  if (validItems.length === 0) {
+    return null;
   }
 
   return (

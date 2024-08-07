@@ -13,6 +13,7 @@ Here are a few guidelines to follow:
 - **Write tests** to prevent regressions, unit tests with [Jest](https://jestjs.io/) in `__tests__` folder, end to end tests with [Playwright](https://playwright.dev/) in `e2e` folder
 - **Run tests locally** with `npm run test-all` before submitting any PR. This will help you find issues fast.
 - **Try to avoid custom CSS** - the project uses [DaisyUI](https://daisyui.com/) and [TailwindCSS](https://tailwindcss.com/docs/) for styling, whenever possible use the existing components and classes, the full rationale (by creator of TailwindCSS) is [here](https://adamwathan.me/css-utility-classes-and-separation-of-concerns/)
+- **Use [Redux Dev Tools Extension](https://chromewebstore.google.com/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)** for easy debugging of redux state. Watch this [1 min video tutorial](https://www.youtube.com/watch?v=5qrIbU1XspA) on how to set it up.
 
 If you happen to use VS Code, install the recommended extensions to get automatic formatting and linting on save, they are listed in `.vscode/extensions.json` and VS Code will prompt you to install them.
 
