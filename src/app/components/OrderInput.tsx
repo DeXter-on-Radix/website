@@ -96,17 +96,9 @@ export function OrderInput() {
   const dispatch = useAppDispatch();
   const pairAddress = useAppSelector((state) => state.pairSelector.address);
   const { walletData } = useAppSelector((state) => state.radix);
-  const {
-    type,
-    side,
-    token1,
-    token2,
-    price,
-    specifiedToken,
-    validationPrice,
-    validationToken1,
-    validationToken2,
-  } = useAppSelector((state) => state.orderInput);
+  const { type, side, token1, token2, price, specifiedToken } = useAppSelector(
+    (state) => state.orderInput
+  );
 
   // for better readibility
   const isMarketOrder = type === "MARKET";
@@ -126,7 +118,6 @@ export function OrderInput() {
 
   useEffect(() => {
     if (
-      noValidationErrors(validationPrice, validationToken1, validationToken2) &&
       pairAddressIsSet(pairAddress) &&
       priceIsValid(price, type) &&
       tokenIsSpecified(specifiedToken)
@@ -141,9 +132,6 @@ export function OrderInput() {
     price,
     side,
     type,
-    validationPrice,
-    validationToken1,
-    validationToken2,
     pairAddress,
   ]);
 
@@ -375,14 +363,27 @@ function SubmitButton() {
   const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
-  const { side, type, token1, quote, quoteDescription, quoteError } =
-    useAppSelector((state) => state.orderInput);
+  const {
+    side,
+    type,
+    token1,
+    quote,
+    quoteDescription,
+    quoteError,
+    validationPrice,
+    validationToken1,
+    validationToken2,
+  } = useAppSelector((state) => state.orderInput);
   const { isConnected } = useAppSelector((state) => state.radix);
   const hasQuote = quote !== undefined;
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
   const isBuyOrder = side === OrderSide.BUY;
-  const disabled = !hasQuote || hasQuoteError || !isConnected;
+  const disabled =
+    !hasQuote ||
+    hasQuoteError ||
+    !isConnected ||
+    !noValidationErrors(validationPrice, validationToken1, validationToken2);
   const buttonText = !isConnected
     ? t("connect_wallet_to_trade")
     : t("market_action_token")
