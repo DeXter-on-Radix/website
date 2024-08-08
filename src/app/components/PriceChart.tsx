@@ -7,12 +7,15 @@ import {
   handleCrosshairMove,
   initializeLegend,
   initialPriceChartState,
+  setCopied,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { MdContentCopy } from "react-icons/md";
+import { shortenString } from "../utils";
+import { DexterToast } from "components/DexterToaster";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -267,7 +270,7 @@ enum ChartTabOptions {
   PAIR_INFO = "PAIR_INFO",
 }
 
-export function PriceChart() {
+export function TradingChartOrPairInfo() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
@@ -282,7 +285,7 @@ export function PriceChart() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
-        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
+        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2 px-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
             [t("pair_info"), ChartTabOptions.PAIR_INFO],
@@ -357,24 +360,28 @@ export function TradingChart() {
 
 export function PairInfoTab() {
   const t = useTranslations();
-  const { pairsList } = useAppSelector((state) => state.rewardSlice);
+  const dispatch = useAppDispatch();
+  const { pairsList } = useAppSelector((state) => state.pairSelector);
   const selectedPairAddress = useAppSelector(
     (state) => state.pairSelector.address
   );
   const pairInfo = pairsList.find(
     (pairInfo) => pairInfo.address === selectedPairAddress
   );
+  // const isCopied = useAppSelector((state) => state.priceChart.copied);
 
-  let name, address, orderReceiptAddress, token1, token2;
-  if (pairInfo) {
-    ({ name, address, orderReceiptAddress, token1, token2 } = pairInfo);
-  } else {
+  if (!pairInfo) {
     return "Selected pair not found in pairsList";
   }
+  const { name, address, orderReceiptAddress, token1, token2 } = pairInfo;
 
-  const shortenAddress = (address: any) => {
-    if (!address) return "";
-    return `${address.slice(0, 40)}...`;
+  const handleCopy = () => {
+    dispatch(setCopied(true));
+    DexterToast.success("Copied!");
+
+    setTimeout(() => {
+      dispatch(setCopied(false));
+    }, 2000);
   };
 
   return (
@@ -382,13 +389,15 @@ export function PairInfoTab() {
       <div className="sm:p-4 xs:p-0 text-primary-content">
         <div className="text-lg font-normal mb-4">{name}</div>
         <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
-          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-2">
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
             {t("pair_resource")}
           </div>
           <div className="flex flex-row items-start mb-4">
             <div className="text-base flex items-center">
-              <span className="mr-2">{shortenAddress(address)}</span>
-              <CopyToClipboard text={address}>
+              <span className="mr-2">
+                {shortenString(address, 8, 20, "...")}
+              </span>
+              <CopyToClipboard text={address} onCopy={handleCopy}>
                 <MdContentCopy
                   className="cursor-pointer text-base"
                   title="Copy to clipboard"
@@ -396,15 +405,16 @@ export function PairInfoTab() {
               </CopyToClipboard>
             </div>
           </div>
-          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-2">
+
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
             {t("order_receipt_address")}
           </div>
           <div className="flex flex-col sm:flex-row items-start">
             <div className="text-base flex items-center">
               <span className="mr-2">
-                {shortenAddress(orderReceiptAddress)}
+                {shortenString(orderReceiptAddress, 8, 20, "...")}
               </span>
-              <CopyToClipboard text={orderReceiptAddress}>
+              <CopyToClipboard text={orderReceiptAddress} onCopy={handleCopy}>
                 <MdContentCopy
                   className="cursor-pointer text-base"
                   title="Copy to clipboard"
@@ -415,7 +425,7 @@ export function PairInfoTab() {
         </div>
 
         <div className="flex flex-col sm:flex-row">
-          <div className="flex flex-col items-start mb-4 sm:mb-0">
+          <div className="flex flex-col items-start mb-4 sm:mb-0 flex-grow">
             <div className="flex items-start mb-2 pt-8">
               <img
                 src={token1?.iconUrl}
@@ -427,12 +437,14 @@ export function PairInfoTab() {
               </p>
             </div>
             <div className="flex flex-col">
-              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4">
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
                 {t("resource")}
               </p>
               <div className="flex items-start">
-                <p className="text-base">{shortenAddress(token1?.address)}</p>
-                <CopyToClipboard text={token1?.address}>
+                <p className="text-base">
+                  {shortenString(token1?.address, 8, 20, "...")}
+                </p>
+                <CopyToClipboard text={token1?.address} onCopy={handleCopy}>
                   <MdContentCopy
                     className="ml-2 cursor-pointer text-base"
                     title="Copy to clipboard"
@@ -444,11 +456,11 @@ export function PairInfoTab() {
 
           <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-4 sm:min-h-[150px] sm:max-h-[200px]"></div>
 
-          <div className="flex flex-col items-start xs:pl-0 sm:pl-4">
+          <div className="flex flex-col items-start mb-4 sm:mb-0 flex-grow">
             <div className="flex items-center sm:mb-2 sm:pt-8 xs:pt-4">
               <img
                 src={token2?.iconUrl}
-                alt=""
+                alt={token2?.symbol}
                 className="w-8 h-8 rounded-full"
               />
               <p className="pl-2 text-base">
@@ -456,12 +468,14 @@ export function PairInfoTab() {
               </p>
             </div>
             <div className="flex flex-col xs:mb-12 sm:mb-0">
-              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4">
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
                 {t("resource")}
               </p>
               <div className="flex items-center">
-                <p className="text-base">{shortenAddress(token2?.address)}</p>
-                <CopyToClipboard text={token2?.address}>
+                <p className="text-base">
+                  {shortenString(token2?.address, 8, 20, "...")}
+                </p>
+                <CopyToClipboard text={token2?.address} onCopy={handleCopy}>
                   <MdContentCopy
                     className="ml-2 cursor-pointer text-base"
                     title="Copy to clipboard"
@@ -476,4 +490,4 @@ export function PairInfoTab() {
   );
 }
 
-export default PriceChart;
+export default TradingChartOrPairInfo;
