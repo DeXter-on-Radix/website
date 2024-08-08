@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector, useHydrationErrorFix } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useHydrationErrorFix,
+  useTranslations,
+} from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
 
 import { i18nSlice } from "../state/i18nSlice";
@@ -32,11 +37,11 @@ interface NavbarItemMobileProps extends NavbarItemProps {
 const NavItems: { path: string; title: string }[] = [
   {
     path: "/trade",
-    title: "Trade",
+    title: "trade",
   },
   {
     path: "/rewards",
-    title: "Rewards",
+    title: "rewards",
   },
 ];
 
@@ -219,13 +224,14 @@ function Logo() {
 }
 
 function NavbarItemsDesktop() {
+  const t = useTranslations();
   return (
     <>
       <div className="hidden sm:flex h-full items-center flex-1 px-2 mx-2 z-10">
         {NavItems.map((navItem, indx) => {
           return (
             <NavbarItemDesktop
-              title={navItem.title}
+              title={t(navItem.title)}
               target={navItem.path}
               key={indx}
             />

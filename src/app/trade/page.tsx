@@ -79,13 +79,14 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // mox liquidity incentive banner
+          // DAO vote banner
           {
-            imageUrl: "/promo-banners/mox-desktop.png",
-            imageUrlMobile: "/promo-banners/mox-mobile.png",
-            redirectUrl: "https://dexteronradix.com/trade?pair=mox-xrd",
-            backgroundColor: "bg-[#FF5634]",
-            redirectOpensInSameTab: true,
+            imageUrl: "/promo-banners/crumbsup-tokenomics-desktop2x.png",
+            imageUrlMobile: "/promo-banners/crumbsup-tokenomics-mobile2x.png",
+            redirectUrl:
+              "https://www.crumbsup.io/#proposal?id=f7bf5bcc-dafd-4aa0-8d18-1754f2aa7b46",
+            backgroundColor: "bg-[#087277]",
+            expirationDate: new Date("2024-08-19"),
           },
           // tokentrek banner
           {
