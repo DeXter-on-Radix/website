@@ -248,13 +248,7 @@ export const fetchQuote = createAsyncThunk<
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
   const state = thunkAPI.getState();
-  if (
-    !noValidationErrors(
-      state.orderInput.validationPrice,
-      state.orderInput.validationToken1,
-      state.orderInput.validationToken2
-    )
-  ) {
+  if (!state.orderInput.validationPrice.valid) {
     throw new Error("Validation errors found");
   }
   if (!pairAddressIsSet(state.pairSelector.address)) {
