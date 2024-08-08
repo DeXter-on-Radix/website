@@ -30,7 +30,7 @@ export function DexterButton({
 
   const wrapperDefaultClassName = `z-100 min-w-[220px] max-${maxWidth}`;
   const buttonDefaultClassName = `min-${minHeight} ${maxWidth} px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100 cursor-pointer`;
-  const defaultLabelClassName = "font-bold text-sm tracking-[.1px]";
+  const labelDefaultClassName = "font-bold text-sm tracking-[.1px]";
 
   return (
     <a
@@ -39,7 +39,7 @@ export function DexterButton({
       target={`${targetBlank ? "_blank" : ""}`}
     >
       <button className={twMerge(buttonDefaultClassName, buttonClassName)}>
-        <span className={twMerge(defaultLabelClassName, labelClassName)}>
+        <span className={twMerge(labelDefaultClassName, labelClassName)}>
           {title}
         </span>
       </button>
