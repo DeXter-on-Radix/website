@@ -29,7 +29,7 @@ export function DexterButton({
   if (!isClient) return null;
 
   const wrapperDefaultClassName = `z-100 min-w-[220px] max-${maxWidth}`;
-  const buttonDefaultClassName = `min-${minHeight} ${maxWidth} px-4 my-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100 cursor-pointer`;
+  const buttonDefaultClassName = `min-${minHeight} ${maxWidth} px-4 mb-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100`;
   const labelDefaultClassName = "font-bold text-sm tracking-[.1px]";
 
   return (
