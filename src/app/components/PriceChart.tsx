@@ -1,5 +1,5 @@
 import { createChart } from "lightweight-charts";
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
   OHLCVData,
@@ -7,10 +7,15 @@ import {
   handleCrosshairMove,
   initializeLegend,
   initialPriceChartState,
+  setCopied,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { MdContentCopy } from "react-icons/md";
+import { shortenString } from "../utils";
+import { DexterToast } from "components/DexterToaster";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -260,12 +265,75 @@ function PriceChartCanvas(props: PriceChartProps) {
   );
 }
 
-export function PriceChart() {
+enum ChartTabOptions {
+  TRADING_CHART = "TRADING_CHART",
+  PAIR_INFO = "PAIR_INFO",
+}
+
+export function TradingChartOrPairInfo() {
   const t = useTranslations();
-  const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
 
+  // Set default candlePeriod state as defined in initialState of priceChartSlice
+  useEffect(() => {
+    dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
+  }, [dispatch]);
+
+  const [currentTab, setCurrentTab] = useState(ChartTabOptions.TRADING_CHART);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
+        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2 px-2">
+          {[
+            [t("trading_chart"), ChartTabOptions.TRADING_CHART],
+            [t("pair_info"), ChartTabOptions.PAIR_INFO],
+          ].map(([title, tab], indx) => {
+            const isActive = tab === currentTab;
+            return (
+              <span
+                key={indx}
+                className={`text-sm sm:text-base pb-2 sm:pb-3 ${
+                  isActive
+                    ? "text-dexter-green-OG border-b border-[#cafc40]"
+                    : "text-[#768089]"
+                } cursor-pointer`}
+                onClick={() => setCurrentTab(tab as ChartTabOptions)}
+              >
+                {title}
+              </span>
+            );
+          })}
+        </div>
+        {currentTab === ChartTabOptions.TRADING_CHART && (
+          <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
+            {CANDLE_PERIODS.map((period) => (
+              <button
+                key={period}
+                className={`btn btn-xs sm:btn-sm text-secondary-content focus-within:outline-none ${
+                  candlePeriod === period
+                    ? "!text-primary-content underline underline-offset-8 decoration-accent"
+                    : ""
+                }`}
+                onClick={() => dispatch(setCandlePeriod(period))}
+              >
+                {t(period)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        {currentTab === ChartTabOptions.TRADING_CHART && <TradingChart />}
+        {currentTab === ChartTabOptions.PAIR_INFO && <PairInfoTab />}
+      </div>
+    </div>
+  );
+}
+
+export function TradingChart() {
+  const state = useAppSelector((state) => state.priceChart);
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   );
@@ -277,35 +345,8 @@ export function PriceChart() {
     (state) => state.priceChart.legendCurrentVolume
   );
 
-  // Set default candlePeriod state as defined in initialState of priceChartSlice
-  useEffect(() => {
-    dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
-  }, [dispatch]);
-
   return (
     <>
-      <div className="flex items-center justify-between sm:pr-10 pr-4">
-        <div className="">
-          <span className="block text-secondary-content text-sm font-bold uppercase">
-            {t("trading_chart")}
-          </span>
-        </div>
-        <div className="">
-          {CANDLE_PERIODS.map((period) => (
-            <button
-              key={period}
-              className={`btn btn-sm text-secondary-content focus-within:-outline-offset-2 ${
-                candlePeriod === period
-                  ? "!text-primary-content underline underline-offset-8 decoration-accent"
-                  : ""
-              }`}
-              onClick={() => dispatch(setCandlePeriod(period))}
-            >
-              {t(period)}
-            </button>
-          ))}
-        </div>
-      </div>
       <PriceChartCanvas
         data={state.ohlcv}
         candlePrice={candlePrice}
@@ -316,3 +357,137 @@ export function PriceChart() {
     </>
   );
 }
+
+export function PairInfoTab() {
+  const t = useTranslations();
+  const dispatch = useAppDispatch();
+  const { pairsList } = useAppSelector((state) => state.pairSelector);
+  const selectedPairAddress = useAppSelector(
+    (state) => state.pairSelector.address
+  );
+  const pairInfo = pairsList.find(
+    (pairInfo) => pairInfo.address === selectedPairAddress
+  );
+  // const isCopied = useAppSelector((state) => state.priceChart.copied);
+
+  if (!pairInfo) {
+    return "Selected pair not found in pairsList";
+  }
+  const { name, address, orderReceiptAddress, token1, token2 } = pairInfo;
+
+  const handleCopy = () => {
+    dispatch(setCopied(true));
+    DexterToast.success("Copied!");
+
+    setTimeout(() => {
+      dispatch(setCopied(false));
+    }, 2000);
+  };
+
+  return (
+    <>
+      <div className="sm:p-4 xs:p-0 text-primary-content">
+        <div className="text-lg font-normal mb-4">{name}</div>
+        <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
+            {t("pair_resource")}
+          </div>
+          <div className="flex flex-row items-start mb-4">
+            <div className="text-base flex items-center">
+              <span className="mr-2">
+                {shortenString(address, 8, 20, "...")}
+              </span>
+              <CopyToClipboard text={address} onCopy={handleCopy}>
+                <MdContentCopy
+                  className="cursor-pointer text-base"
+                  title="Copy to clipboard"
+                />
+              </CopyToClipboard>
+            </div>
+          </div>
+
+          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
+            {t("order_receipt_address")}
+          </div>
+          <div className="flex flex-col sm:flex-row items-start">
+            <div className="text-base flex items-center">
+              <span className="mr-2">
+                {shortenString(orderReceiptAddress, 8, 20, "...")}
+              </span>
+              <CopyToClipboard text={orderReceiptAddress} onCopy={handleCopy}>
+                <MdContentCopy
+                  className="cursor-pointer text-base"
+                  title="Copy to clipboard"
+                />
+              </CopyToClipboard>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
+            <div className="flex items-start mb-2 pt-8">
+              <img
+                src={token1?.iconUrl}
+                alt={token1?.symbol}
+                className="w-8 h-8 rounded-full"
+              />
+              <p className="pl-2 text-base">
+                {token1?.name.split(" ")[0]} ({token1?.symbol})
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
+                {t("resource")}
+              </p>
+              <div className="flex items-start">
+                <p className="text-base">
+                  {shortenString(token1?.address, 8, 10, "...")}
+                </p>
+                <CopyToClipboard text={token1?.address} onCopy={handleCopy}>
+                  <MdContentCopy
+                    className="ml-2 cursor-pointer text-base"
+                    title="Copy to clipboard"
+                  />
+                </CopyToClipboard>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-4 sm:min-h-[150px] sm:max-h-[200px]"></div>
+
+          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
+            <div className="flex items-center sm:mb-2 sm:pt-8 xs:pt-4">
+              <img
+                src={token2?.iconUrl}
+                alt={token2?.symbol}
+                className="w-8 h-8 rounded-full"
+              />
+              <p className="pl-2 text-base">
+                {token2?.name.split(" ")[0]} ({token2?.symbol})
+              </p>
+            </div>
+            <div className="flex flex-col xs:mb-12 sm:mb-0">
+              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
+                {t("resource")}
+              </p>
+              <div className="flex items-center">
+                <p className="text-base">
+                  {shortenString(token2?.address, 8, 10, "...")}
+                </p>
+                <CopyToClipboard text={token2?.address} onCopy={handleCopy}>
+                  <MdContentCopy
+                    className="ml-2 cursor-pointer text-base"
+                    title="Copy to clipboard"
+                  />
+                </CopyToClipboard>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default TradingChartOrPairInfo;

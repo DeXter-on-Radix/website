@@ -87,7 +87,11 @@
   "submitting_batch_cancel": "Submitting batch cancel",
   "failed_to_cancel_orders": "Failed to cancel orders",
   "connect_wallet_to_batch_delete": "Connect wallet to batch delete",
-  "recent_trades": "Recent Trades",
+  "recent_trades": "Recent trades",
   "time": "Time",
-  "export_as_csv": "Export as csv"
+  "export_as_csv": "Export as csv",
+  "pair_info": "Pair info",
+  "pair_resource": "Pair resource",
+  "order_receipt_address": "Order receipt address",
+  "resource": "Resource"
 }

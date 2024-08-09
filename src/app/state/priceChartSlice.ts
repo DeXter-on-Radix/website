@@ -25,6 +25,7 @@ export interface PriceChartState {
   legendChange: number | null;
   legendPercChange: number | null;
   legendCurrentVolume: number;
+  copied: boolean;
 }
 
 const initialState: PriceChartState = {
@@ -34,8 +35,16 @@ const initialState: PriceChartState = {
   legendPercChange: null,
   legendChange: null,
   legendCurrentVolume: 0,
+  copied: false,
 };
+
 export const initialPriceChartState = initialState;
+
+export const COPY_SUCCESS = "COPY_SUCCESS";
+
+export const copySuccess = () => ({
+  type: COPY_SUCCESS,
+});
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
   // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
@@ -163,6 +172,9 @@ export const priceChartSlice = createSlice({
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
       state.legendCurrentVolume = action.payload;
     },
+    setCopied: (state, action: PayloadAction<boolean>) => {
+      state.copied = action.payload;
+    },
   },
 });
 
@@ -174,4 +186,5 @@ export const {
   setLegendPercChange,
   setLegendCurrentVolume,
   initializeLegend,
+  setCopied,
 } = priceChartSlice.actions;
