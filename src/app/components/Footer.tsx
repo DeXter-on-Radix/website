@@ -1,6 +1,5 @@
 import "react";
 import { useTranslations } from "hooks";
-import "../styles/footer.css";
 import Image from "next/image";
 
 const marginBottom = "mb-8";
@@ -68,7 +67,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-base-300 text-xs text-secondary-content px-12 pt-8 pb-16">
+    <footer className="bg-base-300 text-xs text-secondary-content px-12 pt-8 pb-24">
       <div className="flex flex-wrap justify-between">
         <div className="flex flex-wrap">
           <FirstFooterElement />
@@ -136,13 +135,19 @@ function FooterContentColumn({
       <h3 className="py-2 text-secondary-content font-medium !my-0 !text-sm">
         {title}
       </h3>
-      {links.map((link, i) => (
-        <a href={link.url} key={i} target="_blank">
-          <p className="truncate pl-[1px] text-xs py-[2px] cursor-pointer text-white font-normal hover:underline">
-            {link.text}
-          </p>
-        </a>
-      ))}
+      <ul className="list-none pt-[2px] !px-0">
+        {links.map((link) => (
+          <li key={link.text} className="cursor-pointer !px-0 !m-0">
+            <a
+              href={link.url}
+              target="_blank"
+              className="inline-block ps-[1px] pt-[1px] truncate text-xs text-white font-normal"
+            >
+              {link.text}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

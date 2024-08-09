@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  a,
+  .prose a {
+    @apply no-underline;
+  }
+
+  footer a,
+  footer .prose a {
+    @apply hover:underline;
+  }
+
   img {
     @apply !my-0;
   }
@@ -88,6 +98,12 @@
 @media (max-width: 419px) {
   :root {
     --radix-connect-button-width: 36px;
+  }
+}
+
+@layer components {
+  .dexter-btn {
+    @apply px-4 mb-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100;
   }
 }
 

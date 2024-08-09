@@ -100,7 +100,7 @@ function HeroSection() {
           </h1>
           <div className="relative">
             <BackgroundLights showFor={Device.MOBILE} />
-            <DexterButton title={t("trade_now")} targetUrl="/trade" />
+            <DexterButton label={t("trade_now")} targetUrl="/trade" />
           </div>
           <KeyFeatures showFor={Device.MOBILE} />
         </div>
@@ -239,7 +239,7 @@ function TopicSection({
             <DexterHeading title={title} />
             {body}
             <DexterButton
-              title={buttonText}
+              label={buttonText}
               targetUrl={buttonUrl}
               targetBlank={true}
             />
