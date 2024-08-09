@@ -368,7 +368,6 @@ export function PairInfoTab() {
   const pairInfo = pairsList.find(
     (pairInfo) => pairInfo.address === selectedPairAddress
   );
-  // const isCopied = useAppSelector((state) => state.priceChart.copied);
 
   if (!pairInfo) {
     return "Selected pair not found in pairsList";

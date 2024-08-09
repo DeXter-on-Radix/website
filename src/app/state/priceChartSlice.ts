@@ -40,12 +40,6 @@ const initialState: PriceChartState = {
 
 export const initialPriceChartState = initialState;
 
-export const COPY_SUCCESS = "COPY_SUCCESS";
-
-export const copySuccess = () => ({
-  type: COPY_SUCCESS,
-});
-
 function cleanData(data: OHLCVData[]): OHLCVData[] {
   // avoid lightweight-charts Error: Assertion failed: data must be asc ordered by time
   // without this step, the chart does not work in firefox (but works in chrome)
