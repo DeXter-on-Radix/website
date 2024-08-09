@@ -284,7 +284,7 @@ export function TradingChartOrPairInfo() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.13)]">
+      <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
         <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2 px-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
@@ -425,7 +425,7 @@ export function PairInfoTab() {
         </div>
 
         <div className="flex flex-col sm:flex-row">
-          <div className="flex flex-col items-start mb-4 sm:mb-0 flex-grow">
+          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
             <div className="flex items-start mb-2 pt-8">
               <img
                 src={token1?.iconUrl}
@@ -442,7 +442,7 @@ export function PairInfoTab() {
               </p>
               <div className="flex items-start">
                 <p className="text-base">
-                  {shortenString(token1?.address, 8, 20, "...")}
+                  {shortenString(token1?.address, 8, 10, "...")}
                 </p>
                 <CopyToClipboard text={token1?.address} onCopy={handleCopy}>
                   <MdContentCopy
@@ -456,7 +456,7 @@ export function PairInfoTab() {
 
           <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-4 sm:min-h-[150px] sm:max-h-[200px]"></div>
 
-          <div className="flex flex-col items-start mb-4 sm:mb-0 flex-grow">
+          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
             <div className="flex items-center sm:mb-2 sm:pt-8 xs:pt-4">
               <img
                 src={token2?.iconUrl}
@@ -473,7 +473,7 @@ export function PairInfoTab() {
               </p>
               <div className="flex items-center">
                 <p className="text-base">
-                  {shortenString(token2?.address, 8, 20, "...")}
+                  {shortenString(token2?.address, 8, 10, "...")}
                 </p>
                 <CopyToClipboard text={token2?.address} onCopy={handleCopy}>
                   <MdContentCopy
