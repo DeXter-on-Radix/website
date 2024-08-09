@@ -7,15 +7,12 @@ import {
   handleCrosshairMove,
   initializeLegend,
   initialPriceChartState,
-  setCopied,
 } from "../state/priceChartSlice";
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import { MdContentCopy } from "react-icons/md";
 import { shortenString } from "../utils";
-import { DexterToast } from "components/DexterToaster";
+import { CopyIcon } from "./CopyIcon";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -360,7 +357,6 @@ export function TradingChart() {
 
 export function PairInfoTab() {
   const t = useTranslations();
-  const dispatch = useAppDispatch();
   const { pairsList } = useAppSelector((state) => state.pairSelector);
   const selectedPairAddress = useAppSelector(
     (state) => state.pairSelector.address
@@ -372,120 +368,99 @@ export function PairInfoTab() {
   if (!pairInfo) {
     return "Selected pair not found in pairsList";
   }
-  const { name, address, orderReceiptAddress, token1, token2 } = pairInfo;
-
-  const handleCopy = () => {
-    dispatch(setCopied(true));
-    DexterToast.success("Copied!");
-
-    setTimeout(() => {
-      dispatch(setCopied(false));
-    }, 2000);
-  };
 
   return (
     <>
-      <div className="sm:p-4 xs:p-0 text-primary-content">
-        <div className="text-lg font-normal mb-4">{name}</div>
+      <div className="sm:p-4 xs:ml-2 md:ml-0 xs:mb-6 md:mb-0 md:pb-0 xs:p-0 text-primary-content">
+        <div className="text-lg font-normal mb-3 xs:pt-3">{pairInfo.name}</div>
         <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
-          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
-            {t("pair_resource")}
-          </div>
-          <div className="flex flex-row items-start mb-4">
-            <div className="text-base flex items-center">
-              <span className="mr-2">
-                {shortenString(address, 8, 20, "...")}
-              </span>
-              <CopyToClipboard text={address} onCopy={handleCopy}>
-                <MdContentCopy
-                  className="cursor-pointer text-base"
-                  title="Copy to clipboard"
-                />
-              </CopyToClipboard>
-            </div>
-          </div>
-
-          <div className="text-sm tracking-[0.5px] opacity-50 font-normal mb-1">
-            {t("order_receipt_address")}
-          </div>
-          <div className="flex flex-col sm:flex-row items-start">
-            <div className="text-base flex items-center">
-              <span className="mr-2">
-                {shortenString(orderReceiptAddress, 8, 20, "...")}
-              </span>
-              <CopyToClipboard text={orderReceiptAddress} onCopy={handleCopy}>
-                <MdContentCopy
-                  className="cursor-pointer text-base"
-                  title="Copy to clipboard"
-                />
-              </CopyToClipboard>
-            </div>
-          </div>
+          <LabelAndAddress
+            label={t("pair_resource")}
+            address={pairInfo.address}
+            shortenLength={{ min: 8, max: 20 }}
+          />
+          <LabelAndAddress
+            label={t("order_receipt_address")}
+            address={pairInfo.orderReceiptAddress}
+            shortenLength={{ min: 8, max: 20 }}
+          />
         </div>
 
         <div className="flex flex-col sm:flex-row">
-          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
-            <div className="flex items-start mb-2 pt-8">
-              <img
-                src={token1?.iconUrl}
-                alt={token1?.symbol}
-                className="w-8 h-8 rounded-full"
-              />
-              <p className="pl-2 text-base">
-                {token1?.name.split(" ")[0]} ({token1?.symbol})
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
-                {t("resource")}
-              </p>
-              <div className="flex items-start">
-                <p className="text-base">
-                  {shortenString(token1?.address, 8, 10, "...")}
-                </p>
-                <CopyToClipboard text={token1?.address} onCopy={handleCopy}>
-                  <MdContentCopy
-                    className="ml-2 cursor-pointer text-base"
-                    title="Copy to clipboard"
-                  />
-                </CopyToClipboard>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-4 sm:min-h-[150px] sm:max-h-[200px]"></div>
-
-          <div className="flex flex-col items-start mb-4 sm:mb-0 w-[50%]">
-            <div className="flex items-center sm:mb-2 sm:pt-8 xs:pt-4">
-              <img
-                src={token2?.iconUrl}
-                alt={token2?.symbol}
-                className="w-8 h-8 rounded-full"
-              />
-              <p className="pl-2 text-base">
-                {token2?.name.split(" ")[0]} ({token2?.symbol})
-              </p>
-            </div>
-            <div className="flex flex-col xs:mb-12 sm:mb-0">
-              <p className="text-sm tracking-[0.5px] opacity-50 font-normal pt-4 !mb-1">
-                {t("resource")}
-              </p>
-              <div className="flex items-center">
-                <p className="text-base">
-                  {shortenString(token2?.address, 8, 10, "...")}
-                </p>
-                <CopyToClipboard text={token2?.address} onCopy={handleCopy}>
-                  <MdContentCopy
-                    className="ml-2 cursor-pointer text-base"
-                    title="Copy to clipboard"
-                  />
-                </CopyToClipboard>
-              </div>
-            </div>
-          </div>
+          <CoinInfo token={pairInfo.token1} />
+          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-8 sm:min-h-[160px] sm:max-h-[200px]"></div>
+          <CoinInfo token={pairInfo.token2} />
         </div>
       </div>
     </>
+  );
+}
+
+interface LabelAndAddressProps {
+  label: string;
+  address: string;
+  shortenLength?: { min: number; max: number };
+}
+
+function LabelAndAddress({
+  label,
+  address,
+  shortenLength,
+}: LabelAndAddressProps) {
+  const minLength = shortenLength?.min || 8;
+  const maxLength = shortenLength?.max || 20;
+
+  return (
+    <>
+      <div className="text-sm tracking-[0.5px] opacity-50 font-normal pt-2 !mb-1">
+        {label}
+      </div>
+      <div className="flex flex-row items-start mb-4">
+        <div className="text-base flex items-center">
+          <span className="mr-2">
+            {shortenString(address, minLength, maxLength, "...")}
+          </span>
+          <CopyIcon targetUrl={address} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface Token {
+  iconUrl: string;
+  symbol: string;
+  name: string;
+  address: string;
+}
+
+interface TokenInfoProps {
+  token: Token;
+}
+
+function CoinInfo({ token }: TokenInfoProps) {
+  const t = useTranslations();
+
+  return (
+    <div className="flex flex-col items-start xs:mb-4 mb-4 sm:mb-0 w-[50%]">
+      <div className="flex items-start mb-3 pt-8">
+        <img
+          src={token.iconUrl}
+          alt={token.symbol}
+          className="w-8 h-8 rounded-full"
+        />
+        <p className="pl-2 text-base">
+          {token.name.split(" ")[0]} ({token.symbol})
+        </p>
+      </div>
+      <div className="flex flex-col">
+        <LabelAndAddress
+          label={t("resource")}
+          address={token.address}
+          shortenLength={{ min: 8, max: 10 }}
+        />
+      </div>
+    </div>
   );
 }
 
