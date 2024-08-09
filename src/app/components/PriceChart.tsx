@@ -443,7 +443,7 @@ function CoinInfo({ token }: TokenInfoProps) {
 
   return (
     <div className="flex flex-col items-start xs:mb-4 mb-4 sm:mb-0 w-[50%]">
-      <div className="flex items-start mb-3 pt-8">
+      <div className="flex items-center mb-3 pt-8">
         <img
           src={token.iconUrl}
           alt={token.symbol}
