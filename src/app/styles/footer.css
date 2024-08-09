@@ -1,7 +1,0 @@
-a {
-  @apply !no-underline;
-}
-
-a:hover {
-  @apply !underline;
-}
