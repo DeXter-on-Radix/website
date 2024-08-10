@@ -242,5 +242,5 @@ input[type="number"]::-ms-clear {
 
 /* css for tooltip */
 .tippy-box[data-theme~="custom"] {
-  @apply text-dexter-green bg-base-100;
+  @apply text-dexter-green;
 }
