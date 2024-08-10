@@ -239,8 +239,3 @@ input[type="number"]::-ms-clear {
 .account-history table thead tr th:last-child {
   padding-right: 16px;
 }
-
-/* css for tooltip */
-.tippy-box[data-theme~="custom"] {
-  @apply text-dexter-green;
-}
