@@ -19,8 +19,6 @@ module.exports = {
       fontFamily: {
         inter: ["inter"],
       },
-      // stretch the grid so that footer is always at the bottom
-      // even on pages with little content
       gridTemplateRows: {
         "auto-1fr": "auto 1fr",
       },
@@ -33,6 +31,26 @@ module.exports = {
         "dexter-grey-dark": "#141414",
         "dexter-grey-light": "#191B1D",
         "content-dark": "#212A09",
+      },
+      keyframes: {
+        pulseBlueLight: {
+          "0%, 100%": { transform: "translate(-150px, 70px) scale(1.2)" },
+          "20%": { transform: "translate(-80px, 80px) scale(1.1)" },
+          "40%": { transform: "translate(-110px, 50px) scale(1.2)" },
+          "60%": { transform: "translate(-70px, 10px) scale(1.3)" },
+          "80%": { transform: "translate(-130px, 40px) scale(1.1)" },
+        },
+        pulseGreenLight: {
+          "0%, 100%": { transform: "translate(40px, -40px) scale(1.2)" },
+          "20%": { transform: "translate(-30px, -50px) scale(1.1)" },
+          "40%": { transform: "translate(30px, -50px) scale(1)" },
+          "60%": { transform: "translate(-30px, 10px) scale(1.3)" },
+          "80%": { transform: "translate(30px, 10px) scale(1.2)" },
+        },
+      },
+      animation: {
+        pulseBlueLight: "pulseBlueLight 6s ease-in-out infinite",
+        pulseGreenLight: "pulseGreenLight 6s ease-in-out infinite",
       },
     },
   },

@@ -3,6 +3,7 @@
 import { DexterButton } from "components/DexterButton";
 import StatsWidget from "components/StatsWidget";
 import { useTranslations, useHydrationErrorFix } from "hooks";
+// import * as tailwindConfig from "../../../tailwind.config";
 
 enum Device {
   MOBILE = "MOBILE",
@@ -180,12 +181,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] "
+          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] animate-pulseBlueLight"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute z-10 scale-[4] top-[-147px] right-[122px] "
+          className="absolute z-10 scale-[4] top-[-147px] right-[122px] animate-pulseGreenLight"
         />
         <img
           src="/landing/background-structures.png"
@@ -202,12 +203,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30]"
+          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30] animate-[moveBlueLight_10s_infinite_alternate]"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] "
+          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] animate-[moveGreenLight_12s_infinite_alternate]"
         />
       </div>
     );
