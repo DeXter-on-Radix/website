@@ -372,7 +372,9 @@ export function PairInfoTab() {
   return (
     <>
       <div className="sm:p-4 xs:ml-2 md:ml-0 xs:mb-6 md:mb-0 md:pb-0 xs:p-0 text-primary-content">
-        <div className="text-lg font-normal mb-3 xs:pt-3">{pairInfo.name}</div>
+        <div className="text-lg font-normal mb-3 xs:pt-3 sm:mt-0 sm:pt-0">
+          {pairInfo.name}
+        </div>
         <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
           <LabelAndAddress
             label={t("pair_resource")}
