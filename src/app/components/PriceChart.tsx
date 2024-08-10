@@ -282,7 +282,7 @@ export function TradingChartOrPairInfo() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
-        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2 px-2">
+        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
           {[
             [t("trading_chart"), ChartTabOptions.TRADING_CHART],
             [t("pair_info"), ChartTabOptions.PAIR_INFO],
@@ -291,7 +291,7 @@ export function TradingChartOrPairInfo() {
             return (
               <span
                 key={indx}
-                className={`text-sm sm:text-base pb-2 sm:pb-3 ${
+                className={`text-sm sm:text-base pb-2 sm:pb-3 px-2 ${
                   isActive
                     ? "text-dexter-green-OG border-b border-[#cafc40]"
                     : "text-[#768089]"
