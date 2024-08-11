@@ -263,11 +263,11 @@ function PriceChartCanvas(props: PriceChartProps) {
 }
 
 enum ChartTabOptions {
-  TRADING_CHART = "TRADING_CHART",
-  PAIR_INFO = "PAIR_INFO",
+  CHART = "CHART",
+  INFO = "INFO",
 }
 
-export function TradingChartOrPairInfo() {
+export function ChartOrInfo() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
@@ -277,15 +277,15 @@ export function TradingChartOrPairInfo() {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
   }, [dispatch]);
 
-  const [currentTab, setCurrentTab] = useState(ChartTabOptions.TRADING_CHART);
+  const [currentTab, setCurrentTab] = useState(ChartTabOptions.CHART);
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
         <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
           {[
-            [t("trading_chart"), ChartTabOptions.TRADING_CHART],
-            [t("pair_info"), ChartTabOptions.PAIR_INFO],
+            [t("chart"), ChartTabOptions.CHART],
+            [t("info"), ChartTabOptions.INFO],
           ].map(([title, tab], indx) => {
             const isActive = tab === currentTab;
             return (
@@ -303,7 +303,7 @@ export function TradingChartOrPairInfo() {
             );
           })}
         </div>
-        {currentTab === ChartTabOptions.TRADING_CHART && (
+        {currentTab === ChartTabOptions.CHART && (
           <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
             {CANDLE_PERIODS.map((period) => (
               <button
@@ -322,14 +322,14 @@ export function TradingChartOrPairInfo() {
         )}
       </div>
       <div className="mt-4">
-        {currentTab === ChartTabOptions.TRADING_CHART && <TradingChart />}
-        {currentTab === ChartTabOptions.PAIR_INFO && <PairInfoTab />}
+        {currentTab === ChartTabOptions.CHART && <Chart />}
+        {currentTab === ChartTabOptions.INFO && <Info />}
       </div>
     </div>
   );
 }
 
-export function TradingChart() {
+export function Chart() {
   const state = useAppSelector((state) => state.priceChart);
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
@@ -355,7 +355,7 @@ export function TradingChart() {
   );
 }
 
-export function PairInfoTab() {
+export function Info() {
   const t = useTranslations();
   const { pairsList } = useAppSelector((state) => state.pairSelector);
   const selectedPairAddress = useAppSelector(
@@ -466,4 +466,4 @@ function CoinInfo({ token }: TokenInfoProps) {
   );
 }
 
-export default TradingChartOrPairInfo;
+export default ChartOrInfo;
