@@ -6,11 +6,11 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/dist/svg-arrow.css";
 import { useTranslations } from "../hooks";
 
-interface TextToCopyProps {
-  targetUrl: string;
+interface CopyIconProps {
+  textToCopy: string;
 }
 
-export function TextToCopy({ targetUrl }: TextToCopyProps) {
+export function CopyIcon({ textToCopy }: CopyIconProps) {
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const t = useTranslations();
 
@@ -32,7 +32,7 @@ export function TextToCopy({ targetUrl }: TextToCopyProps) {
         theme="custom"
       >
         <div>
-          <CopyToClipboard text={targetUrl} onCopy={handleCopy}>
+          <CopyToClipboard text={textToCopy} onCopy={handleCopy}>
             <MdContentCopy
               className="cursor-pointer text-base"
               title="Copy to clipboard"

@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 import { shortenString } from "../utils";
-import { TextToCopy } from "./TextToCopy";
+import { CopyIcon } from "./CopyIcon";
 import { TokenInfo } from "state/pairSelectorSlice";
 
 interface PriceChartProps {
@@ -423,7 +423,7 @@ function LabelAndAddress({
           <span className="mr-2">
             {shortenString(address, minLength, maxLength, "...")}
           </span>
-          <TextToCopy targetUrl={address} />
+          <CopyIcon textToCopy={address} />
         </div>
       </div>
     </>
