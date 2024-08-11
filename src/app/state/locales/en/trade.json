@@ -93,5 +93,6 @@
   "pair_info": "Info",
   "pair_resource": "Pair resource",
   "order_receipt_address": "Order receipt address",
-  "resource": "Resource"
+  "resource": "Resource",
+  "copied": "Copied!"
 }

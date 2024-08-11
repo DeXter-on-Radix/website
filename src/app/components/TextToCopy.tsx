@@ -6,6 +6,7 @@ import { setCopied } from "../state/priceChartSlice";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/dist/svg-arrow.css";
+import { useTranslations } from "../hooks";
 
 interface TextToCopyProps {
   targetUrl: string;
@@ -14,6 +15,7 @@ interface TextToCopyProps {
 export function TextToCopy({ targetUrl }: TextToCopyProps) {
   const dispatch = useAppDispatch();
   const [toolTipVisible, setToolTipVisible] = useState(false);
+  const t = useTranslations();
 
   const handleCopy = () => {
     dispatch(setCopied(true));
@@ -28,7 +30,7 @@ export function TextToCopy({ targetUrl }: TextToCopyProps) {
   return (
     <>
       <Tippy
-        content={<span>Copied!</span>}
+        content={<span>{t("copied")}</span>}
         visible={toolTipVisible}
         onClickOutside={() => setToolTipVisible(false)}
         arrow={true}
