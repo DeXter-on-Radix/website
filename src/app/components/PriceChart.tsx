@@ -439,7 +439,7 @@ function CoinInfo({ token }: { token: TokenInfo }) {
       <div className="flex items-center mb-3 pt-8">
         <img src={iconUrl} alt={symbol} className="w-8 h-8 rounded-full" />
         <p className="pl-2 text-base">
-          {name.split(" ")[0]} ({symbol})
+          {name} ({symbol})
         </p>
       </div>
       <div className="flex flex-col">
