@@ -13,6 +13,7 @@ import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
 import { shortenString } from "../utils";
 import { TextToCopy } from "./TextToCopy";
+import { TokenInfo } from "state/pairSelectorSlice";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -429,36 +430,22 @@ function LabelAndAddress({
   );
 }
 
-interface Token {
-  iconUrl: string;
-  symbol: string;
-  name: string;
-  address: string;
-}
-
-interface TokenInfoProps {
-  token: Token;
-}
-
-function CoinInfo({ token }: TokenInfoProps) {
+function CoinInfo({ token }: { token: TokenInfo }) {
+  const { iconUrl, symbol, name, address } = token;
   const t = useTranslations();
 
   return (
     <div className="flex flex-col items-start xs:mb-4 mb-4 sm:mb-0 w-[50%]">
       <div className="flex items-center mb-3 pt-8">
-        <img
-          src={token.iconUrl}
-          alt={token.symbol}
-          className="w-8 h-8 rounded-full"
-        />
+        <img src={iconUrl} alt={symbol} className="w-8 h-8 rounded-full" />
         <p className="pl-2 text-base">
-          {token.name.split(" ")[0]} ({token.symbol})
+          {name.split(" ")[0]} ({symbol})
         </p>
       </div>
       <div className="flex flex-col">
         <LabelAndAddress
           label={t("resource")}
-          address={token.address}
+          address={address}
           shortenLength={{ min: 8, max: 10 }}
         />
       </div>
