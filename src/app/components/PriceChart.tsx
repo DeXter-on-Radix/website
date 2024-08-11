@@ -372,7 +372,7 @@ export function Info() {
 
   return (
     <>
-      <div className="sm:p-4 xs:ml-2 md:ml-0 xs:mb-6 md:mb-0 md:pb-0 xs:p-0 text-primary-content">
+      <div className="sm:p-4 md:ml-0 mb-0 !pb-0 xs:p-0 text-primary-content">
         <div className="text-lg font-normal mb-3 xs:pt-3 sm:mt-0 sm:pt-0">
           {pairInfo.name}
         </div>
@@ -391,7 +391,7 @@ export function Info() {
 
         <div className="flex flex-col sm:flex-row">
           <CoinInfo token={pairInfo.token1} />
-          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-4 sm:my-0 sm:mx-8 sm:min-h-[160px] sm:max-h-[200px]"></div>
+          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-0 sm:mx-8 sm:min-h-[160px] sm:max-h-[200px]"></div>
           <CoinInfo token={pairInfo.token2} />
         </div>
       </div>
