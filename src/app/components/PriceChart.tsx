@@ -263,7 +263,7 @@ function PriceChartCanvas(props: PriceChartProps) {
   );
 }
 
-enum ChartTabOptions {
+enum ChartOrInfoTabOptions {
   CHART = "CHART",
   INFO = "INFO",
 }
@@ -278,15 +278,15 @@ export function ChartOrInfo() {
     dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
   }, [dispatch]);
 
-  const [currentTab, setCurrentTab] = useState(ChartTabOptions.CHART);
+  const [currentTab, setCurrentTab] = useState(ChartOrInfoTabOptions.CHART);
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
         <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
           {[
-            [t("chart"), ChartTabOptions.CHART],
-            [t("info"), ChartTabOptions.INFO],
+            [t("chart"), ChartOrInfoTabOptions.CHART],
+            [t("info"), ChartOrInfoTabOptions.INFO],
           ].map(([title, tab], indx) => {
             const isActive = tab === currentTab;
             return (
@@ -297,14 +297,14 @@ export function ChartOrInfo() {
                     ? "text-dexter-green-OG border-b border-[#cafc40]"
                     : "text-[#768089]"
                 } cursor-pointer`}
-                onClick={() => setCurrentTab(tab as ChartTabOptions)}
+                onClick={() => setCurrentTab(tab as ChartOrInfoTabOptions)}
               >
                 {title}
               </span>
             );
           })}
         </div>
-        {currentTab === ChartTabOptions.CHART && (
+        {currentTab === ChartOrInfoTabOptions.CHART && (
           <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
             {CANDLE_PERIODS.map((period) => (
               <button
@@ -323,8 +323,8 @@ export function ChartOrInfo() {
         )}
       </div>
       <div className="mt-4">
-        {currentTab === ChartTabOptions.CHART && <Chart />}
-        {currentTab === ChartTabOptions.INFO && <Info />}
+        {currentTab === ChartOrInfoTabOptions.CHART && <Chart />}
+        {currentTab === ChartOrInfoTabOptions.INFO && <Info />}
       </div>
     </div>
   );
