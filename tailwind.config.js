@@ -33,14 +33,14 @@ module.exports = {
         "content-dark": "#212A09",
       },
       keyframes: {
-        pulseBlueLight: {
+        blueLight: {
           "0%, 100%": { transform: "translate(-150px, 70px) scale(3.2)" },
           "20%": { transform: "translate(-80px, 80px) scale(3.1)" },
           "40%": { transform: "translate(-110px, 50px) scale(3.2)" },
           "60%": { transform: "translate(-70px, 10px) scale(3.3)" },
           "80%": { transform: "translate(-130px, 40px) scale(3.1)" },
         },
-        pulseGreenLight: {
+        greenLight: {
           "0%, 100%": { transform: "translate(40px, -40px) scale(3.2)" },
           "20%": { transform: "translate(-30px, -50px) scale(3.1)" },
           "40%": { transform: "translate(30px, -50px) scale(3)" },
@@ -49,8 +49,8 @@ module.exports = {
         },
       },
       animation: {
-        pulseBlueLight: "pulseBlueLight 12s ease-in-out infinite",
-        pulseGreenLight: "pulseGreenLight 12s ease-in-out infinite",
+        blueLight: "blueLight 12s ease-in-out infinite",
+        greenLight: "breenLight 12s ease-in-out infinite",
       },
     },
   },
