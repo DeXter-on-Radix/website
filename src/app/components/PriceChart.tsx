@@ -292,7 +292,7 @@ export function ChartOrInfo() {
             return (
               <span
                 key={indx}
-                className={`text-sm sm:text-base pb-2 sm:pb-3 px-2 ${
+                className={`text-base pb-2 sm:pb-3 px-2 ${
                   isActive
                     ? "text-dexter-green-OG border-b border-[#cafc40]"
                     : "text-[#768089]"
