@@ -14,6 +14,8 @@ import * as tailwindConfig from "../../../tailwind.config";
 import { shortenString } from "../utils";
 import { CopyIcon } from "./CopyIcon";
 import { TokenInfo } from "state/pairSelectorSlice";
+import Link from "next/link";
+import { FiExternalLink } from "react-icons/fi";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -381,11 +383,13 @@ export function Info() {
             label={t("pair_resource")}
             address={pairInfo.address}
             shortenLength={{ min: 8, max: 20 }}
+            radixDashboardUrl={`https://dashboard.radixdlt.com/component/${pairInfo.address}`}
           />
           <LabelAndAddress
             label={t("order_receipt_address")}
             address={pairInfo.orderReceiptAddress}
             shortenLength={{ min: 8, max: 20 }}
+            radixDashboardUrl={`https://dashboard.radixdlt.com/resource/${pairInfo.orderReceiptAddress}`}
           />
         </div>
 
@@ -403,12 +407,14 @@ interface LabelAndAddressProps {
   label: string;
   address: string;
   shortenLength?: { min: number; max: number };
+  radixDashboardUrl: string;
 }
 
 function LabelAndAddress({
   label,
   address,
   shortenLength,
+  radixDashboardUrl,
 }: LabelAndAddressProps) {
   const minLength = shortenLength?.min || 8;
   const maxLength = shortenLength?.max || 20;
@@ -424,6 +430,13 @@ function LabelAndAddress({
             {shortenString(address, minLength, maxLength, "...")}
           </span>
           <CopyIcon textToCopy={address} />
+          <Link
+            className="pl-1 cursor-pointer"
+            href={radixDashboardUrl}
+            target="_blank"
+          >
+            <FiExternalLink />
+          </Link>
         </div>
       </div>
     </>
@@ -447,6 +460,7 @@ function CoinInfo({ token }: { token: TokenInfo }) {
           label={t("resource")}
           address={address}
           shortenLength={{ min: 8, max: 10 }}
+          radixDashboardUrl={`https://dashboard.radixdlt.com/resource/${address}`}
         />
       </div>
     </div>
