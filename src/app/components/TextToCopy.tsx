@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { useAppDispatch } from "../hooks";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { MdContentCopy } from "react-icons/md";
-import { setCopied } from "../state/priceChartSlice";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/dist/svg-arrow.css";
@@ -13,17 +11,14 @@ interface TextToCopyProps {
 }
 
 export function TextToCopy({ targetUrl }: TextToCopyProps) {
-  const dispatch = useAppDispatch();
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const t = useTranslations();
 
   const handleCopy = () => {
-    dispatch(setCopied(true));
     setToolTipVisible(true);
 
     setTimeout(() => {
       setToolTipVisible(false);
-      dispatch(setCopied(false));
     }, 700);
   };
 

@@ -25,7 +25,6 @@ export interface PriceChartState {
   legendChange: number | null;
   legendPercChange: number | null;
   legendCurrentVolume: number;
-  copied: boolean;
 }
 
 const initialState: PriceChartState = {
@@ -35,7 +34,6 @@ const initialState: PriceChartState = {
   legendPercChange: null,
   legendChange: null,
   legendCurrentVolume: 0,
-  copied: false,
 };
 
 export const initialPriceChartState = initialState;
@@ -166,9 +164,6 @@ export const priceChartSlice = createSlice({
     setLegendCurrentVolume: (state, action: PayloadAction<number>) => {
       state.legendCurrentVolume = action.payload;
     },
-    setCopied: (state, action: PayloadAction<boolean>) => {
-      state.copied = action.payload;
-    },
   },
 });
 
@@ -180,5 +175,4 @@ export const {
   setLegendPercChange,
   setLegendCurrentVolume,
   initializeLegend,
-  setCopied,
 } = priceChartSlice.actions;
