@@ -7,11 +7,11 @@ import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/dist/svg-arrow.css";
 
-interface CopyIconProps {
+interface TextToCopyProps {
   targetUrl: string;
 }
 
-export function CopyIcon({ targetUrl }: CopyIconProps) {
+export function TextToCopy({ targetUrl }: TextToCopyProps) {
   const dispatch = useAppDispatch();
   const [visible, setVisible] = useState(false);
 
