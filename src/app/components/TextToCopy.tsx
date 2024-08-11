@@ -13,14 +13,14 @@ interface TextToCopyProps {
 
 export function TextToCopy({ targetUrl }: TextToCopyProps) {
   const dispatch = useAppDispatch();
-  const [visible, setVisible] = useState(false);
+  const [toolTipVisible, setToolTipVisible] = useState(false);
 
   const handleCopy = () => {
     dispatch(setCopied(true));
-    setVisible(true);
+    setToolTipVisible(true);
 
     setTimeout(() => {
-      setVisible(false);
+      setToolTipVisible(false);
       dispatch(setCopied(false));
     }, 700);
   };
@@ -29,8 +29,8 @@ export function TextToCopy({ targetUrl }: TextToCopyProps) {
     <>
       <Tippy
         content={<span>Copied!</span>}
-        visible={visible}
-        onClickOutside={() => setVisible(false)}
+        visible={toolTipVisible}
+        onClickOutside={() => setToolTipVisible(false)}
         arrow={true}
         theme="custom"
       >
@@ -39,7 +39,7 @@ export function TextToCopy({ targetUrl }: TextToCopyProps) {
             <MdContentCopy
               className="cursor-pointer text-base"
               title="Copy to clipboard"
-              onClick={() => setVisible(true)}
+              onClick={() => setToolTipVisible(true)}
             />
           </CopyToClipboard>
         </div>
