@@ -383,13 +383,17 @@ export function Info() {
             label={t("pair_resource")}
             address={pairInfo.address}
             shortenLength={{ min: 8, max: 20 }}
-            radixDashboardUrl={`https://dashboard.radixdlt.com/component/${pairInfo.address}`}
+            radixDashboardUrl={`https://${
+              process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+            }dashboard.radixdlt.com/component/${pairInfo.address}`}
           />
           <LabelAndAddress
             label={t("order_receipt_address")}
             address={pairInfo.orderReceiptAddress}
             shortenLength={{ min: 8, max: 20 }}
-            radixDashboardUrl={`https://dashboard.radixdlt.com/resource/${pairInfo.orderReceiptAddress}`}
+            radixDashboardUrl={`https://${
+              process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+            }dashboard.radixdlt.com/resource/${pairInfo.orderReceiptAddress}`}
           />
         </div>
 
@@ -460,7 +464,9 @@ function CoinInfo({ token }: { token: TokenInfo }) {
           label={t("resource")}
           address={address}
           shortenLength={{ min: 8, max: 10 }}
-          radixDashboardUrl={`https://dashboard.radixdlt.com/resource/${address}`}
+          radixDashboardUrl={`https://${
+            process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+          }dashboard.radixdlt.com/resource/${address}`}
         />
       </div>
     </div>
