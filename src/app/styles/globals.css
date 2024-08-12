@@ -122,9 +122,9 @@ input[type="number"]::-ms-clear {
 
 /**
  * GRID AREA CSS: Utilizes global CSS classes for grid areas.
- * Justification: TailwindCSS lacks a readable method for implementing 
- * grid-template-areas. Therefore, all grid area-related styles are 
- * centralized in global CSS to maintain separation from 
+ * Justification: TailwindCSS lacks a readable method for implementing
+ * grid-template-areas. Therefore, all grid area-related styles are
+ * centralized in global CSS to maintain separation from
  * component-specific styles.
  */
 .grid-container {

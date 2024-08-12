@@ -35,6 +35,7 @@ const initialState: PriceChartState = {
   legendChange: null,
   legendCurrentVolume: 0,
 };
+
 export const initialPriceChartState = initialState;
 
 function cleanData(data: OHLCVData[]): OHLCVData[] {
