@@ -806,7 +806,47 @@ function InputTooltip({ message }: { message: string }) {
 
 // TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
-  return <></>;
+  const handleSliderChange = (e: any) => {
+    let target = e.target;
+    if (e.target.type !== "range") {
+      target = document.getElementById("range");
+    }
+    const min = target.min;
+    const max = target.max;
+    const val = target.value;
+    let percentage = ((val - min) * 100) / (max - min);
+
+    if (document.documentElement.dir === "rtl") {
+      percentage = max - val;
+    }
+
+    target.style.backgroundSize = percentage + "% 100%";
+  };
+
+  return (
+    <>
+      <div className="slider-container bg-dark-gray rounded-md"></div>
+      <div className="w-full mt-3">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          onChange={handleSliderChange}
+          step="25"
+          id="range"
+        />
+        <div className="slider-labels">
+          <div className="flex w-full justify-between text-xxs mx-1">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 // Mimics IMask with improved onAccept, triggered only by user input to avoid rerender bugs.
