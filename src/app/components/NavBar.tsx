@@ -332,6 +332,7 @@ function NavbarItemMobile({
   setMenuOpen,
 }: NavbarItemMobileProps) {
   const active = target === usePathname();
+  const t = useTranslations();
   return (
     <Link
       className={`my-2 hover:!no-underline`}
@@ -343,7 +344,7 @@ function NavbarItemMobile({
           active ? "text-[#cafc40]" : "text-white"
         }`}
       >
-        {title}
+        {t(title)}
       </p>
     </Link>
   );
