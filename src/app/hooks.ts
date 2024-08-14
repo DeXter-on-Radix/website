@@ -51,7 +51,7 @@ export function usePagination<T>(data: T[], paginationId?: string) {
 
   const paginatedData = useMemo(
     () => data.slice(startIndex, endIndex),
-    [data, currentPage]
+    [data, startIndex, endIndex]
   );
 
   const updatePsize = useCallback(

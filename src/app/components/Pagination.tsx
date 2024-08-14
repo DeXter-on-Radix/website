@@ -47,8 +47,8 @@ const Pagination: React.FC<PaginationProps> = ({
         onClick={() => setCurrentPage(idx)}
         role="button"
         className={`${
-          currentPage === idx ? "bg-dexter-green rounded-full" : ""
-        } text-white hover:bg-dexter-green p-1 hover:rounded-full h-6 w-6 text-center opacity-90 hover:opacity-100`}
+          currentPage === idx ? "bg-dexter-green rounded-full text-black" : ""
+        }  hover:bg-dexter-green hover:text-black p-1 hover:rounded-full h-6 w-6 text-center opacity-90 hover:opacity-100`}
       >
         {idx + 1}
       </div>

@@ -262,15 +262,17 @@ function DisplayTable() {
     }
   }, [
     openOrders,
-    orderHistory,
     selectedTable,
     hideOtherPairs,
     filteredRowsForOrderHistory,
+    combinedOpenOrders,
   ]);
 
   useEffect(() => {
+    const tableRefNode = tableContainerRef.current;
+
     function calcPaginationLeftOffset() {
-      if (tableContainerRef.current !== null) {
+      if (tableRefNode !== null) {
         if (timeoutRef.current !== null) {
           clearTimeout(timeoutRef.current);
         }
@@ -288,20 +290,14 @@ function DisplayTable() {
     }
 
     calcPaginationLeftOffset();
-    if (tableContainerRef.current) {
-      tableContainerRef.current.addEventListener(
-        "scroll",
-        calcPaginationLeftOffset
-      );
+    if (tableRefNode) {
+      tableRefNode.addEventListener("scroll", calcPaginationLeftOffset);
     }
 
     window.addEventListener("resize", calcPaginationLeftOffset);
     return () => {
-      if (tableContainerRef.current) {
-        tableContainerRef.current.removeEventListener(
-          "scroll",
-          calcPaginationLeftOffset
-        );
+      if (tableRefNode) {
+        tableRefNode.removeEventListener("scroll", calcPaginationLeftOffset);
       }
 
       window.removeEventListener("resize", calcPaginationLeftOffset);
