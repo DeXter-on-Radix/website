@@ -50,7 +50,7 @@ module.exports = {
       },
       animation: {
         blueLight: "blueLight 12s ease-in-out infinite",
-        greenLight: "breenLight 12s ease-in-out infinite",
+        greenLight: "greenLight 12s ease-in-out infinite",
       },
     },
   },

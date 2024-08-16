@@ -9,7 +9,7 @@ enum Device {
   MOBILE = "MOBILE",
   DESKTOP = "DESKTOP",
 }
-
+//
 enum TopicSectionEnum {
   TOKENOMICS = "TOKENOMICS",
   TRADE = "TRADE",
