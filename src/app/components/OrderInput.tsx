@@ -1,5 +1,8 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/dist/svg-arrow.css";
 
 import {
   getPrecision,
@@ -806,6 +809,9 @@ function InputTooltip({ message }: { message: string }) {
 
 // TODO(dcts): implement percentage slider in future PR
 function PercentageSlider() {
+  const [toolTipVisible, setToolTipVisible] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0);
+
   const handleSliderChange = (e: any) => {
     let target = e.target;
     if (e.target.type !== "range") {
@@ -817,31 +823,96 @@ function PercentageSlider() {
     let percentage = ((val - min) * 100) / (max - min);
 
     if (document.documentElement.dir === "rtl") {
-      percentage = max - val;
+      percentage = 100 - percentage;
     }
 
-    target.style.backgroundSize = percentage + "% 100%";
+    target.style.backgroundSize = `${percentage}% 100%`;
+    setSliderValue(Number(val));
   };
 
   return (
     <>
-      <div className="slider-container bg-dark-gray rounded-md"></div>
-      <div className="w-full mt-3">
-        <input
-          type="range"
-          min="0"
-          max="100"
-          onChange={handleSliderChange}
-          step="25"
-          id="range"
-        />
-        <div className="slider-labels">
-          <div className="flex w-full justify-between text-xxs mx-1">
-            <span>0%</span>
-            <span>25%</span>
-            <span>50%</span>
-            <span>75%</span>
-            <span>100%</span>
+      <div className="slider-container rounded-md w-full relative mt-5">
+        <div className="absolute w-full">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            onChange={handleSliderChange}
+            value={sliderValue}
+            step="1"
+            id="range"
+            className="w-full absolute cursor-pointer text-base"
+            onMouseDown={() => setToolTipVisible(true)}
+            onMouseUp={() => setToolTipVisible(false)}
+            onMouseEnter={() => setToolTipVisible(true)}
+            onMouseLeave={() => setToolTipVisible(false)}
+          />
+          <Tippy
+            content={<span>{sliderValue}%</span>}
+            visible={toolTipVisible}
+            onClickOutside={() => setToolTipVisible(false)}
+            arrow={true}
+            theme="custom"
+            placement="top"
+            touch={true}
+          >
+            <div
+              className="relative"
+              style={{
+                left: `${sliderValue}%`,
+                transform: "translateX(-50%)",
+                top: "-5px",
+              }}
+            ></div>
+          </Tippy>
+        </div>
+
+        <div className="slider-track relative">
+          <div className="flex justify-between items-center">
+            {Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <span
+                  key={index}
+                  className="dot"
+                  style={
+                    {
+                      left: `${(index * 100) / 5}%`,
+                    } as React.CSSProperties
+                  }
+                ></span>
+              ))}
+          </div>
+        </div>
+        <div className="w-full">
+          <div className="slider-labels">
+            <div className="flex justify-between text-xxs mt-1 mb-5">
+              <span className="absolute" style={{ left: "0%" }}>
+                0%
+              </span>
+              <span className="absolute" style={{ left: "22%" }}>
+                25%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "50%", transform: "translateX(-50%)" }}
+              >
+                50%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "74%", transform: "translateX(-50%)" }}
+              >
+                75%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "100%", transform: "translateX(-100%)" }}
+              >
+                100%
+              </span>
+            </div>
           </div>
         </div>
       </div>

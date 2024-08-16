@@ -36,7 +36,7 @@ module.exports = {
         "slider-grey": "#474d52",
       },
       fontSize: {
-        xxs: "0.65rem",
+        xxs: "0.6rem",
       },
     },
   },

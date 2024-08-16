@@ -23,6 +23,7 @@
     "@radixdlt/radix-dapp-toolkit": "^2.0.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@tailwindcss/container-queries": "^0.1.1",
+    "@tippyjs/react": "^4.2.6",
     "@types/mdx": "^2.0.10",
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",
@@ -45,6 +46,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "tailwind-merge": "^2.4.0",
     "tailwindcss": "3.3.2",
+    "tippy.js": "^6.3.7",
     "typescript": "5.1.6"
   },
   "devDependencies": {
