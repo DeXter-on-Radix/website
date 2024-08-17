@@ -3,13 +3,12 @@
 import { DexterButton } from "components/DexterButton";
 import StatsWidget from "components/StatsWidget";
 import { useTranslations, useHydrationErrorFix } from "hooks";
-// import * as tailwindConfig from "../../../tailwind.config";
 
 enum Device {
   MOBILE = "MOBILE",
   DESKTOP = "DESKTOP",
 }
-//
+
 enum TopicSectionEnum {
   TOKENOMICS = "TOKENOMICS",
   TRADE = "TRADE",
