@@ -19,6 +19,8 @@ module.exports = {
       fontFamily: {
         inter: ["inter"],
       },
+      // stretch the grid so that footer is always at the bottom
+      // even on pages with little content
       gridTemplateRows: {
         "auto-1fr": "auto 1fr",
       },
