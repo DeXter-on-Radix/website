@@ -517,3 +517,26 @@ export function shortenWalletAddress(address: string): string {
   const lastPart = address.slice(-20);
   return `${firstPart}...${lastPart}`;
 }
+
+export function setLocalStoragePaginationValue(pageSize: number, id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  window.localStorage.setItem(
+    `pagination:${id ?? window.location.pathname}`,
+    String(pageSize)
+  );
+}
+
+export function getLocalStoragePaginationValue(id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  const existingValue = window.localStorage.getItem(
+    `pagination:${id ?? window.location.pathname}`
+  );
+  if (existingValue !== null) {
+    const pageNumber = Number(existingValue);
+    return pageNumber < 1 ? 10 : pageNumber;
+  }
+
+  return undefined;
+}
