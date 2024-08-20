@@ -19,6 +19,16 @@ const nextConfig = {
 
   // for github pages
   basePath: process.env.BASE_PATH || "",
+
+  async redirects() {
+    return [
+      {
+        source: '/roadmap',
+        destination: 'https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a',
+        permanent: false, // Set it to false if you want a 307 temporary redirect, set it to true to make it a 308 permanent redirect. 
+      },
+    ];
+  },
 };
 
 module.exports = withMDX(nextConfig);
