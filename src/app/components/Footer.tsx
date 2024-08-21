@@ -26,6 +26,10 @@ export function Footer() {
         text: t("KPIs"),
         url: "/kpis",
       },
+      {
+        text: t("roadmap"),
+        url: "https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a",
+      },
     ],
   };
   const contentColumn2 = {

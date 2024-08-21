@@ -17,7 +17,7 @@
   "buy": "Comprar",
   "sell": "Vender",
   "post_only_tooltip": "Selecione 'SOMENTE POSTAR' quando quiser que sua ordem seja adicionada ao livro de ordens sem corresponder a ordens existentes. Se a ordem puder ser correspondida imediatamente, ela não será criada. Essa opção ajuda você a garantir que receba o reembolso da ordem.",
-  "trading_chart": "Gráf. de neg.",
+  "chart": "Gráfico",
   "5m": "5m",
   "15m": "15m",
   "30m": "30m",
@@ -87,7 +87,12 @@
   "submitting_batch_cancel": "Enviando cancelamento em lote",
   "failed_to_cancel_orders": "Falha ao cancelar pedidos",
   "connect_wallet_to_batch_delete": "Conectar carteira para exclusão em lote",
-  "recent_trades": "Negocia. Recentes",
+  "recent_trades": "Negocia. recentes",
   "time": "Hora",
-  "export_as_csv": "Exportar como csv"
+  "export_as_csv": "Exportar como csv",
+  "info": "Info",
+  "pair_resource": "Recurso do par",
+  "order_receipt_address": "Endereço do recibo da ordem",
+  "resource": "Recurso",
+  "copied": "Copiado!"
 }

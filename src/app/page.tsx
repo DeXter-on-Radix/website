@@ -180,12 +180,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] "
+          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] animate-blueLight"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute z-10 scale-[4] top-[-147px] right-[122px] "
+          className="absolute z-10 scale-[4] top-[-147px] right-[122px] animate-greenLight"
         />
         <img
           src="/landing/background-structures.png"
@@ -202,12 +202,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30]"
+          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30] animate-blueLight"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] "
+          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] animate-greenLight"
         />
       </div>
     );

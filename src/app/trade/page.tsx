@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { OrderBook } from "../components/OrderBook";
 import { OrderInput } from "../components/OrderInput";
 import { PairSelector } from "../components/PairSelector";
-import { PriceChart } from "../components/PriceChart";
+import { ChartOrInfo } from "../components/PriceChart";
 import { AccountHistory } from "../components/AccountHistory";
 import { PriceInfo } from "../components/PriceInfo";
 import { fetchBalances, selectPair } from "state/pairSelectorSlice";
@@ -120,8 +120,8 @@ export default function Trade() {
           <div className="orderInput max-[850px]:p-5 max-[700px]:p-0 ">
             <OrderInput />
           </div>
-          <div className="priceChart pl-4 pr-2 pt-2">
-            <PriceChart />
+          <div className="priceChart pl-4 pr-4 pt-2">
+            <ChartOrInfo />
           </div>
           <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
             <AccountHistory />

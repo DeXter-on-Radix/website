@@ -17,7 +17,7 @@
   "buy": "Buy",
   "sell": "Sell",
   "post_only_tooltip": "Select 'POST ONLY' when you want your order to be added to the order book without matching existing orders. If the order can be matched immediately, it will not be created. This option helps ensure you receive the maker rebate.",
-  "trading_chart": "Trading chart",
+  "chart": "Chart",
   "5m": "5m",
   "15m": "15m",
   "30m": "30m",
@@ -87,7 +87,12 @@
   "submitting_batch_cancel": "Submitting batch cancel",
   "failed_to_cancel_orders": "Failed to cancel orders",
   "connect_wallet_to_batch_delete": "Connect wallet to batch delete",
-  "recent_trades": "Recent Trades",
+  "recent_trades": "Recent trades",
   "time": "Time",
-  "export_as_csv": "Export as csv"
+  "export_as_csv": "Export as csv",
+  "info": "Info",
+  "pair_resource": "Pair resource",
+  "order_receipt_address": "Order receipt address",
+  "resource": "Resource",
+  "copied": "Copied!"
 }
