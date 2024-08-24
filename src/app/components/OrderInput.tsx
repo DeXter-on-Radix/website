@@ -454,12 +454,40 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const { side, type } = useAppSelector((state) => state.orderInput);
+  const { side, type, token1 } = useAppSelector((state) => state.orderInput);
+
+  const balanceToken1 =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+
+  // const balanceToken2 =
+  //   useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+  //   0;
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
+
+  // const [sliderValue, setSliderValue] = useState(0);
+
+  function handleMarketFunction(e: React.ChangeEvent<HTMLInputElement>) {
+    const percentage = parseFloat(e.target.value);
+    const amount = (percentage / 100) * balanceToken1; // Calculate the amount based on percentage
+    console.log(`Market function triggered: ${amount} for ${percentage}%`);
+  }
+
+  function handleLimitFunction(e: React.ChangeEvent<HTMLInputElement>) {
+    console.log("Limit Order:", e.target.value);
+  }
+
+  // const min = 0;
+  // const max = 100; // Slider ranges from 0 to 100%
+  // const value = sliderValue; // The current slider value in percentage
+
+  // const calculatedAmount = isSellOrder
+  //   ? (balanceToken1 * value) / 100
+  //   : (balanceToken2 * value) / 100;
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
@@ -469,12 +497,17 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
-          <PercentageSlider />
           {isSellOrder && ( // specify "Quantity"
-            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+            <>
+              <PercentageSlider onMarketFunction={handleMarketFunction} />
+              <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+            </>
           )}
           {isBuyOrder && ( // specify "Total"
-            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
+            <>
+              <PercentageSlider onMarketFunction={handleMarketFunction} />
+              <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
+            </>
           )}
         </>
       )}
@@ -482,7 +515,7 @@ function UserInputContainer() {
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
-          <PercentageSlider />
+          <PercentageSlider onLimitFunction={handleLimitFunction} />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           {isLimitOrder && <PostOnlyCheckbox />}
         </>
@@ -808,11 +841,19 @@ function InputTooltip({ message }: { message: string }) {
 }
 
 // TODO(dcts): implement percentage slider in future PR
-function PercentageSlider() {
+interface PercentageSliderProps {
+  onMarketFunction?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onLimitFunction?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const PercentageSlider: React.FC<PercentageSliderProps> = ({
+  onMarketFunction,
+  onLimitFunction,
+}) => {
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
 
-  const handleSliderChange = (e: any) => {
+  const handleChange = (e: any) => {
     let target = e.target;
     if (e.target.type !== "range") {
       target = document.getElementById("range");
@@ -828,7 +869,40 @@ function PercentageSlider() {
 
     target.style.backgroundSize = `${percentage}% 100%`;
     setSliderValue(Number(val));
+
+    if (onMarketFunction) {
+      onMarketFunction(e);
+    }
+    if (onLimitFunction) {
+      onLimitFunction(e);
+    }
   };
+
+  // const handleSliderChange = (e: any) => {
+  //   let target = e.target;
+  //   if (e.target.type !== "range") {
+  //     target = document.getElementById("range");
+  //   }
+  //   const min = target.min;
+  //   const max = target.max;
+  //   const val = target.value;
+  //   let percentage = ((val - min) * 100) / (max - min);
+
+  //   if (document.documentElement.dir === "rtl") {
+  //     percentage = 100 - percentage;
+  //   }
+
+  //   target.style.backgroundSize = `${percentage}% 100%`;
+  //   setSliderValue(Number(val));
+  // };
+
+  // function handleMarketFunction(e: React.ChangeEvent<HTMLInputElement>) {
+  //   console.log("Market Order:", e.target.value);
+  // }
+
+  // function handleLimitFunction(e: React.ChangeEvent<HTMLInputElement>) {
+  //   console.log("Limit Order:", e.target.value);
+  // }
 
   return (
     <>
@@ -838,7 +912,8 @@ function PercentageSlider() {
             type="range"
             min="0"
             max="100"
-            onChange={handleSliderChange}
+            // onChange={handleSliderChange}
+            onChange={handleChange}
             value={sliderValue}
             step="1"
             id="range"
@@ -918,7 +993,7 @@ function PercentageSlider() {
       </div>
     </>
   );
-}
+};
 
 // Mimics IMask with improved onAccept, triggered only by user input to avoid rerender bugs.
 function CustomNumericIMask({
