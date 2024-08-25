@@ -476,6 +476,13 @@ function UserInputContainer() {
   const [sliderValue, setSliderValue] = useState(0);
   const [inputValue, setInputValue] = useState<number>(0);
 
+  useEffect(() => {
+    if (isBuyOrder || isSellOrder) {
+      setInputValue(0);
+      setSliderValue(0);
+    }
+  }, [side, type]);
+
   function handleSellFunction(e: React.ChangeEvent<HTMLInputElement>) {
     const percentage = parseFloat(e.target.value);
     const amount = (percentage / 100) * balanceToken1;
