@@ -569,7 +569,11 @@ function UserInputContainer() {
       {isLimitOrder && (
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
-          <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+          <CurrencyInputGroup
+            userAction={UserAction.SET_TOKEN_1}
+            value={inputValue}
+            updateValue={handleInputChange}
+          />
           <PercentageSlider
             onSellFunction={handleSellFunction}
             value={sliderValue}
@@ -915,7 +919,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
   // const [sliderValue, setSliderValue] = useState(0);
 
   const handleChange = (e: any) => {
-    let target = e.target;
+    const target = e.target as HTMLInputElement;
     // if (e.target.type !== "range") {
     //   target = document.getElementById("range");
     // }
@@ -1015,7 +1019,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             arrow={false}
             theme="custom"
             placement="top"
-            touch={true}
+            // touch={true}
           >
             <div
               className="relative"

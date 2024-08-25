@@ -241,10 +241,14 @@ input[type="number"]::-ms-clear {
 }
 
 /* percentage slider */
+
+.slider-container {
+  position: relative;
+}
 input[type="range"] {
   appearance: none;
   height: 7px;
-  background: rgba(255, 255, 255, 1);
+  background: transparent;
   border-radius: 5px;
   background-image: linear-gradient(#474d52, #474d52);
   background-size: 0% 100%;
@@ -297,6 +301,7 @@ input[type="range"]::-webkit-slider-runnable-track {
   border: none;
   width: full;
   cursor: pointer;
+  z-index: 99;
 }
 
 input[type="range"]::-moz-range-track {
