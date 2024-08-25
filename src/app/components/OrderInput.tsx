@@ -487,36 +487,30 @@ function UserInputContainer() {
     const percentage = parseFloat(e.target.value);
     const amount = (percentage / 100) * balanceToken1;
     setInputValue(amount);
-    console.log(
-      `Market - Sell function triggered: ${amount} for ${percentage}%`
-    );
   }
 
   function handleBuyFunction(e: React.ChangeEvent<HTMLInputElement>) {
     const percentage = parseFloat(e.target.value);
     const amount = (percentage / 100) * balanceToken2;
     setInputValue(amount);
-    console.log(
-      `Market - Buy function triggered: ${amount} for ${percentage}%`
-    );
   }
 
   function handleInputChange(value: number) {
     if (isSellOrder) {
       const percentage = (value / balanceToken1) * 100;
-      setSliderValue(percentage); // Update the slider value based on input amount
+      setSliderValue(percentage);
     }
     if (isBuyOrder) {
       const percentage = (value / balanceToken2) * 100;
-      setSliderValue(percentage); // Update the slider value based on input amount
+      setSliderValue(percentage);
     }
-    setInputValue(value); // Also update the input value state
+    setInputValue(value);
   }
 
   function handleValueUpdate(newValue: number) {
     if (isNaN(newValue) || newValue < 0) {
-      setSliderValue(0); // Reset to 0 if input is invalid or negative
-      setInputValue(0); // Reset input value to 0
+      setSliderValue(0);
+      setInputValue(0);
     } else {
       setSliderValue(newValue);
       if (isSellOrder) {
@@ -916,13 +910,9 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const sliderRef = useRef<HTMLInputElement>(null);
 
-  // const [sliderValue, setSliderValue] = useState(0);
-
   const handleChange = (e: any) => {
     const target = e.target as HTMLInputElement;
-    // if (e.target.type !== "range") {
-    //   target = document.getElementById("range");
-    // }
+
     const min = parseFloat(target.min);
     const max = parseFloat(target.max);
     const val = parseFloat(target.value);
@@ -934,12 +924,6 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     }
 
     updateValue(val);
-
-    // target.style.backgroundSize = `${percentage}% 100%`;
-    // updateValue(Number(val));
-
-    // const newValue = parseFloat(e.target.value);
-    // updateValue(val);
 
     if (onBuyFunction) {
       onBuyFunction(e);
@@ -966,32 +950,6 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     }
   }, [value]);
 
-  // const handleSliderChange = (e: any) => {
-  //   let target = e.target;
-  //   if (e.target.type !== "range") {
-  //     target = document.getElementById("range");
-  //   }
-  //   const min = target.min;
-  //   const max = target.max;
-  //   const val = target.value;
-  //   let percentage = ((val - min) * 100) / (max - min);
-
-  //   if (document.documentElement.dir === "rtl") {
-  //     percentage = 100 - percentage;
-  //   }
-
-  //   target.style.backgroundSize = `${percentage}% 100%`;
-  //   setSliderValue(Number(val));
-  // };
-
-  // function handleMarketFunction(e: React.ChangeEvent<HTMLInputElement>) {
-  //   console.log("Market Order:", e.target.value);
-  // }
-
-  // function handleLimitFunction(e: React.ChangeEvent<HTMLInputElement>) {
-  //   console.log("Limit Order:", e.target.value);
-  // }
-
   return (
     <>
       <div className="slider-container rounded-md w-full relative mt-5">
@@ -1000,7 +958,6 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             type="range"
             min="0"
             max="100"
-            // onChange={handleSliderChange}
             onChange={handleChange}
             value={value}
             step="1"
@@ -1019,14 +976,12 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             arrow={false}
             theme="custom"
             placement="top"
-            // touch={true}
           >
             <div
               className="relative"
               style={{
                 left: `${value}%`,
                 transform: "translateX(-50%)",
-                // top: "-5px",
               }}
             ></div>
           </Tippy>
