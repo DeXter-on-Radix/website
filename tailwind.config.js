@@ -38,6 +38,26 @@ module.exports = {
       fontSize: {
         xxs: "0.6rem",
       },
+      keyframes: {
+        blueLight: {
+          "0%, 100%": { transform: "translate(-150px, 70px) scale(3.2)" },
+          "20%": { transform: "translate(-80px, 80px) scale(3.1)" },
+          "40%": { transform: "translate(-110px, 50px) scale(3.2)" },
+          "60%": { transform: "translate(-70px, 10px) scale(3.3)" },
+          "80%": { transform: "translate(-130px, 40px) scale(3.1)" },
+        },
+        greenLight: {
+          "0%, 100%": { transform: "translate(40px, -40px) scale(3.2)" },
+          "20%": { transform: "translate(-30px, -50px) scale(3.1)" },
+          "40%": { transform: "translate(30px, -50px) scale(3)" },
+          "60%": { transform: "translate(-30px, 10px) scale(3.3)" },
+          "80%": { transform: "translate(30px, 10px) scale(3.2)" },
+        },
+      },
+      animation: {
+        blueLight: "blueLight 12s ease-in-out infinite",
+        greenLight: "greenLight 12s ease-in-out infinite",
+      },
     },
   },
   daisyui: {
