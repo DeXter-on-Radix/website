@@ -462,10 +462,14 @@ function UserInputContainer() {
   const isSellOrder = side === "SELL";
 
   const sliderCallbackMarketOrder = (newPercentage: number) => {
-    console.error(`Calling sliderCallback for MARKET order with newPercentage value of ${newPercentage}`);
+    console.error(
+      `Calling sliderCallback for MARKET order with newPercentage value of ${newPercentage}`
+    );
   };
   const sliderCallbackLimitOrder = (newPercentage: number) => {
-    console.error(`Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`);
+    console.error(
+      `Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`
+    );
   };
 
   return (
