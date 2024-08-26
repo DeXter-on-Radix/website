@@ -1,5 +1,8 @@
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, useRef } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/dist/svg-arrow.css";
 
 import {
   getPrecision,
@@ -458,6 +461,13 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
+  const sliderCallbackMarketOrder = (newPercentage: number) => {
+    console.error(`Calling sliderCallback for MARKET order with newPercentage value of ${newPercentage}`);
+  };
+  const sliderCallbackLimitOrder = (newPercentage: number) => {
+    console.error(`Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`);
+  };
+
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
       {isMarketOrder && (
@@ -466,7 +476,10 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
-          <PercentageSlider />
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={sliderCallbackMarketOrder}
+          />
           {isSellOrder && ( // specify "Quantity"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           )}
@@ -479,7 +492,10 @@ function UserInputContainer() {
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
-          <PercentageSlider />
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={sliderCallbackLimitOrder}
+          />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           {isLimitOrder && <PostOnlyCheckbox />}
         </>
@@ -805,9 +821,125 @@ function InputTooltip({ message }: { message: string }) {
 }
 
 // TODO(dcts): implement percentage slider in future PR
-function PercentageSlider() {
-  return <></>;
+// TODO(dcts): implement percentage slider in future PR
+interface PercentageSliderProps {
+  initialPercentage: number;
+  callbackOnPercentageUpdate: (newPercentage: number) => void;
 }
+
+const PercentageSlider: React.FC<PercentageSliderProps> = ({
+  initialPercentage,
+  callbackOnPercentageUpdate,
+}) => {
+  const [percentage, setPercentage] = useState(initialPercentage);
+  const [toolTipVisible, setToolTipVisible] = useState(false);
+  const sliderRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPercentage = parseInt(e.target.value, 10);
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
+  };
+
+  useEffect(() => {
+    if (!sliderRef.current) {
+      return;
+    }
+    const target = sliderRef.current;
+    // TODO(saidam): Is this code needed?
+    // const percentageForStyling =
+    //   document.documentElement.dir === "rtl" ? 100 - percentage : percentage;
+    target.style.backgroundSize = `${percentage}% 100%`;
+  }, [percentage]);
+
+  return (
+    <>
+      <div className="slider-container rounded-md w-full relative mt-5">
+        <div className="absolute w-full">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            onChange={handleChange}
+            value={percentage}
+            step="1"
+            ref={sliderRef}
+            id="range"
+            className="w-full absolute cursor-pointer text-base"
+            onMouseDown={() => setToolTipVisible(true)}
+            onMouseUp={() => setToolTipVisible(false)}
+            onMouseEnter={() => setToolTipVisible(true)}
+            onMouseLeave={() => setToolTipVisible(false)}
+          />
+          <Tippy
+            content={<span>{percentage}%</span>}
+            visible={toolTipVisible}
+            onClickOutside={() => setToolTipVisible(false)}
+            arrow={false}
+            theme="custom"
+            placement="top"
+          >
+            <div
+              className="relative"
+              style={{
+                left: `${percentage}%`,
+                transform: "translateX(-50%)",
+              }}
+            ></div>
+          </Tippy>
+        </div>
+
+        <div className="slider-track relative cursor-pointer">
+          <div className="flex justify-between items-center">
+            {Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <span
+                  key={index}
+                  className="dot"
+                  style={
+                    {
+                      left: `${(index * 100) / 5}%`,
+                    } as React.CSSProperties
+                  }
+                ></span>
+              ))}
+          </div>
+        </div>
+        <div className="w-full">
+          <div className="slider-labels">
+            <div className="flex justify-between text-xxs mt-1 mb-5">
+              <span className="absolute" style={{ left: "0%" }}>
+                0%
+              </span>
+              <span className="absolute" style={{ left: "22%" }}>
+                25%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "50%", transform: "translateX(-50%)" }}
+              >
+                50%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "74%", transform: "translateX(-50%)" }}
+              >
+                75%
+              </span>
+              <span
+                className="absolute"
+                style={{ left: "100%", transform: "translateX(-100%)" }}
+              >
+                100%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 // Mimics IMask with improved onAccept, triggered only by user input to avoid rerender bugs.
 function CustomNumericIMask({
