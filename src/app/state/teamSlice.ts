@@ -10,6 +10,7 @@ interface VotingResultRow {
   phase: number;
   user: string;
   points: number;
+  tokens?: number;
 }
 
 const initialState: TeamState = {
@@ -66,6 +67,7 @@ export enum Expertise {
   "SOCIAL_MEDIA" = "SOCIAL_MEDIA",
   "ADMINISTRATION" = "ADMINISTRATION",
   "TESTER" = "TESTER",
+  "NA" = "NA",
 }
 
 export interface Contributor {
@@ -111,12 +113,72 @@ export async function fetchTeamState(): Promise<TeamState> {
   };
 }
 
+export function showContributorRanking(
+  contributorMap: Map<string, Contributor>
+) {
+  const contr = Array.from(contributorMap.entries())
+    .map((arr): Contributor | undefined => arr[1])
+    .filter(
+      (item): item is Contributor =>
+        item !== undefined && item.tokensEarned !== undefined
+    )
+    .sort(
+      (a, b) =>
+        (b as { tokensEarned: number }).tokensEarned -
+        (a as { tokensEarned: number }).tokensEarned
+    );
+  // eslint-disable-next-line no-console
+  console.log(contr.map((c) => `${c.telegram}: ${c.tokensEarned}`).join("\n"));
+}
+
+export function exportBarchartRaceData(
+  contributorMap: Map<string, Contributor>,
+  votingResultRows: VotingResultRow[]
+) {
+  const phasesArray = votingResultRows.map((row) => row.phase);
+  const uniqPhases = phasesArray
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .sort((a, b) => a - b);
+  const finalRows = [];
+  const header = ["user", "imageUrl", "category"]
+    .concat(uniqPhases.map((num) => num.toString()))
+    .flat();
+  finalRows.push(header);
+  // for each contributor
+  const uniqeUsers = Array.from(contributorMap.keys());
+  for (let user of uniqeUsers) {
+    const contributor = contributorMap.get(user);
+    const userRow = [
+      user,
+      contributor?.imageUrl || "",
+      contributor?.expertise[0],
+    ];
+    let userTokens = 0;
+    const userVotingResultRows = votingResultRows.filter(
+      (row) => row.user === user
+    );
+    for (let phase = 1; phase <= 31; phase++) {
+      const targetUserVotingResultRow = userVotingResultRows.find(
+        (row) => row.phase === phase
+      );
+      if (targetUserVotingResultRow && targetUserVotingResultRow.tokens) {
+        userTokens += targetUserVotingResultRow.tokens;
+      }
+      userRow.push(userTokens.toString());
+    }
+    finalRows.push(userRow);
+  }
+}
+
 function runContributorAnalytics(
   contributorMap: Map<string, Contributor>,
   votingResultRows: VotingResultRow[]
 ): void {
   for (let phase = 1; phase <= 224; phase++) {
     const phaseRows = votingResultRows.filter((row) => row.phase === phase);
+    if (phaseRows.length === 0) {
+      continue;
+    }
     runPhaseAnalytics(phase, contributorMap, phaseRows);
   }
 }
@@ -160,20 +222,16 @@ function runPhaseAnalytics(
     }
     // get contributor rewards tokens
     const totalTokens = getAllocation(phase).contributors * getEmission(phase);
-    const userTokens = totalTokens * (points / total);
-    console.log(`${user}: ${userTokens} DEXTR`);
+    const tokens = totalTokens * (points / total);
+    phaseRows[i].tokens = tokens;
     const contributor = contributorMap.get(user);
     if (!contributor) {
       continue;
     }
     contributor.tokensEarned = contributor.tokensEarned
-      ? contributor.tokensEarned + userTokens
-      : userTokens;
+      ? contributor.tokensEarned + tokens
+      : tokens;
   }
-  // Log for testing
-  console.log(
-    `Phase ${phase}:\ntotal points: ${total}\ntotal contributors: ${phaseRows.length}`
-  );
 }
 
 async function fecthContributorMap(): Promise<Map<string, Contributor>> {
@@ -201,6 +259,28 @@ async function fetchVotingResultRows(): Promise<VotingResultRow[]> {
     .split("\n")
     .slice(1)
     .map((row) => rowToVotingResultRow(row));
+  // // compute tokens earned for each row
+  // for (let phase = 1; phase <= 224; phase++) {
+  //   const phaseRows = votingResultRows.filter((row) => row.phase === phase);
+  //   if (phaseRows.length === 0) {
+  //     continue;
+  //   }
+  //   const phasePoints = phaseRows
+  //     .map((row) => row.points)
+  //     .reduce((a, b) => a + b, 0);
+  //   const phaseContributorAllocation =
+  //     getAllocation(phase).contributors * getEmission(phase);
+  //   for (let phaseRow = 0; phaseRow < phaseRows.length; phaseRow++) {
+  //     const { user, points } = phaseRows[phaseRow];
+  //     const contributor = contributorMap.get(user);
+  //     if (!contributor) {
+  //       continue;
+  //     }
+  //     contributor.tokensEarned = contributor.tokensEarned
+  //       ? contributor.tokensEarned + userTokens
+  //       : userTokens;
+  //   }
+  // }
 }
 
 function rowToContributor(row: string): Contributor {
@@ -210,9 +290,9 @@ function rowToContributor(row: string): Contributor {
     .split(";")
     .map((str) => str.toUpperCase() as Expertise);
   return {
-    telegram,
-    github,
-    discord,
+    telegram: telegram.toLowerCase(),
+    github: github.toLowerCase(),
+    discord: discord.toLowerCase(),
     imageUrl,
     expertise,
     radixWallet,
@@ -223,7 +303,7 @@ function rowToVotingResultRow(row: string): VotingResultRow {
   const [phase, user, points] = row.split(",");
   return {
     phase: Number(phase),
-    user,
+    user: user.toLowerCase(),
     points: Number(points),
   } as VotingResultRow;
 }

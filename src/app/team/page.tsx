@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import { fetchTeamState, Contributor } from "state/teamSlice";
+import {
+  fetchTeamState,
+  showContributorRanking,
+  Contributor,
+  exportBarchartRaceData,
+} from "state/teamSlice";
 
 export default function Rewards() {
   useEffect(() => {
     fetchTeamState().then((teamState) => {
-      const contr = teamState.contributorMap
-        .map((arr): Contributor | undefined => arr[1])
-        .filter((item): item is Contributor => item !== undefined)
-        .sort(
-          (a, b) =>
-            (b as { tokensEarned: number }).tokensEarned -
-            (a as { tokensEarned: number }).tokensEarned
-        );
-      console.log(contr);
+      const contributorMap = new Map<string, Contributor>(
+        teamState.contributorMap
+      );
+      showContributorRanking(contributorMap);
+      exportBarchartRaceData(contributorMap, teamState.votingResultRows);
     });
   }, []);
 
