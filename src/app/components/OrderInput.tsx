@@ -50,8 +50,6 @@ interface OrderSideTabProps {
 interface CurrencyInputGroupProps {
   disabled?: boolean; // for price input
   userAction: UserAction; // user can set price, token1, token2
-  value?: number;
-  updateValue?: (value: number) => void;
 }
 
 // Config representing each user action, derived from CurrencyInputGroupProps
@@ -456,71 +454,23 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const { side, type, token1, token2 } = useAppSelector(
-    (state) => state.orderInput
-  );
-
-  const balanceToken1 =
-    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
-    0;
-
-  const balanceToken2 =
-    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
-    0;
+  const { side, type } = useAppSelector((state) => state.orderInput);
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
-  const [sliderValue, setSliderValue] = useState(0);
-  const [inputValue, setInputValue] = useState<number>(0);
-
-  useEffect(() => {
-    if (isBuyOrder || isSellOrder) {
-      setInputValue(0);
-      setSliderValue(0);
-    }
-  }, [side, type]);
-
-  function handleSellFunction(e: React.ChangeEvent<HTMLInputElement>) {
-    const percentage = parseFloat(e.target.value);
-    const amount = (percentage / 100) * balanceToken1;
-    setInputValue(amount);
-  }
-
-  function handleBuyFunction(e: React.ChangeEvent<HTMLInputElement>) {
-    const percentage = parseFloat(e.target.value);
-    const amount = (percentage / 100) * balanceToken2;
-    setInputValue(amount);
-  }
-
-  function handleInputChange(value: number) {
-    if (isSellOrder) {
-      const percentage = (value / balanceToken1) * 100;
-      setSliderValue(percentage);
-    }
-    if (isBuyOrder) {
-      const percentage = (value / balanceToken2) * 100;
-      setSliderValue(percentage);
-    }
-    setInputValue(value);
-  }
-
-  function handleValueUpdate(newValue: number) {
-    if (isNaN(newValue) || newValue < 0) {
-      setSliderValue(0);
-      setInputValue(0);
-    } else {
-      setSliderValue(newValue);
-      if (isSellOrder) {
-        setInputValue((newValue / 100) * balanceToken1);
-      }
-      if (isBuyOrder) {
-        setInputValue((newValue / 100) * balanceToken2);
-      }
-    }
-  }
+  const sliderCallbackMarketOrder = (newPercentage: number) => {
+    console.error(
+      `Calling sliderCallback for MARKET order with newPercentage value of ${newPercentage}`
+    );
+  };
+  const sliderCallbackLimitOrder = (newPercentage: number) => {
+    console.error(
+      `Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`
+    );
+  };
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
@@ -530,48 +480,25 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={sliderCallbackMarketOrder}
+          />
           {isSellOrder && ( // specify "Quantity"
-            <>
-              <PercentageSlider
-                onSellFunction={handleSellFunction}
-                value={sliderValue}
-                updateValue={handleValueUpdate}
-              />
-              <CurrencyInputGroup
-                userAction={UserAction.SET_TOKEN_1}
-                value={inputValue}
-                updateValue={handleInputChange}
-              />
-            </>
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           )}
           {isBuyOrder && ( // specify "Total"
-            <>
-              <PercentageSlider
-                onBuyFunction={handleBuyFunction}
-                value={sliderValue}
-                updateValue={handleValueUpdate}
-              />
-              <CurrencyInputGroup
-                userAction={UserAction.SET_TOKEN_2}
-                value={inputValue}
-                updateValue={handleInputChange}
-              />
-            </>
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           )}
         </>
       )}
       {isLimitOrder && (
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
-          <CurrencyInputGroup
-            userAction={UserAction.SET_TOKEN_1}
-            value={inputValue}
-            updateValue={handleInputChange}
-          />
+          <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           <PercentageSlider
-            onSellFunction={handleSellFunction}
-            value={sliderValue}
-            updateValue={handleValueUpdate}
+            initialPercentage={0}
+            callbackOnPercentageUpdate={sliderCallbackLimitOrder}
           />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           {isLimitOrder && <PostOnlyCheckbox />}
@@ -763,13 +690,17 @@ function CurrencyInputGroupSettings(
 function CurrencyInputGroup({
   disabled = false,
   userAction,
-  value,
-  updateValue,
 }: CurrencyInputGroupProps): JSX.Element | null {
   const t = useTranslations();
   const { type } = useAppSelector((state) => state.orderInput);
-  const { label, currency, inputValidation, secondaryLabelProps } =
-    CurrencyInputGroupSettings(userAction, disabled);
+  const {
+    label,
+    currency,
+    value,
+    updateValue,
+    inputValidation,
+    secondaryLabelProps,
+  } = CurrencyInputGroupSettings(userAction, disabled);
 
   const isMarketOrder = type === "MARKET";
   const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
@@ -788,8 +719,8 @@ function CurrencyInputGroup({
       ) : (
         <CurrencyInput
           currency={currency}
-          value={value ?? 0}
-          updateValue={updateValue ?? (() => {})}
+          value={value}
+          updateValue={updateValue}
           inputValidation={inputValidation}
         />
       )}
@@ -870,7 +801,7 @@ function CurrencyInput({
           value={value}
           separator={decimalSeparator}
           scale={scale}
-          onAccept={(value) => updateValue?.(value)}
+          onAccept={updateValue}
           className="text-sm grow w-full text-right pr-2 bg-base-200 rounded-lg"
         />
         {/* CurrencyLabel */}
@@ -895,60 +826,31 @@ function InputTooltip({ message }: { message: string }) {
 
 // TODO(dcts): implement percentage slider in future PR
 interface PercentageSliderProps {
-  onBuyFunction?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSellFunction?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  value: number;
-  updateValue: (newValue: number) => void;
+  initialPercentage: number;
+  callbackOnPercentageUpdate: (newPercentage: number) => void;
 }
 
 const PercentageSlider: React.FC<PercentageSliderProps> = ({
-  onBuyFunction,
-  onSellFunction,
-  value,
-  updateValue,
+  initialPercentage,
+  callbackOnPercentageUpdate,
 }) => {
+  const [percentage, setPercentage] = useState(initialPercentage);
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const sliderRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (e: any) => {
-    const target = e.target as HTMLInputElement;
-
-    const min = parseFloat(target.min);
-    const max = parseFloat(target.max);
-    const val = parseFloat(target.value);
-
-    let percentage = ((val - min) * 100) / (max - min);
-
-    if (sliderRef.current) {
-      sliderRef.current.style.backgroundSize = `${percentage}% 100%`;
-    }
-
-    updateValue(val);
-
-    if (onBuyFunction) {
-      onBuyFunction(e);
-    }
-    if (onSellFunction) {
-      onSellFunction(e);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPercentage = parseInt(e.target.value, 10);
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
   };
 
   useEffect(() => {
-    if (sliderRef.current) {
-      const target = sliderRef.current;
-      const min = parseFloat(target.min);
-      const max = parseFloat(target.max);
-      const val = parseFloat(value.toString());
-
-      let percentage = ((val - min) * 100) / (max - min);
-
-      if (document.documentElement.dir === "rtl") {
-        percentage = 100 - percentage;
-      }
-
-      target.style.backgroundSize = `${percentage}% 100%`;
+    if (!sliderRef.current) {
+      return;
     }
-  }, [value]);
+    const target = sliderRef.current;
+    target.style.backgroundSize = `${percentage}% 100%`;
+  }, [percentage]);
 
   return (
     <>
@@ -959,7 +861,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             min="0"
             max="100"
             onChange={handleChange}
-            value={value}
+            value={percentage}
             step="1"
             ref={sliderRef}
             id="range"
@@ -970,7 +872,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             onMouseLeave={() => setToolTipVisible(false)}
           />
           <Tippy
-            content={<span>{value}%</span>}
+            content={<span>{percentage}%</span>}
             visible={toolTipVisible}
             onClickOutside={() => setToolTipVisible(false)}
             arrow={false}
@@ -980,7 +882,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             <div
               className="relative"
               style={{
-                left: `${value}%`,
+                left: `${percentage}%`,
                 transform: "translateX(-50%)",
               }}
             ></div>
