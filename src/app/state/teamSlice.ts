@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GoogleSheet } from "../utils/GoogleSheet";
 
 export interface TeamState {
@@ -83,10 +83,10 @@ export interface Contributor {
   isActive?: boolean;
   phasesActive?: string[];
   // analytics
-  tokensEarned?: number;
-  trophyGold?: number;
-  trophySilver?: number;
-  trophyBronze?: number;
+  tokensEarned: number;
+  trophyGold: number;
+  trophySilver: number;
+  trophyBronze: number;
 }
 
 export const teamSlice = createSlice({
@@ -94,7 +94,12 @@ export const teamSlice = createSlice({
   initialState,
 
   // synchronous reducers
-  reducers: {},
+  reducers: {
+    setTeamState: (state: TeamState, action: PayloadAction<TeamState>) => {
+      state.contributorMap = action.payload.contributorMap;
+      state.votingResultRows = action.payload.votingResultRows;
+    },
+  },
 
   // async thunks
   extraReducers: () => {},
@@ -113,61 +118,63 @@ export async function fetchTeamState(): Promise<TeamState> {
   };
 }
 
-export function showContributorRanking(
-  contributorMap: Map<string, Contributor>
+export function showContributorTrophies(
+  contributorMap: [string, Contributor][]
 ) {
-  const contr = Array.from(contributorMap.entries())
-    .map((arr): Contributor | undefined => arr[1])
+  const contr = contributorMap
+    .map((arr) => arr[1])
+    .filter((item): item is Contributor => item !== undefined)
     .filter(
       (item): item is Contributor =>
-        item !== undefined && item.tokensEarned !== undefined
+        item.trophyGold > 0 || item.trophySilver > 0 || item.trophyBronze > 0
     )
+    .sort(
+      (a, b) =>
+        (b as { trophyGold: number }).trophyGold -
+        (a as { trophyGold: number }).trophyGold
+    );
+  // eslint-disable-next-line no-console
+  console.log(`#   USER             🏆 | 🥈 | 🥉\n`);
+  // eslint-disable-next-line no-console
+  console.log(
+    contr
+      .map((c, indx, arr) => {
+        const maxNameLength = Math.max(...arr.map((c) => c.telegram.length)); // Get the max length of telegram names
+        const paddedName = c.telegram.padEnd(maxNameLength + 1); // Pad the names to align
+        const indexString = (indx + 1).toString().padStart(2); // Add a space for single-digit numbers
+        return `#${indexString} ${paddedName}: ${c.trophyGold} | ${c.trophySilver} | ${c.trophyBronze}`; // Combine everything into the final string
+      })
+      .join("\n")
+  );
+}
+
+export function showContributorTotalEarnings(
+  contributorMap: [string, Contributor][]
+) {
+  const contr = contributorMap
+    .map((arr) => arr[1])
+    .filter((item): item is Contributor => item !== undefined)
     .sort(
       (a, b) =>
         (b as { tokensEarned: number }).tokensEarned -
         (a as { tokensEarned: number }).tokensEarned
     );
   // eslint-disable-next-line no-console
-  console.log(contr.map((c) => `${c.telegram}: ${c.tokensEarned}`).join("\n"));
-}
-
-export function exportBarchartRaceData(
-  contributorMap: Map<string, Contributor>,
-  votingResultRows: VotingResultRow[]
-) {
-  const phasesArray = votingResultRows.map((row) => row.phase);
-  const uniqPhases = phasesArray
-    .filter((value, index, self) => self.indexOf(value) === index)
-    .sort((a, b) => a - b);
-  const finalRows = [];
-  const header = ["user", "imageUrl", "category"]
-    .concat(uniqPhases.map((num) => num.toString()))
-    .flat();
-  finalRows.push(header);
-  // for each contributor
-  const uniqeUsers = Array.from(contributorMap.keys());
-  for (let user of uniqeUsers) {
-    const contributor = contributorMap.get(user);
-    const userRow = [
-      user,
-      contributor?.imageUrl || "",
-      contributor?.expertise[0],
-    ];
-    let userTokens = 0;
-    const userVotingResultRows = votingResultRows.filter(
-      (row) => row.user === user
-    );
-    for (let phase = 1; phase <= 31; phase++) {
-      const targetUserVotingResultRow = userVotingResultRows.find(
-        (row) => row.phase === phase
-      );
-      if (targetUserVotingResultRow && targetUserVotingResultRow.tokens) {
-        userTokens += targetUserVotingResultRow.tokens;
-      }
-      userRow.push(userTokens.toString());
-    }
-    finalRows.push(userRow);
-  }
+  console.log("TOTAL EARNINGS");
+  // eslint-disable-next-line no-console
+  console.log(
+    contr
+      .map((c, indx, arr) => {
+        const maxNameLength = Math.max(...arr.map((c) => c.telegram.length)); // Get the max length of telegram names
+        const paddedName = c.telegram.padEnd(maxNameLength + 1); // Pad the names to align
+        const indexString = (indx + 1).toString().padStart(2); // Add a space for single-digit numbers
+        const valueString = Number(c.tokensEarned?.toFixed(0))
+          .toLocaleString("en")
+          .padStart(8); // Right-align the value, assuming a max length of 7 digits plus comma formatting
+        return `#${indexString} ${paddedName}: ${valueString}`; // Combine everything into the final string
+      })
+      .join("\n")
+  );
 }
 
 function runContributorAnalytics(
@@ -183,12 +190,6 @@ function runContributorAnalytics(
   }
 }
 
-interface Trophies {
-  gold: { [key: string]: number };
-  silver: { [key: string]: number };
-  bronze: { [key: string]: number };
-}
-
 function runPhaseAnalytics(
   phase: number,
   contributorMap: Map<string, Contributor>,
@@ -197,40 +198,41 @@ function runPhaseAnalytics(
   if (phaseRows.length === 0) {
     return;
   }
-  // Total points
-  const total = phaseRows.map((row) => row.points).reduce((a, b) => a + b, 0);
-  // Run for all rows
-  const trophies: Trophies = {
-    gold: {},
-    silver: {},
-    bronze: {},
-  };
+  // Total points for this phase
+  const totalPoints = phaseRows
+    .map((row) => row.points)
+    .reduce((a, b) => a + b, 0);
+  // Total contributor rewards for this phase
+  const totalTokens = getAllocation(phase).contributors * getEmission(phase);
+  // Determine earned DEXTR tokens for each contributor in this phase
   for (let i = 0; i < phaseRows.length; i++) {
     const { user, points } = phaseRows[i];
-    if (i === 0) {
-      trophies.gold[user] = trophies.gold[user] ? trophies.gold[user] + 1 : 1;
-    }
-    if (i === 1) {
-      trophies.silver[user] = trophies.silver[user]
-        ? trophies.silver[user] + 1
-        : 1;
-    }
-    if (i === 2) {
-      trophies.bronze[user] = trophies.bronze[user]
-        ? trophies.bronze[user] + 1
-        : 1;
-    }
-    // get contributor rewards tokens
-    const totalTokens = getAllocation(phase).contributors * getEmission(phase);
-    const tokens = totalTokens * (points / total);
-    phaseRows[i].tokens = tokens;
     const contributor = contributorMap.get(user);
+    // Calculate trophies
     if (!contributor) {
       continue;
     }
+    if (!points) {
+      console.error("Error with google sheet...");
+      console.error({ phaseRows, phase, user, points });
+      continue;
+    }
+    if (i === 0) {
+      contributor.trophyGold += 1;
+    }
+    if (i === 1) {
+      contributor.trophySilver += 1;
+    }
+    if (i === 2) {
+      contributor.trophyBronze += 1;
+    }
+    // Calculate user earnings per phase per user
+    const userEarnings = (points / totalPoints) * totalTokens;
+    phaseRows[i].tokens = userEarnings;
+    // contributor.tokensEarned += userEarnings;
     contributor.tokensEarned = contributor.tokensEarned
-      ? contributor.tokensEarned + tokens
-      : tokens;
+      ? contributor.tokensEarned + userEarnings
+      : userEarnings;
   }
 }
 
@@ -245,6 +247,7 @@ async function fecthContributorMap(): Promise<Map<string, Contributor>> {
     .map((row) => rowToContributor(row));
   const contributorMap: Map<string, Contributor> = new Map();
   for (let contributor of contributors) {
+    contributor.tokensEarned = 0;
     contributorMap.set(contributor.telegram, contributor);
   }
   return contributorMap;
@@ -259,28 +262,6 @@ async function fetchVotingResultRows(): Promise<VotingResultRow[]> {
     .split("\n")
     .slice(1)
     .map((row) => rowToVotingResultRow(row));
-  // // compute tokens earned for each row
-  // for (let phase = 1; phase <= 224; phase++) {
-  //   const phaseRows = votingResultRows.filter((row) => row.phase === phase);
-  //   if (phaseRows.length === 0) {
-  //     continue;
-  //   }
-  //   const phasePoints = phaseRows
-  //     .map((row) => row.points)
-  //     .reduce((a, b) => a + b, 0);
-  //   const phaseContributorAllocation =
-  //     getAllocation(phase).contributors * getEmission(phase);
-  //   for (let phaseRow = 0; phaseRow < phaseRows.length; phaseRow++) {
-  //     const { user, points } = phaseRows[phaseRow];
-  //     const contributor = contributorMap.get(user);
-  //     if (!contributor) {
-  //       continue;
-  //     }
-  //     contributor.tokensEarned = contributor.tokensEarned
-  //       ? contributor.tokensEarned + userTokens
-  //       : userTokens;
-  //   }
-  // }
 }
 
 function rowToContributor(row: string): Contributor {
@@ -296,6 +277,10 @@ function rowToContributor(row: string): Contributor {
     imageUrl,
     expertise,
     radixWallet,
+    tokensEarned: 0,
+    trophyGold: 0,
+    trophySilver: 0,
+    trophyBronze: 0,
   } as Contributor;
 }
 

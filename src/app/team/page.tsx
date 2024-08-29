@@ -2,20 +2,19 @@
 
 import { useEffect } from "react";
 import {
-  fetchTeamState,
-  showContributorRanking,
-  Contributor,
-  exportBarchartRaceData,
+  showContributorTrophies,
+  showContributorTotalEarnings,
+  teamSlice,
 } from "state/teamSlice";
+import { store } from "state/store";
+import { fetchTeamState } from "state/teamSlice";
 
 export default function Rewards() {
   useEffect(() => {
     fetchTeamState().then((teamState) => {
-      const contributorMap = new Map<string, Contributor>(
-        teamState.contributorMap
-      );
-      showContributorRanking(contributorMap);
-      exportBarchartRaceData(contributorMap, teamState.votingResultRows);
+      store.dispatch(teamSlice.actions.setTeamState(teamState));
+      showContributorTotalEarnings(teamState.contributorMap);
+      showContributorTrophies(teamState.contributorMap);
     });
   }, []);
 
