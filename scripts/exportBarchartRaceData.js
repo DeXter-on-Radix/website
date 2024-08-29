@@ -1,11 +1,10 @@
 // Script that fetches data to create barchart race of contributors earning tokens
-// Example Result: https://public.flourish.studio/visualisation/19200770/
 //
 // Run with the following command
-// > npm run exportBarchartRaceData -- <MAX_PHASE>
+// > node ./scripts/exportBarchartRaceData.js -- <MAX_PHASE>
 //
 // For example
-// > npm run exportBarchartRaceData -- 31
+// > node ./scripts/exportBarchartRaceData.js -- 31
 
 /* eslint-disable no-console */
 
