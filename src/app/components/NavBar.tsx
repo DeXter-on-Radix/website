@@ -44,6 +44,10 @@ const NavItems: { path: string; title: string }[] = [
     title: "rewards",
   },
   {
+    path: "/team",
+    title: "team",
+  },
+  {
     path: "/roadmap",
     title: "roadmap",
   },

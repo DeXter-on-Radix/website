@@ -21,26 +21,61 @@ export default function Rewards() {
 
   return (
     <div className="bg-[#141414] grow flex items-center justify-center">
-      <div>
-        {/* <HeaderComponent /> */}
+      <div className="max-w-[1000px] p-8">
+        <HeaderComponent />
+        <Filters />
         <Contributors />
       </div>
     </div>
   );
 }
 
-function Contributors() {
+function Filters() {
+  return (
+    <div className="text-center text-base mt-8">
+      <p>Activity status</p>
+      <FilterToggle label="Active" />
+      <FilterToggle label="Past" />
+      <FilterToggle label="All" />
+      <p className="!mt-4">Area of work</p>
+      <FilterToggle label="All" />
+      <FilterToggle label="Admin" />
+      <FilterToggle label="Dev" />
+      <FilterToggle label="Design" />
+      <FilterToggle label="Social media" />
+      <FilterToggle label="Testing" />
+    </div>
+  );
+}
+
+function FilterToggle({ label }: { label: string }) {
+  return (
+    <div className="inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100">
+      <p className="uppercase">{label}</p>
+    </div>
+  );
+}
+
+function HeaderComponent() {
   const t = useTranslations();
   return (
-    <div>
+    <div className="text-center">
       <DexterHeading title={t("meet_our_contributors")} />
       <DexterParagraph text={t("we_have_a_diverse_talented")} />
     </div>
   );
 }
 
+function Contributors() {
+  return <div></div>;
+}
+
 function DexterParagraph({ text }: { text: string }) {
-  return <p className="text-sm tracking-wide py-2">{text}</p>;
+  return (
+    <div className="flex items-center justify-center">
+      <p className="max-w-[600px] text-sm tracking-wide py-2">{text}</p>
+    </div>
+  );
 }
 
 function DexterHeading({ title }: { title: string }) {
