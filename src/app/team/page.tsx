@@ -11,7 +11,7 @@ import {
 import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
 
-export default function Rewards() {
+export default function Team() {
   useEffect(() => {
     fetchTeamState().then((teamState) => {
       store.dispatch(teamSlice.actions.setTeamState(teamState));
