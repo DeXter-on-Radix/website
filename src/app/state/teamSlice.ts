@@ -80,7 +80,7 @@ export interface Contributor {
   // badges
   isOG?: boolean;
   isLongTerm?: boolean;
-  isActive?: boolean;
+  isActive: boolean;
   phasesActive?: string[];
   // analytics
   tokensEarned: number;
@@ -177,16 +177,44 @@ export function showContributorTotalEarnings(
   );
 }
 
+export function showActiveContributors(
+  contributorMap: [string, Contributor][]
+) {
+  const activeContributors = contributorMap
+    .map((arr) => arr[1])
+    .filter((contributor) => contributor.isActive);
+  // eslint-disable-next-line no-console
+  console.log(activeContributors);
+  // eslint-disable-next-line no-console
+  console.log(activeContributors.length);
+}
+
 function runContributorAnalytics(
   contributorMap: Map<string, Contributor>,
   votingResultRows: VotingResultRow[]
 ): void {
-  for (let phase = 1; phase <= 224; phase++) {
+  const lastPhase = votingResultRows[votingResultRows.length - 1].phase;
+  for (let phase = 1; phase <= lastPhase; phase++) {
     const phaseRows = votingResultRows.filter((row) => row.phase === phase);
     if (phaseRows.length === 0) {
       continue;
     }
     runPhaseAnalytics(phase, contributorMap, phaseRows);
+  }
+  // mark contributor activity level
+  const nLastPhases = 3; // contributing withing the last 3 phases
+  const activePhaseThreshold = lastPhase - (nLastPhases - 1); // last phase also counts
+  const votingResultRowsSubset = votingResultRows.filter(
+    (row) => row.phase >= activePhaseThreshold
+  );
+  const activeUsers = votingResultRowsSubset
+    .map((row) => row.user)
+    .filter((val, indx, self) => self.indexOf(val) === indx);
+  for (const username of activeUsers) {
+    const contributor = contributorMap.get(username);
+    if (contributor) {
+      contributor.isActive = true;
+    }
   }
 }
 
@@ -205,8 +233,8 @@ function runPhaseAnalytics(
   // Total contributor rewards for this phase
   const totalTokens = getAllocation(phase).contributors * getEmission(phase);
   // Determine earned DEXTR tokens for each contributor in this phase
-  for (let i = 0; i < phaseRows.length; i++) {
-    const { user, points } = phaseRows[i];
+  for (let row = 0; row < phaseRows.length; row++) {
+    const { user, points } = phaseRows[row];
     const contributor = contributorMap.get(user);
     // Calculate trophies
     if (!contributor) {
@@ -217,18 +245,18 @@ function runPhaseAnalytics(
       console.error({ phaseRows, phase, user, points });
       continue;
     }
-    if (i === 0) {
+    if (row === 0) {
       contributor.trophyGold += 1;
     }
-    if (i === 1) {
+    if (row === 1) {
       contributor.trophySilver += 1;
     }
-    if (i === 2) {
+    if (row === 2) {
       contributor.trophyBronze += 1;
     }
     // Calculate user earnings per phase per user
     const userEarnings = (points / totalPoints) * totalTokens;
-    phaseRows[i].tokens = userEarnings;
+    phaseRows[row].tokens = userEarnings;
     // contributor.tokensEarned += userEarnings;
     contributor.tokensEarned = contributor.tokensEarned
       ? contributor.tokensEarned + userEarnings
@@ -275,6 +303,7 @@ function rowToContributor(row: string): Contributor {
     github: github.toLowerCase(),
     discord: discord.toLowerCase(),
     imageUrl,
+    isActive: false,
     expertise,
     radixWallet,
     tokensEarned: 0,

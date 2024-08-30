@@ -6,6 +6,7 @@ import {
   showContributorTrophies,
   showContributorTotalEarnings,
   teamSlice,
+  showActiveContributors,
 } from "state/teamSlice";
 import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
@@ -16,6 +17,7 @@ export default function Rewards() {
       store.dispatch(teamSlice.actions.setTeamState(teamState));
       showContributorTotalEarnings(teamState.contributorMap);
       showContributorTrophies(teamState.contributorMap);
+      showActiveContributors(teamState.contributorMap);
     });
   }, []);
 
