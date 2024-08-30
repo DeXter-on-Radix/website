@@ -128,11 +128,18 @@ export function showContributorTrophies(
       (item): item is Contributor =>
         item.trophyGold > 0 || item.trophySilver > 0 || item.trophyBronze > 0
     )
-    .sort(
-      (a, b) =>
-        (b as { trophyGold: number }).trophyGold -
-        (a as { trophyGold: number }).trophyGold
-    );
+    .sort((a, b) => {
+      if (b.trophyGold !== a.trophyGold) {
+        // First, sort by gold trophies
+        return b.trophyGold - a.trophyGold;
+      } else if (b.trophySilver !== a.trophySilver) {
+        // Then, sort by silver trophies
+        return b.trophySilver - a.trophySilver;
+      } else {
+        // Finally, sort by bronze trophies
+        return b.trophyBronze - a.trophyBronze;
+      }
+    });
   // eslint-disable-next-line no-console
   console.log(`#   USER             🏆 | 🥈 | 🥉\n`);
   // eslint-disable-next-line no-console
