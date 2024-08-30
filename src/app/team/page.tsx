@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "hooks";
 import {
   showContributorTrophies,
   showContributorTotalEarnings,
@@ -29,10 +30,11 @@ export default function Rewards() {
 }
 
 function Contributors() {
+  const t = useTranslations();
   return (
     <div>
-      <DexterHeading title={"Contributors"} />
-      <DexterParagraph text={"There is no formal team. Anyone can join."} />
+      <DexterHeading title={t("meet_our_contributors")} />
+      <DexterParagraph text={t("we_have_a_diverse_talented")} />
     </div>
   );
 }
