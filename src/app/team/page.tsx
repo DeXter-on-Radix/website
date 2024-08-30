@@ -50,7 +50,7 @@ function Filters() {
 
 function FilterToggle({ label }: { label: string }) {
   return (
-    <div className="inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100">
+    <div className="cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100">
       <p className="uppercase">{label}</p>
     </div>
   );
