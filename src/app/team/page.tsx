@@ -59,14 +59,14 @@ function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
   const isActive = activityStatusFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 my-3 px-4 py-2 bg-black opacity-25 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100" : ""
       }`}
       onClick={() =>
         dispatch(teamSlice.actions.setActivityStatusFilter(filter))
       }
     >
-      <p className="uppercase">{label}</p>
+      <p className="uppercase text-sm">{label}</p>
     </div>
   );
 }
@@ -78,12 +78,12 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
   const isActive = expertiseFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 my-3 px-4 py-2 bg-black opacity-25 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100" : ""
       }`}
       onClick={() => dispatch(teamSlice.actions.setExpertiseFilter(filter))}
     >
-      <p className="uppercase">{label}</p>
+      <p className="uppercase text-sm">{label}</p>
     </div>
   );
 }
