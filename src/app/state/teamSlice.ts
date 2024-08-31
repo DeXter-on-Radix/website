@@ -32,7 +32,7 @@ const initialState: TeamState = {
   contributorMap: [],
   votingResultRows: [],
   activityStatusFilter: ActivityStatus.ACTIVE,
-  // expertiseFilter -> unset be default = show all
+  expertiseFilter: undefined,
 };
 
 interface Allocation {

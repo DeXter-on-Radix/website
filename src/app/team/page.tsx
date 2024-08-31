@@ -53,6 +53,7 @@ function Filters() {
 }
 
 function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
+  const dispatch = useAppDispatch();
   const { activityStatusFilter } = useAppSelector((state) => state.teamSlice);
   const label = filter === undefined ? "ALL" : filter;
   const isActive = activityStatusFilter === filter;
@@ -61,6 +62,9 @@ function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
       className={`cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100" : ""
       }`}
+      onClick={() =>
+        dispatch(teamSlice.actions.setActivityStatusFilter(filter))
+      }
     >
       <p className="uppercase">{label}</p>
     </div>
