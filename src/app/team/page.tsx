@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   showContributorTrophies,
   showContributorTotalEarnings,
   teamSlice,
   showActiveContributors,
+  ActivityStatus,
+  Expertise,
 } from "state/teamSlice";
 import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
@@ -36,23 +38,47 @@ function Filters() {
   return (
     <div className="text-center text-base mt-8">
       <p>Activity status</p>
-      <FilterToggle label="Active" />
-      <FilterToggle label="Past" />
-      <FilterToggle label="All" />
+      <ActivityStatusToggle filter={ActivityStatus.ACTIVE} />
+      <ActivityStatusToggle filter={ActivityStatus.PAST} />
+      <ActivityStatusToggle filter={undefined} />
       <p className="!mt-4">Area of work</p>
-      <FilterToggle label="All" />
-      <FilterToggle label="Admin" />
-      <FilterToggle label="Dev" />
-      <FilterToggle label="Design" />
-      <FilterToggle label="Social media" />
-      <FilterToggle label="Testing" />
+      <ExpertiseToggle filter={undefined} />
+      <ExpertiseToggle filter={Expertise.ADMIN} />
+      <ExpertiseToggle filter={Expertise.DEV} />
+      <ExpertiseToggle filter={Expertise.DESIGN} />
+      <ExpertiseToggle filter={Expertise.SOCIAL_MEDIA} />
+      <ExpertiseToggle filter={Expertise.TESTING} />
     </div>
   );
 }
 
-function FilterToggle({ label }: { label: string }) {
+function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
+  const { activityStatusFilter } = useAppSelector((state) => state.teamSlice);
+  const label = filter === undefined ? "ALL" : filter;
+  const isActive = activityStatusFilter === filter;
   return (
-    <div className="cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100">
+    <div
+      className={`cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100 ${
+        isActive ? "!opacity-100" : ""
+      }`}
+    >
+      <p className="uppercase">{label}</p>
+    </div>
+  );
+}
+
+function ExpertiseToggle({ filter }: { filter?: Expertise }) {
+  const dispatch = useAppDispatch();
+  const { expertiseFilter } = useAppSelector((state) => state.teamSlice);
+  const label = filter === undefined ? "ALL" : filter;
+  const isActive = expertiseFilter === filter;
+  return (
+    <div
+      className={`cursor-pointer inline-block mx-1 my-3 px-6 py-3 bg-black opacity-25 rounded-badge hover:opacity-100 ${
+        isActive ? "!opacity-100" : ""
+      }`}
+      onClick={() => dispatch(teamSlice.actions.setExpertiseFilter(filter))}
+    >
       <p className="uppercase">{label}</p>
     </div>
   );

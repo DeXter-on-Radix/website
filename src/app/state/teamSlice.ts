@@ -4,6 +4,8 @@ import { GoogleSheet } from "../utils/GoogleSheet";
 export interface TeamState {
   contributorMap: [string, Contributor][];
   votingResultRows: VotingResultRow[];
+  activityStatusFilter?: ActivityStatus;
+  expertiseFilter?: Expertise;
 }
 
 interface VotingResultRow {
@@ -13,9 +15,24 @@ interface VotingResultRow {
   tokens?: number;
 }
 
+export enum Expertise {
+  "ADMIN" = "ADMIN",
+  "DEV" = "DEV",
+  "DESIGN" = "DESIGN",
+  "SOCIAL_MEDIA" = "SOCIAL_MEDIA",
+  "TESTING" = "TESTING",
+}
+
+export enum ActivityStatus {
+  "ACTIVE" = "ACTIVE",
+  "PAST" = "PAST",
+}
+
 const initialState: TeamState = {
   contributorMap: [],
   votingResultRows: [],
+  activityStatusFilter: ActivityStatus.ACTIVE,
+  // expertiseFilter -> unset be default = show all
 };
 
 interface Allocation {
@@ -61,25 +78,12 @@ function getEmission(phase: number): number {
     : 0;
 }
 
-export enum Expertise {
-  "ADMIN" = "ADMIN",
-  "DEV" = "DEV",
-  "DESIGN" = "DESIGN",
-  "SOCIAL_MEDIA" = "SOCIAL_MEDIA",
-  "TESTING" = "TESTING",
-}
-
-export enum ActivityStatus {
-  "ACTIVE" = "ACTIVE",
-  "PAST" = "PAST",
-}
-
 export interface Contributor {
   telegram: string;
   github?: string;
   discord?: string;
   imageUrl?: string;
-  expertise?: Expertise[];
+  expertise: Expertise[];
   radixWallet?: string;
   // badges
   isOG?: boolean;
@@ -102,6 +106,18 @@ export const teamSlice = createSlice({
     setTeamState: (state: TeamState, action: PayloadAction<TeamState>) => {
       state.contributorMap = action.payload.contributorMap;
       state.votingResultRows = action.payload.votingResultRows;
+    },
+    setExpertiseFilter: (
+      state: TeamState,
+      action: PayloadAction<Expertise | undefined>
+    ) => {
+      state.expertiseFilter = action.payload;
+    },
+    setActivityStatusFilter: (
+      state: TeamState,
+      action: PayloadAction<ActivityStatus | undefined>
+    ) => {
+      state.activityStatusFilter = action.payload;
     },
   },
 
@@ -212,7 +228,7 @@ function runContributorAnalytics(
     }
     runPhaseAnalytics(phase, contributorMap, phaseRows);
   }
-  // mark contributor activity level
+  // mark contributor Status level
   const nLastPhases = 3; // contributing withing the last 3 phases
   const activePhaseThreshold = lastPhase - (nLastPhases - 1); // last phase also counts
   const votingResultRowsSubset = votingResultRows.filter(
