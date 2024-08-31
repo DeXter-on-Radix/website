@@ -12,5 +12,12 @@
   "ORDER_HISTORY": "Order history",
   "TRADE_HISTORY": "Trade history",
   "PAY": "You pay",
-  "RECEIVE": "You receive"
+  "RECEIVE": "You receive",
+  "ADMIN": "Admin",
+  "DEV": "Dev",
+  "DESIGN": "Design",
+  "SOCIAL_MEDIA": "Social media",
+  "TESTING": "Testing",
+  "ACTIVE": "Active",
+  "PAST": "Past"
 }

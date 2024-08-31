@@ -62,12 +62,16 @@ function getEmission(phase: number): number {
 }
 
 export enum Expertise {
-  "DEVELOPER" = "DEVELOPER",
+  "ADMIN" = "ADMIN",
+  "DEV" = "DEV",
   "DESIGN" = "DESIGN",
   "SOCIAL_MEDIA" = "SOCIAL_MEDIA",
-  "ADMINISTRATION" = "ADMINISTRATION",
-  "TESTER" = "TESTER",
-  "NA" = "NA",
+  "TESTING" = "TESTING",
+}
+
+export enum ActivityStatus {
+  "ACTIVE" = "ACTIVE",
+  "PAST" = "PAST",
 }
 
 export interface Contributor {
@@ -302,8 +306,9 @@ async function fetchVotingResultRows(): Promise<VotingResultRow[]> {
 function rowToContributor(row: string): Contributor {
   const [telegram, github, discord, imageUrl, expertiseStr, radixWallet] =
     row.split(",");
-  const expertise = expertiseStr
+  const expertise: Expertise[] = expertiseStr
     .split(";")
+    .filter((str) => Object.values(Expertise).includes(str as Expertise))
     .map((str) => str.toUpperCase() as Expertise);
   return {
     telegram: telegram.toLowerCase(),
