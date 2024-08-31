@@ -106,6 +106,7 @@ function Contributors() {
   const { contributorMap } = useAppSelector((state) => state.teamSlice);
   const contributors = contributorMap
     .map((arr) => arr[1])
+    .filter((c) => c.isActive)
     .sort((a, b) => b.phasesActive.length - a.phasesActive.length);
   return (
     <div className="flex flex-wrap justify-center mt-6">
@@ -121,7 +122,14 @@ function Contributors() {
 // TODO: active badge
 function ContributorCard({ contributor }: { contributor: Contributor }) {
   return (
-    <div className="w-[250px] h-[120px] bg-[#232629] rounded-2xl m-2 p-4">
+    <div className="w-[250px] h-[120px] bg-[#232629] rounded-2xl m-2 p-4 relative">
+      {contributor.isActive && (
+        <div className="absolute right-0 bg-dexter-green rounded-tl-full rounded-bl-full">
+          <p className="text-black text-xs font-medium text-right py-1 ml-3 mr-2">
+            Active
+          </p>
+        </div>
+      )}
       {/* Flexbox container for image and text */}
       <div className="flex items-start">
         {/* Contributor Image */}
@@ -129,17 +137,18 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
           src={
             contributor.imageUrl ||
             "https://dexternominations.space/_next/image?url=%2Fcontimg%2Fdefault.jpg&w=256&q=75"
+            // "grey-circle.svg"
           }
           alt={contributor.telegram}
-          width="60"
-          height="60"
-          className="rounded-full"
+          width="55"
+          height="55"
+          className={`rounded-full ${contributor.imageUrl ? "" : "opacity-80"}`}
         />
 
         {/* Contributor Details */}
         <div className="flex flex-col ml-3">
           {/* Truncate telegram name */}
-          <p className="truncate max-w-[150px] text-white text-base font-semibold">
+          <p className="truncate max-w-[120px] text-white text-base font-semibold">
             {contributor.name}
           </p>
           {/* Display ADMIN and OG on the same line */}
