@@ -79,6 +79,7 @@ function getEmission(phase: number): number {
 }
 
 export interface Contributor {
+  name: string;
   telegram: string;
   github?: string;
   discord?: string;
@@ -89,7 +90,7 @@ export interface Contributor {
   isOG?: boolean;
   isLongTerm?: boolean;
   isActive: boolean;
-  phasesActive?: string[];
+  phasesActive: number[];
   // analytics
   tokensEarned: number;
   trophyGold: number;
@@ -272,6 +273,9 @@ function runPhaseAnalytics(
       console.error({ phaseRows, phase, user, points });
       continue;
     }
+    // Add phase to phasesActive array
+    contributor.phasesActive.push(phase);
+    // Add trophies
     if (row === 0) {
       contributor.trophyGold += 1;
     }
@@ -327,6 +331,7 @@ function rowToContributor(row: string): Contributor {
     .filter((str) => Object.values(Expertise).includes(str as Expertise))
     .map((str) => str.toUpperCase() as Expertise);
   return {
+    name: telegram,
     telegram: telegram.toLowerCase(),
     github: github.toLowerCase(),
     discord: discord.toLowerCase(),
@@ -334,6 +339,7 @@ function rowToContributor(row: string): Contributor {
     isActive: false,
     expertise,
     radixWallet,
+    phasesActive: [],
     tokensEarned: 0,
     trophyGold: 0,
     trophySilver: 0,
