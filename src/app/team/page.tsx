@@ -10,11 +10,13 @@ import {
   ActivityStatus,
   Expertise,
   Contributor,
+  selectFilteredContributors,
+  TeamState,
 } from "state/teamSlice";
 import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
 import { DexterButton } from "components/DexterButton";
-import { FaTelegram, FaDiscord, FaGithub } from "react-icons/fa";
+import { FaTelegram, FaGithub } from "react-icons/fa";
 
 export default function Team() {
   useEffect(() => {
@@ -106,11 +108,8 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
 }
 
 function Contributors() {
-  const { contributorMap } = useAppSelector((state) => state.teamSlice);
-  const contributors = contributorMap
-    .map((arr) => arr[1])
-    .filter((c) => c.isActive)
-    .sort((a, b) => b.phasesActive.length - a.phasesActive.length);
+  const { teamSlice } = useAppSelector((state) => state);
+  const contributors = selectFilteredContributors(teamSlice);
   return (
     <div className="my-10">
       <p className="text-base text-center opacity-70">
