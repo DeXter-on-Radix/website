@@ -13,6 +13,8 @@ import {
 } from "state/teamSlice";
 import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
+import { DexterButton } from "components/DexterButton";
+import { FaTelegram, FaDiscord, FaGithub } from "react-icons/fa";
 
 export default function Team() {
   useEffect(() => {
@@ -30,7 +32,18 @@ export default function Team() {
         <HeaderComponent />
         <Filters />
         <Contributors />
+        <JoinUs />
       </div>
+    </div>
+  );
+}
+
+function HeaderComponent() {
+  const t = useTranslations();
+  return (
+    <div className="text-center">
+      <DexterHeading title={t("meet_our_contributors")} />
+      <DexterParagraph text={t("we_have_a_diverse_talented")} />
     </div>
   );
 }
@@ -92,16 +105,6 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
   );
 }
 
-function HeaderComponent() {
-  const t = useTranslations();
-  return (
-    <div className="text-center">
-      <DexterHeading title={t("meet_our_contributors")} />
-      <DexterParagraph text={t("we_have_a_diverse_talented")} />
-    </div>
-  );
-}
-
 function Contributors() {
   const { contributorMap } = useAppSelector((state) => state.teamSlice);
   const contributors = contributorMap
@@ -109,18 +112,22 @@ function Contributors() {
     .filter((c) => c.isActive)
     .sort((a, b) => b.phasesActive.length - a.phasesActive.length);
   return (
-    <div className="flex flex-wrap justify-center mt-6">
-      {contributors.map((contributor, indx) => {
-        return <ContributorCard contributor={contributor} key={indx} />;
-      })}
+    <div className="my-10">
+      <p className="text-base text-center opacity-70">
+        {contributors.length} contributors found
+      </p>
+      <div className="flex flex-wrap justify-center">
+        {contributors.map((contributor, indx) => {
+          return <ContributorCard contributor={contributor} key={indx} />;
+        })}
+      </div>
     </div>
   );
 }
 
-// TODO: Expertise
 // TODO: links to social channels
-// TODO: active badge
 function ContributorCard({ contributor }: { contributor: Contributor }) {
+  const t = useTranslations();
   return (
     <div className="w-[250px] h-[120px] bg-[#232629] rounded-2xl m-2 p-4 relative">
       {contributor.isActive && (
@@ -140,8 +147,8 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
             // "grey-circle.svg"
           }
           alt={contributor.telegram}
-          width="55"
-          height="55"
+          width="60"
+          height="60"
           className={`rounded-full ${contributor.imageUrl ? "" : "opacity-80"}`}
         />
 
@@ -151,27 +158,100 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
           <p className="truncate max-w-[120px] text-white text-base font-semibold">
             {contributor.name}
           </p>
-          {/* Display ADMIN and OG on the same line */}
-          <p className="text-white text-base">
-            <span className="mr-1">ADMIN</span>
-            <span>OG</span>
-          </p>
-          <p className="text-white text-xs">
+          {/* Display badges */}
+          <div className="flex flew-wrap my-1">
+            {contributor.expertise.map((expertise, indx) => {
+              return <Badge key={indx} text={t(expertise)} />;
+            })}
+            {contributor.isOG && <Badge text={"OG"} />}
+          </div>
+          <p className="text-white text-xs opacity-40">
             contributed in {contributor.phasesActive.length} phases
           </p>
         </div>
       </div>
-      <div>
-        <p className="inline-block text-xs ml-2 max-w-[70px]">
-          {contributor.telegram}
-        </p>
-        <p className="inline-block text-xs ml-2 max-w-[70px]">
-          {contributor.github}
-        </p>
-        <p className="inline-block text-xs ml-2 max-w-[70px]">
-          {contributor.discord}
-        </p>
+      {/* Social Links */}
+      <div className="flex mt-2">
+        {contributor.telegram && (
+          <SocialLink
+            username={contributor.telegram}
+            socialPlatform={SocialPlatform.TELEGRAM}
+          />
+        )}
+        {contributor.github && (
+          <SocialLink
+            username={contributor.github}
+            socialPlatform={SocialPlatform.GITHUB}
+          />
+        )}
+        {contributor.discord && (
+          <SocialLink
+            username={contributor.discord}
+            socialPlatform={SocialPlatform.DISCORD}
+          />
+        )}
       </div>
+    </div>
+  );
+}
+
+enum SocialPlatform {
+  "TELEGRAM" = "TELEGRAM",
+  "GITHUB" = "GITHUB",
+  "DISCORD" = "DISCORD",
+}
+function SocialLink({
+  username,
+  socialPlatform,
+}: {
+  username: string;
+  socialPlatform: SocialPlatform;
+}) {
+  const { iconHtml, url } =
+    socialPlatform === SocialPlatform.TELEGRAM
+      ? {
+          iconHtml: <FaTelegram />,
+          url: `https://t.me/${username.toLowerCase()}`,
+        }
+      : socialPlatform === SocialPlatform.GITHUB
+      ? {
+          iconHtml: <FaGithub />,
+          url: `https://github.com/${username.toLowerCase()}`,
+        }
+      : socialPlatform === SocialPlatform.DISCORD
+      ? {
+          iconHtml: <FaDiscord />,
+          url: `https://t.me/${username.toLowerCase()}`,
+        }
+      : {
+          iconHtml: <></>,
+          url: "",
+        };
+  return (
+    <a className="mr-1 cursor-pointer" href={url} target="_blank">
+      {iconHtml}
+    </a>
+  );
+}
+
+function Badge({ text }: { text: string }) {
+  const color =
+    text === "OG" ? "bg-[#00ca92] text-black font-bold" : "bg-[#191B1D]";
+  return (
+    <div className={`${color} rounded-full px-3 py-1 text-xs mr-1`}>{text}</div>
+  );
+}
+
+function JoinUs() {
+  return (
+    <div className="text-center !mt-20 !mb-20">
+      <DexterHeading title="Want to join us?" fontSize={30} />
+      <DexterParagraph text="We are always looking for talented contributors." />
+      <DexterButton
+        title="Register now"
+        targetBlank={true}
+        targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute"
+      />
     </div>
   );
 }
@@ -184,7 +264,13 @@ function DexterParagraph({ text }: { text: string }) {
   );
 }
 
-function DexterHeading({ title }: { title: string }) {
+function DexterHeading({
+  title,
+  fontSize,
+}: {
+  title: string;
+  fontSize?: number;
+}) {
   return (
     <>
       <h2
@@ -193,7 +279,7 @@ function DexterHeading({ title }: { title: string }) {
           margin: 0,
           marginBottom: "20px",
           marginTop: "0px",
-          fontSize: "45px",
+          fontSize: `${fontSize || 45}px`,
         }}
       >
         {title}
