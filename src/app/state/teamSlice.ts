@@ -40,7 +40,7 @@ const initialState: TeamState = {
   votingResultRows: [],
   activityStatusFilter: ActivityStatus.ACTIVE,
   expertiseFilter: undefined,
-  isLoading: false,
+  isLoading: true,
   isError: false,
 };
 

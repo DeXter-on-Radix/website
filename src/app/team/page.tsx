@@ -12,6 +12,7 @@ import {
 import { fetchTeamState } from "state/teamSlice";
 import { DexterButton } from "components/DexterButton";
 import { FaTelegram, FaGithub } from "react-icons/fa";
+import { SkeletonRectangle } from "components/Skeleton";
 
 export default function Team() {
   const dispatch = useAppDispatch();
@@ -68,7 +69,7 @@ function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
   const isActive = activityStatusFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 my-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100 bg-dexter-green text-black" : ""
       }`}
       onClick={() =>
@@ -88,7 +89,7 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
   const isActive = expertiseFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 my-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100 bg-dexter-green text-black" : ""
       }`}
       onClick={() => dispatch(teamSlice.actions.setExpertiseFilter(filter))}
@@ -103,19 +104,40 @@ function Contributors() {
   const contributors = selectFilteredContributors(teamSlice);
   return (
     <div className="my-10">
-      <p className="text-base text-center opacity-70">
-        {contributors.length} contributors found
-      </p>
-      <div className="flex flex-wrap justify-center">
-        {contributors.map((contributor, indx) => {
-          return <ContributorCard contributor={contributor} key={indx} />;
-        })}
-      </div>
+      {teamSlice.isLoading ? (
+        <>
+          <div className="flex justify-center">
+            <SkeletonRectangle width="w-40" height="h-6" />
+          </div>
+          <div className="flex flex-wrap justify-center">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((_, indx) => {
+              return (
+                <SkeletonRectangle
+                  width="w-[250px]"
+                  height="h-[120px]"
+                  key={indx}
+                  className="m-2 bg-[#2C2C2C]"
+                />
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-base text-center opacity-70">
+            {contributors.length} contributors found
+          </p>
+          <div className="flex flex-wrap justify-center">
+            {contributors.map((contributor, indx) => {
+              return <ContributorCard contributor={contributor} key={indx} />;
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-// TODO: links to social channels
 function ContributorCard({ contributor }: { contributor: Contributor }) {
   const t = useTranslations();
   return (
@@ -197,12 +219,12 @@ function SocialLink({
   const { iconHtml, url } =
     socialPlatform === SocialPlatform.TELEGRAM
       ? {
-          iconHtml: <FaTelegram />,
+          iconHtml: <FaTelegram size={20} />,
           url: `https://t.me/${username.toLowerCase()}`,
         }
       : socialPlatform === SocialPlatform.GITHUB
       ? {
-          iconHtml: <FaGithub />,
+          iconHtml: <FaGithub size={20} />,
           url: `https://github.com/${username.toLowerCase()}`,
         }
       : {
