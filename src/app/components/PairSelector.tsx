@@ -4,6 +4,7 @@ import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import React from "react";
+import { searchPairs } from "utils";
 
 import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
 
@@ -161,70 +162,6 @@ export function PairSelector() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
-
-  const searchPairs = (query: string, pairsList: PairInfo[]): PairInfo[] => {
-    const searchQuery = query.trim().toLowerCase().replace(/\s+/g, " ");
-
-    const hasTypoTolerance = (source: string, target: string): boolean => {
-      const maxTyposAllowed = Math.floor(source.length / 4);
-
-      if (source.length > target.length + maxTyposAllowed) {
-        return false;
-      }
-
-      if (target.includes(source)) {
-        return true;
-      }
-
-      // Check for typo tolerance
-      for (let i = 0; i <= target.length - source.length; i++) {
-        const substring = target.substring(i, i + source.length);
-        let mismatchCount = 0;
-        for (let j = 0; j < source.length; j++) {
-          if (source[j] !== substring[j]) {
-            mismatchCount++;
-          }
-        }
-        if (mismatchCount <= maxTyposAllowed) {
-          return true;
-        }
-      }
-
-      return false;
-    };
-
-    const preprocessPairName = (name: string): string =>
-      name.toLowerCase().replace(/\//g, " ");
-    const preprocessToken = (token: {
-      symbol: string;
-      name: string;
-    }): { symbol: string; name: string } => ({
-      symbol: token.symbol.toLowerCase(),
-      name: token.name.toLowerCase(),
-    });
-
-    return pairsList.filter((pair) => {
-      const pairName = preprocessPairName(pair.name);
-      const pairNameReversed = pairName.split(" ").reverse().join(" ");
-      const token1 = preprocessToken(pair.token1);
-      const token2 = preprocessToken(pair.token2);
-
-      const nameMatches = [
-        pairName,
-        pairNameReversed,
-        token1.symbol,
-        token2.symbol,
-        token1.name,
-        token2.name,
-      ];
-
-      return nameMatches.some(
-        (nameMatch) =>
-          nameMatch.includes(searchQuery) ||
-          hasTypoTolerance(searchQuery, nameMatch)
-      );
-    });
-  };
 
   const onQueryChange = (userInputQuery: string) => {
     const filteredPairs = searchPairs(userInputQuery, options);

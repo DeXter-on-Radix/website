@@ -6,6 +6,8 @@ import {
   shortenWalletAddress,
 } from "./utils";
 
+import { searchPairs } from "./utils";
+
 // the separators are set to "." and " " for testing purposes
 // inside jest.setup.js
 describe("displayAmount", () => {
@@ -342,5 +344,150 @@ describe("shortenWalletAddress", () => {
     const expectedShortened = "account_...cjjyyekh2gggfpw34yxq";
     const result = shortenWalletAddress(address);
     expect(result).toBe(expectedShortened);
+  });
+});
+
+describe("searchPairs", () => {
+  const pairsList: any = [
+    {
+      name: "DEXTR/XRD",
+      token1: {
+        name: "Dexter",
+        symbol: "DEXTR",
+      },
+      token2: {
+        name: "Radix",
+        symbol: "XRD",
+      },
+    },
+    {
+      name: "ADEX/XRD",
+      token1: {
+        name: "Adex",
+        symbol: "ADEX",
+      },
+      token2: {
+        name: "Radix",
+        symbol: "XRD",
+      },
+    },
+    {
+      name: "CUPPA/XRD",
+      token1: {
+        name: "Cuppa",
+        symbol: "CUPPA",
+      },
+      token2: {
+        name: "Radix",
+        symbol: "XRD",
+      },
+    },
+  ];
+
+  test("should find pairs by full name", () => {
+    const result = searchPairs("DEXTR/XRD", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should find pairs by symbol", () => {
+    const result = searchPairs("DEXTR", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should find pairs by symbol and full name with different case", () => {
+    const result = searchPairs("cupPa", pairsList);
+    expect(result).toEqual([
+      {
+        name: "CUPPA/XRD",
+        token1: {
+          name: "Cuppa",
+          symbol: "CUPPA",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should find pairs with space as delimiter", () => {
+    const result = searchPairs("DEXTR XRD", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should find pairs with swapped order of tokens", () => {
+    const result = searchPairs("XRD DEXTR", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should handle minimal typos", () => {
+    const result = searchPairs("D3XTR", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should return an empty array if no matches are found", () => {
+    const result = searchPairs("XYZ", pairsList);
+    expect(result).toEqual([]);
   });
 });
