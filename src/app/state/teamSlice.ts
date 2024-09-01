@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createSelector, PayloadAction } from "@reduxjs/toolkit";
 import { GoogleSheet } from "../utils/GoogleSheet";
 
 export interface TeamState {
@@ -367,3 +367,37 @@ function rowToVotingResultRow(row: string): VotingResultRow {
     points: Number(points),
   } as VotingResultRow;
 }
+
+export const selectFilteredContributors = createSelector(
+  (state: TeamState) => state.contributorMap, // Get the contributor map from the state
+  (state: TeamState) => state.activityStatusFilter, // Get the activity status filter from the state
+  (state: TeamState) => state.expertiseFilter, // Get the expertise filter from the state
+  (
+    contributorMap: [string, Contributor][],
+    activityStatusFilter: ActivityStatus | undefined,
+    expertiseFilter: Expertise | undefined
+  ): Contributor[] => {
+    // Transform contributorMap into an array of Contributor objects
+    let contributors = contributorMap.map(([, contributor]) => contributor);
+
+    // Apply activity status filter if it is set
+    if (activityStatusFilter !== undefined) {
+      contributors = contributors.filter(
+        (contributor) =>
+          (activityStatusFilter === ActivityStatus.ACTIVE &&
+            contributor.isActive) ||
+          (activityStatusFilter === ActivityStatus.PAST &&
+            !contributor.isActive)
+      );
+    }
+
+    // Apply expertise filter if it is set
+    if (expertiseFilter !== undefined) {
+      contributors = contributors.filter((contributor) =>
+        contributor.expertise.includes(expertiseFilter)
+      );
+    }
+
+    return contributors; // Return the filtered array of contributors
+  }
+);
