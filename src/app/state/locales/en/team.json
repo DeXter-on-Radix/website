@@ -4,5 +4,10 @@
   "we_have_a_diverse_talented": "We have a diverse, talented pool of contributors from various fields and locations worldwide. Anyone can join. Browse our current active or past members and connect with contributors to collaborate.",
   "all": "All",
   "activity_status": "Activity status",
-  "area_of_work": "Area of work"
+  "area_of_work": "Area of work",
+  "N_contributors_found": "<$NUMBER> contributors found",
+  "want_to_join_us": "Want to join us?",
+  "we_are_always_looking_for": "We are always looking for talented contributors.",
+  "register_now": "Register now",
+  "contributed_in_N_phases": "contributed in <$NUMBER> phases"
 }

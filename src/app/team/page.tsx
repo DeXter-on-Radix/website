@@ -100,6 +100,7 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
 }
 
 function Contributors() {
+  const t = useTranslations();
   const { teamSlice } = useAppSelector((state) => state);
   const contributors = selectFilteredContributors(teamSlice);
   return (
@@ -125,7 +126,10 @@ function Contributors() {
       ) : (
         <>
           <p className="text-base text-center opacity-70">
-            {contributors.length} contributors found
+            {t("N_contributors_found").replaceAll(
+              "<$NUMBER>",
+              contributors.length.toString()
+            )}
           </p>
           <div className="flex flex-wrap justify-center">
             {contributors.map((contributor, indx) => {
@@ -181,7 +185,10 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
             {contributor.isOG && <Badge text={"OG"} />}
           </div>
           <p className="text-white text-xs opacity-40">
-            contributed in {contributor.phasesActive.length} phases
+            {t("contributed_in_N_phases").replaceAll(
+              "<$NUMBER>",
+              contributor.phasesActive.length.toString()
+            )}
           </p>
         </div>
       </div>
@@ -247,12 +254,13 @@ function Badge({ text }: { text: string }) {
 }
 
 function JoinUs() {
+  const t = useTranslations();
   return (
     <div className="text-center !mt-20 !mb-20">
-      <DexterHeading title="Want to join us?" fontSize={30} />
-      <DexterParagraph text="We are always looking for talented contributors." />
+      <DexterHeading title={t("want_to_join_us")} fontSize={30} />
+      <DexterParagraph text={t("we_are_always_looking_for")} />
       <DexterButton
-        title="Register now"
+        title={t("register_now")}
         targetBlank={true}
         targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute"
       />

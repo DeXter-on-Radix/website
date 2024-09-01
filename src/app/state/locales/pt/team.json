@@ -4,5 +4,10 @@
   "we_have_a_diverse_talented": "Temos um grupo diversificado e talentoso de colaboradores de várias áreas e localizações ao redor do mundo. Qualquer pessoa pode participar. Explore nossos membros atuais ou passados e conecte-se com colaboradores para colaborar.",
   "all": "Todos",
   "activity_status": "Status da atividade",
-  "area_of_work": "Área de trabalho"
+  "area_of_work": "Área de trabalho",
+  "N_contributors_found": "<$NUMBER> contributors found",
+  "want_to_join_us": "Quer se juntar a nós?",
+  "we_are_always_looking_for": "Estamos sempre à procura de colaboradores talentosos.",
+  "register_now": "Registre-se agora",
+  "contributed_in_N_phases": "contribuiu em <$NUMBER> fases"
 }
