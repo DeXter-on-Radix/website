@@ -87,7 +87,7 @@ export interface Contributor {
   expertise: Expertise[];
   radixWallet?: string;
   // badges
-  isOG?: boolean;
+  isOG: boolean;
   isLongTerm?: boolean;
   isActive: boolean;
   phasesActive: number[];
@@ -229,20 +229,31 @@ function runContributorAnalytics(
     }
     runPhaseAnalytics(phase, contributorMap, phaseRows);
   }
-  // mark contributor Status level
-  const nLastPhases = 3; // contributing withing the last 3 phases
-  const activePhaseThreshold = lastPhase - (nLastPhases - 1); // last phase also counts
-  const votingResultRowsSubset = votingResultRows.filter(
-    (row) => row.phase >= activePhaseThreshold
-  );
-  const activeUsers = votingResultRowsSubset
-    .map((row) => row.user)
-    .filter((val, indx, self) => self.indexOf(val) === indx);
-  for (const username of activeUsers) {
-    const contributor = contributorMap.get(username);
-    if (contributor) {
-      contributor.isActive = true;
-    }
+  // mark contributors that are active
+  {
+    const nLastPhases = 3; // contributing withing the last 3 phases
+    const activePhaseThreshold = lastPhase - (nLastPhases - 1); // last phase also counts
+    const votingResultRowsSubset = votingResultRows.filter(
+      (row) => row.phase >= activePhaseThreshold
+    );
+    votingResultRowsSubset.forEach((row) => {
+      const contributor = contributorMap.get(row.user);
+      if (contributor) {
+        contributor.isActive = true;
+      }
+    });
+  }
+  // mark OG contributors
+  {
+    const votingResultRowsSubset = votingResultRows.filter(
+      (row) => row.phase <= 3
+    );
+    votingResultRowsSubset.forEach((row) => {
+      const contributor = contributorMap.get(row.user);
+      if (contributor) {
+        contributor.isOG = true;
+      }
+    });
   }
 }
 
@@ -337,6 +348,7 @@ function rowToContributor(row: string): Contributor {
     discord: discord.toLowerCase(),
     imageUrl,
     isActive: false,
+    isOG: false,
     expertise,
     radixWallet,
     phasesActive: [],
