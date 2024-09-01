@@ -155,7 +155,10 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
         {/* Contributor Details */}
         <div className="flex flex-col ml-3">
           {/* Truncate telegram name */}
-          <p className="truncate max-w-[120px] text-white text-base font-semibold">
+          <p
+            className="truncate max-w-[110px] text-white text-base font-semibold cursor-default"
+            title={contributor.name.length > 12 ? contributor.name : ""}
+          >
             {contributor.name}
           </p>
           {/* Display badges */}
@@ -184,12 +187,6 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
             socialPlatform={SocialPlatform.GITHUB}
           />
         )}
-        {contributor.discord && (
-          <SocialLink
-            username={contributor.discord}
-            socialPlatform={SocialPlatform.DISCORD}
-          />
-        )}
       </div>
     </div>
   );
@@ -198,8 +195,9 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
 enum SocialPlatform {
   "TELEGRAM" = "TELEGRAM",
   "GITHUB" = "GITHUB",
-  "DISCORD" = "DISCORD",
+  // "DISCORD" = "DISCORD",
 }
+
 function SocialLink({
   username,
   socialPlatform,
@@ -218,12 +216,12 @@ function SocialLink({
           iconHtml: <FaGithub />,
           url: `https://github.com/${username.toLowerCase()}`,
         }
-      : socialPlatform === SocialPlatform.DISCORD
-      ? {
-          iconHtml: <FaDiscord />,
-          url: `https://t.me/${username.toLowerCase()}`,
-        }
-      : {
+      : // : socialPlatform === SocialPlatform.DISCORD
+        // ? {
+        //     iconHtml: <FaDiscord />,
+        //     url: `https://t.me/${username.toLowerCase()}`,
+        //   }
+        {
           iconHtml: <></>,
           url: "",
         };
