@@ -415,7 +415,8 @@ export const selectFilteredContributors = createSelector(
       );
     }
 
-    return contributors; // Return the filtered array of contributors
+    // Show contributors with highest impact first
+    return [...contributors].sort((a, b) => b.tokensEarned - a.tokensEarned);
   }
 );
 
