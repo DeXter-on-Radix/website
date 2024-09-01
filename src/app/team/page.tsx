@@ -3,30 +3,21 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
-  showContributorTrophies,
-  showContributorTotalEarnings,
   teamSlice,
-  showActiveContributors,
   ActivityStatus,
   Expertise,
   Contributor,
   selectFilteredContributors,
-  TeamState,
 } from "state/teamSlice";
-import { store } from "state/store";
 import { fetchTeamState } from "state/teamSlice";
 import { DexterButton } from "components/DexterButton";
 import { FaTelegram, FaGithub } from "react-icons/fa";
 
 export default function Team() {
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    fetchTeamState().then((teamState) => {
-      store.dispatch(teamSlice.actions.setTeamState(teamState));
-      showContributorTotalEarnings(teamState.contributorMap);
-      showContributorTrophies(teamState.contributorMap);
-      showActiveContributors(teamState.contributorMap);
-    });
-  }, []);
+    dispatch(fetchTeamState());
+  }, [dispatch]);
 
   return (
     <div className="bg-[#141414] grow flex items-center justify-center pt-10">
@@ -194,7 +185,6 @@ function ContributorCard({ contributor }: { contributor: Contributor }) {
 enum SocialPlatform {
   "TELEGRAM" = "TELEGRAM",
   "GITHUB" = "GITHUB",
-  // "DISCORD" = "DISCORD",
 }
 
 function SocialLink({
@@ -215,12 +205,7 @@ function SocialLink({
           iconHtml: <FaGithub />,
           url: `https://github.com/${username.toLowerCase()}`,
         }
-      : // : socialPlatform === SocialPlatform.DISCORD
-        // ? {
-        //     iconHtml: <FaDiscord />,
-        //     url: `https://t.me/${username.toLowerCase()}`,
-        //   }
-        {
+      : {
           iconHtml: <></>,
           url: "",
         };

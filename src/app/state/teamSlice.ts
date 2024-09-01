@@ -1,4 +1,9 @@
-import { createSlice, createSelector, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createSelector,
+  PayloadAction,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 import { GoogleSheet } from "../utils/GoogleSheet";
 
 export interface TeamState {
@@ -6,6 +11,8 @@ export interface TeamState {
   votingResultRows: VotingResultRow[];
   activityStatusFilter?: ActivityStatus;
   expertiseFilter?: Expertise;
+  isLoading: boolean;
+  isError: boolean;
 }
 
 interface VotingResultRow {
@@ -33,6 +40,8 @@ const initialState: TeamState = {
   votingResultRows: [],
   activityStatusFilter: ActivityStatus.ACTIVE,
   expertiseFilter: undefined,
+  isLoading: false,
+  isError: false,
 };
 
 interface Allocation {
@@ -123,21 +132,29 @@ export const teamSlice = createSlice({
   },
 
   // async thunks
-  extraReducers: () => {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTeamState.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(
+        fetchTeamState.fulfilled,
+        (state, action: PayloadAction<FetchTeamStatePayload>) => {
+          // Update state with the fetched team data
+          state.isLoading = false;
+          state.contributorMap = action.payload.contributorMap;
+          state.votingResultRows = action.payload.votingResultRows;
+        }
+      )
+      .addCase(fetchTeamState.rejected, (state, action) => {
+        // Handle errors if needed
+        console.error("Failed to fetch team state:", action.error);
+        state.isLoading = false;
+        state.isError = true;
+      });
+  },
 });
-
-export async function fetchTeamState(): Promise<TeamState> {
-  const [contributorMap, votingResultRows] = await Promise.all([
-    fecthContributorMap(),
-    fetchVotingResultRows(),
-  ]);
-  // Compute contributor analytics
-  runContributorAnalytics(contributorMap, votingResultRows);
-  return {
-    contributorMap: Array.from(contributorMap.entries()),
-    votingResultRows,
-  };
-}
 
 export function showContributorTrophies(
   contributorMap: [string, Contributor][]
@@ -399,5 +416,27 @@ export const selectFilteredContributors = createSelector(
     }
 
     return contributors; // Return the filtered array of contributors
+  }
+);
+
+interface FetchTeamStatePayload {
+  contributorMap: [string, Contributor][];
+  votingResultRows: VotingResultRow[];
+}
+
+// Async thunk for fetching team state
+export const fetchTeamState = createAsyncThunk(
+  "team/fetchTeamState",
+  async (): Promise<FetchTeamStatePayload> => {
+    const [contributorMap, votingResultRows] = await Promise.all([
+      fecthContributorMap(),
+      fetchVotingResultRows(),
+    ]);
+    // Compute contributor analytics
+    runContributorAnalytics(contributorMap, votingResultRows);
+    return {
+      contributorMap: Array.from(contributorMap.entries()),
+      votingResultRows,
+    };
   }
 );
