@@ -21,7 +21,7 @@ export default function Team() {
   }, [dispatch]);
 
   return (
-    <div className="bg-[#141414] grow flex items-center justify-center pt-10">
+    <div className="bg-dexter-grey-dark grow flex items-center justify-center pt-10">
       <div className="max-w-[1200px] p-8">
         <HeaderComponent />
         <Filters />
@@ -69,7 +69,7 @@ function ActivityStatusToggle({ filter }: { filter?: ActivityStatus }) {
   const isActive = activityStatusFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-base-100 opacity-60 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100 bg-dexter-green text-black" : ""
       }`}
       onClick={() =>
@@ -89,7 +89,7 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
   const isActive = expertiseFilter === filter;
   return (
     <div
-      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-[#232629] opacity-60 rounded-badge hover:opacity-100 ${
+      className={`cursor-pointer inline-block mx-1 mt-3 px-4 py-2 bg-base-100 opacity-60 rounded-badge hover:opacity-100 ${
         isActive ? "!opacity-100 bg-dexter-green text-black" : ""
       }`}
       onClick={() => dispatch(teamSlice.actions.setExpertiseFilter(filter))}
@@ -145,7 +145,7 @@ function Contributors() {
 function ContributorCard({ contributor }: { contributor: Contributor }) {
   const t = useTranslations();
   return (
-    <div className="w-[250px] h-[120px] bg-[#232629] rounded-2xl m-2 p-4 relative">
+    <div className="w-[250px] h-[120px] bg-base-100 rounded-2xl m-2 p-4 relative">
       {contributor.isActive && (
         <div className="absolute right-0 bg-dexter-green rounded-tl-full rounded-bl-full">
           <p className="text-black text-xs font-medium text-right py-1 ml-3 mr-2">
@@ -247,7 +247,7 @@ function SocialLink({
 
 function Badge({ text }: { text: string }) {
   const color =
-    text === "OG" ? "bg-[#00ca92] text-black font-bold" : "bg-[#191B1D]";
+    text === "OG" ? "bg-[#00ca92] text-black font-bold" : "bg-base-200";
   return (
     <div className={`${color} rounded-full px-3 py-1 text-xs mr-1`}>{text}</div>
   );
