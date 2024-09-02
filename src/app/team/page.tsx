@@ -50,7 +50,7 @@ function Filters() {
       <ActivityStatusToggle filter={ActivityStatus.ACTIVE} />
       <ActivityStatusToggle filter={ActivityStatus.PAST} />
       <ActivityStatusToggle filter={undefined} />
-      <p className="!mt-4">{t("area_of_work")}</p>
+      <p className="!mt-8">{t("area_of_work")}</p>
       <ExpertiseToggle filter={undefined} />
       <ExpertiseToggle filter={Expertise.ADMIN} />
       <ExpertiseToggle filter={Expertise.DEV} />
