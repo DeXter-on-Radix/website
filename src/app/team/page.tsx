@@ -101,11 +101,11 @@ function ExpertiseToggle({ filter }: { filter?: Expertise }) {
 
 function Contributors() {
   const t = useTranslations();
-  const { teamSlice } = useAppSelector((state) => state);
-  const contributors = selectFilteredContributors(teamSlice);
+  const { isLoading } = useAppSelector((state) => state.teamSlice);
+  const contributors = useAppSelector(selectFilteredContributors);
   return (
     <div className="my-10">
-      {teamSlice.isLoading ? (
+      {isLoading ? (
         <>
           <div className="flex justify-center">
             <SkeletonRectangle width="w-40" height="h-6" />

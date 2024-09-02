@@ -5,6 +5,7 @@ import {
   createAsyncThunk,
 } from "@reduxjs/toolkit";
 import { GoogleSheet } from "../utils/GoogleSheet";
+import { RootState } from "./store";
 
 export interface TeamState {
   contributorMap: [string, Contributor][];
@@ -386,9 +387,9 @@ function rowToVotingResultRow(row: string): VotingResultRow {
 }
 
 export const selectFilteredContributors = createSelector(
-  (state: TeamState) => state.contributorMap, // Get the contributor map from the state
-  (state: TeamState) => state.activityStatusFilter, // Get the activity status filter from the state
-  (state: TeamState) => state.expertiseFilter, // Get the expertise filter from the state
+  (state: RootState) => state.teamSlice.contributorMap, // Get the contributor map from the state
+  (state: RootState) => state.teamSlice.activityStatusFilter, // Get the activity status filter from the state
+  (state: RootState) => state.teamSlice.expertiseFilter, // Get the expertise filter from the state
   (
     contributorMap: [string, Contributor][],
     activityStatusFilter: ActivityStatus | undefined,
