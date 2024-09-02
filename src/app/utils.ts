@@ -541,45 +541,61 @@ export function getLocalStoragePaginationValue(id?: string) {
   return undefined;
 }
 
-export const searchPairs = (query: string, pairsList: any): any => {
+// TODO: Update input and return types to `PairInfo[]`. Currently using `any` // due to unresolved issues. Investigate the cause of the problem.
+export function searchPairs(query: string, pairsList: any): any {
   const searchQuery = query.trim().toLowerCase().replace(/\s+/g, " ");
 
-  const hasTypoTolerance = (source: string, target: string): boolean => {
-    const maxTyposAllowed = Math.floor(source.length / 4);
+  function levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = Array.from({ length: a.length + 1 }, () => []);
 
-    if (source.length > target.length + maxTyposAllowed) {
-      return false;
+    for (let i = 0; i <= a.length; i++) {
+      matrix[i][0] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+      matrix[0][j] = j;
     }
 
-    if (target.includes(source)) {
-      return true;
-    }
-
-    for (let i = 0; i <= target.length - source.length; i++) {
-      const substring = target.substring(i, i + source.length);
-      let mismatchCount = 0;
-      for (let j = 0; j < source.length; j++) {
-        if (source[j] !== substring[j]) {
-          mismatchCount++;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        if (a[i - 1] === b[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1, // deletion
+            matrix[i][j - 1] + 1, // insertion
+            matrix[i - 1][j - 1] + 1 // substitution
+          );
         }
       }
-      if (mismatchCount <= maxTyposAllowed) {
-        return true;
-      }
     }
 
-    return false;
+    return matrix[a.length][b.length];
+  }
+
+  const hasTypoTolerance = (source: string, target: string): boolean => {
+    const maxTyposAllowed = Math.floor(source.length / 5);
+    const distance = levenshteinDistance(source, target);
+    return distance <= maxTyposAllowed;
   };
 
   const preprocessPairName = (name: string): string =>
     name.toLowerCase().replace(/\//g, " ");
-  const preprocessToken = (token: {
-    symbol: string;
-    name: string;
-  }): { symbol: string; name: string } => ({
+
+  const preprocessToken = (token: { symbol: string; name: string }) => ({
     symbol: token.symbol.toLowerCase(),
     name: token.name.toLowerCase(),
   });
+
+  const generateCombinations = (items: string[]): string[] => {
+    const combinations: string[] = [];
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        combinations.push(`${items[i]} ${items[j]}`);
+        combinations.push(`${items[j]} ${items[i]}`);
+      }
+    }
+    return combinations;
+  };
 
   return pairsList.filter((pair: any) => {
     const pairName = preprocessPairName(pair.name);
@@ -587,7 +603,7 @@ export const searchPairs = (query: string, pairsList: any): any => {
     const token1 = preprocessToken(pair.token1);
     const token2 = preprocessToken(pair.token2);
 
-    const nameMatches = [
+    const baseMatches = [
       pairName,
       pairNameReversed,
       token1.symbol,
@@ -596,10 +612,14 @@ export const searchPairs = (query: string, pairsList: any): any => {
       token2.name,
     ];
 
+    const dynamicMatches = generateCombinations(baseMatches);
+
+    const nameMatches = [...baseMatches, ...dynamicMatches];
+
     return nameMatches.some(
       (nameMatch) =>
         nameMatch.includes(searchQuery) ||
         hasTypoTolerance(searchQuery, nameMatch)
     );
   });
-};
+}

@@ -385,13 +385,35 @@ describe("searchPairs", () => {
   ];
 
   test("should find pairs by full name", () => {
-    const result = searchPairs("DEXTR/XRD", pairsList);
+    const result = searchPairs("Radix", pairsList);
     expect(result).toEqual([
       {
         name: "DEXTR/XRD",
         token1: {
           name: "Dexter",
           symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+      {
+        name: "ADEX/XRD",
+        token1: {
+          name: "Adex",
+          symbol: "ADEX",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+      {
+        name: "CUPPA/XRD",
+        token1: {
+          name: "Cuppa",
+          symbol: "CUPPA",
         },
         token2: {
           name: "Radix",
@@ -489,5 +511,61 @@ describe("searchPairs", () => {
   test("should return an empty array if no matches are found", () => {
     const result = searchPairs("XYZ", pairsList);
     expect(result).toEqual([]);
+  });
+
+  test("name with different case", () => {
+    const result = searchPairs("RaDIx", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+      {
+        name: "ADEX/XRD",
+        token1: {
+          name: "Adex",
+          symbol: "ADEX",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+      {
+        name: "CUPPA/XRD",
+        token1: {
+          name: "Cuppa",
+          symbol: "CUPPA",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
+  });
+
+  test("should find pairs by full name and lowercased", () => {
+    const result = searchPairs("Radix dexter", pairsList);
+    expect(result).toEqual([
+      {
+        name: "DEXTR/XRD",
+        token1: {
+          name: "Dexter",
+          symbol: "DEXTR",
+        },
+        token2: {
+          name: "Radix",
+          symbol: "XRD",
+        },
+      },
+    ]);
   });
 });
