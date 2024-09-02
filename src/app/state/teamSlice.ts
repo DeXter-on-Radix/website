@@ -353,14 +353,21 @@ async function fetchVotingResultRows(): Promise<VotingResultRow[]> {
 }
 
 function rowToContributor(row: string): Contributor {
-  const [telegram, github, discord, imageUrl, expertiseStr, radixWallet] =
-    row.split(",");
+  const [
+    telegram,
+    displayName,
+    github,
+    discord,
+    imageUrl,
+    expertiseStr,
+    radixWallet,
+  ] = row.split(",");
   const expertise: Expertise[] = expertiseStr
     .split(";")
     .filter((str) => Object.values(Expertise).includes(str as Expertise))
     .map((str) => str.toUpperCase() as Expertise);
   return {
-    name: telegram,
+    name: displayName || telegram,
     telegram: telegram.toLowerCase(),
     github: github.toLowerCase(),
     discord: discord.toLowerCase(),
