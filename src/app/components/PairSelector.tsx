@@ -4,6 +4,7 @@ import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import React from "react";
+import { searchPairs } from "utils";
 
 import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
 
@@ -163,13 +164,9 @@ export function PairSelector() {
   }, [handleKeyDown]);
 
   const onQueryChange = (userInputQuery: string) => {
-    const sortedOptions = sortOptions(
-      options.filter(
-        (option) =>
-          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
-          -1
-      )
-    );
+    const filteredPairs = searchPairs(userInputQuery, options);
+    const sortedOptions = sortOptions(filteredPairs);
+
     setFilteredOptions(sortedOptions);
     setQuery(userInputQuery);
     // Reset the current selected option to the first one that is available
