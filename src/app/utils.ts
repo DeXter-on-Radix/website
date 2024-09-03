@@ -541,7 +541,8 @@ export function getLocalStoragePaginationValue(id?: string) {
   return undefined;
 }
 
-// TODO: Update input and return types to `PairInfo[]`. Currently using `any` // due to unresolved issues. Investigate the cause of the problem.
+// TODO: Update input and return types to `PairInfo[]`. Currently using `any`
+// due to unresolved issues. Investigate the cause of the problem.
 export function searchPairs(query: string, pairsList: any): any {
   const searchQuery = query.trim().toLowerCase().replace(/\s+/g, " ");
 
