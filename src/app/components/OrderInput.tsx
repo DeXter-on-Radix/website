@@ -466,18 +466,25 @@ function UserInputContainer() {
     0;
   const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
   const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
-  // const token2InputValue = useAppSelector((state) => state.orderInput.token2);
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
+  useEffect(() => {
+    // Reset the slider when switching between buy/sell or market/limit orders
+    if (isMarketOrder) {
+      sliderCallbackMarketOrder(0); // Reset to 0% for market orders
+    } else if (isLimitOrder) {
+      sliderCallbackLimitOrder(0); // Reset to 0% for limit orders
+    }
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]); // Runs when any of these states change
+
   const sliderCallbackMarketOrder = (newPercentage: number) => {
     let amount;
     if (isBuyOrder) {
       amount = (balanceToken2 * newPercentage) / 100;
-      // Update Total field for Buy orders
       dispatch(
         orderInputSlice.actions.setTokenAmount({
           amount: amount,
@@ -490,7 +497,6 @@ function UserInputContainer() {
       );
     } else if (isSellOrder) {
       amount = (balanceToken1 * newPercentage) / 100;
-      // Update Quantity field for Sell orders
       dispatch(
         orderInputSlice.actions.setTokenAmount({
           amount: amount,
@@ -502,7 +508,6 @@ function UserInputContainer() {
         })
       );
     }
-    // console.log(amount);
   };
 
   const sliderCallbackLimitOrder = (newPercentage: number) => {
@@ -601,8 +606,6 @@ function CurrencyInputGroupSettings(
     0;
   const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
   const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
-
-  const sliderRef = useRef<HTMLInputElement>(null);
 
   const updateToken1 = (value: number) => {
     dispatch(
@@ -943,6 +946,11 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     if (!sliderRef.current) {
       return;
     }
+    if (sliderRef.current) {
+      sliderRef.current.value = "0";
+      sliderRef.current.style.backgroundSize = `0% 100%`;
+      setPercentage(0);
+    }
     if (balanceToken2 && inputToken2 > 0) {
       const newPercentage =
         inputToken2 > 0 ? (inputToken2 / balanceToken2) * 100 : 0;
@@ -956,7 +964,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     } else {
       sliderRef.current.style.backgroundSize = `0% 100%`;
     }
-  }, [inputToken2, balanceToken2, inputToken1, balanceToken1]);
+  }, [inputToken1, balanceToken1, inputToken2, balanceToken2]);
 
   return (
     <>
