@@ -946,23 +946,19 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     if (!sliderRef.current) {
       return;
     }
-    if (sliderRef.current) {
-      sliderRef.current.value = "0";
-      sliderRef.current.style.backgroundSize = `0% 100%`;
-      setPercentage(0);
-    }
+
+    sliderRef.current.value = "0";
+    sliderRef.current.style.backgroundSize = `0% 100%`;
+    setPercentage(0);
+
     if (balanceToken2 && inputToken2 > 0) {
-      const newPercentage =
-        inputToken2 > 0 ? (inputToken2 / balanceToken2) * 100 : 0;
+      const newPercentage = (inputToken2 / balanceToken2) * 100;
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
     } else if (balanceToken1 && inputToken1 > 0) {
-      const newPercentage =
-        inputToken1 > 0 ? (inputToken1 / balanceToken1) * 100 : 0;
+      const newPercentage = (inputToken1 / balanceToken1) * 100;
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
-    } else {
-      sliderRef.current.style.backgroundSize = `0% 100%`;
     }
   }, [inputToken1, balanceToken1, inputToken2, balanceToken2]);
 
