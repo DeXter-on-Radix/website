@@ -454,7 +454,19 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const { side, type } = useAppSelector((state) => state.orderInput);
+  const dispatch = useAppDispatch();
+  const { side, type, token1, token2 } = useAppSelector(
+    (state) => state.orderInput
+  );
+  const balanceToken1 =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+  const balanceToken2 =
+    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+    0;
+  const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
+  const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
+  // const token2InputValue = useAppSelector((state) => state.orderInput.token2);
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
@@ -462,14 +474,67 @@ function UserInputContainer() {
   const isSellOrder = side === "SELL";
 
   const sliderCallbackMarketOrder = (newPercentage: number) => {
-    console.error(
-      `Calling sliderCallback for MARKET order with newPercentage value of ${newPercentage}`
-    );
+    let amount;
+    if (isBuyOrder) {
+      amount = (balanceToken2 * newPercentage) / 100;
+      // Update Total field for Buy orders
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: amount,
+          bestBuy,
+          bestSell,
+          balanceToken1: balanceToken1,
+          balanceToken2: balanceToken2,
+          specifiedToken: SpecifiedToken.TOKEN_2,
+        })
+      );
+    } else if (isSellOrder) {
+      amount = (balanceToken1 * newPercentage) / 100;
+      // Update Quantity field for Sell orders
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: amount,
+          bestBuy,
+          bestSell,
+          balanceToken1: balanceToken1,
+          balanceToken2: balanceToken2,
+          specifiedToken: SpecifiedToken.TOKEN_1,
+        })
+      );
+    }
+    // console.log(amount);
   };
+
   const sliderCallbackLimitOrder = (newPercentage: number) => {
-    console.error(
-      `Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`
-    );
+    let amount;
+    if (isBuyOrder) {
+      amount = (balanceToken2 * newPercentage) / 100;
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: amount,
+          bestBuy,
+          bestSell,
+          balanceToken1: balanceToken1,
+          balanceToken2: balanceToken2,
+          specifiedToken: SpecifiedToken.TOKEN_2,
+        })
+      );
+    } else if (isSellOrder) {
+      amount = (balanceToken1 * newPercentage) / 100;
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount: amount,
+          bestBuy,
+          bestSell,
+          balanceToken1: balanceToken1,
+          balanceToken2: balanceToken2,
+          specifiedToken: SpecifiedToken.TOKEN_1,
+        })
+      );
+    }
+    // console.error(
+    //   `Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`
+    // );
   };
 
   return (
@@ -516,6 +581,7 @@ function CurrencyInputGroupSettings(
 ): CurrencyInputGroupConfig {
   const t = useTranslations();
   const dispatch = useAppDispatch();
+
   const {
     side,
     type,
@@ -535,6 +601,8 @@ function CurrencyInputGroupSettings(
     0;
   const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
   const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
+
+  const sliderRef = useRef<HTMLInputElement>(null);
 
   const updateToken1 = (value: number) => {
     dispatch(
@@ -837,6 +905,17 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
   const [percentage, setPercentage] = useState(initialPercentage);
   const [toolTipVisible, setToolTipVisible] = useState(false);
   const sliderRef = useRef<HTMLInputElement>(null);
+  const { token1, token2 } = useAppSelector((state) => state.orderInput);
+
+  const inputToken1 = useAppSelector((state) => state.orderInput.token1.amount);
+  const inputToken2 = useAppSelector((state) => state.orderInput.token2.amount);
+
+  const balanceToken1 =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+  const balanceToken2 =
+    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+    0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPercentage = parseInt(e.target.value, 10);
@@ -844,13 +923,40 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     callbackOnPercentageUpdate(newPercentage);
   };
 
+  // useEffect(() => {
+  //   if (!sliderRef.current) {
+  //     return;
+  //   }
+
+  //   const target = sliderRef.current;
+
+  //   if (!inputToken2 || inputToken2 === 0) {
+  //     setPercentage(0);
+  //     target.value = "0";
+  //     target.style.backgroundSize = "0% 100%";
+  //   } else {
+  //     target.style.backgroundSize = `${percentage}% 100%`;
+  //   }
+  // }, [percentage, inputToken2]);
+
   useEffect(() => {
     if (!sliderRef.current) {
       return;
     }
-    const target = sliderRef.current;
-    target.style.backgroundSize = `${percentage}% 100%`;
-  }, [percentage]);
+    if (balanceToken2 && inputToken2 > 0) {
+      const newPercentage =
+        inputToken2 > 0 ? (inputToken2 / balanceToken2) * 100 : 0;
+      setPercentage(newPercentage);
+      sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
+    } else if (balanceToken1 && inputToken1 > 0) {
+      const newPercentage =
+        inputToken1 > 0 ? (inputToken1 / balanceToken1) * 100 : 0;
+      setPercentage(newPercentage);
+      sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
+    } else {
+      sliderRef.current.style.backgroundSize = `0% 100%`;
+    }
+  }, [inputToken2, balanceToken2, inputToken1, balanceToken1]);
 
   return (
     <>
