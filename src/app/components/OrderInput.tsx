@@ -473,13 +473,12 @@ function UserInputContainer() {
   const isSellOrder = side === "SELL";
 
   useEffect(() => {
-    // Reset the slider when switching between buy/sell or market/limit orders
     if (isMarketOrder) {
-      sliderCallbackMarketOrder(0); // Reset to 0% for market orders
+      sliderCallbackMarketOrder(0);
     } else if (isLimitOrder) {
-      sliderCallbackLimitOrder(0); // Reset to 0% for limit orders
+      sliderCallbackLimitOrder(0);
     }
-  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]); // Runs when any of these states change
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
 
   const sliderCallbackMarketOrder = (newPercentage: number) => {
     let amount;
@@ -537,9 +536,6 @@ function UserInputContainer() {
         })
       );
     }
-    // console.error(
-    //   `Calling sliderCallback for LIMIT order with newPercentage value of ${newPercentage}`
-    // );
   };
 
   return (
@@ -925,22 +921,6 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     setPercentage(newPercentage);
     callbackOnPercentageUpdate(newPercentage);
   };
-
-  // useEffect(() => {
-  //   if (!sliderRef.current) {
-  //     return;
-  //   }
-
-  //   const target = sliderRef.current;
-
-  //   if (!inputToken2 || inputToken2 === 0) {
-  //     setPercentage(0);
-  //     target.value = "0";
-  //     target.style.backgroundSize = "0% 100%";
-  //   } else {
-  //     target.style.backgroundSize = `${percentage}% 100%`;
-  //   }
-  // }, [percentage, inputToken2]);
 
   useEffect(() => {
     if (!sliderRef.current) {
