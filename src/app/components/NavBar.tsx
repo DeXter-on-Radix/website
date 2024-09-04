@@ -43,6 +43,10 @@ const NavItems: { path: string; title: string }[] = [
     path: "/rewards",
     title: "rewards",
   },
+  {
+    path: "/roadmap",
+    title: "roadmap",
+  },
 ];
 
 export function Navbar() {
