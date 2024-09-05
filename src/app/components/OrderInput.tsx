@@ -474,68 +474,29 @@ function UserInputContainer() {
 
   useEffect(() => {
     if (isMarketOrder) {
-      sliderCallbackMarketOrder(0);
+      sliderCallback(0, "MARKET");
     } else if (isLimitOrder) {
-      sliderCallbackLimitOrder(0);
+      sliderCallback(0, "LIMIT");
     }
   }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
 
-  const sliderCallbackMarketOrder = (newPercentage: number) => {
-    let amount;
-    if (isBuyOrder) {
-      amount = (balanceToken2 * newPercentage) / 100;
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount: amount,
-          bestBuy,
-          bestSell,
-          balanceToken1: balanceToken1,
-          balanceToken2: balanceToken2,
-          specifiedToken: SpecifiedToken.TOKEN_2,
-        })
-      );
-    } else if (isSellOrder) {
-      amount = (balanceToken1 * newPercentage) / 100;
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount: amount,
-          bestBuy,
-          bestSell,
-          balanceToken1: balanceToken1,
-          balanceToken2: balanceToken2,
-          specifiedToken: SpecifiedToken.TOKEN_1,
-        })
-      );
-    }
-  };
+  const sliderCallback = (newPercentage: number, type: string) => {
+    const balance = isBuyOrder ? balanceToken2 : balanceToken1;
+    const amount = (balance * newPercentage) / 100;
+    const specifiedToken = isBuyOrder
+      ? SpecifiedToken.TOKEN_2
+      : SpecifiedToken.TOKEN_1;
 
-  const sliderCallbackLimitOrder = (newPercentage: number) => {
-    let amount;
-    if (isBuyOrder) {
-      amount = (balanceToken2 * newPercentage) / 100;
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount: amount,
-          bestBuy,
-          bestSell,
-          balanceToken1: balanceToken1,
-          balanceToken2: balanceToken2,
-          specifiedToken: SpecifiedToken.TOKEN_2,
-        })
-      );
-    } else if (isSellOrder) {
-      amount = (balanceToken1 * newPercentage) / 100;
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount: amount,
-          bestBuy,
-          bestSell,
-          balanceToken1: balanceToken1,
-          balanceToken2: balanceToken2,
-          specifiedToken: SpecifiedToken.TOKEN_1,
-        })
-      );
-    }
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount,
+        bestBuy,
+        bestSell,
+        balanceToken1,
+        balanceToken2,
+        specifiedToken,
+      })
+    );
   };
 
   return (
@@ -548,7 +509,9 @@ function UserInputContainer() {
           />
           <PercentageSlider
             initialPercentage={0}
-            callbackOnPercentageUpdate={sliderCallbackMarketOrder}
+            callbackOnPercentageUpdate={(newPercentage) =>
+              sliderCallback(newPercentage, type)
+            }
             isLimitOrder={isLimitOrder}
             isBuyOrder={isBuyOrder}
             isSellOrder={isSellOrder}
@@ -567,7 +530,9 @@ function UserInputContainer() {
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           <PercentageSlider
             initialPercentage={0}
-            callbackOnPercentageUpdate={sliderCallbackLimitOrder}
+            callbackOnPercentageUpdate={(newPercentage) =>
+              sliderCallback(newPercentage, type)
+            }
             isLimitOrder={isLimitOrder}
             isBuyOrder={isBuyOrder}
             isSellOrder={isSellOrder}
