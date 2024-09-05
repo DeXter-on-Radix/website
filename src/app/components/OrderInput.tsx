@@ -472,46 +472,34 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
-  const sliderCallback = useCallback(
-    (newPercentage: number, type: string) => {
-      console.log(`Type is: ${type}`);
+  const sliderCallback = useCallback((newPercentage: number, type: string) => {
+    console.log(`Type is: ${type}`);
 
-      const isXRDToken = isBuyOrder
-        ? token2.symbol === "XRD"
-        : token1.symbol === "XRD";
-      let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+    const isXRDToken = isBuyOrder
+      ? token2.symbol === "XRD"
+      : token1.symbol === "XRD";
+    let balance = isBuyOrder ? balanceToken2 : balanceToken1;
 
-      if (newPercentage === 100 && isXRDToken) {
-        balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
-      }
+    if (newPercentage === 100 && isXRDToken) {
+      balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+    }
 
-      const amount = (balance * newPercentage) / 100;
-      const specifiedToken = isBuyOrder
-        ? SpecifiedToken.TOKEN_2
-        : SpecifiedToken.TOKEN_1;
+    const amount = (balance * newPercentage) / 100;
+    const specifiedToken = isBuyOrder
+      ? SpecifiedToken.TOKEN_2
+      : SpecifiedToken.TOKEN_1;
 
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount,
-          bestBuy,
-          bestSell,
-          balanceToken1,
-          balanceToken2,
-          specifiedToken,
-        })
-      );
-    },
-    [
-      balanceToken1,
-      balanceToken2,
-      bestBuy,
-      bestSell,
-      dispatch,
-      isBuyOrder,
-      token1.symbol,
-      token2.symbol,
-    ]
-  );
+    dispatch(
+      orderInputSlice.actions.setTokenAmount({
+        amount,
+        bestBuy,
+        bestSell,
+        balanceToken1,
+        balanceToken2,
+        specifiedToken,
+      })
+    );
+  }, []);
 
   useEffect(() => {
     if (isMarketOrder) {
