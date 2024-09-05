@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import { useEffect, useState, useRef, ChangeEvent, useCallback } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -472,40 +472,52 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
+  const sliderCallback = useCallback(
+    (newPercentage: number, type: string) => {
+      const isXRDToken = isBuyOrder
+        ? token2.symbol === "XRD"
+        : token1.symbol === "XRD";
+      let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+
+      if (newPercentage === 100 && isXRDToken) {
+        balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+      }
+
+      const amount = (balance * newPercentage) / 100;
+      const specifiedToken = isBuyOrder
+        ? SpecifiedToken.TOKEN_2
+        : SpecifiedToken.TOKEN_1;
+
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount,
+          bestBuy,
+          bestSell,
+          balanceToken1,
+          balanceToken2,
+          specifiedToken,
+        })
+      );
+    },
+    [
+      balanceToken1,
+      balanceToken2,
+      bestBuy,
+      bestSell,
+      dispatch,
+      isBuyOrder,
+      token1.symbol,
+      token2.symbol,
+    ]
+  );
+
   useEffect(() => {
     if (isMarketOrder) {
       sliderCallback(0, "MARKET");
     } else if (isLimitOrder) {
       sliderCallback(0, "LIMIT");
     }
-  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
-
-  const sliderCallback = (newPercentage: number, type: string) => {
-    const isXRDToken = isBuyOrder
-      ? token2.symbol === "XRD"
-      : token1.symbol === "XRD";
-    let balance = isBuyOrder ? balanceToken2 : balanceToken1;
-
-    if (newPercentage === 100 && isXRDToken) {
-      balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
-    }
-
-    const amount = (balance * newPercentage) / 100;
-    const specifiedToken = isBuyOrder
-      ? SpecifiedToken.TOKEN_2
-      : SpecifiedToken.TOKEN_1;
-
-    dispatch(
-      orderInputSlice.actions.setTokenAmount({
-        amount,
-        bestBuy,
-        bestSell,
-        balanceToken1,
-        balanceToken2,
-        specifiedToken,
-      })
-    );
-  };
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder, sliderCallback]);
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
