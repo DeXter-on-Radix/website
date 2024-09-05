@@ -549,6 +549,9 @@ function UserInputContainer() {
           <PercentageSlider
             initialPercentage={0}
             callbackOnPercentageUpdate={sliderCallbackMarketOrder}
+            isLimitOrder={isLimitOrder}
+            isBuyOrder={isBuyOrder}
+            isSellOrder={isSellOrder}
           />
           {isSellOrder && ( // specify "Quantity"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
@@ -565,6 +568,9 @@ function UserInputContainer() {
           <PercentageSlider
             initialPercentage={0}
             callbackOnPercentageUpdate={sliderCallbackLimitOrder}
+            isLimitOrder={isLimitOrder}
+            isBuyOrder={isBuyOrder}
+            isSellOrder={isSellOrder}
           />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           {isLimitOrder && <PostOnlyCheckbox />}
@@ -895,11 +901,17 @@ function InputTooltip({ message }: { message: string }) {
 interface PercentageSliderProps {
   initialPercentage: number;
   callbackOnPercentageUpdate: (newPercentage: number) => void;
+  isLimitOrder: boolean;
+  isBuyOrder: boolean;
+  isSellOrder: boolean;
 }
 
 const PercentageSlider: React.FC<PercentageSliderProps> = ({
   initialPercentage,
   callbackOnPercentageUpdate,
+  isLimitOrder,
+  isBuyOrder,
+  isSellOrder,
 }) => {
   const [percentage, setPercentage] = useState(initialPercentage);
   const [toolTipVisible, setToolTipVisible] = useState(false);
@@ -931,7 +943,11 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     sliderRef.current.style.backgroundSize = `0% 100%`;
     setPercentage(0);
 
-    if (balanceToken2 && inputToken2 > 0) {
+    if (inputToken1 > 0 && isLimitOrder && isBuyOrder) {
+      return;
+    } else if (inputToken2 > 0 && isLimitOrder && isSellOrder) {
+      return;
+    } else if (balanceToken2 && inputToken2 > 0) {
       const newPercentage = (inputToken2 / balanceToken2) * 100;
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
@@ -940,7 +956,15 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
     }
-  }, [inputToken1, balanceToken1, inputToken2, balanceToken2]);
+  }, [
+    inputToken1,
+    balanceToken1,
+    inputToken2,
+    balanceToken2,
+    isLimitOrder,
+    isBuyOrder,
+    isSellOrder,
+  ]);
 
   return (
     <>
