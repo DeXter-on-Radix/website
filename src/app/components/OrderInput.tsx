@@ -481,7 +481,15 @@ function UserInputContainer() {
   }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
 
   const sliderCallback = (newPercentage: number, type: string) => {
-    const balance = isBuyOrder ? balanceToken2 : balanceToken1;
+    const isXRDToken = isBuyOrder
+      ? token2.symbol === "XRD"
+      : token1.symbol === "XRD";
+    let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+
+    if (newPercentage === 100 && isXRDToken) {
+      balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+    }
+
     const amount = (balance * newPercentage) / 100;
     const specifiedToken = isBuyOrder
       ? SpecifiedToken.TOKEN_2
