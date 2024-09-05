@@ -474,6 +474,8 @@ function UserInputContainer() {
 
   const sliderCallback = useCallback(
     (newPercentage: number, type: string) => {
+      console.log(`Type is: ${type}`);
+
       const isXRDToken = isBuyOrder
         ? token2.symbol === "XRD"
         : token1.symbol === "XRD";
