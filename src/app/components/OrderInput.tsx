@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, ChangeEvent, useCallback } from "react";
+import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -472,9 +472,16 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
-  const sliderCallback = useCallback((newPercentage: number, type: string) => {
-    console.log(`Type is: ${type}`);
+  useEffect(() => {
+    if (isMarketOrder) {
+      sliderCallback(0, "MARKET");
+    } else if (isLimitOrder) {
+      sliderCallback(0, "LIMIT");
+    }
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
 
+  const sliderCallback = (newPercentage: number, type: string) => {
+    console.log(`Type is: ${type}`);
     const isXRDToken = isBuyOrder
       ? token2.symbol === "XRD"
       : token1.symbol === "XRD";
@@ -499,15 +506,7 @@ function UserInputContainer() {
         specifiedToken,
       })
     );
-  }, []);
-
-  useEffect(() => {
-    if (isMarketOrder) {
-      sliderCallback(0, "MARKET");
-    } else if (isLimitOrder) {
-      sliderCallback(0, "LIMIT");
-    }
-  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder, sliderCallback]);
+  };
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
