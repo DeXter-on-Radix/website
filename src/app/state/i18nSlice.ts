@@ -21,6 +21,7 @@ import enFooter from "./locales/en/footer.json";
 import enLanding from "./locales/en/landing.json";
 import enRewards from "./locales/en/rewards.json";
 import enTrade from "./locales/en/trade.json";
+import enTeam from "./locales/en/team.json";
 
 import ptEnums from "./locales/pt/enums.json";
 import ptErrors from "./locales/pt/errors.json";
@@ -28,6 +29,7 @@ import ptFooter from "./locales/pt/footer.json";
 import ptLanding from "./locales/pt/landing.json";
 import ptRewards from "./locales/pt/rewards.json";
 import ptTrade from "./locales/pt/trade.json";
+import ptTeam from "./locales/pt/team.json";
 import { RootState } from "./store";
 
 interface TextContent {
@@ -59,6 +61,7 @@ const initialState: I18nState = {
       ...enLanding,
       ...enRewards,
       ...enTrade,
+      ...enTeam,
     },
     pt: {
       ...ptEnums,
@@ -67,6 +70,7 @@ const initialState: I18nState = {
       ...ptLanding,
       ...ptRewards,
       ...ptTrade,
+      ...ptTeam,
     },
   },
 };
