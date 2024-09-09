@@ -240,31 +240,8 @@ input[type="number"]::-ms-clear {
   padding-right: 16px;
 }
 
-/* percentage slider */
-
-.slider-container {
-  position: relative;
-}
-input[type="range"] {
-  appearance: none;
-  height: 7px;
-  background: transparent;
-  border-radius: 5px;
-  background-image: linear-gradient(#474d52, #474d52);
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-
-[dir="rtl"] input[type="range"] {
-  background: #474d52;
-  background-image: linear-gradient(#fff, #fff);
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-
-input[type="range"]::-webkit-slider-thumb {
+/* pseudo-classes for the percentage slider */
+input[type="range"]::-webit-slider-thumb {
   appearance: none;
   height: 14px;
   width: 14px;
@@ -315,14 +292,5 @@ input[type="range"]::-ms-track {
   appearance: none;
   box-shadow: none;
   border: none;
-  cursor: pointer;
-}
-
-.dot {
-  height: 7px;
-  width: 7px;
-  background-color: #ffffff;
-  border-radius: 50%;
-  z-index: 1;
   cursor: pointer;
 }

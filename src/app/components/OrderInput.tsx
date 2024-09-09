@@ -953,7 +953,19 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             step="1"
             ref={sliderRef}
             id="range"
-            className="w-full absolute cursor-pointer text-base"
+            className="w-full absolute cursor-pointer text-base appearance-none h-[7px] rounded-md"
+            style={{
+              background:
+                typeof document !== "undefined" && document.dir === "rtl"
+                  ? "#474d52"
+                  : "transparent",
+              backgroundImage:
+                typeof document !== "undefined" && document.dir === "rtl"
+                  ? "linear-gradient(#fff, #fff)"
+                  : "linear-gradient(#474d52, #474d52)",
+              backgroundSize: `${percentage}% 100%`,
+              backgroundRepeat: "no-repeat",
+            }}
             onMouseDown={() => setToolTipVisible(true)}
             onMouseUp={() => setToolTipVisible(false)}
             onMouseEnter={() => setToolTipVisible(true)}
@@ -984,7 +996,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
               .map((_, index) => (
                 <span
                   key={index}
-                  className="dot"
+                  className="dot h-[7px] w-[7px] bg-white rounded-full z-[1] cursor-pointer"
                   style={
                     {
                       left: `${(index * 100) / 5}%`,
