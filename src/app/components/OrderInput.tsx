@@ -491,7 +491,12 @@ function UserInputContainer() {
       balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
     }
 
-    const amount = (balance * newPercentage) / 100;
+    // const amount = (balance * newPercentage) / 100;
+    const amount = Calculator.divide(
+      Calculator.multiply(balance, newPercentage),
+      100
+    );
+
     const specifiedToken = isBuyOrder
       ? SpecifiedToken.TOKEN_2
       : SpecifiedToken.TOKEN_1;
@@ -922,11 +927,19 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     } else if (inputToken2 > 0 && isLimitOrder && isSellOrder) {
       return;
     } else if (balanceToken2 && inputToken2 > 0) {
-      const newPercentage = (inputToken2 / balanceToken2) * 100;
+      // const newPercentage = (inputToken2 / balanceToken2) * 100;
+      const newPercentage = Calculator.multiply(
+        Calculator.divide(inputToken2, balanceToken2),
+        100
+      );
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
     } else if (balanceToken1 && inputToken1 > 0) {
-      const newPercentage = (inputToken1 / balanceToken1) * 100;
+      // const newPercentage = (inputToken1 / balanceToken1) * 100;
+      const newPercentage = Calculator.multiply(
+        Calculator.divide(inputToken1, balanceToken1),
+        100
+      );
       setPercentage(newPercentage);
       sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
     }
@@ -972,7 +985,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
             onMouseLeave={() => setToolTipVisible(false)}
           />
           <Tippy
-            content={<span>{percentage}%</span>}
+            content={<span>{Math.round(percentage)}%</span>}
             visible={toolTipVisible}
             onClickOutside={() => setToolTipVisible(false)}
             arrow={false}
@@ -999,7 +1012,8 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
                   className="dot h-[7px] w-[7px] bg-white rounded-full z-[1] cursor-pointer"
                   style={
                     {
-                      left: `${(index * 100) / 5}%`,
+                      // left: `${(index * 100) / 5}%`,
+                      left: `Calculator.divide((Calculator.multiply(index, 100)), 5)}%`,
                     } as React.CSSProperties
                   }
                 ></span>
@@ -1012,7 +1026,10 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
               <span className="absolute" style={{ left: "0%" }}>
                 0%
               </span>
-              <span className="absolute" style={{ left: "22%" }}>
+              <span
+                className="absolute"
+                style={{ left: "25%", transform: "translateX(-50%)" }}
+              >
                 25%
               </span>
               <span
@@ -1023,7 +1040,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
               </span>
               <span
                 className="absolute"
-                style={{ left: "74%", transform: "translateX(-50%)" }}
+                style={{ left: "75%", transform: "translateX(-50%)" }}
               >
                 75%
               </span>
