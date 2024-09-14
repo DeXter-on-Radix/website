@@ -1,6 +1,6 @@
 {
-  "decentralized_order_book_exchange_on": "Decentralized Order Book Exchange on Radix",
-  "trade_now": "Trade Now",
+  "decentralized_order_book_exchange_on": "Decentralized order book exchange on Radix",
+  "trade_now": "Trade now",
   "easy_and_fast": "Easy and fast",
   "decentralized": "Decentralized",
   "earn_rewards_by_trading": "Earn rewards by trading",
@@ -9,7 +9,7 @@
   "100k_dextr_minted_every_2": "100'000 $DEXTR minted every 2 weeks. No max supply, but ~26M in 10 years at current rate.",
   "vote_in_the_dao": "Vote in the DAO",
   "1_dextr_equals_1_vote": "1 $DEXTR equals 1 vote in governance decisions.",
-  "revenue_share_coming_soon": "Revenue Share (coming soon...)",
+  "revenue_share_coming_soon": "Revenue share (Coming soon...)",
   "trade_fees_collected_by_dexter": "Trade fees collected by DeXter will be shared among all DEXTR holders.",
   "learn_more": "Learn more",
   "stake_now": "Stake now",
@@ -21,5 +21,10 @@
   "delegate_your_xrd_to_our": "Delegate your $XRD to our Validator to earn $DEXTR.",
   "earn_dextr_by_contributing": "Earn $DEXTR by contributing",
   "whether_you_are_a_developer": "Whether you're a developer, designer or marketing enthusiast, all contributors get rewarded in $DEXTR tokens. We are 100% community build with no formal team.",
-  "join_us": "Join us"
+  "join_us": "Join us",
+  "pairs": "Pairs",
+  "users_trust_us": "Users trust us",
+  "weekly_trading_volume": "Last Week's Trade Volume",
+  "total_trading_volume": "Total Trading Volume",
+  "explore_more_metrics": "Explore more metrics"
 }

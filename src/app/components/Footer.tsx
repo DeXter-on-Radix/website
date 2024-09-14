@@ -22,18 +22,34 @@ export function Footer() {
         text: t("tokenomics"),
         url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/tokenomics",
       },
+      {
+        text: t("KPIs"),
+        url: "/kpis",
+      },
+      {
+        text: t("roadmap"),
+        url: "https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a",
+      },
+      {
+        text: t("treasury"),
+        url: "https://dashboard.radixdlt.com/account/account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5",
+      },
     ],
   };
   const contentColumn2 = {
     title: t("developers"),
     links: [
       {
-        text: t("contribute"),
-        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
+        text: t("contribute_now"),
+        url: "https://github.com/DeXter-on-Radix/website/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22",
       },
       {
         text: "Github",
-        url: "https://github.com/DeXter-on-Radix",
+        url: "https://github.com/DeXter-on-Radix/website",
+      },
+      {
+        text: t("how_to_contribute"),
+        url: "https://dexter-on-radix.gitbook.io/dexter/overview/how-do-i-contribute",
       },
     ],
   };

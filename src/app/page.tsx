@@ -1,6 +1,8 @@
 "use client";
 
-import { useTranslations } from "hooks";
+import { DexterButton } from "components/DexterButton";
+import StatsWidget from "components/StatsWidget";
+import { useTranslations, useHydrationErrorFix } from "hooks";
 
 enum Device {
   MOBILE = "MOBILE",
@@ -30,12 +32,6 @@ interface IconTitleAndBodyProps {
   body: string;
 }
 
-interface DexterButtonProps {
-  title: string;
-  targetUrl?: string;
-  targetBlank?: boolean;
-}
-
 interface DexterHeadingProps {
   title: string;
 }
@@ -58,6 +54,7 @@ export default function Landing() {
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
+      <StatsWidget />
       <TopicSection {...tokenomicsProps} />
       <TopicSection {...tradeProps} />
       <TopicSection {...stakeProps} />
@@ -68,6 +65,9 @@ export default function Landing() {
 
 function HeroSection() {
   const t = useTranslations();
+  const isClient = useHydrationErrorFix();
+
+  if (!isClient) return <></>;
   return (
     <div
       className={
@@ -180,12 +180,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] "
+          className="absolute opacity-60 z-10 scale-[4] top-[200px] right-[-239px] animate-blueLight"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute z-10 scale-[4] top-[-147px] right-[122px] "
+          className="absolute z-10 scale-[4] top-[-147px] right-[122px] animate-greenLight"
         />
         <img
           src="/landing/background-structures.png"
@@ -202,12 +202,12 @@ function BackgroundLights({ showFor }: { showFor: Device }) {
         <img
           src="/landing/blue-light.svg"
           alt="blue light"
-          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30]"
+          className="absolute opacity-40 scale-[4] top-[-0%] right-[-80%] z-[-30] animate-blueLight"
         />
         <img
           src="/landing/green-light.svg"
           alt="green light"
-          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] "
+          className="absolute opacity-100 scale-[4] top-[-200%] left-[-50%] z-[-30] animate-greenLight"
         />
       </div>
     );
@@ -223,6 +223,8 @@ function TopicSection({
   buttonText,
   reversed,
 }: TopicSectionProps): JSX.Element {
+  const isClient = useHydrationErrorFix();
+  if (!isClient) return <></>;
   return (
     <div
       className={`${backgroundColor} py-20 max-[820px]:py-10 z-[100] relative`}
@@ -270,26 +272,6 @@ function IconTitleAndBody({ icon, title, body }: IconTitleAndBodyProps) {
         />
       </div>
     </div>
-  );
-}
-
-function DexterButton({ title, targetUrl, targetBlank }: DexterButtonProps) {
-  return (
-    <a
-      href={targetUrl}
-      className="z-100 min-w-[220px] max-w-[220px]"
-      target={`${targetBlank ? "_blank" : ""}`}
-    >
-      <button
-        className={
-          `min-h-[44px] w-[220px] px-4 my-6 mt-8 rounded ` +
-          `bg-dexter-green-OG text-black uppercase ` +
-          `opacity-100 cursor-pointer `
-        }
-      >
-        <span className="font-bold text-sm tracking-[.1px] ">{title}</span>
-      </button>
-    </a>
   );
 }
 
@@ -363,7 +345,7 @@ function getTokenomicsTopicSectionProps(
     </>
   );
   return {
-    backgroundColor: "bg-dexter-grey-dark",
+    backgroundColor: "bg-dexter-grey-light",
     title: t("dextr_token"),
     body: tokenomicsBody,
     imageUrl: "/landing/sections/dexter-mascotte-holding-coin.png",
@@ -378,7 +360,7 @@ function getTradeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-light",
+    backgroundColor: "bg-dexter-grey-dark",
     title: t("earn_rewards_by_trading"),
     body: <DexterParagraph text={t("earn_rewards_by_trading_and")} />,
     imageUrl: "/landing/sections/treasury-earn-by-trading.png",
@@ -393,7 +375,7 @@ function getStakeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-dark",
+    backgroundColor: "bg-dexter-grey-light",
     title: t("stake_xrd_to_earn_dextr"),
     body: <DexterParagraph text={t("delegate_your_xrd_to_our")} />,
     imageUrl: "/landing/sections/staking-safe.png",
@@ -408,7 +390,7 @@ function getContributeTopicSectionProps(
   t: (key: string) => string // translation dict needs to be passed in
 ): TopicSectionProps {
   return {
-    backgroundColor: "bg-dexter-grey-light",
+    backgroundColor: "bg-dexter-grey-dark",
     title: t("earn_dextr_by_contributing"),
     body: <DexterParagraph text={t("whether_you_are_a_developer")} />,
     imageUrl: "/landing/sections/hands.png",

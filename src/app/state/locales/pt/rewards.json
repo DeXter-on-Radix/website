@@ -2,16 +2,17 @@
   "rewards": "Recompensas",
   "connect_wallet_to_claim_rewards": "Conecte a carteira para resgatar recompensas",
   "earn_rewards_by": "Ganhe recompensas ao apoiar a comunidade DeXter por meio de contribuições, ou ao abrir posições de compra e venda próximas ao preço de mercado, ou ainda ao executar ordens a mercado. As recompensas são distribuídas a cada duas semanas.",
-  "next_distribution": "Próxima Distribuição",
-  "total_rewards": "Total de Recompensas",
-  "claim_all_rewards": "Reivindicar Todas",
-  "learn_more_about_rewards": "Saiba mais sobre a recompensas",
+  "next_distribution": "Próxima distribuição",
+  "total_rewards": "Total de recompensas",
+  "claim_all_rewards": "Reivindicar todas",
+  "learn_more_about_rewards": "Saiba mais sobre recompensas",
   "claiming_rewards_loading": "Reivindicando recompensas...",
   "claiming_rewards_success": "Recompensas reivindicadas",
   "claiming_rewards_fail": "Erro ao reivindicar recompensas",
   "how_did_everything_go": "Como tudo ocorreu? Envie um feedback",
-  "rewards_claimed": "Recompensas Resgatadas",
+  "rewards_claimed": "Recompensas resgatadas",
   "continue_trading_to_earn_more": "Continue negociando ou fazendo staking para ganhar mais e volte mais tarde.",
   "go_back": "Voltar",
-  "no_rewards_to_claim": "Sem recompensas para reivindica"
+  "no_rewards_to_claim": "Sem recompensas para reivindicar",
+  "loading...": "Carregamento..."
 }

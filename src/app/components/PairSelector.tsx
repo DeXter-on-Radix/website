@@ -4,6 +4,7 @@ import { orderInputSlice } from "../state/orderInputSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import React from "react";
+import { searchPairs } from "utils";
 
 import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
 
@@ -46,6 +47,8 @@ export function PairSelector() {
   const t = useTranslations();
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const dispatch = useAppDispatch();
+
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -161,13 +164,9 @@ export function PairSelector() {
   }, [handleKeyDown]);
 
   const onQueryChange = (userInputQuery: string) => {
-    const sortedOptions = sortOptions(
-      options.filter(
-        (option) =>
-          option["name"].toLowerCase().indexOf(userInputQuery.toLowerCase()) >
-          -1
-      )
-    );
+    const filteredPairs = searchPairs(userInputQuery, options);
+    const sortedOptions = sortOptions(filteredPairs);
+
     setFilteredOptions(sortedOptions);
     setQuery(userInputQuery);
     // Reset the current selected option to the first one that is available
@@ -187,8 +186,26 @@ export function PairSelector() {
     }
   }, [isOpen, options, setFilteredOptions, setHighlightedIndex]);
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <div
+      ref={menuRef}
       className={
         "w-full h-full relative uppercase" + (isOpen ? " bg-base-100" : "")
       }

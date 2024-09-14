@@ -217,6 +217,19 @@ export function displayTime(
         hour12: false,
       })
       .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
+    // TODO: remove once adex supports higher precision (seconds)
+  } else if (period === "full_without_seconds") {
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        // second: "2-digit", // <- seconds removed
+        hour12: false,
+      })
+      .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, "$3-$1-$2 $4");
   } else if (!period) {
     return date.toLocaleString([], {
       month: "2-digit",
@@ -301,7 +314,17 @@ export function numberOrEmptyInput(event: string) {
 export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
   const iconUrl =
     token.symbol === "DEXTR"
-      ? "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+      ? // use asset from coingecko to prevent ipfs failure
+        "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+      : token.symbol === "RDK"
+      ? // fix wrong icon URL in metadata ofRDK on ledger, see https://t.me/radix_dlt/716425
+        "https://radket.shop/img/logo.svg"
+      : token.symbol === "EDG"
+      ? // use smaller version to save bandwidth
+        "coins/EDG-100x100.png"
+      : token.symbol === "HNY"
+      ? // use smaller version to save bandwidth
+        "coins/HNY-100x100.png"
       : token.iconUrl;
 
   return {
@@ -463,4 +486,141 @@ export function setQueryParam(key: string, value: string) {
   const url = new URL(window.location.href);
   url.searchParams.set(key, value);
   history.pushState({}, "", url);
+}
+
+// Mimicks function .toFixed(n) but always rounds down and returns a number (not a string)
+export function toFixedRoundDown(number: number, decimals: number): number {
+  if (decimals < 0) {
+    throw new Error("Precision cannot be negative");
+  }
+  let numberParts = number.toString().split(".");
+  // If there's no decimal part or decimals is zero, just return the integer part
+  if (numberParts.length === 1 || decimals === 0) {
+    return Number(numberParts[0]);
+  }
+  let integerPart = numberParts[0];
+  let decimalPart = numberParts[1].substring(0, decimals);
+  // Ensure the decimal part has enough digits
+  if (decimalPart.length < decimals) {
+    decimalPart = decimalPart + "0".repeat(decimals - decimalPart.length);
+  }
+  return Number(integerPart + "." + decimalPart);
+}
+
+// SHortens radix wallet address
+export function shortenWalletAddress(address: string): string {
+  // minimal length is 35 chars
+  if (address.length < 35) {
+    return address;
+  }
+  const firstPart = address.slice(0, 8);
+  const lastPart = address.slice(-20);
+  return `${firstPart}...${lastPart}`;
+}
+
+export function setLocalStoragePaginationValue(pageSize: number, id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  window.localStorage.setItem(
+    `pagination:${id ?? window.location.pathname}`,
+    String(pageSize)
+  );
+}
+
+export function getLocalStoragePaginationValue(id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  const existingValue = window.localStorage.getItem(
+    `pagination:${id ?? window.location.pathname}`
+  );
+  if (existingValue !== null) {
+    const pageNumber = Number(existingValue);
+    return pageNumber < 1 ? 10 : pageNumber;
+  }
+
+  return undefined;
+}
+
+// TODO: Update input and return types to `PairInfo[]`. Currently using `any`
+// due to unresolved issues. Investigate the cause of the problem.
+export function searchPairs(query: string, pairsList: any): any {
+  const searchQuery = query.trim().toLowerCase().replace(/\s+/g, " ");
+
+  function levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = Array.from({ length: a.length + 1 }, () => []);
+
+    for (let i = 0; i <= a.length; i++) {
+      matrix[i][0] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        if (a[i - 1] === b[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[a.length][b.length];
+  }
+
+  const hasTypoTolerance = (source: string, target: string): boolean => {
+    const maxTyposAllowed = Math.floor(source.length / 5);
+    const distance = levenshteinDistance(source, target);
+    return distance <= maxTyposAllowed;
+  };
+
+  const preprocessPairName = (name: string): string =>
+    name.toLowerCase().replace(/\//g, " ");
+
+  const preprocessToken = (token: { symbol: string; name: string }) => ({
+    symbol: token.symbol.toLowerCase(),
+    name: token.name.toLowerCase(),
+  });
+
+  const generateCombinations = (items: string[]): string[] => {
+    const combinations: string[] = [];
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        combinations.push(`${items[i]} ${items[j]}`);
+        combinations.push(`${items[j]} ${items[i]}`);
+      }
+    }
+    return combinations;
+  };
+
+  return pairsList.filter((pair: any) => {
+    const pairName = preprocessPairName(pair.name);
+    const pairNameReversed = pairName.split(" ").reverse().join(" ");
+    const token1 = preprocessToken(pair.token1);
+    const token2 = preprocessToken(pair.token2);
+
+    const baseMatches = [
+      pairName,
+      pairNameReversed,
+      token1.symbol,
+      token2.symbol,
+      token1.name,
+      token2.name,
+    ];
+
+    const dynamicMatches = generateCombinations(baseMatches);
+
+    const nameMatches = [...baseMatches, ...dynamicMatches];
+
+    return nameMatches.some(
+      (nameMatch) =>
+        nameMatch.includes(searchQuery) ||
+        hasTypoTolerance(searchQuery, nameMatch)
+    );
+  });
 }

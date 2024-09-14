@@ -3,7 +3,9 @@ import {
   DataRequestBuilder,
   RadixDappToolkit,
   RadixNetwork,
+  WalletDataStateAccount,
 } from "@radixdlt/radix-dapp-toolkit";
+import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import * as adex from "alphadex-sdk-js";
 import { radixSlice, WalletData } from "./state/radixSlice";
 import { fetchBalances } from "./state/pairSelectorSlice";
@@ -15,12 +17,19 @@ import { accountHistorySlice } from "./state/accountHistorySlice";
 import { orderInputSlice } from "./state/orderInputSlice";
 import { AppStore } from "./state/store";
 import { rewardSlice } from "./state/rewardSlice";
+import Cookies from "js-cookie";
 
 export type RDT = ReturnType<typeof RadixDappToolkit>;
 
 let rdtInstance: null | RDT = null;
+let gatewayApiClient: null | GatewayApiClient = null;
+
 export function getRdt() {
   return rdtInstance;
+}
+
+export function getGatewayApiClient() {
+  return gatewayApiClient;
 }
 
 export function getRdtOrThrow() {
@@ -30,6 +39,15 @@ export function getRdtOrThrow() {
   }
   return rdt;
 }
+
+export function getGatewayApiClientOrThrow() {
+  const gatewayApiClient = getGatewayApiClient();
+  if (!gatewayApiClient) {
+    throw new Error("GatewayApiClient initialization failed");
+  }
+  return gatewayApiClient;
+}
+
 function setRdt(rdt: RDT) {
   rdtInstance = rdt;
 }
@@ -51,15 +69,29 @@ export function initializeSubscriptions(store: AppStore) {
   rdtInstance = RadixDappToolkit({
     dAppDefinitionAddress: process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS!,
     networkId,
+    featureFlags: ["ExperimentalMobileSupport"],
   });
+  gatewayApiClient = GatewayApiClient.initialize(
+    rdtInstance.gatewayApi.clientConfig
+  );
   rdtInstance.walletApi.setRequestData(
-    DataRequestBuilder.accounts().exactly(1)
+    DataRequestBuilder.accounts().atLeast(1)
   );
   subs.push(
     rdtInstance.walletApi.walletData$.subscribe((walletData: WalletData) => {
       const data: WalletData = JSON.parse(JSON.stringify(walletData));
       store.dispatch(radixSlice.actions.setWalletData(data));
-
+      // Get selected address from cookies if exists
+      const selectedAddressCookie = Cookies.get("selectedAddress");
+      if (selectedAddressCookie) {
+        const account =
+          data.accounts.find(
+            (account) => account.address === selectedAddressCookie
+          ) || ({} as WalletDataStateAccount);
+        if (account.address) {
+          store.dispatch(radixSlice.actions.selectAccount(account));
+        }
+      }
       // TODO: can we subscribe to balances from somewhere?
       store.dispatch(fetchBalances());
     })
@@ -97,6 +129,11 @@ export function initializeSubscriptions(store: AppStore) {
       );
       store.dispatch(
         rewardSlice.actions.updatePairsList(serializedState.pairsList)
+      );
+      store.dispatch(
+        orderBookSlice.actions.updateRecentTrades(
+          serializedState.currentPairTrades
+        )
       );
     })
   );

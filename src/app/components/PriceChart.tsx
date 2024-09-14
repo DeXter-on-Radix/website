@@ -1,5 +1,5 @@
 import { createChart } from "lightweight-charts";
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CANDLE_PERIODS,
   OHLCVData,
@@ -11,6 +11,11 @@ import {
 import { useAppDispatch, useAppSelector, useTranslations } from "../hooks";
 import { displayNumber, getPrecision } from "../utils";
 import * as tailwindConfig from "../../../tailwind.config";
+import { shortenString } from "../utils";
+import { CopyIcon } from "./CopyIcon";
+import { TokenInfo } from "state/pairSelectorSlice";
+import Link from "next/link";
+import { FiExternalLink } from "react-icons/fi";
 
 interface PriceChartProps {
   data: OHLCVData[];
@@ -260,12 +265,75 @@ function PriceChartCanvas(props: PriceChartProps) {
   );
 }
 
-export function PriceChart() {
+enum ChartOrInfoTabOptions {
+  CHART = "CHART",
+  INFO = "INFO",
+}
+
+export function ChartOrInfo() {
   const t = useTranslations();
-  const state = useAppSelector((state) => state.priceChart);
   const dispatch = useAppDispatch();
   const candlePeriod = useAppSelector((state) => state.priceChart.candlePeriod);
 
+  // Set default candlePeriod state as defined in initialState of priceChartSlice
+  useEffect(() => {
+    dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
+  }, [dispatch]);
+
+  const [currentTab, setCurrentTab] = useState(ChartOrInfoTabOptions.CHART);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between sm:pr-10 pr-4 border-b-[0.5px] border-b-[rgba(255,255,255,0.1)]">
+        <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
+          {[
+            [t("chart"), ChartOrInfoTabOptions.CHART],
+            [t("info"), ChartOrInfoTabOptions.INFO],
+          ].map(([title, tab], indx) => {
+            const isActive = tab === currentTab;
+            return (
+              <span
+                key={indx}
+                className={`text-base pb-2 sm:pb-3 px-2 ${
+                  isActive
+                    ? "text-dexter-green-OG border-b border-[#cafc40]"
+                    : "text-[#768089]"
+                } cursor-pointer`}
+                onClick={() => setCurrentTab(tab as ChartOrInfoTabOptions)}
+              >
+                {title}
+              </span>
+            );
+          })}
+        </div>
+        {currentTab === ChartOrInfoTabOptions.CHART && (
+          <div className="flex flex-wrap items-center justify-start sm:justify-end mt-2 sm:mt-0">
+            {CANDLE_PERIODS.map((period) => (
+              <button
+                key={period}
+                className={`btn btn-xs sm:btn-sm text-secondary-content focus-within:outline-none ${
+                  candlePeriod === period
+                    ? "!text-primary-content underline underline-offset-8 decoration-accent"
+                    : ""
+                }`}
+                onClick={() => dispatch(setCandlePeriod(period))}
+              >
+                {t(period)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        {currentTab === ChartOrInfoTabOptions.CHART && <Chart />}
+        {currentTab === ChartOrInfoTabOptions.INFO && <Info />}
+      </div>
+    </div>
+  );
+}
+
+export function Chart() {
+  const state = useAppSelector((state) => state.priceChart);
   const candlePrice = useAppSelector(
     (state) => state.priceChart.legendCandlePrice
   );
@@ -277,35 +345,8 @@ export function PriceChart() {
     (state) => state.priceChart.legendCurrentVolume
   );
 
-  // Set default candlePeriod state as defined in initialState of priceChartSlice
-  useEffect(() => {
-    dispatch(setCandlePeriod(initialPriceChartState.candlePeriod));
-  }, [dispatch]);
-
   return (
     <>
-      <div className="flex items-center justify-between sm:pr-10 pr-4">
-        <div className="">
-          <span className="block text-secondary-content text-sm font-bold uppercase">
-            {t("trading_chart")}
-          </span>
-        </div>
-        <div className="">
-          {CANDLE_PERIODS.map((period) => (
-            <button
-              key={period}
-              className={`btn btn-sm text-secondary-content focus-within:-outline-offset-2 ${
-                candlePeriod === period
-                  ? "!text-primary-content underline underline-offset-8 decoration-accent"
-                  : ""
-              }`}
-              onClick={() => dispatch(setCandlePeriod(period))}
-            >
-              {t(period)}
-            </button>
-          ))}
-        </div>
-      </div>
       <PriceChartCanvas
         data={state.ohlcv}
         candlePrice={candlePrice}
@@ -316,3 +357,120 @@ export function PriceChart() {
     </>
   );
 }
+
+export function Info() {
+  const t = useTranslations();
+  const { pairsList } = useAppSelector((state) => state.pairSelector);
+  const selectedPairAddress = useAppSelector(
+    (state) => state.pairSelector.address
+  );
+  const pairInfo = pairsList.find(
+    (pairInfo) => pairInfo.address === selectedPairAddress
+  );
+
+  if (!pairInfo) {
+    return "Selected pair not found in pairsList";
+  }
+
+  return (
+    <>
+      <div className="sm:p-4 md:ml-0 mb-0 !pb-0 xs:p-0 text-primary-content">
+        <div className="text-lg font-normal mb-3 xs:pt-3 sm:mt-0 sm:pt-0">
+          {pairInfo.name}
+        </div>
+        <div className="border-b border-b-[rgba(255,255,255,0.08)] pb-6">
+          <LabelAndAddress
+            label={t("pair_resource")}
+            address={pairInfo.address}
+            shortenLength={{ min: 8, max: 20 }}
+            radixDashboardUrl={`https://${
+              process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+            }dashboard.radixdlt.com/component/${pairInfo.address}`}
+          />
+          <LabelAndAddress
+            label={t("order_receipt_address")}
+            address={pairInfo.orderReceiptAddress}
+            shortenLength={{ min: 8, max: 20 }}
+            radixDashboardUrl={`https://${
+              process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+            }dashboard.radixdlt.com/resource/${pairInfo.orderReceiptAddress}`}
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row">
+          <CoinInfo token={pairInfo.token1} />
+          <div className="border-b-2 border-[rgba(255,255,255,0.05)] sm:border-r-2 sm:border-b-0 my-0 sm:mx-8 sm:min-h-[160px] sm:max-h-[200px]"></div>
+          <CoinInfo token={pairInfo.token2} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface LabelAndAddressProps {
+  label: string;
+  address: string;
+  shortenLength?: { min: number; max: number };
+  radixDashboardUrl: string;
+}
+
+function LabelAndAddress({
+  label,
+  address,
+  shortenLength,
+  radixDashboardUrl,
+}: LabelAndAddressProps) {
+  const minLength = shortenLength?.min || 8;
+  const maxLength = shortenLength?.max || 20;
+
+  return (
+    <>
+      <div className="text-sm tracking-[0.5px] opacity-50 font-normal pt-2 !mb-1">
+        {label}
+      </div>
+      <div className="flex flex-row items-start mb-4">
+        <div className="text-base flex items-center">
+          <span className="mr-2">
+            {shortenString(address, minLength, maxLength, "...")}
+          </span>
+          <CopyIcon textToCopy={address} />
+          <Link
+            className="pl-1 cursor-pointer"
+            href={radixDashboardUrl}
+            target="_blank"
+          >
+            <FiExternalLink />
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CoinInfo({ token }: { token: TokenInfo }) {
+  const { iconUrl, symbol, name, address } = token;
+  const t = useTranslations();
+
+  return (
+    <div className="flex flex-col items-start xs:mb-4 mb-4 sm:mb-0 w-[50%]">
+      <div className="flex items-center mb-3 pt-8">
+        <img src={iconUrl} alt={symbol} className="w-8 h-8 rounded-full" />
+        <p className="pl-2 text-base">
+          {name} ({symbol})
+        </p>
+      </div>
+      <div className="flex flex-col">
+        <LabelAndAddress
+          label={t("resource")}
+          address={address}
+          shortenLength={{ min: 8, max: 10 }}
+          radixDashboardUrl={`https://${
+            process.env.NEXT_PUBLIC_NETWORK === "stokenet" ? "stokenet-" : ""
+          }dashboard.radixdlt.com/resource/${address}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default ChartOrInfo;

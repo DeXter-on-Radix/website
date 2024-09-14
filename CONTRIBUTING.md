@@ -11,7 +11,9 @@ Here are a few guidelines to follow:
 - **Make PRs small and focused on a single change** so they are easier to review and merge
 - **Make PRs complete** so that the new feature is functional
 - **Write tests** to prevent regressions, unit tests with [Jest](https://jestjs.io/) in `__tests__` folder, end to end tests with [Playwright](https://playwright.dev/) in `e2e` folder
+- **Run tests locally** with `npm run test-all` before submitting any PR. This will help you find issues fast.
 - **Try to avoid custom CSS** - the project uses [DaisyUI](https://daisyui.com/) and [TailwindCSS](https://tailwindcss.com/docs/) for styling, whenever possible use the existing components and classes, the full rationale (by creator of TailwindCSS) is [here](https://adamwathan.me/css-utility-classes-and-separation-of-concerns/)
+- **Use [Redux Dev Tools Extension](https://chromewebstore.google.com/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)** for easy debugging of redux state. Watch this [1 min video tutorial](https://www.youtube.com/watch?v=5qrIbU1XspA) on how to set it up.
 
 If you happen to use VS Code, install the recommended extensions to get automatic formatting and linting on save, they are listed in `.vscode/extensions.json` and VS Code will prompt you to install them.
 
@@ -177,3 +179,37 @@ To add a new banner, follow these steps:
 3. If you are the designer creating the banner, the content needs to be delivered as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg)). Furthermore, ensure there is only a single call to action (CTA). Avoid having multiple competing actions like "STAKE NOW" and "learn more". Decide which one is more important and design the banner accordingly :D
 4. Upload both files to `/public/promo-banners/`.
 5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20).
+
+## Hydration Error Handling
+
+**Problem**
+
+State variables get cached, leading to unpredictable initial renders of components (e.g., initialization based on cookies). This violates React/NextJS patterns and triggers hydration errors.
+
+**Handling Hydration Errors**
+
+1. **No Error**: If no hydration error occurs, no action is needed.
+2. **Error Detected**: Identify the component causing the error.
+3. **Fixing the Component**: Add the following code to the problematic component:
+
+```tsx
+import { useHydrationErrorFix } from "hooks";
+
+function ComponentWithHydrationError() {
+  const isClient = useHydrationErrorFix();
+
+  // Additional code like useEffect or other hooks go here!
+  // ...
+
+  if (!isClient) return <></>;
+
+  return (
+    /* Your component JSX */
+  );
+}
+```
+
+**Common Causes of Hydration Errors**
+
+1. **Radix Connect Button**: Caches logged-in users. Components relying on login status will render differently based on the user's login state.
+2. **Language Detection**: Cached in cookies. Components will render differently for users from various regions based on their browser-detected language.

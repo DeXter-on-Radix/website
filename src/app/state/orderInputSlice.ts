@@ -13,6 +13,7 @@ import { fetchAccountHistory } from "./accountHistorySlice";
 import { fetchBalances } from "./pairSelectorSlice";
 import {
   getPrecision,
+  toFixedRoundDown,
   truncateWithPrecision,
   updateIconIfNeeded,
 } from "../utils";
@@ -247,13 +248,7 @@ export const fetchQuote = createAsyncThunk<
   { state: RootState }
 >("orderInput/fetchQuote", async (_arg, thunkAPI) => {
   const state = thunkAPI.getState();
-  if (
-    !noValidationErrors(
-      state.orderInput.validationPrice,
-      state.orderInput.validationToken1,
-      state.orderInput.validationToken2
-    )
-  ) {
+  if (!state.orderInput.validationPrice.valid) {
     throw new Error("Validation errors found");
   }
   if (!pairAddressIsSet(state.pairSelector.address)) {
@@ -641,7 +636,9 @@ function toDescription(quote: Quote): string {
     const fromTokenSymbol = quote.fromToken.symbol;
     quoteDescription +=
       `Sending ${fromAmount} ${fromTokenSymbol} ` +
-      `to receive ${toAmount} ${toTokenSymbol}.\n`;
+      `to receive ${toAmount} ${toTokenSymbol}.\n\n` +
+      `Average price: ${quote.avgPrice}.\n` +
+      `slippage: ${Math.round(quote.slippage * 100)}%.\n`;
   }
   if (quote.resultMessageLong) {
     quoteDescription += "\n" + quote.resultMessageLong;
@@ -666,18 +663,29 @@ async function createTx(state: RootState, rdt: RDT) {
   }[state.orderInput.specifiedToken]();
   const isMarketOrder = state.orderInput.type === OrderType.MARKET;
   const price = isMarketOrder ? -1 : state.orderInput.price;
+  let targetTokenAmount = targetToken.amount;
+  // Correct potential rounding precision errors
+  // One example where this fix is needed is xUSDC:
+  // https://github.com/DeXter-on-Radix/website/issues/486
+  if (targetToken.decimals) {
+    targetTokenAmount = toFixedRoundDown(
+      targetTokenAmount,
+      targetToken.decimals
+    );
+  }
   // Adex creates the transaction manifest
+  const accountAddress = state.radix.selectedAccount?.address || "";
   const createOrderResponse = await adex.createExchangeOrderTx(
     state.pairSelector.address,
     toAdexOrderType(state.orderInput.type, state.orderInput.postOnly),
     toAdexOrderSide(state.orderInput.side, state.orderInput.specifiedToken),
     targetToken.address,
-    targetToken.amount,
+    targetTokenAmount,
     price,
     getSlippage(state.orderInput.type),
     PLATFORM_BADGE_ID,
-    state.radix?.walletData.accounts[0]?.address || "", // submit account
-    state.radix?.walletData.accounts[0]?.address || "" // settle account
+    accountAddress, // submit account
+    accountAddress // settle account
   );
   // Then submits the order to the wallet
   return await submitTransaction(createOrderResponse.data, rdt);

@@ -87,7 +87,7 @@
 }
 @media (max-width: 419px) {
   :root {
-    /* --radix-connect-button-width: 36px; */
+    --radix-connect-button-width: 36px;
   }
 }
 
@@ -117,14 +117,14 @@ input[type="number"]::-ms-clear {
 /* Use slightly darker base color for backgrounds by default */
 :root,
 [data-theme] {
-  background-color: hsl(var(--b2) / var(--tw-bg-opacity, 1));
+  background-color: oklch(var(--b2) / var(--tw-bg-opacity, 1));
 }
 
 /**
  * GRID AREA CSS: Utilizes global CSS classes for grid areas.
- * Justification: TailwindCSS lacks a readable method for implementing 
- * grid-template-areas. Therefore, all grid area-related styles are 
- * centralized in global CSS to maintain separation from 
+ * Justification: TailwindCSS lacks a readable method for implementing
+ * grid-template-areas. Therefore, all grid area-related styles are
+ * centralized in global CSS to maintain separation from
  * component-specific styles.
  */
 .grid-container {
@@ -230,4 +230,19 @@ input[type="number"]::-ms-clear {
 }
 .barchart table tr:nth-child(2) td {
   display: none;
+}
+/* Hacky fix to replace border with padding on accountHistory table */
+/* Needed to fix table hover state */
+.account-history table tr,
+.account-history table thead tr,
+.account-history table td {
+  border: 0;
+}
+.account-history table tr td:first-child,
+.account-history table thead tr th:first-child {
+  padding-left: 16px;
+}
+.account-history table tr td:last-child,
+.account-history table thead tr th:last-child {
+  padding-right: 16px;
 }

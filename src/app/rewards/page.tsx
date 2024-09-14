@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useTranslations,
+  useHydrationErrorFix,
+} from "hooks";
 import {
   fetchAddresses,
   fetchReciepts,
@@ -21,7 +26,7 @@ import { DexterToast } from "../components/DexterToaster";
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
   return (
-    <div className="bg-[#141414] h-screen flex items-center justify-center">
+    <div className="bg-[#141414] grow flex items-center justify-center">
       <div>
         <HeaderComponent />
         {showSuccessUi ? <SuccessUi /> : <RewardsCard />}
@@ -77,7 +82,7 @@ function HeaderComponent() {
             <DexterParagraph text={t("earn_rewards_by")} />
           </div>
         </div>
-        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5">
+        <div className="sm:w-[38%] max-[640px]:max-w-[200px] sm:ml-5 mx-auto">
           <img
             src="/rewards/chest.png"
             alt="treasury"
@@ -91,11 +96,14 @@ function HeaderComponent() {
 }
 
 function RewardsCard() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const dispatch = useAppDispatch();
-  const { isConnected, walletData } = useAppSelector((state) => state.radix);
-  const account = walletData.accounts[0]?.address;
+  const { isConnected, selectedAccount } = useAppSelector(
+    (state) => state.radix
+  );
+  const account = selectedAccount?.address;
   const t = useTranslations();
-  const { rewardData, pairsList } = useAppSelector(
+  const { rewardData, pairsList, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
@@ -124,6 +132,10 @@ function RewardsCard() {
       loadRewards();
     }
   }, [dispatch, isConnected, account, pairsList]);
+
+  // Fix HydrationError
+  if (!isClient) return <></>;
+
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
       <div className="flex flex-col">
@@ -138,6 +150,8 @@ function RewardsCard() {
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
+              : isLoading
+              ? t("loading...")
               : t("no_rewards_to_claim")}
           </h4>
         </div>
@@ -200,12 +214,18 @@ function RewardsOverview() {
 }
 
 function ClaimButton() {
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
-  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const { rewardData, isLoading } = useAppSelector(
+    (state) => state.rewardSlice
+  );
   const userHasRewards = getUserHasRewards(rewardData);
   const disabled = !isConnected || !userHasRewards;
+
+  // Fix HydrationError
+  if (!isClient) return <></>;
 
   return (
     <button
@@ -236,13 +256,14 @@ function ClaimButton() {
         );
       }}
     >
-      {t("claim_all_rewards")}
+      {isLoading ? t("loading...") : t("claim_all_rewards")}
     </button>
   );
 }
 
 function RewardsDetails() {
   const [isOpen, setIsOpen] = useState(true);
+  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const { isConnected } = useAppSelector((state) => state.radix);
   const { rewardData, tokensList } = useAppSelector(
     (state) => state.rewardSlice
@@ -255,7 +276,7 @@ function RewardsDetails() {
     }
   }, [isConnected]);
 
-  if (!isConnected || !userHasRewards) {
+  if (!isConnected || !userHasRewards || !isClient) {
     return <></>;
   }
 
