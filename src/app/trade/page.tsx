@@ -79,14 +79,14 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // DAO vote banner
+          // PHNX liquidity program
           {
-            imageUrl: "/promo-banners/crumbsup-tokenomics-desktop2x.png",
-            imageUrlMobile: "/promo-banners/crumbsup-tokenomics-mobile2x.png",
-            redirectUrl:
-              "https://www.crumbsup.io/#proposal?id=f7bf5bcc-dafd-4aa0-8d18-1754f2aa7b46",
-            backgroundColor: "bg-[#087277]",
-            expirationDate: new Date("2024-08-19"),
+            imageUrl: "/promo-banners/phnx-desktop2x.png",
+            imageUrlMobile: "/promo-banners/phnx-mobile2x.png",
+            redirectUrl: "https://dexteronradix.com/trade?pair=phnx-xrd",
+            redirectOpensInSameTab: true,
+            backgroundColor: "bg-[#FF5634]",
+            expirationDate: new Date("2024-10-02"),
           },
           // tokentrek banner
           {
