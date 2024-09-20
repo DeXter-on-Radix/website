@@ -481,7 +481,7 @@ function UserInputContainer() {
       setInputValue(0);
       setSliderValue(0);
     }
-  }, [side, type]);
+  }, [isBuyOrder, isSellOrder, side, type]);
 
   function handleSellFunction(e: React.ChangeEvent<HTMLInputElement>) {
     const percentage = parseFloat(e.target.value);
