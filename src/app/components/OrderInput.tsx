@@ -962,7 +962,7 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
 
   return (
     <>
-      <div className="slider-container rounded-md w-full relative mt-5">
+      <div className="slider-container rounded-md w-full relative mt-5 opacity-70">
         <div className="absolute w-full">
           <input
             type="range"
