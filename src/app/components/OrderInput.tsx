@@ -370,6 +370,7 @@ function SubmitButton() {
     side,
     type,
     token1,
+    token2,
     quote,
     quoteDescription,
     quoteError,
@@ -382,7 +383,9 @@ function SubmitButton() {
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
   const isBuyOrder = side === OrderSide.BUY;
+  const isZeroAmount = token1.amount === 0 || token2.amount === 0;
   const disabled =
+    isZeroAmount ||
     !hasQuote ||
     hasQuoteError ||
     !isConnected ||

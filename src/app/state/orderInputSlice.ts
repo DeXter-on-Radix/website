@@ -40,7 +40,6 @@ export enum SpecifiedToken {
 
 export enum ErrorMessage {
   NONZERO_PRICE = "NONZERO_PRICE",
-  NONZERO_AMOUNT = "NONZERO_AMOUNT",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   COULD_NOT_GET_QUOTE = "COULD_NOT_GET_QUOTE",
   INSUFFICIENT_LIQUDITIY = "INSUFFICIENT_LIQUDITIY",
@@ -420,21 +419,6 @@ export const orderInputSlice = createSlice({
         bestPrice !== undefined
       ) {
         state.price = bestPrice;
-      }
-
-      // Set zero amount error
-      if (amount === 0) {
-        if (specifiedToken === SpecifiedToken.TOKEN_1) {
-          state.validationToken1 = {
-            valid: false,
-            message: ErrorMessage.NONZERO_AMOUNT,
-          };
-        } else if (specifiedToken === SpecifiedToken.TOKEN_2) {
-          state.validationToken2 = {
-            valid: false,
-            message: ErrorMessage.NONZERO_AMOUNT,
-          };
-        }
       }
 
       // Set insufficient balance for specifiedToken
