@@ -960,6 +960,11 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     isSellOrder,
   ]);
 
+  const handleClickOnLabel = (newPercentage: number) => {
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
+  };
+
   return (
     <>
       <div className="slider-container rounded-md w-full relative mt-5 opacity-70">
@@ -1029,30 +1034,38 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
         <div className="w-full">
           <div className="slider-labels">
             <div className="flex justify-between text-xxs mt-1 mb-5">
-              <span className="absolute" style={{ left: "0%" }}>
+              <span
+                className="absolute select-none"
+                style={{ left: "0%" }}
+                onClick={() => handleClickOnLabel(0)}
+              >
                 0%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "25%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(25)}
               >
                 25%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "50%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(50)}
               >
                 50%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "75%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(75)}
               >
                 75%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "100%", transform: "translateX(-100%)" }}
+                onClick={() => handleClickOnLabel(100)}
               >
                 100%
               </span>
