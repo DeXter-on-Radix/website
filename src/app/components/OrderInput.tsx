@@ -530,6 +530,12 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
+          {isSellOrder && ( // specify "Quantity"
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
+          )}
+          {isBuyOrder && ( // specify "Total"
+            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
+          )}
           <PercentageSlider
             initialPercentage={0}
             callbackOnPercentageUpdate={(newPercentage) =>
@@ -539,12 +545,6 @@ function UserInputContainer() {
             isBuyOrder={isBuyOrder}
             isSellOrder={isSellOrder}
           />
-          {isSellOrder && ( // specify "Quantity"
-            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
-          )}
-          {isBuyOrder && ( // specify "Total"
-            <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
-          )}
         </>
       )}
       {isLimitOrder && (
