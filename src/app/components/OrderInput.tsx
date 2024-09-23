@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import { useEffect, useState, useRef, ChangeEvent, useCallback } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -370,6 +370,7 @@ function SubmitButton() {
     side,
     type,
     token1,
+    token2,
     quote,
     quoteDescription,
     quoteError,
@@ -382,7 +383,9 @@ function SubmitButton() {
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
   const isBuyOrder = side === OrderSide.BUY;
+  const isZeroAmount = token1.amount === 0 || token2.amount === 0;
   const disabled =
+    isZeroAmount ||
     !hasQuote ||
     hasQuoteError ||
     !isConnected ||
@@ -472,45 +475,52 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
+  const sliderCallback = useCallback(
+    (newPercentage: number) => {
+      const isXRDToken = isBuyOrder
+        ? token2.symbol === "XRD"
+        : token1.symbol === "XRD";
+      let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+
+      if (newPercentage === 100 && isXRDToken) {
+        balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+      }
+
+      const amount = Calculator.divide(
+        Calculator.multiply(balance, newPercentage),
+        100
+      );
+
+      const specifiedToken = isBuyOrder
+        ? SpecifiedToken.TOKEN_2
+        : SpecifiedToken.TOKEN_1;
+
+      dispatch(
+        orderInputSlice.actions.setTokenAmount({
+          amount,
+          bestBuy,
+          bestSell,
+          balanceToken1,
+          balanceToken2,
+          specifiedToken,
+        })
+      );
+    },
+    [
+      isBuyOrder,
+      token1.symbol,
+      token2.symbol,
+      balanceToken1,
+      balanceToken2,
+      bestBuy,
+      bestSell,
+      dispatch,
+    ]
+  );
+
   useEffect(() => {
-    if (isMarketOrder) {
-      sliderCallback(0, "MARKET");
-    } else if (isLimitOrder) {
-      sliderCallback(0, "LIMIT");
-    }
-  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder]);
-
-  const sliderCallback = (newPercentage: number, type: string) => {
-    console.log(`Type is: ${type}`);
-    const isXRDToken = isBuyOrder
-      ? token2.symbol === "XRD"
-      : token1.symbol === "XRD";
-    let balance = isBuyOrder ? balanceToken2 : balanceToken1;
-
-    if (newPercentage === 100 && isXRDToken) {
-      balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
-    }
-
-    const amount = Calculator.divide(
-      Calculator.multiply(balance, newPercentage),
-      100
-    );
-
-    const specifiedToken = isBuyOrder
-      ? SpecifiedToken.TOKEN_2
-      : SpecifiedToken.TOKEN_1;
-
-    dispatch(
-      orderInputSlice.actions.setTokenAmount({
-        amount,
-        bestBuy,
-        bestSell,
-        balanceToken1,
-        balanceToken2,
-        specifiedToken,
-      })
-    );
-  };
+    sliderCallback(0);
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder, sliderCallback]);
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
@@ -520,21 +530,21 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
-          <PercentageSlider
-            initialPercentage={0}
-            callbackOnPercentageUpdate={(newPercentage) =>
-              sliderCallback(newPercentage, type)
-            }
-            isLimitOrder={isLimitOrder}
-            isBuyOrder={isBuyOrder}
-            isSellOrder={isSellOrder}
-          />
           {isSellOrder && ( // specify "Quantity"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           )}
           {isBuyOrder && ( // specify "Total"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           )}
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={(newPercentage) =>
+              sliderCallback(newPercentage)
+            }
+            isLimitOrder={isLimitOrder}
+            isBuyOrder={isBuyOrder}
+            isSellOrder={isSellOrder}
+          />
         </>
       )}
       {isLimitOrder && (
@@ -544,7 +554,7 @@ function UserInputContainer() {
           <PercentageSlider
             initialPercentage={0}
             callbackOnPercentageUpdate={(newPercentage) =>
-              sliderCallback(newPercentage, type)
+              sliderCallback(newPercentage)
             }
             isLimitOrder={isLimitOrder}
             isBuyOrder={isBuyOrder}
@@ -950,9 +960,14 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
     isSellOrder,
   ]);
 
+  const handleClickOnLabel = (newPercentage: number) => {
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
+  };
+
   return (
     <>
-      <div className="slider-container rounded-md w-full relative mt-5">
+      <div className="slider-container rounded-md w-full relative mt-5 opacity-70">
         <div className="absolute w-full">
           <input
             type="range"
@@ -1019,30 +1034,38 @@ const PercentageSlider: React.FC<PercentageSliderProps> = ({
         <div className="w-full">
           <div className="slider-labels">
             <div className="flex justify-between text-xxs mt-1 mb-5">
-              <span className="absolute" style={{ left: "0%" }}>
+              <span
+                className="absolute select-none"
+                style={{ left: "0%" }}
+                onClick={() => handleClickOnLabel(0)}
+              >
                 0%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "25%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(25)}
               >
                 25%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "50%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(50)}
               >
                 50%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "75%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(75)}
               >
                 75%
               </span>
               <span
-                className="absolute"
+                className="absolute select-none cursor-pointer"
                 style={{ left: "100%", transform: "translateX(-100%)" }}
+                onClick={() => handleClickOnLabel(100)}
               >
                 100%
               </span>
