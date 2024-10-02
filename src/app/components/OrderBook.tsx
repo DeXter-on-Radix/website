@@ -249,10 +249,10 @@ function RecentTradesTab() {
         </thead>
 
         {lastTrades.map((trade, indx) => {
-          const price = Calculator.divide(
-            trade.token2Amount,
-            trade.token1Amount
-          );
+          const price =
+            trade.token1Amount === 0
+              ? 0
+              : Calculator.divide(trade.token2Amount, trade.token1Amount);
           const time = trade.timestamp.split("T").join(" ").split(":00.")[0];
           const amount = Math.round(trade.token1Amount);
           return (
