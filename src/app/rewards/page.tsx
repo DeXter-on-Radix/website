@@ -22,6 +22,7 @@ import { getTokenRewards, getTypeRewards } from "../state/rewardUtils";
 
 // import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "../components/DexterToaster";
+import { DEXTER_LOGO_URL } from "utils";
 
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
@@ -199,7 +200,11 @@ function RewardsOverview() {
           key={indx}
         >
           <img
-            src={rewardToken.iconUrl}
+            src={
+              rewardToken.symbol === "DEXTR"
+                ? DEXTER_LOGO_URL
+                : rewardToken.iconUrl
+            }
             alt={rewardToken.name}
             className="w-7 h-7 rounded-full mr-3"
           ></img>
@@ -312,7 +317,11 @@ function RewardsDetails() {
                   key={indx2}
                 >
                   <img
-                    src={tokenReward.iconUrl}
+                    src={
+                      tokenReward.symbol === "DEXTR"
+                        ? DEXTER_LOGO_URL
+                        : tokenReward.iconUrl
+                    }
                     alt={tokenReward.name}
                     className="w-4 h-4 rounded-full mr-2"
                   ></img>
