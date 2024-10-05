@@ -22,6 +22,7 @@ import { getTokenRewards, getTypeRewards } from "../state/rewardUtils";
 
 // import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "../components/DexterToaster";
+import { DEXTER_LOGO_URL } from "utils";
 
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
@@ -103,7 +104,7 @@ function RewardsCard() {
   );
   const account = selectedAccount?.address;
   const t = useTranslations();
-  const { rewardData, pairsList } = useAppSelector(
+  const { rewardData, pairsList, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
@@ -150,6 +151,8 @@ function RewardsCard() {
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
+              : isLoading
+              ? t("loading...")
               : t("no_rewards_to_claim")}
           </h4>
         </div>
@@ -197,7 +200,11 @@ function RewardsOverview() {
           key={indx}
         >
           <img
-            src={rewardToken.iconUrl}
+            src={
+              rewardToken.symbol === "DEXTR"
+                ? DEXTER_LOGO_URL
+                : rewardToken.iconUrl
+            }
             alt={rewardToken.name}
             className="w-7 h-7 rounded-full mr-3"
           ></img>
@@ -216,7 +223,9 @@ function ClaimButton() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const { isConnected } = useAppSelector((state) => state.radix);
-  const { rewardData } = useAppSelector((state) => state.rewardSlice);
+  const { rewardData, isLoading } = useAppSelector(
+    (state) => state.rewardSlice
+  );
   const userHasRewards = getUserHasRewards(rewardData);
   const disabled = !isConnected || !userHasRewards;
 
@@ -252,7 +261,7 @@ function ClaimButton() {
         );
       }}
     >
-      {t("claim_all_rewards")}
+      {isLoading ? t("loading...") : t("claim_all_rewards")}
     </button>
   );
 }
@@ -308,7 +317,11 @@ function RewardsDetails() {
                   key={indx2}
                 >
                   <img
-                    src={tokenReward.iconUrl}
+                    src={
+                      tokenReward.symbol === "DEXTR"
+                        ? DEXTER_LOGO_URL
+                        : tokenReward.iconUrl
+                    }
                     alt={tokenReward.name}
                     className="w-4 h-4 rounded-full mr-2"
                   ></img>

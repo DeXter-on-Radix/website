@@ -2,6 +2,9 @@ import * as adex from "alphadex-sdk-js";
 import { TokenInfo } from "./state/pairSelectorSlice";
 import type { OrderReceipt } from "alphadex-sdk-js";
 
+export const DEXTER_LOGO_URL =
+  "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+
 export function displayPositiveNumber(
   x: number,
   noDigits: number = 6,
@@ -315,7 +318,7 @@ export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
   const iconUrl =
     token.symbol === "DEXTR"
       ? // use asset from coingecko to prevent ipfs failure
-        "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+        DEXTER_LOGO_URL
       : token.symbol === "RDK"
       ? // fix wrong icon URL in metadata ofRDK on ledger, see https://t.me/radix_dlt/716425
         "https://radket.shop/img/logo.svg"
@@ -516,4 +519,111 @@ export function shortenWalletAddress(address: string): string {
   const firstPart = address.slice(0, 8);
   const lastPart = address.slice(-20);
   return `${firstPart}...${lastPart}`;
+}
+
+export function setLocalStoragePaginationValue(pageSize: number, id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  window.localStorage.setItem(
+    `pagination:${id ?? window.location.pathname}`,
+    String(pageSize)
+  );
+}
+
+export function getLocalStoragePaginationValue(id?: string) {
+  if (typeof window === "undefined") return undefined;
+
+  const existingValue = window.localStorage.getItem(
+    `pagination:${id ?? window.location.pathname}`
+  );
+  if (existingValue !== null) {
+    const pageNumber = Number(existingValue);
+    return pageNumber < 1 ? 10 : pageNumber;
+  }
+
+  return undefined;
+}
+
+// TODO: Update input and return types to `PairInfo[]`. Currently using `any`
+// due to unresolved issues. Investigate the cause of the problem.
+export function searchPairs(query: string, pairsList: any): any {
+  const searchQuery = query.trim().toLowerCase().replace(/\s+/g, " ");
+
+  function levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = Array.from({ length: a.length + 1 }, () => []);
+
+    for (let i = 0; i <= a.length; i++) {
+      matrix[i][0] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        if (a[i - 1] === b[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[a.length][b.length];
+  }
+
+  const hasTypoTolerance = (source: string, target: string): boolean => {
+    const maxTyposAllowed = Math.floor(source.length / 5);
+    const distance = levenshteinDistance(source, target);
+    return distance <= maxTyposAllowed;
+  };
+
+  const preprocessPairName = (name: string): string =>
+    name.toLowerCase().replace(/\//g, " ");
+
+  const preprocessToken = (token: { symbol: string; name: string }) => ({
+    symbol: token.symbol.toLowerCase(),
+    name: token.name.toLowerCase(),
+  });
+
+  const generateCombinations = (items: string[]): string[] => {
+    const combinations: string[] = [];
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        combinations.push(`${items[i]} ${items[j]}`);
+        combinations.push(`${items[j]} ${items[i]}`);
+      }
+    }
+    return combinations;
+  };
+
+  return pairsList.filter((pair: any) => {
+    const pairName = preprocessPairName(pair.name);
+    const pairNameReversed = pairName.split(" ").reverse().join(" ");
+    const token1 = preprocessToken(pair.token1);
+    const token2 = preprocessToken(pair.token2);
+
+    const baseMatches = [
+      pairName,
+      pairNameReversed,
+      token1.symbol,
+      token2.symbol,
+      token1.name,
+      token2.name,
+    ];
+
+    const dynamicMatches = generateCombinations(baseMatches);
+
+    const nameMatches = [...baseMatches, ...dynamicMatches];
+
+    return nameMatches.some(
+      (nameMatch) =>
+        nameMatch.includes(searchQuery) ||
+        hasTypoTolerance(searchQuery, nameMatch)
+    );
+  });
 }

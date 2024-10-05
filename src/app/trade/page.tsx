@@ -6,12 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { OrderBook } from "../components/OrderBook";
 import { OrderInput } from "../components/OrderInput";
 import { PairSelector } from "../components/PairSelector";
-import { PriceChart } from "../components/PriceChart";
+import { ChartOrInfo } from "../components/PriceChart";
 import { AccountHistory } from "../components/AccountHistory";
 import { PriceInfo } from "../components/PriceInfo";
 import { fetchBalances, selectPair } from "state/pairSelectorSlice";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchAccountHistory } from "../state/accountHistorySlice";
+import {
+  fetchAccountHistory,
+  fetchAccountHistoryAllPairs,
+} from "../state/accountHistorySlice";
 
 import { PromoBannerCarousel } from "../components/PromoBannerCarousel";
 
@@ -21,6 +24,10 @@ export default function Trade() {
   const pairSelector = useAppSelector((state) => state.pairSelector);
   const pairName = pairSelector.name;
   const pairsList = pairSelector.pairsList;
+
+  const hideOtherPairs = useAppSelector(
+    (state) => state.accountHistory.hideOtherPairs
+  );
 
   // Detect changes in selected pair and adjust pagetitle
   useEffect(() => {
@@ -42,6 +49,7 @@ export default function Trade() {
     }
   }, [pairsList, dispatch, searchParams]);
 
+  // Update orders of selected pair every 5 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
       dispatch(fetchBalances());
@@ -51,17 +59,34 @@ export default function Trade() {
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, [dispatch]);
 
+  // Update orders of all pairs every 2 mins (if selected)
+  useEffect(() => {
+    const showAllPairs = !hideOtherPairs;
+    if (showAllPairs) {
+      dispatch(fetchAccountHistoryAllPairs());
+    }
+
+    const intervalId = setInterval(() => {
+      if (showAllPairs) {
+        dispatch(fetchAccountHistoryAllPairs());
+      }
+    }, 120000); // Dispatch every 2 mins (120 seconds)
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [dispatch, hideOtherPairs]);
+
   return (
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // mox liquidity incentive banner
+          // PHNX liquidity program
           {
-            imageUrl: "/promo-banners/mox-desktop.png",
-            imageUrlMobile: "/promo-banners/mox-mobile.png",
-            redirectUrl: "https://dexteronradix.com/trade?pair=mox-xrd",
-            backgroundColor: "bg-[#FF5634]",
+            imageUrl: "/promo-banners/phnx-desktop2x.png",
+            imageUrlMobile: "/promo-banners/phnx-mobile2x.png",
+            redirectUrl: "https://dexteronradix.com/trade?pair=phnx-xrd",
             redirectOpensInSameTab: true,
+            backgroundColor: "bg-[#FF5634]",
+            expirationDate: new Date("2024-10-02"),
           },
           // tokentrek banner
           {
@@ -95,8 +120,8 @@ export default function Trade() {
           <div className="orderInput max-[850px]:p-5 max-[700px]:p-0 ">
             <OrderInput />
           </div>
-          <div className="priceChart pl-4 pr-2 pt-2">
-            <PriceChart />
+          <div className="priceChart pl-4 pr-4 pt-2">
+            <ChartOrInfo />
           </div>
           <div className="tradeHistory max-w-[100%] w-full overflow-x-auto scrollbar-thin">
             <AccountHistory />

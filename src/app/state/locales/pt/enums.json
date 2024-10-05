@@ -12,5 +12,12 @@
   "ORDER_HISTORY": "Histórico de ordens",
   "TRADE_HISTORY": "Histórico de transações",
   "PAY": "Você paga",
-  "RECEIVE": "Você recebe"
+  "RECEIVE": "Você recebe",
+  "ADMIN": "Admin",
+  "DEV": "Dev",
+  "DESIGN": "Design",
+  "SOCIAL_MEDIA": "Mídias sociais",
+  "TESTING": "Testes",
+  "ACTIVE": "Ativo",
+  "PAST": "Passado"
 }
