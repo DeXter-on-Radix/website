@@ -30,6 +30,10 @@ export function Footer() {
         text: t("roadmap"),
         url: "https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a",
       },
+      {
+        text: t("treasury"),
+        url: "https://dashboard.radixdlt.com/account/account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5",
+      },
     ],
   };
   const contentColumn2 = {

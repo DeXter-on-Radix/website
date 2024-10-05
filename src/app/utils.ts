@@ -2,6 +2,9 @@ import * as adex from "alphadex-sdk-js";
 import { TokenInfo } from "./state/pairSelectorSlice";
 import type { OrderReceipt } from "alphadex-sdk-js";
 
+export const DEXTER_LOGO_URL =
+  "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+
 export function displayPositiveNumber(
   x: number,
   noDigits: number = 6,
@@ -315,7 +318,7 @@ export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
   const iconUrl =
     token.symbol === "DEXTR"
       ? // use asset from coingecko to prevent ipfs failure
-        "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+        DEXTER_LOGO_URL
       : token.symbol === "RDK"
       ? // fix wrong icon URL in metadata ofRDK on ledger, see https://t.me/radix_dlt/716425
         "https://radket.shop/img/logo.svg"
