@@ -696,6 +696,7 @@ async function createTx(state: RootState, rdt: RDT) {
  */
 //This is originally from the alphadex-client.js line 779
 async function submitTransaction(manifest: any, rdt: RDT) {
+  console.debug(`submitting the following manifest: \n\n${manifest}`);
   const result = await rdt.walletApi.sendTransaction({
     transactionManifest: manifest,
     version: 1,
