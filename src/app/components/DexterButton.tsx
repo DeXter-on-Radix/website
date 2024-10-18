@@ -1,6 +1,7 @@
 "use client";
 
-import { useHydrationErrorFix } from "hooks";
+import { useAppDispatch, useHydrationErrorFix, useLanguageSwitch } from "hooks";
+import { i18nSlice } from "state/i18nSlice";
 import { twMerge } from "tailwind-merge";
 
 interface DexterButtonProps {
@@ -24,9 +25,11 @@ export function DexterButton({
   buttonClassName = "",
   labelClassName = "",
 }: DexterButtonProps) {
-  const isClient = useHydrationErrorFix();
-
-  if (!isClient) return null;
+  const maybLanguage = useLanguageSwitch();
+  const dispatch = useAppDispatch();
+  if (maybLanguage) {
+    dispatch(i18nSlice.actions.changeLanguage(maybLanguage));
+  }
 
   const wrapperDefaultClassName = `z-100 min-w-[220px] max-${maxWidth}`;
   const buttonDefaultClassName = `min-${minHeight} ${maxWidth} px-4 mb-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100`;

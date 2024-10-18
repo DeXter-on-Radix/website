@@ -3,9 +3,11 @@ import type { TypedUseSelectorHook } from "react-redux";
 import type { RootState, AppDispatch } from "./state/store";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  detectBrowserLanguage,
   getLocalStoragePaginationValue,
   setLocalStoragePaginationValue,
 } from "utils";
+import Cookies from "js-cookie";
 
 // https://redux-toolkit.js.org/tutorials/typescript#define-typed-hooks
 export const useAppDispatch: () => AppDispatch = useDispatch;
@@ -22,6 +24,22 @@ export const useTranslations = () => {
     return textContent[currentLanguage]?.[key] || key;
   };
   return t;
+};
+
+// Hook to change language after hydration process
+export const useLanguageSwitch = () => {
+  const userLanguageCookieValue = Cookies.get("userLanguage");
+  const { textContent } = useAppSelector((state) => state.i18n);
+  const supportedLanguages = Object.keys(textContent);
+  if (userLanguageCookieValue) {
+    return userLanguageCookieValue;
+  } else {
+    const browserLang = detectBrowserLanguage();
+    if (supportedLanguages.includes(browserLang)) {
+      return browserLang;
+    }
+  }
+  return undefined;
 };
 
 // Hook to fix hydration errors by delaying rendering until client-side mount

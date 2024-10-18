@@ -52,19 +52,21 @@ function AppBody({ children }: { children: React.ReactNode }) {
   const path = usePathname();
 
   // Detect browser langauge
-  const { textContent } = useAppSelector((state) => state.i18n);
-  const supportedLanguages = Object.keys(textContent);
+  // const { textContent } = useAppSelector((state) => state.i18n);
+  // const supportedLanguages = Object.keys(textContent);
   useEffect(() => {
-    const userLanguageCookieValue = Cookies.get("userLanguage");
-    if (userLanguageCookieValue) {
-      dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
-    } else {
-      const browserLang = detectBrowserLanguage();
-      if (supportedLanguages.includes(browserLang)) {
-        dispatch(i18nSlice.actions.changeLanguage(browserLang));
-      }
-    }
-  }, [dispatch, supportedLanguages]);
+    dispatch(i18nSlice.actions.changeLanguage("en"));
+
+    // const userLanguageCookieValue = Cookies.get("userLanguage");
+    // if (userLanguageCookieValue) {
+    //   dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
+    // } else {
+    //   const browserLang = detectBrowserLanguage();
+    //   if (supportedLanguages.includes(browserLang)) {
+    //     dispatch(i18nSlice.actions.changeLanguage(browserLang));
+    //   }
+    // }
+  }, [dispatch]);
 
   return (
     <body>

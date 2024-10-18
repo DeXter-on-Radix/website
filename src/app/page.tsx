@@ -65,9 +65,9 @@ export default function Landing() {
 
 function HeroSection() {
   const t = useTranslations();
-  const isClient = useHydrationErrorFix();
+  // const isClient = useHydrationErrorFix();
 
-  if (!isClient) return <></>;
+  // if (!isClient) return <></>;
   return (
     <div
       className={
@@ -100,7 +100,7 @@ function HeroSection() {
           </h1>
           <div className="relative">
             <BackgroundLights showFor={Device.MOBILE} />
-            <DexterButton title={t("trade_now")} targetUrl="/trade" />
+            <DexterButton title={"trade nowsss"} targetUrl="/trade" />
           </div>
           <KeyFeatures showFor={Device.MOBILE} />
         </div>
