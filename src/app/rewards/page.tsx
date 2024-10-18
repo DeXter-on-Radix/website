@@ -93,28 +93,15 @@ function HeaderComponent() {
 
 function RewardsCard() {
   const dispatch = useAppDispatch();
-  const { isConnected, selectedAccount } = useAppSelector(
+  const { isHydrated, isConnected, selectedAccount } = useAppSelector(
     (state) => state.radix
   );
-
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [isConnectedLocal, setIsConnectedLocal] = useState(false);
   const account = selectedAccount?.address;
   const t = useTranslations();
   const { rewardData, pairsList, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (isHydrated) {
-      setIsConnectedLocal(isConnected);
-    }
-  }, [isConnected, isHydrated]);
 
   useEffect(() => {
     // Performs 4 sequential actions:
@@ -136,10 +123,10 @@ function RewardsCard() {
         fetchOrderRewards(fetchReceiptsResult.payload as string[])
       );
     }
-    if (isConnectedLocal) {
+    if (isHydrated && isConnected) {
       loadRewards();
     }
-  }, [dispatch, isConnectedLocal, account, pairsList]);
+  }, [dispatch, isHydrated, isConnected, account, pairsList]);
 
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
@@ -148,12 +135,12 @@ function RewardsCard() {
           <h4
             style={{ margin: 0, marginBottom: 12 }}
             className={
-              !isConnectedLocal || !userHasRewards
+              !isHydrated || !isConnected || !userHasRewards
                 ? "opacity-50 text-center"
                 : ""
             }
           >
-            {!isConnectedLocal
+            {!isHydrated || !isConnected
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
@@ -162,13 +149,13 @@ function RewardsCard() {
               : t("no_rewards_to_claim")}
           </h4>
         </div>
-        {/* <RewardsOverview />
+        <RewardsOverview />
         <ClaimButton />
         <SecondaryAction
           textIdentifier="learn_more_about_rewards"
           targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
         />
-        <RewardsDetails /> */}
+        <RewardsDetails />
       </div>
     </div>
   );
@@ -227,12 +214,12 @@ function RewardsOverview() {
 function ClaimButton() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
-  const { isConnected } = useAppSelector((state) => state.radix);
+  const { isConnected, isHydrated } = useAppSelector((state) => state.radix);
   const { rewardData, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
-  const disabled = !isConnected || !userHasRewards;
+  const disabled = !isHydrated || !isConnected || !userHasRewards;
 
   return (
     <button
@@ -270,7 +257,7 @@ function ClaimButton() {
 
 function RewardsDetails() {
   const [isOpen, setIsOpen] = useState(true);
-  const { isConnected } = useAppSelector((state) => state.radix);
+  const { isConnected, isHydrated } = useAppSelector((state) => state.radix);
   const { rewardData, tokensList } = useAppSelector(
     (state) => state.rewardSlice
   );
@@ -280,9 +267,9 @@ function RewardsDetails() {
     if (!isConnected) {
       setIsOpen(false);
     }
-  }, [isConnected]);
+  }, [isConnected, isHydrated]);
 
-  if (!isConnected || !userHasRewards) {
+  if (!isHydrated || !isConnected || !userHasRewards) {
     return <></>;
   }
 
