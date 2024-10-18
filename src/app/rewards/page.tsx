@@ -96,12 +96,25 @@ function RewardsCard() {
   const { isConnected, selectedAccount } = useAppSelector(
     (state) => state.radix
   );
+
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [isConnectedLocal, setIsConnectedLocal] = useState(false);
   const account = selectedAccount?.address;
   const t = useTranslations();
   const { rewardData, pairsList, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      setIsConnectedLocal(isConnected);
+    }
+  }, [isConnected, isHydrated]);
 
   useEffect(() => {
     // Performs 4 sequential actions:
@@ -123,10 +136,10 @@ function RewardsCard() {
         fetchOrderRewards(fetchReceiptsResult.payload as string[])
       );
     }
-    if (isConnected) {
+    if (isConnectedLocal) {
       loadRewards();
     }
-  }, [dispatch, isConnected, account, pairsList]);
+  }, [dispatch, isConnectedLocal, account, pairsList]);
 
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
@@ -135,10 +148,12 @@ function RewardsCard() {
           <h4
             style={{ margin: 0, marginBottom: 12 }}
             className={
-              !isConnected || !userHasRewards ? "opacity-50 text-center" : ""
+              !isConnectedLocal || !userHasRewards
+                ? "opacity-50 text-center"
+                : ""
             }
           >
-            {!isConnected
+            {!isConnectedLocal
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
@@ -147,13 +162,13 @@ function RewardsCard() {
               : t("no_rewards_to_claim")}
           </h4>
         </div>
-        <RewardsOverview />
+        {/* <RewardsOverview />
         <ClaimButton />
         <SecondaryAction
           textIdentifier="learn_more_about_rewards"
           targetUrl="https://dexter-on-radix.gitbook.io/dexter/overview/how-are-contributors-rewarded/liquidity-incentives"
         />
-        <RewardsDetails />
+        <RewardsDetails /> */}
       </div>
     </div>
   );
