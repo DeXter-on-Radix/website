@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppDispatch } from "hooks";
-import { i18nSlice } from "state/i18nSlice";
 import { twMerge } from "tailwind-merge";
 
 interface DexterButtonProps {

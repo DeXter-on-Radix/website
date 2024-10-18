@@ -7,7 +7,7 @@ import { Navbar } from "./components/NavBar";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
-import { useEffect, Suspense, useState } from "react";
+import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
 import { useAppDispatch, useAppSelector, useBrowserLanguage } from "hooks";
