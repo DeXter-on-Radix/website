@@ -1,6 +1,5 @@
 "use client";
 
-import { useHydrationErrorFix } from "hooks";
 import { twMerge } from "tailwind-merge";
 
 interface DexterButtonProps {
@@ -24,10 +23,6 @@ export function DexterButton({
   buttonClassName = "",
   labelClassName = "",
 }: DexterButtonProps) {
-  const isClient = useHydrationErrorFix();
-
-  if (!isClient) return null;
-
   const wrapperDefaultClassName = `z-100 min-w-[220px] max-${maxWidth}`;
   const buttonDefaultClassName = `min-${minHeight} ${maxWidth} px-4 mb-6 mt-8 rounded bg-dexter-green-OG text-black uppercase opacity-100`;
   const labelDefaultClassName = "font-bold text-sm tracking-[.1px]";

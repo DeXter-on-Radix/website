@@ -12,6 +12,7 @@ export interface RadixState {
   walletData: WalletData;
   isConnected: boolean;
   selectedAccount: WalletDataStateAccount;
+  isHydrated: boolean;
 }
 
 const initialState: RadixState = {
@@ -22,6 +23,7 @@ const initialState: RadixState = {
   },
   isConnected: false,
   selectedAccount: {} as WalletDataStateAccount,
+  isHydrated: false,
 };
 
 export const radixSlice = createSlice({
@@ -43,6 +45,9 @@ export const radixSlice = createSlice({
       action: PayloadAction<WalletDataStateAccount>
     ) => {
       state.selectedAccount = action.payload;
+    },
+    setIsHydrated: (state: RadixState, action: PayloadAction<boolean>) => {
+      state.isHydrated = action.payload;
     },
   },
 });

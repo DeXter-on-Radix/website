@@ -179,37 +179,3 @@ To add a new banner, follow these steps:
 3. If you are the designer creating the banner, the content needs to be delivered as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg)). Furthermore, ensure there is only a single call to action (CTA). Avoid having multiple competing actions like "STAKE NOW" and "learn more". Decide which one is more important and design the banner accordingly :D
 4. Upload both files to `/public/promo-banners/`.
 5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20).
-
-## Hydration Error Handling
-
-**Problem**
-
-State variables get cached, leading to unpredictable initial renders of components (e.g., initialization based on cookies). This violates React/NextJS patterns and triggers hydration errors.
-
-**Handling Hydration Errors**
-
-1. **No Error**: If no hydration error occurs, no action is needed.
-2. **Error Detected**: Identify the component causing the error.
-3. **Fixing the Component**: Add the following code to the problematic component:
-
-```tsx
-import { useHydrationErrorFix } from "hooks";
-
-function ComponentWithHydrationError() {
-  const isClient = useHydrationErrorFix();
-
-  // Additional code like useEffect or other hooks go here!
-  // ...
-
-  if (!isClient) return <></>;
-
-  return (
-    /* Your component JSX */
-  );
-}
-```
-
-**Common Causes of Hydration Errors**
-
-1. **Radix Connect Button**: Caches logged-in users. Components relying on login status will render differently based on the user's login state.
-2. **Language Detection**: Cached in cookies. Components will render differently for users from various regions based on their browser-detected language.
