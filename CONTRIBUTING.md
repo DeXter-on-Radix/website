@@ -179,4 +179,3 @@ To add a new banner, follow these steps:
 3. If you are the designer creating the banner, the content needs to be delivered as an SVG with a transparent background (see examples for [desktop](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/desktop-600x80.svg) or [mobile](https://github.com/DeXter-on-Radix/website/blob/main/public/promo-banners/validator-node-staking/mobile-600x200.svg)). Furthermore, ensure there is only a single call to action (CTA). Avoid having multiple competing actions like "STAKE NOW" and "learn more". Decide which one is more important and design the banner accordingly :D
 4. Upload both files to `/public/promo-banners/`.
 5. Fill out `imageUrl`, `imageUrlMobile` and optionally `redirecturl` inside [`src/app/layout.tsx`](https://github.com/DeXter-on-Radix/website/blob/main/src/app/layout.tsx#L15-L20).
-
