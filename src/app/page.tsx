@@ -2,7 +2,7 @@
 
 import { DexterButton } from "components/DexterButton";
 import StatsWidget from "components/StatsWidget";
-import { useTranslations, useHydrationErrorFix } from "hooks";
+import { useTranslations } from "hooks";
 
 enum Device {
   MOBILE = "MOBILE",
@@ -51,6 +51,7 @@ export default function Landing() {
   const tradeProps = getTopicsSectionProps(TopicSectionEnum.TRADE, t);
   const stakeProps = getTopicsSectionProps(TopicSectionEnum.STAKE, t);
   const contributeProps = getTopicsSectionProps(TopicSectionEnum.CONTRIBUTE, t);
+
   return (
     <div className="bg-dexter-grey-light">
       <HeroSection />
@@ -65,9 +66,6 @@ export default function Landing() {
 
 function HeroSection() {
   const t = useTranslations();
-  // const isClient = useHydrationErrorFix();
-
-  // if (!isClient) return <></>;
   return (
     <div
       className={
@@ -100,7 +98,7 @@ function HeroSection() {
           </h1>
           <div className="relative">
             <BackgroundLights showFor={Device.MOBILE} />
-            <DexterButton title={"trade nowsss"} targetUrl="/trade" />
+            <DexterButton title={t("trade_now")} targetUrl="/trade" />
           </div>
           <KeyFeatures showFor={Device.MOBILE} />
         </div>
@@ -223,8 +221,6 @@ function TopicSection({
   buttonText,
   reversed,
 }: TopicSectionProps): JSX.Element {
-  const isClient = useHydrationErrorFix();
-  if (!isClient) return <></>;
   return (
     <div
       className={`${backgroundColor} py-20 max-[820px]:py-10 z-[100] relative`}

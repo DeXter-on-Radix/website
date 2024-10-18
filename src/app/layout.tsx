@@ -7,15 +7,12 @@ import { Navbar } from "./components/NavBar";
 import { Provider } from "react-redux";
 import { usePathname } from "next/navigation";
 import { DexterToaster } from "./components/DexterToaster";
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
-
-import { detectBrowserLanguage } from "./utils";
-import { i18nSlice } from "./state/i18nSlice";
-
+import { useAppDispatch, useAppSelector, useBrowserLanguage } from "hooks";
 import Cookies from "js-cookie";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { i18nSlice } from "state/i18nSlice";
 
 export default function RootLayout({
   children,
@@ -48,25 +45,34 @@ export default function RootLayout({
 
 // This subcomponent is needed to initialize browser language for the whole app
 function AppBody({ children }: { children: React.ReactNode }) {
-  const dispatch = useAppDispatch();
   const path = usePathname();
 
-  // Detect browser langauge
-  // const { textContent } = useAppSelector((state) => state.i18n);
-  // const supportedLanguages = Object.keys(textContent);
-  useEffect(() => {
-    dispatch(i18nSlice.actions.changeLanguage("en"));
+  const dispatch = useAppDispatch();
+  const { textContent } = useAppSelector((state) => state.i18n);
+  const supportedLanguages = Object.keys(textContent);
+  const browserLanguage = useBrowserLanguage();
 
-    // const userLanguageCookieValue = Cookies.get("userLanguage");
-    // if (userLanguageCookieValue) {
-    //   dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
-    // } else {
-    //   const browserLang = detectBrowserLanguage();
-    //   if (supportedLanguages.includes(browserLang)) {
-    //     dispatch(i18nSlice.actions.changeLanguage(browserLang));
-    //   }
-    // }
-  }, [dispatch]);
+  // State to track hydration
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Set the hydration state to true after component mounts
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      // Detect browser language or retrieve from cookie only after hydration
+      const userLanguageCookieValue = Cookies.get("userLanguage");
+      if (userLanguageCookieValue) {
+        dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
+      } else {
+        if (supportedLanguages.includes(browserLanguage)) {
+          dispatch(i18nSlice.actions.changeLanguage(browserLanguage));
+        }
+      }
+    }
+  }, [dispatch, isHydrated, supportedLanguages, browserLanguage]);
 
   return (
     <body>
