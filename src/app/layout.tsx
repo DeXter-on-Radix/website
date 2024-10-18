@@ -13,6 +13,7 @@ import { store } from "./state/store";
 import { useAppDispatch, useAppSelector, useBrowserLanguage } from "hooks";
 import Cookies from "js-cookie";
 import { i18nSlice } from "state/i18nSlice";
+import { radixSlice } from "state/radixSlice";
 
 export default function RootLayout({
   children,
@@ -25,7 +26,7 @@ export default function RootLayout({
     return () => {
       unsubscribeAll();
     };
-  }, []);
+  });
 
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
@@ -45,20 +46,18 @@ export default function RootLayout({
 
 // This subcomponent is needed to initialize browser language for the whole app
 function AppBody({ children }: { children: React.ReactNode }) {
-  const path = usePathname();
-
   const dispatch = useAppDispatch();
+  const path = usePathname();
+  const { isHydrated } = useAppSelector((state) => state.radix);
+
+  // set hydration globally once
+  useEffect(() => {
+    dispatch(radixSlice.actions.setIsHydrated(true));
+  }, [dispatch]);
+
   const { textContent } = useAppSelector((state) => state.i18n);
   const supportedLanguages = Object.keys(textContent);
   const browserLanguage = useBrowserLanguage();
-
-  // State to track hydration
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Set the hydration state to true after component mounts
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (isHydrated) {
