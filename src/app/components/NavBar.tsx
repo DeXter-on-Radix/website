@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import {
   useAppDispatch,
   useAppSelector,
-  useHydrationErrorFix,
+  useIsMobile,
   useTranslations,
 } from "hooks";
 import { getSupportedLanguagesAsString } from "../state/i18nSlice";
@@ -16,7 +16,7 @@ import { radixSlice } from "../state/radixSlice";
 
 import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
-import { isMobile, shortenWalletAddress } from "../utils";
+import { shortenWalletAddress } from "../utils";
 import {
   fetchAccountHistory,
   accountHistorySlice,
@@ -272,9 +272,7 @@ function MobileMenu({
   menuOpen: boolean;
   setMenuOpen: (newMenuOpen: boolean) => void;
 }) {
-  const isClient = useHydrationErrorFix();
-  if (!isClient) return null;
-
+  const isMobile = useIsMobile();
   return (
     <div
       className={`flex flex-col 
@@ -285,7 +283,7 @@ function MobileMenu({
           fixed top-0 left-0 
           py-5
           bg-[rgba(0,0,0,0.8)] backdrop-blur-lg
-           ${isMobile() ? "px-6" : "px-10"}
+           ${isMobile ? "px-6" : "px-10"}
             ${
               menuOpen
                 ? "opacity-100 scale-100"
