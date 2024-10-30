@@ -10,12 +10,10 @@ import { DexterToaster } from "./components/DexterToaster";
 import { useEffect, Suspense } from "react";
 import { initializeSubscriptions, unsubscribeAll } from "./subscriptions";
 import { store } from "./state/store";
-
-import { detectBrowserLanguage } from "./utils";
-import { i18nSlice } from "./state/i18nSlice";
-
+import { useAppDispatch, useAppSelector, useBrowserLanguage } from "hooks";
 import Cookies from "js-cookie";
-import { useAppDispatch, useAppSelector } from "hooks";
+import { i18nSlice } from "state/i18nSlice";
+import { radixSlice } from "state/radixSlice";
 
 export default function RootLayout({
   children,
@@ -28,7 +26,7 @@ export default function RootLayout({
     return () => {
       unsubscribeAll();
     };
-  }, []);
+  });
 
   // TODO: after MVP remove "use client", fix all as many Components as possible
   // to be server components for better SSG and SEO
@@ -50,21 +48,30 @@ export default function RootLayout({
 function AppBody({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const path = usePathname();
+  const { isHydrated } = useAppSelector((state) => state.radix);
 
-  // Detect browser langauge
+  // set hydration globally once
+  useEffect(() => {
+    dispatch(radixSlice.actions.setIsHydrated(true));
+  }, [dispatch]);
+
   const { textContent } = useAppSelector((state) => state.i18n);
   const supportedLanguages = Object.keys(textContent);
+  const browserLanguage = useBrowserLanguage();
+
   useEffect(() => {
-    const userLanguageCookieValue = Cookies.get("userLanguage");
-    if (userLanguageCookieValue) {
-      dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
-    } else {
-      const browserLang = detectBrowserLanguage();
-      if (supportedLanguages.includes(browserLang)) {
-        dispatch(i18nSlice.actions.changeLanguage(browserLang));
+    if (isHydrated) {
+      // Detect browser language or retrieve from cookie only after hydration
+      const userLanguageCookieValue = Cookies.get("userLanguage");
+      if (userLanguageCookieValue) {
+        dispatch(i18nSlice.actions.changeLanguage(userLanguageCookieValue));
+      } else {
+        if (supportedLanguages.includes(browserLanguage)) {
+          dispatch(i18nSlice.actions.changeLanguage(browserLanguage));
+        }
       }
     }
-  }, [dispatch, supportedLanguages]);
+  }, [dispatch, isHydrated, supportedLanguages, browserLanguage]);
 
   return (
     <body>
