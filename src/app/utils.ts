@@ -349,34 +349,6 @@ export function capitalizeFirstLetter(input: string): string {
   return input.charAt(0).toUpperCase() + input.slice(1);
 }
 
-export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
-  // Helper function to extract first 2 chars and ensure its lowercased.
-  const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
-
-  // navigator.languages: Returns an array of the user's preferred languages, ordered by preference
-  if (Array.isArray(navigator.languages) && navigator.languages.length) {
-    return toLngCode(navigator.languages[0]);
-  }
-  // navigator.language: Returns the browser's UI language
-  if (navigator.language) {
-    return toLngCode(navigator.language);
-  }
-  // navigator.userLanguage: Deprecated but included for compatibility with older versions of IE
-  if ((navigator as any).userLanguage) {
-    return toLngCode((navigator as any).userLanguage);
-  }
-  // navigator.browserLanguage: Another deprecated property for older IE versions
-  if ((navigator as any).browserLanguage) {
-    return toLngCode((navigator as any).browserLanguage);
-  }
-  // navigator.systemLanguage: Deprecated and for IE only, returns OS language
-  if ((navigator as any).systemLanguage) {
-    return toLngCode((navigator as any).systemLanguage);
-  }
-  // Fallback to a default language if none is detected
-  return defaultLanguage;
-}
-
 // Gets amount precision for each token traded on dexteronradix.
 // Note: precision for price is different.
 export function getPrecision(input: string): number {
@@ -426,31 +398,6 @@ export function formatNumericString(
   return fraction ? `${whole}${separator}${fraction}` : whole;
 }
 
-// Define an enum for the operating system types
-export enum OperatingSystem {
-  MAC = "MAC",
-  WINDOWS = "WINDOWS",
-  LINUX = "LINUX",
-  UNKNOWN = "UNKNOWN",
-}
-
-// Function to detect the users operating system based on navigator
-export function detectOperatingSystem(): OperatingSystem {
-  if (typeof window === "undefined" || typeof navigator === "undefined") {
-    return OperatingSystem.UNKNOWN;
-  }
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (userAgent.includes("mac os")) {
-    return OperatingSystem.MAC;
-  } else if (userAgent.includes("windows")) {
-    return OperatingSystem.WINDOWS;
-  } else if (userAgent.includes("linux")) {
-    return OperatingSystem.LINUX;
-  } else {
-    return OperatingSystem.UNKNOWN;
-  }
-}
-
 export function truncateWithPrecision(num: number, precision: number): number {
   const split = num.toString().split(".");
   if (split.length !== 2) {
@@ -458,26 +405,6 @@ export function truncateWithPrecision(num: number, precision: number): number {
   }
   const [part1, part2] = split;
   return Number(`${part1}.${part2.substring(0, precision)}`);
-}
-
-// Detects mobile devices
-export function isMobile(): boolean {
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (
-    userAgent.match(/Android/i) ||
-    userAgent.match(/webOS/i) ||
-    userAgent.match(/avantgo/i) ||
-    userAgent.match(/iPhone/i) ||
-    userAgent.match(/iPad/i) ||
-    userAgent.match(/iPod/i) ||
-    userAgent.match(/BlackBerry/i) ||
-    userAgent.match(/bolt/i) ||
-    userAgent.match(/Windows Phone/i) ||
-    userAgent.match(/Phone/i)
-  ) {
-    return true;
-  }
-  return false;
 }
 
 // Sets a URL query parameter and updates the browser's history state
