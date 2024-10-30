@@ -81,8 +81,8 @@ export default function Trade() {
         items={[
           // ASTRL banner
           {
-            imageUrl: "/promo-banners/astrl-desktop.svg",
-            imageUrlMobile: "/promo-banners/astrl-mobile.svg",
+            imageUrl: "/promo-banners/astrl-desktop3x.png",
+            imageUrlMobile: "/promo-banners/astrl-mobile3x.png",
             redirectUrl: "https://dexteronradix.com/trade?pair=astrl-xrd",
             redirectOpensInSameTab: true,
             backgroundColor: "bg-[#3C1F8C]",
