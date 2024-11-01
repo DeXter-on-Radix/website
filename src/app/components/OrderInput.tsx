@@ -11,12 +11,7 @@ import {
   truncateWithPrecision,
 } from "../utils";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-  useTranslations,
-  useHydrationErrorFix,
-} from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
@@ -363,7 +358,6 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const {
@@ -396,9 +390,6 @@ function SubmitButton() {
         .replaceAll("<$ORDER_TYPE>", t(type))
         .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
-
-  // Fix HydrationError
-  if (!isClient) return <></>;
 
   return (
     <button
