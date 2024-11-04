@@ -40,6 +40,10 @@ const NavItems: { path: string; title: string }[] = [
     title: "trade",
   },
   {
+    path: "/stake",
+    title: "stake",
+  },
+  {
     path: "/rewards",
     title: "rewards",
   },
@@ -277,12 +281,12 @@ function MobileMenu({
 
   return (
     <div
-      className={`flex flex-col 
-          items-end 
-          w-[100vw] h-[100vh] 
-          overflow-hidden 
-          z-[1000] 
-          fixed top-0 left-0 
+      className={`flex flex-col
+          items-end
+          w-[100vw] h-[100vh]
+          overflow-hidden
+          z-[1000]
+          fixed top-0 left-0
           py-5
           bg-[rgba(0,0,0,0.8)] backdrop-blur-lg
            ${isMobile() ? "px-6" : "px-10"}
@@ -400,17 +404,17 @@ const AnimatedBurger = ({ menuOpen }: { menuOpen: boolean }) => {
     <div
       className={`
             z-[9999]
-            absolute 
-            top-1/2 
+            absolute
+            top-1/2
             ${menuOpen ? "-translate-y-1" : ""}
-            h-[0.175rem] w-7 
+            h-[0.175rem] w-7
 
             rounded-sm
             ${menuOpen ? "bg-transparent" : "bg-secondary-content"}
             transition-all
             duration-500
-            
-            before:absolute 
+
+            before:absolute
             before:content-[""]
             before:h-[0.175rem] before:w-7
             before:-translate-x-3.5
@@ -421,7 +425,7 @@ const AnimatedBurger = ({ menuOpen }: { menuOpen: boolean }) => {
             before:bg-secondary-content
             ${menuOpen ? "before:rotate-45 before:translate-y-[45%]" : ""}
 
-            after:absolute 
+            after:absolute
             after:content-[""]
             after:h-[0.175rem] after:w-7
             after:-translate-x-3.5
