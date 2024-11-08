@@ -79,14 +79,14 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // PHNX liquidity program
+          // ASTRL banner
           {
-            imageUrl: "/promo-banners/phnx-desktop2x.png",
-            imageUrlMobile: "/promo-banners/phnx-mobile2x.png",
-            redirectUrl: "https://dexteronradix.com/trade?pair=phnx-xrd",
+            imageUrl: "/promo-banners/astrl-desktop3x.png",
+            imageUrlMobile: "/promo-banners/astrl-mobile3x.png",
+            redirectUrl: "https://dexteronradix.com/trade?pair=astrl-xrd",
             redirectOpensInSameTab: true,
-            backgroundColor: "bg-[#FF5634]",
-            expirationDate: new Date("2024-10-02"),
+            backgroundColor: "bg-[#3C1F8C]",
+            expirationDate: new Date("2024-11-06"),
           },
           // tokentrek banner
           {

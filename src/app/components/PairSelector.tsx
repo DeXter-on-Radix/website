@@ -7,6 +7,7 @@ import React from "react";
 import { searchPairs } from "utils";
 
 import { BLACKLISTED_PAIRS } from "../data/BLACKLISTED_PAIRS";
+import { accountHistorySlice } from "state/accountHistorySlice";
 
 interface PairInfo {
   name: string;
@@ -95,6 +96,7 @@ export function PairSelector() {
           pairName: option["name"],
         })
       );
+      dispatch(accountHistorySlice.actions.resetSelectedOrdersToCancel());
       setHighlightedIndex(-1);
       setIsOpen(!isOpen);
     },
