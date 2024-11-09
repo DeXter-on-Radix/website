@@ -239,3 +239,58 @@ input[type="number"]::-ms-clear {
 .account-history table thead tr th:last-child {
   padding-right: 16px;
 }
+
+/* pseudo-classes for the percentage slider */
+input[type="range"]::-webit-slider-thumb {
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background-color: #474d52;
+  color: #474d52;
+  border: 3.5px #ffffff solid;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  background-color: #474d52;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  background-color: #474d52;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  box-shadow: none;
+  border: none;
+  width: full;
+  cursor: pointer;
+  z-index: 99;
+}
+
+input[type="range"]::-moz-range-track {
+  appearance: none;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-track {
+  appearance: none;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+}
