@@ -34,6 +34,10 @@ export function Footer() {
         text: t("treasury"),
         url: "https://dashboard.radixdlt.com/account/account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5",
       },
+      {
+        text: t("dao_votes"),
+        url: "https://www.crumbsup.io/#dao?id=0a1d654c-bba7-4f1e-b1f6-b891e6021950",
+      },
     ],
   };
   const contentColumn2 = {
