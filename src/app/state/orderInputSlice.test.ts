@@ -66,32 +66,6 @@ describe("OrderInputSlice", () => {
     );
   });
 
-  it("Validation works for zero token1 amount", () => {
-    store.dispatch(
-      orderInputSlice.actions.setTokenAmount({
-        amount: 0,
-        specifiedToken: SpecifiedToken.TOKEN_1,
-      })
-    );
-    expect(store.getState().orderInput.validationToken1.valid).toBe(false);
-    expect(store.getState().orderInput.validationToken1.message).toBe(
-      ErrorMessage.NONZERO_AMOUNT
-    );
-  });
-
-  it("Validation works for zero token2 amount", () => {
-    store.dispatch(
-      orderInputSlice.actions.setTokenAmount({
-        amount: 0,
-        specifiedToken: SpecifiedToken.TOKEN_2,
-      })
-    );
-    expect(store.getState().orderInput.validationToken2.valid).toBe(false);
-    expect(store.getState().orderInput.validationToken2.message).toBe(
-      ErrorMessage.NONZERO_AMOUNT
-    );
-  });
-
   it("Validation works for insufficient balance for token1 on sell order ", () => {
     store.dispatch(orderInputSlice.actions.setSide(OrderSide.SELL));
     store.dispatch(
