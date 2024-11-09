@@ -326,7 +326,7 @@ function getTokenomicsTopicSectionProps(
       <IconTitleAndBody
         icon="money"
         title={t("tokenomics")}
-        body={t("100k_dextr_minted_every_2")}
+        body={t("max_supply_14_5_m")}
       />
       <IconTitleAndBody
         icon="vote"
