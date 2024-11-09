@@ -21,7 +21,7 @@ export default function Team() {
   }, [dispatch]);
 
   return (
-    <div className="bg-dexter-grey-dark grow flex items-center justify-center pt-10">
+    <div className="bg-dexter-grey-dark grow flex items-start justify-center pt-10">
       <div className="max-w-[1200px] p-8">
         <HeaderComponent />
         <Filters />
