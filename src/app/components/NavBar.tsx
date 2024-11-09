@@ -29,12 +29,13 @@ import { rewardSlice } from "state/rewardSlice";
 interface NavbarItemProps {
   title: string;
   target: string;
+  openInNewTab?: boolean;
 }
 interface NavbarItemMobileProps extends NavbarItemProps {
   setMenuOpen: (newMenuOpenState: boolean) => void;
 }
 
-const NavItems: { path: string; title: string }[] = [
+const NavItems: { path: string; title: string; openInNewTab?: boolean }[] = [
   {
     path: "/trade",
     title: "trade",
@@ -44,8 +45,9 @@ const NavItems: { path: string; title: string }[] = [
     title: "rewards",
   },
   {
-    path: "/roadmap",
+    path: "https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a",
     title: "roadmap",
+    openInNewTab: true,
   },
   {
     path: "/team",
@@ -235,12 +237,13 @@ function NavbarItemsDesktop() {
   const t = useTranslations();
   return (
     <>
-      <div className="hidden sm:flex h-full items-center flex-1 px-2 mx-2 z-10">
+      <div className="hidden min-[840px]:flex h-full items-center flex-1 px-2 mx-2 z-10">
         {NavItems.map((navItem, indx) => {
           return (
             <NavbarItemDesktop
               title={t(navItem.title)}
               target={navItem.path}
+              openInNewTab={navItem.openInNewTab || false}
               key={indx}
             />
           );
@@ -253,7 +256,7 @@ function NavbarItemsDesktop() {
 function HamburgerMenu() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="sm:hidden flex justify-center items-center mr-6 ml-4 relative right-4">
+    <div className="min-[840px]:hidden flex justify-center items-center mr-6 ml-4 relative right-4">
       <button
         onClick={() => setMenuOpen((prev) => !prev)}
         className={`z-[9999] w-8 h-8 relative left-[16%] top-1/2 flex justify-center items-center`}
@@ -299,6 +302,7 @@ function MobileMenu({
             <NavbarItemMobile
               title={navItem.title}
               target={navItem.path}
+              openInNewTab={navItem.openInNewTab || false}
               setMenuOpen={setMenuOpen}
               key={indx}
             />
@@ -316,7 +320,7 @@ function MobileMenu({
   );
 }
 
-function NavbarItemDesktop({ title, target }: NavbarItemProps) {
+function NavbarItemDesktop({ title, target, openInNewTab }: NavbarItemProps) {
   const active = target === usePathname();
   return (
     <Link
@@ -324,6 +328,7 @@ function NavbarItemDesktop({ title, target }: NavbarItemProps) {
         active ? "border-b-2 border-[#cafc40]" : ""
       }`}
       href={target}
+      target={openInNewTab ? "_blank" : ""}
     >
       <p className={`text-sm ${active ? "text-[#cafc40]" : "text-white"}`}>
         {title}
@@ -335,6 +340,7 @@ function NavbarItemDesktop({ title, target }: NavbarItemProps) {
 function NavbarItemMobile({
   title,
   target,
+  openInNewTab,
   setMenuOpen,
 }: NavbarItemMobileProps) {
   const active = target === usePathname();
@@ -343,6 +349,7 @@ function NavbarItemMobile({
     <Link
       className={`my-2 hover:!no-underline`}
       href={target}
+      target={openInNewTab ? "_blank" : ""}
       onClick={() => setMenuOpen(false)}
     >
       <p
