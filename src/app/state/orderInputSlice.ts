@@ -216,6 +216,19 @@ export function tokenIsSpecified(specifiedToken: SpecifiedToken): boolean {
   return specifiedToken !== SpecifiedToken.UNSPECIFIED;
 }
 
+export function amountIsPositive(
+  specifiedToken: SpecifiedToken,
+  token1: TokenInput,
+  token2: TokenInput
+): boolean {
+  if (specifiedToken === SpecifiedToken.TOKEN_1) {
+    return token1.amount > 0;
+  } else if (specifiedToken === SpecifiedToken.TOKEN_2) {
+    return token2.amount > 0;
+  }
+  return false;
+}
+
 // for getting balances out of pairSelector slice
 // TODO(dcts): ask @chaotic whether this can live inside pairSelector now that
 // the orderInputState seems not to be needed anymore.
