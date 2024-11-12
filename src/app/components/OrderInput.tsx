@@ -26,6 +26,7 @@ import {
   pairAddressIsSet,
   priceIsValid,
   tokenIsSpecified,
+  amountIsPositive,
   submitOrder,
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
@@ -118,7 +119,8 @@ export function OrderInput() {
     if (
       pairAddressIsSet(pairAddress) &&
       priceIsValid(price, type) &&
-      tokenIsSpecified(specifiedToken)
+      tokenIsSpecified(specifiedToken) &&
+      amountIsPositive(specifiedToken, token1, token2)
     ) {
       dispatch(fetchQuote());
     }
