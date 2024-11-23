@@ -111,7 +111,7 @@ export function initializeSubscriptions(store: AppStore) {
       network = adex.ApiNetworkOptions.indexOf("stokenet");
   }
 
-  adex.init(adex.ApiNetworkOptions[network]);
+  adex.init(adex.ApiNetworkOptions[network], 1);
   subs.push(
     adex.clientState.stateChanged$.subscribe((newState) => {
       const serializedState: adex.StaticState = JSON.parse(
