@@ -31,6 +31,7 @@ import {
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
+import { useDebouncedCallback } from "use-debounce";
 
 // XRD reserved for transaction fees
 const XRD_FEE_ALLOWANCE = 3;
@@ -468,47 +469,51 @@ function UserInputContainer() {
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
 
-  const sliderCallback = useCallback(
-    (newPercentage: number) => {
-      const isXRDToken = isBuyOrder
-        ? token2.symbol === "XRD"
-        : token1.symbol === "XRD";
-      let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+  const sliderDebounceMs = 350;
+  const sliderCallback = useDebouncedCallback(
+    useCallback(
+      (newPercentage: number) => {
+        const isXRDToken = isBuyOrder
+          ? token2.symbol === "XRD"
+          : token1.symbol === "XRD";
+        let balance = isBuyOrder ? balanceToken2 : balanceToken1;
 
-      if (newPercentage === 100 && isXRDToken) {
-        balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
-      }
+        if (newPercentage === 100 && isXRDToken) {
+          balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+        }
 
-      const amount = Calculator.divide(
-        Calculator.multiply(balance, newPercentage),
-        100
-      );
+        const amount = Calculator.divide(
+          Calculator.multiply(balance, newPercentage),
+          100
+        );
 
-      const specifiedToken = isBuyOrder
-        ? SpecifiedToken.TOKEN_2
-        : SpecifiedToken.TOKEN_1;
+        const specifiedToken = isBuyOrder
+          ? SpecifiedToken.TOKEN_2
+          : SpecifiedToken.TOKEN_1;
 
-      dispatch(
-        orderInputSlice.actions.setTokenAmount({
-          amount,
-          bestBuy,
-          bestSell,
-          balanceToken1,
-          balanceToken2,
-          specifiedToken,
-        })
-      );
-    },
-    [
-      isBuyOrder,
-      token1.symbol,
-      token2.symbol,
-      balanceToken1,
-      balanceToken2,
-      bestBuy,
-      bestSell,
-      dispatch,
-    ]
+        dispatch(
+          orderInputSlice.actions.setTokenAmount({
+            amount,
+            bestBuy,
+            bestSell,
+            balanceToken1,
+            balanceToken2,
+            specifiedToken,
+          })
+        );
+      },
+      [
+        isBuyOrder,
+        token1.symbol,
+        token2.symbol,
+        balanceToken1,
+        balanceToken2,
+        bestBuy,
+        bestSell,
+        dispatch,
+      ]
+    ),
+    sliderDebounceMs
   );
 
   useEffect(() => {
