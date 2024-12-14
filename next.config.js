@@ -19,28 +19,6 @@ const nextConfig = {
 
   // for github pages
   basePath: process.env.BASE_PATH || "",
-  async redirects() {
-    return [
-      {
-        source: "/roadmap",
-        destination:
-          "https://ductus.notion.site/DeXter-Roadmap-e8faed71fe1c4cdf95fb247f682c0d3a",
-        permanent: false,
-      },
-      {
-        source: "/treasury",
-        destination:
-          "https://dashboard.radixdlt.com/account/account_rdx168qrzyngejus9nazhp7rw9z3qn2r7uk3ny89m5lwvl299ayv87vpn5",
-        permanent: false,
-      },
-      {
-        source: "/tester-setup",
-        destination:
-          "https://ductus.notion.site/DeXter-Beta-Tester-Setup-106a4c8666088049987dc71fe4bb3daa",
-        permanent: false,
-      },
-    ];
-  },
 };
 
 module.exports = withMDX(nextConfig);
