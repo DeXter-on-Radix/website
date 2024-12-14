@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env ENV_FILE=.env.testnet next dev",
     "dev-mainnet": "cross-env ENV_FILE=.env.mainnet next dev",
-    "build": "next build",
+    "build": "next build && npm run post-build-redirects",
+    "post-build-redirects": "node ./scripts/create-redirects.js",
     "serve-testnet": "cross-env ENV_FILE=.env.testnet npm run build && serve out",
     "serve-mainnet": "cross-env ENV_FILE=.env.mainnet npm run build && serve out",
     "lint": "next lint",
