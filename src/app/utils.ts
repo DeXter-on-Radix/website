@@ -413,7 +413,7 @@ export function setQueryParam(key: string, value: string) {
   if (!window) {
     return;
   }
-  const url = new URL(window.location.href);
+  const url = new URL(window.location?.href);
   url.searchParams.set(key, value);
   history.pushState({}, "", url);
 }
@@ -452,7 +452,7 @@ export function setLocalStoragePaginationValue(pageSize: number, id?: string) {
   if (typeof window === "undefined") return undefined;
 
   window.localStorage.setItem(
-    `pagination:${id ?? window.location.pathname}`,
+    `pagination:${id ?? window?.location.pathname}`,
     String(pageSize)
   );
 }
@@ -461,7 +461,7 @@ export function getLocalStoragePaginationValue(id?: string) {
   if (typeof window === "undefined") return undefined;
 
   const existingValue = window.localStorage.getItem(
-    `pagination:${id ?? window.location.pathname}`
+    `pagination:${id ?? window.location?.pathname}`
   );
   if (existingValue !== null) {
     const pageNumber = Number(existingValue);
