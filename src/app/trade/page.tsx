@@ -79,14 +79,13 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // ASTRL banner
+          // RAKOON banner
           {
-            imageUrl: "/promo-banners/astrl-desktop3x.png",
-            imageUrlMobile: "/promo-banners/astrl-mobile3x.png",
-            redirectUrl: "https://dexteronradix.com/trade?pair=astrl-xrd",
-            redirectOpensInSameTab: true,
-            backgroundColor: "bg-[#3C1F8C]",
-            expirationDate: new Date("2024-11-06"),
+            imageUrl: "/promo-banners/rakoon-desktop2x.png",
+            imageUrlMobile: "/promo-banners/rakoon-mobile2x.png",
+            redirectUrl: "https://rakoon.fun",
+            redirectOpensInSameTab: false,
+            backgroundColor: "bg-[#232323]",
           },
           // tokentrek banner
           {
