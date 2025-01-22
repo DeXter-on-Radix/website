@@ -21,33 +21,11 @@ export enum StakeType {
   UNSTAKE = "UNSTAKE",
 }
 
-// export function displayStakeSide(side: string): {
-//   text: string;
-// } {
-//   if (side === "DEXTR STAKING") {
-//     return { text: "stake DEXTR" };
-//   } else if (side === "XRD STAKING") {
-//     return { text: "stake XRD" };
-//   } else {
-//     return { text: "-" };
-//   }
-// }
-
-//TODO: CurrencyInputGroupConfig
-// interface CurrencyInputGroupConfig {
-//   label: string;
-//   currency: string;
-//   value: number;
-//   updateValue: (value: number) => void;
-//   inputValidation: ValidationResult;
-//   secondaryLabelProps: SecondaryLabelProps;
-// }
-
 export default function Stake() {
   return (
     <div className="bg-dexter-grey-dark">
-      <div className="max-w-screen-md mx-auto py-28">
-        <div className="flex flex-row">
+      <div className="max-w-screen-md mx-auto py-12">
+        <div className="flex flex-row mb-8 justify-between">
           <div className="flex flex-col my-auto">
             <h1
               className="!m-0 !mb-8 text-5xl text-md bg-gradient-to-r
@@ -57,8 +35,9 @@ export default function Stake() {
               Stake
             </h1>
             <p className="text-sm flex-wrap">
-              Delegate your XRD to our Validator to earn DEXTR Stake DEXTR
-              tokens to earn trading fees.
+              Delegate your XRD to our Validator to earn
+              <span className="block"></span>DEXTR Stake DEXTR tokens to earn
+              trading fees.
             </p>
           </div>
           <img
@@ -68,12 +47,32 @@ export default function Stake() {
             style={{ transform: "scaleX(-1)" }}
           />
         </div>
-        <div className="h-full flex flex-col text-base justify-center space-between">
-          <StakeSideTabs />
-          <div className="p-4 m-auto h-[570px] w-full">
-            <StakeTypeTabs />
-            {/* <UserInputContainer /> */}
-            {/* <SubmitButton /> */}
+        <div className="h-full w-full flex flex-col text-base">
+          <div className="bg-dexter-grey-dark">
+            <StakeSideTabs />
+            <div className="border-[1px] border-dexter-grey-light">
+              <div className="flex flex-row justify-between px-16 mt-10">
+                <div className="flex flex-col">
+                  <p className="text-xxs text-[#768089]">APY</p>
+                  <p className="text-lg">99.99%</p>
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-xxs text-[#768089]">
+                    Total value locked(XRD)
+                  </p>
+                  <p className="text-lg">999,999,999.99</p>
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-xxs text-[#768089]">Your position(XRD)</p>
+                  <p className="text-lg">999,999,999.99</p>
+                </div>
+              </div>
+              <div className="h-[570px]  bg-dexter-grey-light mx-8 my-8">
+                <StakeTypeTabs />
+                {/* <UserInputContainer /> */}
+                {/* <SubmitButton /> */}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -86,14 +85,16 @@ function StakeSideTabs() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-row justify-evenly">
+      <div className="flex flex-row border-[1px] border-dexter-grey-light rounded-sm">
         {[StakeSide.DEXTR, StakeSide.XRD].map((stakeSide, indx) => {
           const isActive = stakeSide === currentSide;
           return (
             <div
               key={indx}
-              className={`text-base py-3 px-[138px] bg-dexter-grey-light ${
-                isActive ? "text-base-content" : "text-dexter-grey-inactive"
+              className={`text-base py-3 w-[500px] flex justify-center mx-auto ${
+                isActive
+                  ? "text-base-content bg-dexter-grey-light"
+                  : "text-dexter-grey-inactive"
               } cursor-pointer`}
               onClick={() => setCurrentSide(stakeSide)}
             >
@@ -116,48 +117,41 @@ function StakeSideTab({ stakeSide }: StakeSideTabProps): JSX.Element | null {
 
   return (
     <div
-      className="flex justify-center items-center cursor-pointer uppercase font-light bg-dexter-grey-light"
+      className="flex justify-center items-center cursor-pointer uppercase font-light"
       onClick={() => {
         // dispatch(orderInputSlice.actions.resetUserInput());
         // dispatch(orderInputSlice.actions.setSide(orderSide));
       }}
     >
-      <p className="text-md tracking-[.1px] select-none uppercase">
+      <p className="text-xl tracking-[.1px] select-none uppercase">
         {stakeSide}
       </p>
     </div>
-    // <div className="flex space-x-4 sm:space-x-5 pb-0 pt-2">
-    //   {[[StakeSide.DEXTR], [StakeSide.XRD]].map(([stakeSide, side], indx) => {
-    //     const isActive = side === currentSide;
-    //     return (
-    //       <span
-    //         key={indx}
-    //         className={`text-base pb-2 sm:pb-3 px-2 ${
-    //           isActive
-    //             ? "text-dexter-green-OG border-b border-[#cafc40]"
-    //             : "text-[#768089]"
-    //         } cursor-pointer`}
-    //         onClick={() => setCurrentSide(side as StakeSide)}
-    //       >
-    //         {stakeSide}
-    //       </span>
-    //     );
-    //   })}
-    // </div>
   );
 }
 
 function StakeTypeTabs() {
+  const [currentType, setCurrentType] = useState(StakeType.STAKE);
+
   return (
     <>
-      <div className="h-[40px] flex justify-center">
-        <div className="w-full">
-          <div className="flex h-[40px]">
-            {[StakeType.STAKE, StakeType.UNSTAKE].map((type, indx) => (
-              <StakeTypeTab stakeType={type} key={indx} />
-            ))}
-          </div>
-        </div>
+      <div className="flex flex-row justify-evenly">
+        {[StakeType.STAKE, StakeType.UNSTAKE].map((stakeType, indx) => {
+          const isActive = stakeType === currentType;
+          return (
+            <div
+              key={indx}
+              className={`text-base py-3 w-[500px] flex justify-center mx-auto ${
+                isActive
+                  ? "text-base-content"
+                  : "text-dexter-grey-inactive bg-[#17181a]"
+              } cursor-pointer`}
+              onClick={() => setCurrentType(stakeType)}
+            >
+              <StakeTypeTab stakeType={stakeType} />
+            </div>
+          );
+        })}
       </div>
     </>
   );
@@ -169,7 +163,7 @@ function StakeTypeTab({ stakeType }: StakeTypeTabProps): JSX.Element | null {
 
   return (
     <div
-      className="w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center bg-dexter-grey-extralight"
+      className="w-[50%] cursor-pointer hover:opacity-100 flex justify-center items-center"
       // onClick={() => {
       //   dispatch(orderInputSlice.actions.setType(orderType));
       // }}
@@ -180,3 +174,25 @@ function StakeTypeTab({ stakeType }: StakeTypeTabProps): JSX.Element | null {
     </div>
   );
 }
+
+// export function displayStakeSide(side: string): {
+//   text: string;
+// } {
+//   if (side === "DEXTR STAKING") {
+//     return { text: "stake DEXTR" };
+//   } else if (side === "XRD STAKING") {
+//     return { text: "stake XRD" };
+//   } else {
+//     return { text: "-" };
+//   }
+// }
+
+//TODO: CurrencyInputGroupConfig
+// interface CurrencyInputGroupConfig {
+//   label: string;
+//   currency: string;
+//   value: number;
+//   updateValue: (value: number) => void;
+//   inputValidation: ValidationResult;
+//   secondaryLabelProps: SecondaryLabelProps;
+// }
