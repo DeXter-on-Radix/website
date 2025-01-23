@@ -570,7 +570,7 @@ function CustomNumericIMask({
       type="text"
       value={inputValue === "-1" ? "" : inputValue}
       onChange={handleChange}
-      className={`${className} bg-transparent`}
+      className={`${className} [background-color:#141414] [background:transparent] focus:bg-[#141414] active:bg-[#141414]`}
       style={{
         backgroundColor: "#141414",
         WebkitAppearance: "none",
@@ -657,58 +657,60 @@ function SubmitButton() {
   if (!isClient) return <></>;
 
   return (
-    <button
-      className={`w-full h-[40px] p-3 my-6 rounded ${
-        disabled
-          ? "bg-[#232629] text-[#474D52] opacity-50"
-          : isDextr
-          ? "bg-dexter-green text-black opacity-100"
-          : "bg-dexter-red text-white opacity-100"
-      }`}
-      onClick={async (e) => {
-        if (!isConnected) {
-          alert(t("connect_wallet_to_trade"));
-          return;
-        }
-        if (disabled) {
-          return;
-        }
-        e.stopPropagation();
-        DexterToast.promise(
-          // Function input, with following state-to-toast mapping
-          // -> pending: loading toast
-          // -> rejceted: error toast
-          // -> resolved: success toast
-          async () => {
-            const action = await dispatch(submitOrder());
-            if (!action.type.endsWith("fulfilled")) {
-              // Transaction was not fulfilled (e.g. userRejected or userCanceled)
-              throw new Error("Transaction failed due to user action.");
-            } else if ((action.payload as any)?.status === "ERROR") {
-              // Transaction was fulfilled but failed (e.g. submitted onchain failure)
-              throw new Error("Transaction failed onledger");
-            }
-            dispatch(orderInputSlice.actions.resetUserInput());
-            dispatch(fetchBalances());
-          },
-          t("submitting_order"), // Loading message
-          t("order_submitted"), // success message
-          t("failed_to_submit_order") // error message
-        );
-      }}
-    >
-      <div className="flex justify-center items-center">
-        <div className="font-bold text-sm tracking-[.1px] uppercase">
-          {buttonText}
+    <div className="px-6 pb-6">
+      <button
+        className={`w-full h-[40px] rounded ${
+          disabled
+            ? "bg-[#232629] text-[#474D52] opacity-50"
+            : isDextr
+            ? "bg-dexter-green text-black opacity-100"
+            : "bg-dexter-red text-white opacity-100"
+        }`}
+        onClick={async (e) => {
+          if (!isConnected) {
+            alert(t("connect_wallet_to_trade"));
+            return;
+          }
+          if (disabled) {
+            return;
+          }
+          e.stopPropagation();
+          DexterToast.promise(
+            // Function input, with following state-to-toast mapping
+            // -> pending: loading toast
+            // -> rejceted: error toast
+            // -> resolved: success toast
+            async () => {
+              const action = await dispatch(submitOrder());
+              if (!action.type.endsWith("fulfilled")) {
+                // Transaction was not fulfilled (e.g. userRejected or userCanceled)
+                throw new Error("Transaction failed due to user action.");
+              } else if ((action.payload as any)?.status === "ERROR") {
+                // Transaction was fulfilled but failed (e.g. submitted onchain failure)
+                throw new Error("Transaction failed onledger");
+              }
+              dispatch(orderInputSlice.actions.resetUserInput());
+              dispatch(fetchBalances());
+            },
+            t("submitting_order"), // Loading message
+            t("order_submitted"), // success message
+            t("failed_to_submit_order") // error message
+          );
+        }}
+      >
+        <div className="flex justify-center items-center">
+          <div className="font-bold text-sm tracking-[.1px] uppercase">
+            {buttonText}
+          </div>
+          {isUnstake && isConnected && (
+            <InfoTooltip
+              iconColor={isDextr ? "text-black" : "text-white"}
+              content={undefined}
+            />
+          )}
         </div>
-        {isUnstake && isConnected && (
-          <InfoTooltip
-            iconColor={isDextr ? "text-black" : "text-white"}
-            content={undefined}
-          />
-        )}
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
