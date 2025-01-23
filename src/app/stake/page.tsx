@@ -459,7 +459,7 @@ function CurrencyInputGroupSettings(
       updateValue: updateToken1,
       inputValidation: validationToken1,
       secondaryLabelProps: {
-        disabled: asset === AssetToStake.DEXTR,
+        disabled: asset !== AssetToStake.DEXTR,
         label: t("available"),
         currency: token1.symbol,
         value: truncateWithPrecision(balanceToken1, 8), // TODO(dcts): use coin-decimals
