@@ -95,7 +95,7 @@ interface CustomNumericIMaskProps {
 export default function Stake() {
   return (
     <div className="bg-dexter-grey-dark">
-      <div className="max-w-screen-md mx-auto py-6">
+      <div className="max-w-screen-md mx-auto py-10">
         <div className="flex flex-row mb-8 justify-between">
           <div className="flex flex-col my-auto">
             <h1
@@ -752,7 +752,7 @@ const Unstaking = () => {
 
   return (
     <>
-      <div className="flex flex-col mx-14 justify-center">
+      <div className="flex flex-col mx-14 justify-center my-8">
         <div className="flex flex-row border-b-2 border-dexter-grey-light w-full">
           <Image src={carotUp} alt="carot-up" width={10} height={10} />{" "}
           <p className="flex items-center uppercase font-bold pl-2 pb-2">
@@ -777,7 +777,7 @@ const Unstaking = () => {
           {unstakeHeaders.Quantity.map((_, index) => (
             <div
               key={index}
-              className="flex flex-row justify-between items-center border-b-1 border-dexter-grey-light w-full cursor-pointer"
+              className="flex flex-row justify-between items-center border-b-2 border-dexter-grey-light w-full cursor-pointer"
             >
               {Object.values(unstakeHeaders).map((values, colIndex) => (
                 <div key={colIndex} className="w-1/4">
@@ -790,7 +790,7 @@ const Unstaking = () => {
                   targetUrl=""
                   maxWidth="w-[150px]"
                   minHeight="h-[44px]"
-                  buttonClassName="my-0"
+                  buttonClassName="my-2"
                 />
               </div>
             </div>
