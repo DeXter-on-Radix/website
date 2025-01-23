@@ -9,6 +9,7 @@ import { rewardSlice } from "./rewardSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 import { i18nSlice } from "./i18nSlice";
 import { teamSlice } from "./teamSlice";
+import { stakeSlice } from "./stakingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     i18n: i18nSlice.reducer,
     rewardSlice: rewardSlice.reducer,
     teamSlice: teamSlice.reducer,
+    stakeSlice: stakeSlice.reducer,
   },
 });
 

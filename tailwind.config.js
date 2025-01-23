@@ -35,6 +35,7 @@ module.exports = {
         "dexter-red": "#D22D2D",
         "dexter-grey-dark": "#141414",
         "dexter-grey-light": "#191B1D",
+        "dexter-grey-light-2": "#242629",
         "content-dark": "#212A09",
         "dexter-grey-extralight": "#232629",
         "dexter-grey-inactive": "#5E666E",
