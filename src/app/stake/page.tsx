@@ -24,6 +24,9 @@ import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
 import { fetchBalances } from "state/pairSelectorSlice";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import carotUp from "/public/carot-up.svg";
+import Image from "next/image";
+import { DexterButton } from "components/DexterButton";
 
 interface AssetTabProps {
   asset: AssetToStake;
@@ -85,9 +88,9 @@ interface CustomNumericIMaskProps {
   onAccept: (value: number) => void;
 }
 
-interface DisabledInputFieldProps {
-  label: string;
-}
+// interface DisabledInputFieldProps {
+//   label: string;
+// }
 
 export default function Stake() {
   return (
@@ -139,7 +142,13 @@ export default function Stake() {
                 <StakeTypeTabs />
                 <UserInputContainer />
                 <SubmitButton />
+                <p className="flex justify-center text-xxs text-white items-center pt-3 pb-6 underline cursor-pointer">
+                  <a href="https://stokenet-dashboard.radixdlt.com/">
+                    Or delegate to our node using Radix Dashboard
+                  </a>
+                </p>
               </div>
+              <Unstaking />
             </div>
           </div>
         </div>
@@ -657,7 +666,7 @@ function SubmitButton() {
   if (!isClient) return <></>;
 
   return (
-    <div className="px-6 pb-6">
+    <div className="px-6">
       <button
         className={`w-full h-[40px] rounded ${
           disabled
@@ -733,3 +742,61 @@ function InfoTooltip({
     </div>
   );
 }
+
+const Unstaking = () => {
+  const unstakeHeaders = {
+    Quantity: ["1000 XRD"],
+    "Unstake start": ["2025-01-01"],
+    "Unstake end": ["2025-01-31"],
+  };
+
+  return (
+    <>
+      <div className="flex flex-col mx-14 justify-center">
+        <div className="flex flex-row border-b-2 border-dexter-grey-light w-full">
+          <Image src={carotUp} alt="carot-up" width={10} height={10} />{" "}
+          <p className="flex items-center uppercase font-bold pl-2 pb-2">
+            {AssetToStake.DEXTR} Unstaking
+          </p>
+        </div>
+
+        <div className="w-full flex flex-col">
+          {/* Headers */}
+          <div className="flex flex-row justify-start items-center border-b-2 border-dexter-grey-light w-full pt-6 pb-2">
+            {Object.keys(unstakeHeaders).map((header) => (
+              <div
+                key={header}
+                className="w-1/4 text-xs border-b-1 border-dexter-grey-light"
+              >
+                {header}
+              </div>
+            ))}
+          </div>
+
+          {/* Rows */}
+          {unstakeHeaders.Quantity.map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-row justify-between items-center border-b-1 border-dexter-grey-light w-full cursor-pointer"
+            >
+              {Object.values(unstakeHeaders).map((values, colIndex) => (
+                <div key={colIndex} className="w-1/4">
+                  {values[index]}
+                </div>
+              ))}
+              <div className="w-1/4 text-right">
+                <DexterButton
+                  title="Claim funds"
+                  targetUrl=""
+                  maxWidth="w-[150px]"
+                  minHeight="h-[44px]"
+                  buttonClassName="my-0"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
