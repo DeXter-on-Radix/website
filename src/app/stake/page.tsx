@@ -254,6 +254,14 @@ function StakeTypeTab({ stakeType }: StakeTypeTabProps): JSX.Element | null {
 
 function UserInputContainer() {
   const { asset, type } = useAppSelector((state) => state.stakeSlice);
+  const dispatch = useAppDispatch();
+  const { isConnected } = useAppSelector((state) => state.radix);
+
+  useEffect(() => {
+    if (isConnected) {
+      dispatch(fetchBalances());
+    }
+  }, [isConnected, dispatch]);
 
   const isDextrStaking = asset === AssetToStake.DEXTR;
   const isStake = type === StakeType.STAKE;
@@ -341,11 +349,14 @@ function CurrencyInputGroupSettings(
     // validationToken2,
   } = useAppSelector((state) => state.orderInput);
 
-  const { asset, type } = useAppSelector((state) => state.stakeSlice);
+  const { asset } = useAppSelector((state) => state.stakeSlice);
 
   const balanceToken1 =
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
     0;
+
+  console.log(balanceToken1);
+
   // const balanceToken2 =
   //   useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
   //   0;
@@ -462,7 +473,7 @@ function CurrencyInputGroupSettings(
         disabled: asset !== AssetToStake.DEXTR,
         label: t("available"),
         currency: token1.symbol,
-        value: truncateWithPrecision(balanceToken1, 8), // TODO(dcts): use coin-decimals
+        value: truncateWithPrecision(balanceToken1, 8),
         setPercentageValue: setPercentageAmountToken1,
         userAction: UserAction.SET_TOKEN_1,
       },
