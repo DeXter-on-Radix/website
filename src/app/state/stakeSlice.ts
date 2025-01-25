@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchBalances } from "./pairSelectorSlice";
+import { RootState } from "./store";
 
 export enum AssetToStake {
   DEXTR = "DEXTR",
@@ -11,12 +12,27 @@ export enum StakeType {
 }
 export interface StakeState {
   totalDextrStaked?: number; // global staked tokens
-  userDextrStaked?: number; // needed to calculate APY: userDextrStaked / totalDextrStaked * (stakingEmission + averageRevenue)
+  userDextrStaked: number; // needed to calculate APY: userDextrStaked / totalDextrStaked * (stakingEmission + averageRevenue)
   unstakingClaims: UnstakeClaim[]; // to populate the
   asset: string;
   type: string;
   balances: Record<string, number>;
+  stakingEmission?: number;
+  averageRevenue?: number;
+  apy?: number;
 }
+
+const initialState: StakeState = {
+  totalDextrStaked: undefined,
+  userDextrStaked: 0,
+  unstakingClaims: [] as UnstakeClaim[],
+  asset: AssetToStake.DEXTR,
+  type: StakeType.STAKE,
+  balances: {},
+  stakingEmission: undefined,
+  averageRevenue: undefined,
+  apy: 0,
+};
 
 // Draft, will be adapted depending on data structure used on scrypto side
 interface UnstakeClaim {
@@ -27,25 +43,9 @@ interface UnstakeClaim {
   claimed: boolean;
 }
 
-// const initialState = {
-//   totalDextrStaked: undefined,
-//   userDextrStaked: undefined,
-//   unstakingClaims: [] as UnstakeClaim[],
-//   asset: AssetToStake.DEXTR,
-//   type: StakeType.STAKE,
-//   balances: {},
-// };
-
 export const stakeSlice = createSlice({
   name: "stake",
-  initialState: {
-    balances: {},
-    asset: AssetToStake.DEXTR,
-    type: StakeType.STAKE,
-    userDextrStaked: 0,
-    totalDextrStaked: 0,
-    unstakingClaims: [] as UnstakeClaim[],
-  },
+  initialState,
 
   reducers: {
     setAsset: (state, action) => {
@@ -56,6 +56,29 @@ export const stakeSlice = createSlice({
     },
     setBalances: (state, action) => {
       state.balances = action.payload;
+    },
+    setUserStakedAmount(state, action: PayloadAction<number>) {
+      state.userDextrStaked = action.payload;
+      // Ensure the values are defined before performing the calculation
+      if (
+        state.userDextrStaked !== undefined &&
+        state.totalDextrStaked !== undefined &&
+        state.stakingEmission !== undefined &&
+        state.averageRevenue !== undefined
+      ) {
+        state.apy =
+          (state.userDextrStaked / state.totalDextrStaked) *
+          (state.stakingEmission + state.averageRevenue);
+      }
+    },
+    setTotalStaked(state, action: PayloadAction<number>) {
+      state.totalDextrStaked = action.payload;
+    },
+    setStakingEmission(state, action: PayloadAction<number>) {
+      state.stakingEmission = action.payload;
+    },
+    setAverageRevenue(state, action: PayloadAction<number>) {
+      state.averageRevenue = action.payload;
     },
   },
 
@@ -107,20 +130,50 @@ export const stakeSlice = createSlice({
 });
 
 export const stakeDextr = createAsyncThunk(
-  "stake",
-  async (amount: number, { getState }) => {
+  "stake/stakeDextr",
+  async (amount: number, { getState, rejectWithValue }) => {
     try {
-      // TODO: Replace with your actual staking transaction
-      // const result = await stakingContract.stake(amount);
+      const state = getState() as RootState;
+
+      // Example: Retrieve user account or contract from state if needed
+      // const userAccount = state.user.account; // Replace with actual state key
+      const userAccount = state.radix.walletData.accounts;
+      // const stakingContract = state.staking.contract; // Replace with actual contract instance
+
+      if (!userAccount) {
+        throw new Error("User account or staking contract not found.");
+      }
+
       return {
         status: "SUCCESS",
         amount,
+        // transactionHash: result.transactionHash,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      // Handle error gracefully
+      return rejectWithValue({
+        status: "FAILURE",
+        message: error.message || "An error occurred during staking.",
+      });
     }
   }
 );
+
+// export const stakeDextr = createAsyncThunk(
+//   "stake",
+//   async (amount: number, { getState }) => {
+//     try {
+//       // TODO: Replace with your actual staking transaction
+//       // const result = await stakingContract.stake(amount);
+//       return {
+//         status: "SUCCESS",
+//         amount,
+//       };
+//     } catch (error) {
+//       throw error;
+//     }
+//   }
+// );
 
 export const unstake = createAsyncThunk(
   "unstake",
@@ -220,5 +273,12 @@ export const fetchUserDextrStaked = createAsyncThunk(
   }
 );
 
-export const { setAsset, setType } = stakeSlice.actions;
+export const {
+  setAsset,
+  setType,
+  setUserStakedAmount,
+  setTotalStaked,
+  setStakingEmission,
+  setAverageRevenue,
+} = stakeSlice.actions;
 export default stakeSlice.reducer;

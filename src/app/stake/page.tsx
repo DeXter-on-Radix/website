@@ -1,21 +1,26 @@
 "use client";
+import { useState, useEffect, ChangeEvent } from "react";
 import {
   useAppSelector,
   useAppDispatch,
   useTranslations,
   useHydrationErrorFix,
 } from "hooks";
-import { useState, useEffect, ChangeEvent } from "react";
-import { StakeType, AssetToStake, stakeSlice } from "state/stakeSlice";
+import {
+  StakeType,
+  AssetToStake,
+  stakeSlice,
+  stakeDextr,
+} from "state/stakeSlice";
 import {
   orderInputSlice,
   selectBalanceByAddress,
   SpecifiedToken,
-  submitOrder,
   tokenIsSpecified,
   priceIsValid,
   fetchQuote,
   pairAddressIsSet,
+  noValidationErrors,
 } from "state/orderInputSlice";
 import {
   getLocaleSeparators,
@@ -205,7 +210,10 @@ export default function Stake() {
                 <UserInputContainer />
                 <SubmitButton />
                 <p className="flex justify-center text-xxs text-white items-center pt-3 pb-6 underline cursor-pointer">
-                  <a href="https://stokenet-dashboard.radixdlt.com/">
+                  <a
+                    href="https://stokenet-dashboard.radixdlt.com/"
+                    target="_blank"
+                  >
                     Or delegate to our node using Radix Dashboard
                   </a>
                 </p>
@@ -704,14 +712,28 @@ function SubmitButton() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
 
-  const { validationToken1 } = useAppSelector((state) => state.orderInput);
-  const { asset, type } = useAppSelector((state) => state.stakeSlice);
+  const {
+    validationToken1,
+    validationToken2,
+    quote,
+    quoteError,
+    validationPrice,
+  } = useAppSelector((state) => state.orderInput);
+  const { asset, type, userDextrStaked } = useAppSelector(
+    (state) => state.stakeSlice
+  );
   const { isConnected } = useAppSelector((state) => state.radix);
+  const hasQuote = quote !== undefined;
+  const hasQuoteError = quoteError !== undefined;
 
   const isUnstake = type === StakeType.UNSTAKE;
   const isDextr = asset === AssetToStake.DEXTR;
 
-  const disabled = !isConnected || validationToken1.valid;
+  const disabled =
+    !hasQuote ||
+    hasQuoteError ||
+    !isConnected ||
+    !noValidationErrors(validationPrice, validationToken1, validationToken2);
 
   const buttonText = !isConnected
     ? t("connect_wallet_to_trade")
@@ -747,7 +769,8 @@ function SubmitButton() {
             // -> rejceted: error toast
             // -> resolved: success toast
             async () => {
-              const action = await dispatch(submitOrder());
+              const action = await dispatch(stakeDextr(userDextrStaked));
+
               if (!action.type.endsWith("fulfilled")) {
                 // Transaction was not fulfilled (e.g. userRejected or userCanceled)
                 throw new Error("Transaction failed due to user action.");
