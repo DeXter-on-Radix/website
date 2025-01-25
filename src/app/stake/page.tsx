@@ -27,6 +27,7 @@ import {
   formatNumericString,
   truncateWithPrecision,
   getPrecision,
+  calculateAPY,
 } from "utils";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
@@ -108,8 +109,8 @@ export default function Stake() {
   );
   const { asset } = useAppSelector((state) => state.stakeSlice);
   const dispatch = useAppDispatch();
-
-  // const isDexter = asset === "DEXTR";
+  const { userDextrStaked, totalDextrStaked, stakingEmission, averageRevenue } =
+    useAppSelector((state) => state.stakeSlice);
 
   useEffect(() => {
     dispatch(fetchBalances());
@@ -143,10 +144,17 @@ export default function Stake() {
     pairAddress,
   ]);
 
+  const apy = calculateAPY(
+    userDextrStaked || 0,
+    totalDextrStaked || 0,
+    stakingEmission || 0,
+    averageRevenue || 0
+  );
+
   const stakingPosition = [
-    { label: "APY", value: "99.99%" },
-    { label: "Total value locked", value: "999,999,999.99" },
-    { label: "Your position", value: "999,999,999.99" },
+    { label: "APY", value: apy },
+    { label: "Total value locked", value: totalDextrStaked.toLocaleString() },
+    { label: "Your position", value: userDextrStaked.toLocaleString() },
   ];
 
   return (

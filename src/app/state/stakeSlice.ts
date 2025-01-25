@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
+import { calculateAPY } from "utils";
 
 export enum AssetToStake {
   DEXTR = "DEXTR",
@@ -11,7 +12,7 @@ export enum StakeType {
   UNSTAKE = "UNSTAKE",
 }
 export interface StakeState {
-  totalDextrStaked?: number; // global staked tokens
+  totalDextrStaked: number; // global staked tokens
   userDextrStaked: number; // needed to calculate APY: userDextrStaked / totalDextrStaked * (stakingEmission + averageRevenue)
   unstakingClaims: UnstakeClaim[]; // to populate the
   asset: string;
@@ -19,11 +20,11 @@ export interface StakeState {
   balances: Record<string, number>;
   stakingEmission?: number;
   averageRevenue?: number;
-  apy?: number;
+  apy?: string;
 }
 
 const initialState: StakeState = {
-  totalDextrStaked: undefined,
+  totalDextrStaked: 0,
   userDextrStaked: 0,
   unstakingClaims: [] as UnstakeClaim[],
   asset: AssetToStake.DEXTR,
@@ -31,7 +32,7 @@ const initialState: StakeState = {
   balances: {},
   stakingEmission: undefined,
   averageRevenue: undefined,
-  apy: 0,
+  apy: "",
 };
 
 // Draft, will be adapted depending on data structure used on scrypto side
@@ -59,16 +60,18 @@ export const stakeSlice = createSlice({
     },
     setUserStakedAmount(state, action: PayloadAction<number>) {
       state.userDextrStaked = action.payload;
-      // Ensure the values are defined before performing the calculation
       if (
         state.userDextrStaked !== undefined &&
         state.totalDextrStaked !== undefined &&
         state.stakingEmission !== undefined &&
         state.averageRevenue !== undefined
       ) {
-        state.apy =
-          (state.userDextrStaked / state.totalDextrStaked) *
-          (state.stakingEmission + state.averageRevenue);
+        state.apy = calculateAPY(
+          state.userDextrStaked,
+          state.totalDextrStaked,
+          state.stakingEmission,
+          state.averageRevenue
+        );
       }
     },
     setTotalStaked(state, action: PayloadAction<number>) {
@@ -137,8 +140,8 @@ export const stakeDextr = createAsyncThunk(
 
       // Example: Retrieve user account or contract from state if needed
       // const userAccount = state.user.account; // Replace with actual state key
-      const userAccount = state.radix.walletData.accounts;
       // const stakingContract = state.staking.contract; // Replace with actual contract instance
+      const userAccount = state.radix.walletData.accounts;
 
       if (!userAccount) {
         throw new Error("User account or staking contract not found.");
