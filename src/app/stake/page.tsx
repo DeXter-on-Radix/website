@@ -6,13 +6,16 @@ import {
   useHydrationErrorFix,
 } from "hooks";
 import { useState, useEffect, ChangeEvent } from "react";
-import { StakeType, AssetToStake } from "state/stakingSlice";
+import { StakeType, AssetToStake, stakeSlice } from "state/stakeSlice";
 import {
   orderInputSlice,
   selectBalanceByAddress,
   SpecifiedToken,
   submitOrder,
-  noValidationErrors,
+  tokenIsSpecified,
+  priceIsValid,
+  fetchQuote,
+  pairAddressIsSet,
 } from "state/orderInputSlice";
 import {
   getLocaleSeparators,
@@ -93,6 +96,48 @@ interface CustomNumericIMaskProps {
 // }
 
 export default function Stake() {
+  const pairAddress = useAppSelector((state) => state.pairSelector.address);
+  const { walletData } = useAppSelector((state) => state.radix);
+  const { type, token1, token2, price, specifiedToken } = useAppSelector(
+    (state) => state.orderInput
+  );
+  const { asset } = useAppSelector((state) => state.stakeSlice);
+  const dispatch = useAppDispatch();
+
+  // const isDexter = asset === "DEXTR";
+
+  useEffect(() => {
+    dispatch(fetchBalances());
+  }, [dispatch, pairAddress]);
+
+  useEffect(() => {
+    dispatch(orderInputSlice.actions.resetUserInput());
+  }, [dispatch, asset, type]);
+
+  useEffect(() => {
+    dispatch(fetchBalances());
+    dispatch(orderInputSlice.actions.resetUserInput());
+  }, [dispatch, walletData]);
+
+  useEffect(() => {
+    if (
+      pairAddressIsSet(pairAddress) &&
+      priceIsValid(price, type) &&
+      tokenIsSpecified(specifiedToken)
+    ) {
+      dispatch(fetchQuote());
+    }
+  }, [
+    dispatch,
+    specifiedToken,
+    token1,
+    token2,
+    price,
+    asset,
+    type,
+    pairAddress,
+  ]);
+
   return (
     <div className="bg-dexter-grey-dark">
       <div className="max-w-screen-md mx-auto py-10">
@@ -169,11 +214,9 @@ function AssetToStakeTabs() {
             <div
               key={indx}
               className={`text-base py-3 w-[500px] flex justify-center mx-auto ${
-                isActive
-                  ? "text-base-content bg-dexter-grey-light"
-                  : "text-dexter-grey-inactive"
+                isActive ? "text-base-content bg-dexter-grey-light" : ""
               } cursor-pointer`}
-              onClick={() => setCurrentAsset(assetToStake)}
+              // onClick={() => setCurrentAsset(assetToStake)}
             >
               <AssetToStakeTab asset={assetToStake} />
             </div>
@@ -185,19 +228,19 @@ function AssetToStakeTabs() {
 }
 
 function AssetToStakeTab({ asset }: AssetTabProps): JSX.Element | null {
-  // const dispatch = useAppDispatch();
-  // const pairAddress = useAppSelector((state) => state.pairSelector.address);
-  // const { walletData } = useAppSelector((state) => state.radix);
-  // const { type, side, token1, token2, price, specifiedToken } = useAppSelector(
-  //   (state) => state.orderInput
-  // );
+  const dispatch = useAppDispatch();
 
   return (
     <div
       className="flex justify-center items-center cursor-pointer uppercase font-light"
       onClick={() => {
-        // dispatch(orderInputSlice.actions.resetUserInput());
-        // dispatch(orderInputSlice.actions.setSide(orderSide));
+        dispatch(stakeSlice.actions.setAsset(asset));
+
+        if (asset === "XRD") {
+          window.open(
+            "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a"
+          );
+        }
       }}
     >
       <p className="text-xl tracking-[.1px] select-none uppercase">
@@ -236,7 +279,8 @@ function StakeTypeTabs() {
 
 function StakeTypeTab({ stakeType }: StakeTypeTabProps): JSX.Element | null {
   // const type = useAppSelector((state) => state.orderInput.type);
-  // const dispatch = useAppDispatch();
+  const type = useAppSelector((state) => state.stakeSlice.type);
+  const dispatch = useAppDispatch();
 
   return (
     <div
@@ -244,6 +288,9 @@ function StakeTypeTab({ stakeType }: StakeTypeTabProps): JSX.Element | null {
       // onClick={() => {
       //   dispatch(orderInputSlice.actions.setType(orderType));
       // }}
+      onClick={() => {
+        dispatch(stakeSlice.actions.setType(type));
+      }}
     >
       <p className="uppercase font-bold text-sm tracking-[.1px] select-none">
         {stakeType}
@@ -271,10 +318,6 @@ function UserInputContainer() {
     <div className="bg-dexter-grey-light px-5 pb-5 rounded-b">
       {isStake && (
         <>
-          {/* <CurrencyInputGroup
-            userAction={UserAction.UPDATE_PRICE}
-            disabled={true}
-          /> */}
           {/* <PercentageSlider /> */}
           {isDextrStaking && ( // specify "Quantity"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
@@ -470,7 +513,7 @@ function CurrencyInputGroupSettings(
       updateValue: updateToken1,
       inputValidation: validationToken1,
       secondaryLabelProps: {
-        disabled: asset !== AssetToStake.DEXTR,
+        disabled: asset === AssetToStake.XRD,
         label: t("available"),
         currency: token1.symbol,
         value: truncateWithPrecision(balanceToken1, 8),

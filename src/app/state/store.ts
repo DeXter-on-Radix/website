@@ -9,7 +9,7 @@ import { rewardSlice } from "./rewardSlice";
 import { priceInfoSlice } from "./priceInfoSlice";
 import { i18nSlice } from "./i18nSlice";
 import { teamSlice } from "./teamSlice";
-import { stakeSlice } from "./stakingSlice";
+import { stakeSlice } from "./stakeSlice";
 
 export const store = configureStore({
   reducer: {

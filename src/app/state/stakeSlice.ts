@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchBalances } from "./pairSelectorSlice";
 
 export enum AssetToStake {
   DEXTR = "DEXTR",
@@ -12,8 +13,9 @@ export interface StakeState {
   totalDextrStaked?: number; // global staked tokens
   userDextrStaked?: number; // needed to calculate APY: userDextrStaked / totalDextrStaked * (stakingEmission + averageRevenue)
   unstakingClaims: UnstakeClaim[]; // to populate the
-  asset: AssetToStake;
-  type: StakeType;
+  asset: string;
+  type: string;
+  balances: Record<string, number>;
 }
 
 // Draft, will be adapted depending on data structure used on scrypto side
@@ -25,17 +27,25 @@ interface UnstakeClaim {
   claimed: boolean;
 }
 
-const initialState: StakeState = {
-  totalDextrStaked: undefined,
-  userDextrStaked: undefined,
-  unstakingClaims: [],
-  asset: AssetToStake.DEXTR,
-  type: StakeType.STAKE,
-};
+// const initialState = {
+//   totalDextrStaked: undefined,
+//   userDextrStaked: undefined,
+//   unstakingClaims: [] as UnstakeClaim[],
+//   asset: AssetToStake.DEXTR,
+//   type: StakeType.STAKE,
+//   balances: {},
+// };
 
 export const stakeSlice = createSlice({
   name: "stake",
-  initialState,
+  initialState: {
+    balances: {},
+    asset: AssetToStake.DEXTR,
+    type: StakeType.STAKE,
+    userDextrStaked: 0,
+    totalDextrStaked: 0,
+    unstakingClaims: [] as UnstakeClaim[],
+  },
 
   reducers: {
     setAsset: (state, action) => {
@@ -44,10 +54,18 @@ export const stakeSlice = createSlice({
     setType: (state, action) => {
       state.type = action.payload;
     },
+    setBalances: (state, action) => {
+      state.balances = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
     builder
+      .addCase(fetchBalances.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.balances = action.payload;
+        }
+      })
       .addCase(stakeDextr.fulfilled, (state, action) => {
         // Update staking amounts after successful stake
         if (state.userDextrStaked !== undefined) {
@@ -59,7 +77,8 @@ export const stakeSlice = createSlice({
       })
       .addCase(unstake.fulfilled, (state, action) => {
         // Add new unstaking claim
-        state.unstakingClaims.push(action.payload.claim);
+        const newClaim: UnstakeClaim = action.payload.claim;
+        state.unstakingClaims.push(newClaim);
         // Update staking amounts
         if (state.userDextrStaked !== undefined) {
           state.userDextrStaked -= action.payload.claim.unstakeAmount;
@@ -165,9 +184,9 @@ export const fetchStakingData = createAsyncThunk(
   }
 );
 
-export const fetchUnstakeClaims = createAsyncThunk(
+export const fetchUnstakeClaims = createAsyncThunk<UnstakeClaim[]>(
   "stake/fetchUnstakeClaims",
-  async (_, { getState }) => {
+  async () => {
     try {
       // TODO: Replace with actual fetch logic
       return [] as UnstakeClaim[];
