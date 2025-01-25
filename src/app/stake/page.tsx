@@ -139,9 +139,9 @@ export default function Stake() {
   ]);
 
   const stakingPosition = [
-    { label: "APY", value: "1000 XRD" },
-    { label: "Total value locked", value: "2025-01-01" },
-    { label: "Your position", value: "2025-01-31" },
+    { label: "APY", value: "99.99%" },
+    { label: "Total value locked", value: "999,999,999.99" },
+    { label: "Your position", value: "999,999,999.99" },
   ];
 
   return (
@@ -178,12 +178,21 @@ export default function Stake() {
                   <div className="key={index}">
                     {key.label === "Your position" ? (
                       <div className="bg-dexter-grey-light px-4 py-1">
+                        <p className="text-xxs text-[#768089]">
+                          {key.label} ({asset})
+                        </p>
+                        <p className="text-lg">{key.value}</p>
+                      </div>
+                    ) : key.label === "APY" ? (
+                      <div>
                         <p className="text-xxs text-[#768089]">{key.label}</p>
                         <p className="text-lg">{key.value}</p>
                       </div>
                     ) : (
                       <div>
-                        <p className="text-xxs text-[#768089]">{key.label}</p>
+                        <p className="text-xxs text-[#768089]">
+                          {key.label} ({asset})
+                        </p>
                         <p className="text-lg">{key.value}</p>
                       </div>
                     )}
