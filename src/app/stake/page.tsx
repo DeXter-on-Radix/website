@@ -138,6 +138,12 @@ export default function Stake() {
     pairAddress,
   ]);
 
+  const stakingPosition = [
+    { label: "APY", value: "1000 XRD" },
+    { label: "Total value locked", value: "2025-01-01" },
+    { label: "Your position", value: "2025-01-31" },
+  ];
+
   return (
     <div className="bg-dexter-grey-dark">
       <div className="max-w-screen-md mx-auto py-10">
@@ -168,20 +174,21 @@ export default function Stake() {
             <AssetToStakeTabs />
             <div className="border-[1px] border-dexter-grey-light">
               <div className="flex flex-row justify-between mx-14 mt-10 items-center">
-                <div className="flex flex-col">
-                  <p className="text-xxs text-[#768089]">APY</p>
-                  <p className="text-lg">99.99%</p>
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-xxs text-[#768089]">
-                    Total value locked(XRD)
-                  </p>
-                  <p className="text-lg">999,999,999.99</p>
-                </div>
-                <div className="flex flex-col bg-dexter-grey-light px-4 py-1">
-                  <p className="text-xxs text-[#768089]">Your position(XRD)</p>
-                  <p className="text-lg">999,999,999.99</p>
-                </div>
+                {stakingPosition.map((key) => (
+                  <div className="key={index}">
+                    {key.label === "Your position" ? (
+                      <div className="bg-dexter-grey-light px-4 py-1">
+                        <p className="text-xxs text-[#768089]">{key.label}</p>
+                        <p className="text-lg">{key.value}</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-xxs text-[#768089]">{key.label}</p>
+                        <p className="text-lg">{key.value}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
               <div className="bg-dexter-grey-light mx-12 my-8">
                 <StakeTypeTabs />
