@@ -3,7 +3,7 @@ import { fetchBalances } from "./pairSelectorSlice";
 
 export enum AssetToStake {
   DEXTR = "DEXTR",
-  XRD = "XRD",
+  // XRD = "XRD",
 }
 export enum StakeType {
   STAKE = "STAKE",

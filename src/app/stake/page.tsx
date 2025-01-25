@@ -172,6 +172,7 @@ export default function Stake() {
         <div className="h-full w-full flex flex-col text-base">
           <div className="bg-dexter-grey-dark">
             <AssetToStakeTabs />
+
             <div className="border-[1px] border-dexter-grey-light">
               <div className="flex flex-row justify-between mx-14 mt-10 items-center">
                 {stakingPosition.map((key) => (
@@ -219,25 +220,29 @@ export default function Stake() {
 }
 
 function AssetToStakeTabs() {
-  const [currentAsset, setCurrentAsset] = useState(AssetToStake.DEXTR);
-
   return (
     <div className="w-full">
-      <div className="flex flex-row border-[1px] border-dexter-grey-light rounded-sm">
-        {[AssetToStake.DEXTR, AssetToStake.XRD].map((assetToStake, indx) => {
-          const isActive = assetToStake === currentAsset;
+      <div className="flex flex-row">
+        {[AssetToStake.DEXTR].map((assetToStake, index) => {
           return (
             <div
-              key={indx}
-              className={`text-base py-3 w-[500px] flex justify-center mx-auto ${
-                isActive ? "text-base-content bg-dexter-grey-light" : ""
-              } cursor-pointer`}
-              // onClick={() => setCurrentAsset(assetToStake)}
+              key={index}
+              className="text-base py-3 w-[500px] flex justify-center mx-auto border-dexter-grey-light border-[1px] rounded-sm text-base-content bg-dexter-grey-light cursor-pointer"
             >
               <AssetToStakeTab asset={assetToStake} />
             </div>
           );
         })}
+        <div
+          className="flex text-xl font-light justify-center items-center w-[500px] mx-auto py-3  border-dexter-grey-light border-[1px] bg-dexter-grey-dark uppercase cursor-pointer decoration-neutral-content"
+          onClick={() =>
+            window.open(
+              "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a"
+            )
+          }
+        >
+          XRD Staking
+        </div>
       </div>
     </div>
   );
@@ -247,22 +252,18 @@ function AssetToStakeTab({ asset }: AssetTabProps): JSX.Element | null {
   const dispatch = useAppDispatch();
 
   return (
-    <div
-      className="flex justify-center items-center cursor-pointer uppercase font-light"
-      onClick={() => {
-        dispatch(stakeSlice.actions.setAsset(asset));
-
-        if (asset === "XRD") {
-          window.open(
-            "https://dashboard.radixdlt.com/network-staking/validator_rdx1s0sr7xsr286jwffkkcwz8ffnkjlhc7h594xk5gvamtr8xqxr23a99a"
-          );
-        }
-      }}
-    >
-      <p className="text-xl tracking-[.1px] select-none uppercase">
-        {asset} Staking
-      </p>
-    </div>
+    <>
+      <div
+        className="flex justify-center items-center cursor-pointer uppercase font-light"
+        onClick={() => {
+          dispatch(stakeSlice.actions.setAsset(asset));
+        }}
+      >
+        <p className="text-xl tracking-[.1px] select-none uppercase">
+          {asset} Staking
+        </p>
+      </div>
+    </>
   );
 }
 
@@ -347,8 +348,6 @@ function UserInputContainer() {
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
-          {/* <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} /> */}
-          {/* {isLimitOrder && <PostOnlyCheckbox />} */}
         </>
       )}
     </div>
@@ -370,8 +369,8 @@ function CurrencyInputGroup({
     secondaryLabelProps,
   } = CurrencyInputGroupSettings(userAction, disabled);
 
-  const isStake = type === "STAKE";
-  const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
+  // const isStake = type === "STAKE";
+  // const isUserActionUpdatePrice = userAction === "UPDATE_PRICE";
   return (
     <div className="pt-5 relative">
       {/* {!inputValidation.valid && (
@@ -529,7 +528,7 @@ function CurrencyInputGroupSettings(
       updateValue: updateToken1,
       inputValidation: validationToken1,
       secondaryLabelProps: {
-        disabled: asset === AssetToStake.XRD,
+        disabled: asset !== AssetToStake.DEXTR,
         label: t("available"),
         currency: token1.symbol,
         value: truncateWithPrecision(balanceToken1, 8),
@@ -659,18 +658,6 @@ function CustomNumericIMask({
   );
 }
 
-// function DisabledInputField({
-//   label,
-// }: DisabledInputFieldProps): JSX.Element | null {
-//   return (
-//     <div className="h-[40px] w-full content-between bg-base-200 flex relative rounded-lg border-[1.5px] border-dashed border-[#768089]">
-//       <div className="uppercase text-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#768089] select-none">
-//         {label}
-//       </div>
-//     </div>
-//   );
-// }
-
 function SecondaryLabel({
   disabled,
   label,
@@ -771,9 +758,9 @@ function SubmitButton() {
               dispatch(orderInputSlice.actions.resetUserInput());
               dispatch(fetchBalances());
             },
-            t("submitting_order"), // Loading message
-            t("order_submitted"), // success message
-            t("failed_to_submit_order") // error message
+            t("submitting_order"),
+            t("order_submitted"),
+            t("failed_to_submit_order")
           );
         }}
       >
