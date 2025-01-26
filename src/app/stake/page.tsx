@@ -188,8 +188,8 @@ export default function Stake() {
 
             <div className="border-[1px] border-dexter-grey-light">
               <div className="flex flex-row justify-between mx-14 mt-10 items-center">
-                {stakingPosition.map((key) => (
-                  <div className="key={index}">
+                {stakingPosition.map((key, index) => (
+                  <div key={index}>
                     {key.label === "Your position" ? (
                       <div className="bg-dexter-grey-light px-4 py-1">
                         <p className="text-xxs text-[#768089]">
@@ -374,8 +374,6 @@ function CurrencyInputGroup({
   disabled = false,
   userAction,
 }: CurrencyInputGroupProps): JSX.Element | null {
-  const t = useTranslations();
-  const { type } = useAppSelector((state) => state.stakeSlice);
   const {
     label,
     currency,
@@ -429,11 +427,10 @@ function CurrencyInputGroupSettings(
     useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
     0;
 
-  console.log(balanceToken1);
-
   // const balanceToken2 =
   //   useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
   //   0;
+
   const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
   const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
 
@@ -466,7 +463,7 @@ function CurrencyInputGroupSettings(
   // Specifies the amount in % of available balance; If the token to specify is
   // XRD we substract a fee allowance to ensure the user has enough XRD left
   // to pay for transaction fees.
-  const setPercentageAmountToken1 = (percentage: number, isXRD: boolean) => {
+  const setPercentageAmountToken1 = (percentage: number) => {
     if (balanceToken1 <= 0 || percentage < 0 || percentage > 100) {
       return;
     }

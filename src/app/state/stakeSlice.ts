@@ -178,37 +178,34 @@ export const stakeDextr = createAsyncThunk(
 //   }
 // );
 
-export const unstake = createAsyncThunk(
-  "unstake",
-  async (amount: number, { getState }) => {
-    try {
-      // TODO: Replace with your actual unstaking transaction
-      // const result = await stakingContract.unstake(amount);
-      const unstakeStarted = new Date();
-      const unstakeEnded = new Date(
-        unstakeStarted.getTime() + 7 * 24 * 60 * 60 * 1000
-      ); // 7 days later
-      const claimDate = unstakeEnded;
+export const unstake = createAsyncThunk("unstake", async (amount: number) => {
+  try {
+    // TODO: Replace with your actual unstaking transaction
+    // const result = await stakingContract.unstake(amount);
+    const unstakeStarted = new Date();
+    const unstakeEnded = new Date(
+      unstakeStarted.getTime() + 7 * 24 * 60 * 60 * 1000
+    ); // 7 days later
+    const claimDate = unstakeEnded;
 
-      return {
-        status: "SUCCESS",
-        claim: {
-          unstakeStarted,
-          unstakeEnded,
-          claimDate,
-          unstakeAmount: amount,
-          claimed: false,
-        },
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      status: "SUCCESS",
+      claim: {
+        unstakeStarted,
+        unstakeEnded,
+        claimDate,
+        unstakeAmount: amount,
+        claimed: false,
+      },
+    };
+  } catch (error) {
+    throw error;
   }
-);
+});
 
 export const claimUnstakedDextr = createAsyncThunk(
   "stake/claimUnstakedDextr",
-  async (claimIndex: number, { getState }) => {
+  async (claimIndex: number) => {
     try {
       // TODO: Replace with your actual claim transaction
       // const result = await stakingContract.claim(claimIndex);
@@ -225,7 +222,7 @@ export const claimUnstakedDextr = createAsyncThunk(
 // Data fetching thunks
 export const fetchStakingData = createAsyncThunk(
   "stake/fetchStakingData",
-  async (_, { getState }) => {
+  async () => {
     try {
       // TODO: Replace with your actual data fetching
       // const data = await stakingContract.getStakingData();
@@ -254,7 +251,7 @@ export const fetchUnstakeClaims = createAsyncThunk<UnstakeClaim[]>(
 
 export const fetchTotalDextrStaked = createAsyncThunk(
   "stake/fetchTotalDextrStaked",
-  async (_, { getState }) => {
+  async () => {
     try {
       // TODO: Replace with actual fetch logic
       return 0;
@@ -266,7 +263,7 @@ export const fetchTotalDextrStaked = createAsyncThunk(
 
 export const fetchUserDextrStaked = createAsyncThunk(
   "stake/fetchUserDextrStaked",
-  async (_, { getState }) => {
+  async () => {
     try {
       // TODO: Replace with actual fetch logic
       return 0;
