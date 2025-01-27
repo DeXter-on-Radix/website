@@ -1,11 +1,6 @@
 "use client";
 import { useState, useEffect, ChangeEvent } from "react";
-import {
-  useAppSelector,
-  useAppDispatch,
-  useTranslations,
-  useHydrationErrorFix,
-} from "../hooks";
+import { useAppSelector, useAppDispatch, useTranslations } from "hooks";
 import {
   StakeType,
   AssetToStake,
@@ -713,7 +708,7 @@ function Label({ label }: LabelProps): JSX.Element | null {
 }
 
 function SubmitButton() {
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
+  // const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
 
@@ -747,7 +742,7 @@ function SubmitButton() {
         .replaceAll("<$ASSET_TO_STAKE>", t(asset));
 
   // Fix HydrationError
-  if (!isClient) return <></>;
+  // if (!isClient) return <></>;
 
   return (
     <div className="px-6">
