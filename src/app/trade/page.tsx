@@ -79,14 +79,13 @@ export default function Trade() {
     <div className="grow">
       <PromoBannerCarousel
         items={[
-          // DAO vote banner
+          // RAKOON banner
           {
-            imageUrl: "/promo-banners/crumbsup-tokenomics-desktop2x.png",
-            imageUrlMobile: "/promo-banners/crumbsup-tokenomics-mobile2x.png",
-            redirectUrl:
-              "https://www.crumbsup.io/#proposal?id=f7bf5bcc-dafd-4aa0-8d18-1754f2aa7b46",
-            backgroundColor: "bg-[#087277]",
-            expirationDate: new Date("2024-08-19"),
+            imageUrl: "/promo-banners/rakoon-desktop2x.png",
+            imageUrlMobile: "/promo-banners/rakoon-mobile2x.png",
+            redirectUrl: "https://rakoon.fun",
+            redirectOpensInSameTab: false,
+            backgroundColor: "bg-[#232323]",
           },
           // tokentrek banner
           {

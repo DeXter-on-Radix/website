@@ -36,9 +36,13 @@ module.exports = {
         "dexter-grey-dark": "#141414",
         "dexter-grey-light": "#191B1D",
         "dexter-grey-extralight": "#242629",
+        "dexter-grey-extralight": "#242629",
         "content-dark": "#212A09",
         "dexter-grey-inactive": "#5E666E",
         "slider-grey": "#474d52",
+      },
+      fontSize: {
+        xxs: "0.6rem",
       },
       keyframes: {
         blueLight: {

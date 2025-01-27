@@ -2,6 +2,9 @@ import * as adex from "alphadex-sdk-js";
 import { TokenInfo } from "./state/pairSelectorSlice";
 import type { OrderReceipt } from "alphadex-sdk-js";
 
+export const DEXTER_LOGO_URL =
+  "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg";
+
 export function displayPositiveNumber(
   x: number,
   noDigits: number = 6,
@@ -315,7 +318,7 @@ export function updateIconIfNeeded(token: adex.TokenInfo): TokenInfo {
   const iconUrl =
     token.symbol === "DEXTR"
       ? // use asset from coingecko to prevent ipfs failure
-        "https://assets.coingecko.com/coins/images/34946/standard/DEXTRLogo.jpg"
+        DEXTER_LOGO_URL
       : token.symbol === "RDK"
       ? // fix wrong icon URL in metadata ofRDK on ledger, see https://t.me/radix_dlt/716425
         "https://radket.shop/img/logo.svg"
@@ -344,34 +347,6 @@ export function getPriceSymbol(order: OrderReceipt): string {
 
 export function capitalizeFirstLetter(input: string): string {
   return input.charAt(0).toUpperCase() + input.slice(1);
-}
-
-export function detectBrowserLanguage(defaultLanguage: string = "en"): string {
-  // Helper function to extract first 2 chars and ensure its lowercased.
-  const toLngCode = (str: string) => str.substring(0, 2).toLowerCase();
-
-  // navigator.languages: Returns an array of the user's preferred languages, ordered by preference
-  if (Array.isArray(navigator.languages) && navigator.languages.length) {
-    return toLngCode(navigator.languages[0]);
-  }
-  // navigator.language: Returns the browser's UI language
-  if (navigator.language) {
-    return toLngCode(navigator.language);
-  }
-  // navigator.userLanguage: Deprecated but included for compatibility with older versions of IE
-  if ((navigator as any).userLanguage) {
-    return toLngCode((navigator as any).userLanguage);
-  }
-  // navigator.browserLanguage: Another deprecated property for older IE versions
-  if ((navigator as any).browserLanguage) {
-    return toLngCode((navigator as any).browserLanguage);
-  }
-  // navigator.systemLanguage: Deprecated and for IE only, returns OS language
-  if ((navigator as any).systemLanguage) {
-    return toLngCode((navigator as any).systemLanguage);
-  }
-  // Fallback to a default language if none is detected
-  return defaultLanguage;
 }
 
 // Gets amount precision for each token traded on dexteronradix.
@@ -423,31 +398,6 @@ export function formatNumericString(
   return fraction ? `${whole}${separator}${fraction}` : whole;
 }
 
-// Define an enum for the operating system types
-export enum OperatingSystem {
-  MAC = "MAC",
-  WINDOWS = "WINDOWS",
-  LINUX = "LINUX",
-  UNKNOWN = "UNKNOWN",
-}
-
-// Function to detect the users operating system based on navigator
-export function detectOperatingSystem(): OperatingSystem {
-  if (typeof window === "undefined" || typeof navigator === "undefined") {
-    return OperatingSystem.UNKNOWN;
-  }
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (userAgent.includes("mac os")) {
-    return OperatingSystem.MAC;
-  } else if (userAgent.includes("windows")) {
-    return OperatingSystem.WINDOWS;
-  } else if (userAgent.includes("linux")) {
-    return OperatingSystem.LINUX;
-  } else {
-    return OperatingSystem.UNKNOWN;
-  }
-}
-
 export function truncateWithPrecision(num: number, precision: number): number {
   const split = num.toString().split(".");
   if (split.length !== 2) {
@@ -457,33 +407,13 @@ export function truncateWithPrecision(num: number, precision: number): number {
   return Number(`${part1}.${part2.substring(0, precision)}`);
 }
 
-// Detects mobile devices
-export function isMobile(): boolean {
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (
-    userAgent.match(/Android/i) ||
-    userAgent.match(/webOS/i) ||
-    userAgent.match(/avantgo/i) ||
-    userAgent.match(/iPhone/i) ||
-    userAgent.match(/iPad/i) ||
-    userAgent.match(/iPod/i) ||
-    userAgent.match(/BlackBerry/i) ||
-    userAgent.match(/bolt/i) ||
-    userAgent.match(/Windows Phone/i) ||
-    userAgent.match(/Phone/i)
-  ) {
-    return true;
-  }
-  return false;
-}
-
 // Sets a URL query parameter and updates the browser's history state
 // without triggering a reload of the page.
 export function setQueryParam(key: string, value: string) {
   if (!window) {
     return;
   }
-  const url = new URL(window.location.href);
+  const url = new URL(window.location?.href);
   url.searchParams.set(key, value);
   history.pushState({}, "", url);
 }
@@ -522,7 +452,7 @@ export function setLocalStoragePaginationValue(pageSize: number, id?: string) {
   if (typeof window === "undefined") return undefined;
 
   window.localStorage.setItem(
-    `pagination:${id ?? window.location.pathname}`,
+    `pagination:${id ?? window?.location.pathname}`,
     String(pageSize)
   );
 }
@@ -531,7 +461,7 @@ export function getLocalStoragePaginationValue(id?: string) {
   if (typeof window === "undefined") return undefined;
 
   const existingValue = window.localStorage.getItem(
-    `pagination:${id ?? window.location.pathname}`
+    `pagination:${id ?? window.location?.pathname}`
   );
   if (existingValue !== null) {
     const pageNumber = Number(existingValue);
