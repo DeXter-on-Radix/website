@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useTranslations,
-  useHydrationErrorFix,
-} from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import {
   fetchAddresses,
   fetchReciepts,
@@ -22,6 +17,7 @@ import { getTokenRewards, getTypeRewards } from "../state/rewardUtils";
 
 // import * as adex from "alphadex-sdk-js";
 import { DexterToast } from "../components/DexterToaster";
+import { DEXTER_LOGO_URL } from "utils";
 
 export default function Rewards() {
   const { showSuccessUi } = useAppSelector((state) => state.rewardSlice);
@@ -96,9 +92,8 @@ function HeaderComponent() {
 }
 
 function RewardsCard() {
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const dispatch = useAppDispatch();
-  const { isConnected, selectedAccount } = useAppSelector(
+  const { isHydrated, isConnected, selectedAccount } = useAppSelector(
     (state) => state.radix
   );
   const account = selectedAccount?.address;
@@ -128,13 +123,10 @@ function RewardsCard() {
         fetchOrderRewards(fetchReceiptsResult.payload as string[])
       );
     }
-    if (isConnected) {
+    if (isHydrated && isConnected) {
       loadRewards();
     }
-  }, [dispatch, isConnected, account, pairsList]);
-
-  // Fix HydrationError
-  if (!isClient) return <></>;
+  }, [dispatch, isHydrated, isConnected, account, pairsList]);
 
   return (
     <div className="max-w-[400px] sm:max-w-[600px] px-4 py-4 sm:px-12 sm:py-8 m-auto mt-2 sm:mt-14 mb-28 bg-[#191B1D] rounded-xl max-[450px]:mx-5">
@@ -143,10 +135,12 @@ function RewardsCard() {
           <h4
             style={{ margin: 0, marginBottom: 12 }}
             className={
-              !isConnected || !userHasRewards ? "opacity-50 text-center" : ""
+              !isHydrated || !isConnected || !userHasRewards
+                ? "opacity-50 text-center"
+                : ""
             }
           >
-            {!isConnected
+            {!isHydrated || !isConnected
               ? t("connect_wallet_to_claim_rewards")
               : userHasRewards
               ? t("total_rewards")
@@ -199,7 +193,11 @@ function RewardsOverview() {
           key={indx}
         >
           <img
-            src={rewardToken.iconUrl}
+            src={
+              rewardToken.symbol === "DEXTR"
+                ? DEXTER_LOGO_URL
+                : rewardToken.iconUrl
+            }
             alt={rewardToken.name}
             className="w-7 h-7 rounded-full mr-3"
           ></img>
@@ -214,18 +212,14 @@ function RewardsOverview() {
 }
 
 function ClaimButton() {
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
-  const { isConnected } = useAppSelector((state) => state.radix);
+  const { isConnected, isHydrated } = useAppSelector((state) => state.radix);
   const { rewardData, isLoading } = useAppSelector(
     (state) => state.rewardSlice
   );
   const userHasRewards = getUserHasRewards(rewardData);
-  const disabled = !isConnected || !userHasRewards;
-
-  // Fix HydrationError
-  if (!isClient) return <></>;
+  const disabled = !isHydrated || !isConnected || !userHasRewards;
 
   return (
     <button
@@ -263,8 +257,7 @@ function ClaimButton() {
 
 function RewardsDetails() {
   const [isOpen, setIsOpen] = useState(true);
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
-  const { isConnected } = useAppSelector((state) => state.radix);
+  const { isConnected, isHydrated } = useAppSelector((state) => state.radix);
   const { rewardData, tokensList } = useAppSelector(
     (state) => state.rewardSlice
   );
@@ -274,9 +267,9 @@ function RewardsDetails() {
     if (!isConnected) {
       setIsOpen(false);
     }
-  }, [isConnected]);
+  }, [isConnected, isHydrated]);
 
-  if (!isConnected || !userHasRewards || !isClient) {
+  if (!isHydrated || !isConnected || !userHasRewards) {
     return <></>;
   }
 
@@ -312,7 +305,11 @@ function RewardsDetails() {
                   key={indx2}
                 >
                   <img
-                    src={tokenReward.iconUrl}
+                    src={
+                      tokenReward.symbol === "DEXTR"
+                        ? DEXTER_LOGO_URL
+                        : tokenReward.iconUrl
+                    }
                     alt={tokenReward.name}
                     className="w-4 h-4 rounded-full mr-2"
                   ></img>

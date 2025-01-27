@@ -1,5 +1,8 @@
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, useRef, ChangeEvent, useCallback } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/dist/svg-arrow.css";
 
 import {
   getPrecision,
@@ -8,12 +11,7 @@ import {
   truncateWithPrecision,
 } from "../utils";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-  useTranslations,
-  useHydrationErrorFix,
-} from "hooks";
+import { useAppDispatch, useAppSelector, useTranslations } from "hooks";
 import { fetchBalances } from "state/pairSelectorSlice";
 import {
   OrderSide,
@@ -28,10 +26,12 @@ import {
   pairAddressIsSet,
   priceIsValid,
   tokenIsSpecified,
+  amountIsPositive,
   submitOrder,
 } from "state/orderInputSlice";
 import { Calculator } from "services/Calculator";
 import { DexterToast } from "components/DexterToaster";
+import { useDebouncedCallback } from "use-debounce";
 
 // XRD reserved for transaction fees
 const XRD_FEE_ALLOWANCE = 3;
@@ -120,7 +120,8 @@ export function OrderInput() {
     if (
       pairAddressIsSet(pairAddress) &&
       priceIsValid(price, type) &&
-      tokenIsSpecified(specifiedToken)
+      tokenIsSpecified(specifiedToken) &&
+      amountIsPositive(specifiedToken, token1, token2)
     ) {
       dispatch(fetchQuote());
     }
@@ -360,13 +361,13 @@ function PostOnlyCheckbox() {
 }
 
 function SubmitButton() {
-  const isClient = useHydrationErrorFix(); // to fix HydrationError
   const t = useTranslations();
   const dispatch = useAppDispatch();
   const {
     side,
     type,
     token1,
+    token2,
     quote,
     quoteDescription,
     quoteError,
@@ -379,7 +380,9 @@ function SubmitButton() {
   const hasQuoteError = quoteError !== undefined;
   const isLimitOrder = type === OrderType.LIMIT;
   const isBuyOrder = side === OrderSide.BUY;
+  const isZeroAmount = token1.amount === 0 || token2.amount === 0;
   const disabled =
+    isZeroAmount ||
     !hasQuote ||
     hasQuoteError ||
     !isConnected ||
@@ -390,9 +393,6 @@ function SubmitButton() {
         .replaceAll("<$ORDER_TYPE>", t(type))
         .replaceAll("<$SIDE>", t(side))
         .replaceAll("<$TOKEN_SYMBOL>", token1.symbol);
-
-  // Fix HydrationError
-  if (!isClient) return <></>;
 
   return (
     <button
@@ -451,12 +451,74 @@ function SubmitButton() {
 }
 
 function UserInputContainer() {
-  const { side, type } = useAppSelector((state) => state.orderInput);
+  const dispatch = useAppDispatch();
+  const { side, type, token1, token2 } = useAppSelector(
+    (state) => state.orderInput
+  );
+  const balanceToken1 =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+  const balanceToken2 =
+    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+    0;
+  const bestBuy = useAppSelector((state) => state.orderBook.bestBuy) || 0;
+  const bestSell = useAppSelector((state) => state.orderBook.bestSell) || 0;
 
   const isMarketOrder = type === "MARKET";
   const isLimitOrder = type === "LIMIT";
   const isBuyOrder = side === "BUY";
   const isSellOrder = side === "SELL";
+
+  const sliderDebounceMs = 350;
+  const sliderCallback = useDebouncedCallback(
+    useCallback(
+      (newPercentage: number) => {
+        const isXRDToken = isBuyOrder
+          ? token2.symbol === "XRD"
+          : token1.symbol === "XRD";
+        let balance = isBuyOrder ? balanceToken2 : balanceToken1;
+
+        if (newPercentage === 100 && isXRDToken) {
+          balance = Math.max(balance - XRD_FEE_ALLOWANCE, 0);
+        }
+
+        const amount = Calculator.divide(
+          Calculator.multiply(balance, newPercentage),
+          100
+        );
+
+        const specifiedToken = isBuyOrder
+          ? SpecifiedToken.TOKEN_2
+          : SpecifiedToken.TOKEN_1;
+
+        dispatch(
+          orderInputSlice.actions.setTokenAmount({
+            amount,
+            bestBuy,
+            bestSell,
+            balanceToken1,
+            balanceToken2,
+            specifiedToken,
+          })
+        );
+      },
+      [
+        isBuyOrder,
+        token1.symbol,
+        token2.symbol,
+        balanceToken1,
+        balanceToken2,
+        bestBuy,
+        bestSell,
+        dispatch,
+      ]
+    ),
+    sliderDebounceMs
+  );
+
+  useEffect(() => {
+    sliderCallback(0);
+  }, [isBuyOrder, isSellOrder, isMarketOrder, isLimitOrder, sliderCallback]);
 
   return (
     <div className="bg-base-100 px-5 pb-5 rounded-b">
@@ -466,20 +528,36 @@ function UserInputContainer() {
             userAction={UserAction.UPDATE_PRICE}
             disabled={true}
           />
-          <PercentageSlider />
           {isSellOrder && ( // specify "Quantity"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
           )}
           {isBuyOrder && ( // specify "Total"
             <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           )}
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={(newPercentage) =>
+              sliderCallback(newPercentage)
+            }
+            isLimitOrder={isLimitOrder}
+            isBuyOrder={isBuyOrder}
+            isSellOrder={isSellOrder}
+          />
         </>
       )}
       {isLimitOrder && (
         <>
           <CurrencyInputGroup userAction={UserAction.UPDATE_PRICE} />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_1} />
-          <PercentageSlider />
+          <PercentageSlider
+            initialPercentage={0}
+            callbackOnPercentageUpdate={(newPercentage) =>
+              sliderCallback(newPercentage)
+            }
+            isLimitOrder={isLimitOrder}
+            isBuyOrder={isBuyOrder}
+            isSellOrder={isSellOrder}
+          />
           <CurrencyInputGroup userAction={UserAction.SET_TOKEN_2} />
           {isLimitOrder && <PostOnlyCheckbox />}
         </>
@@ -496,6 +574,7 @@ function CurrencyInputGroupSettings(
 ): CurrencyInputGroupConfig {
   const t = useTranslations();
   const dispatch = useAppDispatch();
+
   const {
     side,
     type,
@@ -805,9 +884,196 @@ function InputTooltip({ message }: { message: string }) {
 }
 
 // TODO(dcts): implement percentage slider in future PR
-function PercentageSlider() {
-  return <></>;
+interface PercentageSliderProps {
+  initialPercentage: number;
+  callbackOnPercentageUpdate: (newPercentage: number) => void;
+  isLimitOrder: boolean;
+  isBuyOrder: boolean;
+  isSellOrder: boolean;
 }
+
+const PercentageSlider: React.FC<PercentageSliderProps> = ({
+  initialPercentage,
+  callbackOnPercentageUpdate,
+  isLimitOrder,
+  isBuyOrder,
+  isSellOrder,
+}) => {
+  const [percentage, setPercentage] = useState(initialPercentage);
+  const [toolTipVisible, setToolTipVisible] = useState(false);
+  const sliderRef = useRef<HTMLInputElement>(null);
+  const { token1, token2 } = useAppSelector((state) => state.orderInput);
+
+  const inputToken1 = useAppSelector((state) => state.orderInput.token1.amount);
+  const inputToken2 = useAppSelector((state) => state.orderInput.token2.amount);
+
+  const balanceToken1 =
+    useAppSelector((state) => selectBalanceByAddress(state, token1.address)) ||
+    0;
+  const balanceToken2 =
+    useAppSelector((state) => selectBalanceByAddress(state, token2.address)) ||
+    0;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPercentage = parseInt(e.target.value, 10);
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
+  };
+
+  useEffect(() => {
+    if (!sliderRef.current) {
+      return;
+    }
+
+    sliderRef.current.value = "0";
+    sliderRef.current.style.backgroundSize = `0% 100%`;
+    setPercentage(0);
+
+    if (inputToken1 > 0 && isLimitOrder && isBuyOrder) {
+      return;
+    } else if (inputToken2 > 0 && isLimitOrder && isSellOrder) {
+      return;
+    } else if (balanceToken2 && inputToken2 > 0) {
+      const newPercentage = Calculator.multiply(
+        Calculator.divide(inputToken2, balanceToken2),
+        100
+      );
+      setPercentage(newPercentage);
+      sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
+    } else if (balanceToken1 && inputToken1 > 0) {
+      const newPercentage = Calculator.multiply(
+        Calculator.divide(inputToken1, balanceToken1),
+        100
+      );
+      setPercentage(newPercentage);
+      sliderRef.current.style.backgroundSize = `${newPercentage}% 100%`;
+    }
+  }, [
+    inputToken1,
+    balanceToken1,
+    inputToken2,
+    balanceToken2,
+    isLimitOrder,
+    isBuyOrder,
+    isSellOrder,
+  ]);
+
+  const handleClickOnLabel = (newPercentage: number) => {
+    setPercentage(newPercentage);
+    callbackOnPercentageUpdate(newPercentage);
+  };
+
+  return (
+    <>
+      <div className="slider-container rounded-md w-full relative mt-5 opacity-70">
+        <div className="absolute w-full">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            onChange={handleChange}
+            value={percentage}
+            step="1"
+            ref={sliderRef}
+            id="range"
+            className="w-full absolute cursor-pointer text-base appearance-none h-[7px] rounded-md"
+            style={{
+              background:
+                typeof document !== "undefined" && document.dir === "rtl"
+                  ? "#474d52"
+                  : "transparent",
+              backgroundImage:
+                typeof document !== "undefined" && document.dir === "rtl"
+                  ? "linear-gradient(#fff, #fff)"
+                  : "linear-gradient(#474d52, #474d52)",
+              backgroundSize: `${percentage}% 100%`,
+              backgroundRepeat: "no-repeat",
+            }}
+            onMouseDown={() => setToolTipVisible(true)}
+            onMouseUp={() => setToolTipVisible(false)}
+            onMouseEnter={() => setToolTipVisible(true)}
+            onMouseLeave={() => setToolTipVisible(false)}
+          />
+          <Tippy
+            content={<span>{Math.round(percentage)}%</span>}
+            visible={toolTipVisible}
+            onClickOutside={() => setToolTipVisible(false)}
+            arrow={false}
+            theme="custom"
+            placement="top"
+          >
+            <div
+              className="relative"
+              style={{
+                left: `${percentage}%`,
+                transform: "translateX(-50%)",
+              }}
+            ></div>
+          </Tippy>
+        </div>
+
+        <div className="slider-track relative cursor-pointer">
+          <div className="flex justify-between items-center">
+            {Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <span
+                  key={index}
+                  className="dot h-[7px] w-[7px] bg-white rounded-full z-[1] cursor-pointer"
+                  style={
+                    {
+                      left: `Calculator.divide((Calculator.multiply(index, 100)), 5)}%`,
+                    } as React.CSSProperties
+                  }
+                ></span>
+              ))}
+          </div>
+        </div>
+        <div className="w-full">
+          <div className="slider-labels">
+            <div className="flex justify-between text-xxs mt-1 mb-5">
+              <span
+                className="absolute select-none"
+                style={{ left: "0%" }}
+                onClick={() => handleClickOnLabel(0)}
+              >
+                0%
+              </span>
+              <span
+                className="absolute select-none cursor-pointer"
+                style={{ left: "25%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(25)}
+              >
+                25%
+              </span>
+              <span
+                className="absolute select-none cursor-pointer"
+                style={{ left: "50%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(50)}
+              >
+                50%
+              </span>
+              <span
+                className="absolute select-none cursor-pointer"
+                style={{ left: "75%", transform: "translateX(-50%)" }}
+                onClick={() => handleClickOnLabel(75)}
+              >
+                75%
+              </span>
+              <span
+                className="absolute select-none cursor-pointer"
+                style={{ left: "100%", transform: "translateX(-100%)" }}
+                onClick={() => handleClickOnLabel(100)}
+              >
+                100%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 // Mimics IMask with improved onAccept, triggered only by user input to avoid rerender bugs.
 function CustomNumericIMask({
