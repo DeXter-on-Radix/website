@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchBalances } from "./pairSelectorSlice";
 import { RootState } from "./store";
-import { calculateAPY } from "utils";
+import { calculateAPY } from "../utils";
 
 export enum AssetToStake {
   DEXTR = "DEXTR",
