@@ -5,7 +5,7 @@ import {
   useAppDispatch,
   useTranslations,
   useHydrationErrorFix,
-} from "hooks";
+} from "../hooks";
 import {
   StakeType,
   AssetToStake,
