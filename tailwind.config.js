@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontSize: {
+        xxs: "0.7rem",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -32,7 +35,10 @@ module.exports = {
         "dexter-red": "#D22D2D",
         "dexter-grey-dark": "#141414",
         "dexter-grey-light": "#191B1D",
+        "dexter-grey-extralight": "#242629",
+        "dexter-grey-extralight": "#242629",
         "content-dark": "#212A09",
+        "dexter-grey-inactive": "#5E666E",
         "slider-grey": "#474d52",
       },
       fontSize: {

@@ -554,3 +554,17 @@ export function searchPairs(query: string, pairsList: any): any {
     );
   });
 }
+
+//calculate APY for Staking feature
+export const calculateAPY = (
+  userDextrStaked: number,
+  totalDextrStaked: number,
+  stakingEmission: number,
+  averageRevenue: number
+): string => {
+  if (totalDextrStaked === 0) return "0%"; // Avoid division by zero
+
+  const apy =
+    (userDextrStaked / totalDextrStaked) * (stakingEmission + averageRevenue);
+  return `${apy.toFixed(2)}%`; // Format to 2 decimal places
+};

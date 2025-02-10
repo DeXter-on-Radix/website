@@ -94,5 +94,6 @@
   "pair_resource": "Recurso do par",
   "order_receipt_address": "Endereço do recibo da ordem",
   "resource": "Recurso",
-  "copied": "Copiado!"
+  "copied": "Copiado!",
+  "stake_action_token": "<$STAKE_TYPE> <$ASSET_TO_STAKE>"
 }

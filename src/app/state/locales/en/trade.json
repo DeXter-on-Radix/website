@@ -94,5 +94,6 @@
   "pair_resource": "Pair resource",
   "order_receipt_address": "Order receipt address",
   "resource": "Resource",
-  "copied": "Copied!"
+  "copied": "Copied!",
+  "stake_action_token": "<$STAKE_TYPE> <$ASSET_TO_STAKE>"
 }
