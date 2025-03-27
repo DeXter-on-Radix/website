@@ -28,13 +28,24 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+
+    headless: true,
+    launchOptions: {
+      args: ["--headless=new"],
+    },
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: "chrome", // ✅ This is safe here
+        launchOptions: {
+          args: ["--headless=new"], // ✅ Use new headless mode
+        },
+      },
     },
 
     // {
