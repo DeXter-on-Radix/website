@@ -132,7 +132,7 @@ function PriceChartCanvas(props: PriceChartProps) {
         },
       });
 
-      const clonedData = JSON.parse(JSON.stringify(data));
+      const clonedData = fixCandleGaps(JSON.parse(JSON.stringify(data)));
 
       // OHLC
       const ohlcSeries = chart.addCandlestickSeries({
@@ -471,6 +471,18 @@ function CoinInfo({ token }: { token: TokenInfo }) {
       </div>
     </div>
   );
+}
+
+function fixCandleGaps(data: OHLCVData[]): OHLCVData[] {
+  if (data.length < 2) {
+    return data;
+  }
+
+  const fixed = [...data];
+  for (let i = 1; i < fixed.length; i++) {
+    fixed[i].open = fixed[i - 1].close;
+  }
+  return fixed;
 }
 
 export default ChartOrInfo;
